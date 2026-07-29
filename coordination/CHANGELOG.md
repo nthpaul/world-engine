@@ -315,3 +315,17 @@ Commits explicitly authorized by the user for this work.
 - Orchestrator personally ran `pnpm demo` (matrix matches PLAN), `pnpm test` (60/60), `pnpm typecheck` (clean) at every stage and at integration
 
 Commits explicitly authorized; staged by explicit path so the pre-existing `docs/DESIGN.md` working-tree deletion stayed out of every commit.
+## 2026-07-29 — Orchestrator: agent-rung plan drafted (D-0043)
+
+### Created
+
+- `prototypes/failure-to-intervention/PLAN-agent.md` — single-shot Claude driver in the intervention slot; frozen goalposts; k=10 pass-rate stats; transcript evidence chain; falsification rules
+
+### Modified
+
+- `coordination/DECISIONS.md` — appended D-0043
+- `coordination/CHANGELOG.md` — this entry
+
+### Status
+
+- Plan-only. Build waits on user sign-off; live demo run needs the user's API key.

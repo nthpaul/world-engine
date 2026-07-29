@@ -78,3 +78,12 @@ Personally verify `pnpm demo` and the full test suite before reporting success.
 ### Completion status
 
 done
+
+## Follow-up: agent-rung plan (2026-07-29)
+
+
+- User chose: Claude API (pinned snapshot), single-shot JSON plan, plan-doc-first with sign-off gate.
+
+- Wrote `prototypes/failure-to-intervention/PLAN-agent.md`; recorded D-0043; changelog entry.
+
+- Completion status: plan presented for sign-off. No build yet.

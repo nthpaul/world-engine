@@ -429,3 +429,13 @@ Build one small executable proof of the thesis at `prototypes/failure-to-interve
 Orchestrator wrote `prototypes/failure-to-intervention/PLAN.md` as the contract; subagents implement with single-writer file ownership; incremental commits are explicitly authorized for this work; root `README.md` may only gain a link to the prototype; the retired DESIGN.md stays untouched.
 
 **Rationale:** Smallest runnable evidence that failure → stateful reconstruction → invariant evaluation → counterfactual variation distinguishes overfit from robust interventions, without opening the dual-tier build.
+
+## D-0043 — Agent-in-the-loop rung: plan gated before build
+
+**Status:** active  
+**Date:** 2026-07-29  
+**Source:** user planning session, 2026-07-29
+
+The failure-to-intervention prototype may add a real model in the intervention slot, per `prototypes/failure-to-intervention/PLAN-agent.md`. Locked: Claude API with a pinned snapshot (key from environment, never committed); single-shot JSON-plan episodes (multi-turn deferred); k=10 runs per case with a five-way outcome taxonomy; transcripts as gitignored local evidence. The verifier, four case seeds, and failure_trace.json are frozen — agent work adds files only. Build begins only after explicit user sign-off on the plan; the live `pnpm demo:agent` run needs the user's key and a sub-$1 spend. Still out: MCP, UI, deployment, training, second models, local drivers.
+
+**Rationale:** Prove the rig judges a stochastic agent fairly before investing in multi-turn or harder scenarios; keep the evaluation goalposts frozen so a pass means something.
