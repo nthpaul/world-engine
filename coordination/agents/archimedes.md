@@ -96,3 +96,20 @@ semantics with a scripted fake provider (no network): invalid call at index 1 ab
 the rest (`invalid-action`, executedCalls=1), a correct full-merge plan passes with
 zero violations. Deleted hamilton's smoke-run `audit-data.json` and `episodes/` —
 fake data must never be committed.
+
+### Stage 2 — `backus` tests ∥ `sagan` docs (verified, committed)
+
+Backus wrote `tests/agent.test.ts`: 58 tests, 10 describes, all pinned areas covered
+(plan-schema, extractPlanJson, abort-on-invalid, classify matrix + precedence, runner
+with fake driver incl. retry-once/exclude/fresh-reconstruct/transcript-hygiene, all five
+provider factories with mocked transports incl. error mapping, missing-key errors naming
+env vars, createProvider, runAsyncEvaluation, prompt leakage). Sagan updated README
+(agent-rung section, demo:agent, limits rescoped, More list) and WALKTHROUGH (all new
+files in reading order, count-free tests phrasing).
+
+Orchestrator verification: `pnpm test` 118/118 (60 + 58), `pnpm typecheck` clean,
+`pnpm demo` unchanged; frozen files untouched (existing tests unmodified — only the new
+file added). Independent mutation check: swapped classify precedence (malformed vs
+invalid-action) → exactly 1 test failed (the precedence pin); reverted → 58/58 green.
+Read the README diff in full and the test-file structure; WALKTHROUGH section list
+checked against the real tree.
