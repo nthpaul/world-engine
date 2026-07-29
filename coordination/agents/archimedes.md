@@ -136,3 +136,29 @@ transcripts) in a comment for the AUDIT author.
 Orchestrator verification: `pnpm test` 179/179, `pnpm typecheck` clean, `pnpm demo`
 matrix unchanged, diff confined to the four src/agent fix files + the new red-team file;
 frozen files zero-diff.
+
+### Stage 4 — `poincare` independent read-only review (verified, committed)
+
+Poincare reviewed the integrated delta (d210be9..HEAD): no blockers, no majors, verdict
+"ready for the live run". Per-criterion verdicts: 1 met, 2 met, 3 ready (all non-live
+paths exercised), 4 met, 5 mostly met, 6 on track, 7 met in spirit. Two minors fixed
+forward:
+1. WALKTHROUGH tests/ section predated the red-team suite — `sagan` added the
+   `agent-redteam.test.ts` bullet.
+2. `infraRetries` name collision (runner = recovered episodes; audit = all retried
+   transcripts) — `hamilton` renamed the audit side to `retriedEpisodes` before AUDIT.md
+   could inherit the confusion; `godel` updated its pins.
+Poincare's notes, dispositioned: runbook omits the lowest-id canonical tie-break (no seed
+has tied created_at — accepted, noted); prompt template sequential .replace would collide
+with literal {{...}} in a future case (frozen seeds clean — accepted); acceptance 7's
+"createProvider instantiates each with a mocked transport" is split between factory-level
+mocks and construction-only dummy keys (accepted — spirit met; only openrouter's baseURL
+construction path is untested, noted); retried infra attempts lose no OBSERVABLE usage
+since a failed complete() throws (correction to godel's framing, accepted); PLAN-agent's
+stale "local/Ollama drivers" line under "not this rung" — fixed by me as plan owner.
+audit-data.json gitignore question settled: NOT gitignored; it is a deliverable committed
+after the live run, regenerable from episodes/.
+
+Orchestrator verification (final gate): `pnpm test` 179/179, `pnpm typecheck` clean,
+`pnpm demo` matrix unchanged, `pnpm demo:agent` with no key exits 1 with the clear
+provider error; frozen files zero-diff across the entire build (d210be9..HEAD).

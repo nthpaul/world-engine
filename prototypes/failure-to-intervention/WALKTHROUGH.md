@@ -332,6 +332,16 @@ Green under `pnpm test`; nothing in the suite touches the network.
   precedence, the runner over a fake driver (infrastructure retried once,
   then excluded from the pass-rate denominator), and the provider factories
   built with mocked transports.
+- `agent-redteam.test.ts` (godel) — adversarial pins for the agent rung's
+  edges: JSON-extraction strictness (fence variants, nested fences, BOM,
+  duplicate keys), plan-schema layering (schema-valid ids and reasons that
+  only the domain API or the verifier can judge), classification edges
+  (abort at call 0, a wrong-action audit event as business-violation, a
+  plain-Error provider throw as infrastructure), runner edges (retries
+  recorded via infraRetries/attempts/infraErrors, stale transcripts
+  cleaned on a smaller-k rerun), provider-selection errors (the PROVIDER
+  override, missing config entries, no fallthrough), and audit-report
+  aggregation (infra errors flattened with file paths, cost math).
 
 ## package.json + tsconfig.json
 

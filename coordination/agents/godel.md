@@ -182,3 +182,46 @@ audit fields, and pin the runner-vs-audit `infraRetries` naming difference. Own 
 ### Unresolved questions
 
 - None.
+
+---
+
+## Follow-up 2 (2026-07-29 ~03:55 local): audit-side field renamed `infraRetries` → `retriedEpisodes`
+
+**Completion status:** done
+
+### Assignment
+
+Per poincare's minor 2, hamilton renamed the AUDIT-side field in `audit-report.ts`
+(semantics unchanged: count of transcripts with `attempts > 1`); the runner-side `infraRetries`
+(recovered episodes) keeps its name. Update my test file: audit-side assertions use
+`retriedEpisodes`, runner-side stays `infraRetries`, and the naming-difference comment is
+rewritten for the resolved naming. Own only the test file + log; no commit.
+
+### What changed in my test file
+
+- `data.totals.infraRetries` → `data.totals.retriedEpisodes` (asserts 2).
+- `data.cases[0]` matchObject `{ infraRetries: 2 }` → `{ retriedEpisodes: 2 }`.
+- Mixed-run test retitled ("infraRetries, retriedEpisodes, and infraErrors aggregate for a
+  mixed run...") and its comment rewritten: no longer "same field name, two definitions" but
+  distinct names for distinct definitions — runner `infraRetries` = recovered episodes only;
+  audit `retriedEpisodes` = every transcript with `attempts > 1` (includes double-failures).
+  Same run, two numbers: 1 vs 2.
+- Runner-side assertions (`summary.infraRetries` at the retry, double-failure, and mixed-run
+  tests) untouched by design.
+
+### Evidence
+
+- `pnpm test` → `Test Files 6 passed (6)`, `Tests 179 passed (179)`. Fully green.
+- `pnpm typecheck` → clean, exit 0.
+- `git status --porcelain` over the prototype: my modification is `tests/agent-redteam.test.ts`
+  only (the file itself was committed by the orchestrator in 7211a72; these edits are
+  uncommitted per the no-commit rule). `src/agent/audit-report.ts` is hamilton's rename;
+  `WALKTHROUGH.md` is sagan's. `git diff --stat` over the frozen paths is empty.
+
+### Deviations
+
+- None.
+
+### Unresolved questions
+
+- None.

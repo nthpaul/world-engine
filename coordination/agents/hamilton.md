@@ -160,6 +160,8 @@ tests; no commit.
   per the pinned definition, so it can exceed the runner's recovered-only `infraRetries`) and
   `infraErrors: { file, kind, message }[]` flattened from transcripts. `demo-agent.ts`:
   classifications lines gain `, retried N` when `summary.infraRetries > 0`.
+  *(Superseded 2026-07-29 ~03:55: the audit-side field is now named `retriedEpisodes` — see the
+  second follow-up below.)*
 
 ### Decisions
 
@@ -213,3 +215,49 @@ final-outcome-only); the recovered attempt is visible via `summary.infraRetries 
 transcript's `attempts: 2` + `infraErrors[0]`. FINDING 2's assertion should target
 `transcript.infraErrors` (and `episode.providerError` at the driver level) rather than a
 `transcript.providerError` field.
+
+---
+
+## Second follow-up (2026-07-29 ~03:55 local): audit-side field rename
+
+**Completion status:** done, with one cross-file typecheck caveat (godel's update resolves it)
+
+### Assignment
+
+Poincare minor 2 (`coordination/agents/poincare.md`): the name `infraRetries` meant two different
+numbers — runner-side (recovered episodes only) vs audit-side (all transcripts with
+`attempts > 1`). Rename the AUDIT side only to `retriedEpisodes`, semantics unchanged. Do not
+touch runner.ts, driver.ts, demo-agent.ts, or any test file.
+
+### What changed
+
+`src/agent/audit-report.ts` only, 6 lines: `infraRetries` → `retriedEpisodes` in `CaseAudit`,
+`AuditData.totals`, the internal `Bucket` type, `emptyBucket`, the aggregation loop
+(`if (t.attempts > 1) b.retriedEpisodes++`), and `summarize`. Value semantics identical;
+`audit-data.json` now carries the field under the new name. Runner-side `infraRetries`
+(`runner.ts`, read by `demo-agent.ts`) untouched by design.
+
+### Evidence
+
+- `git diff --stat`: `src/agent/audit-report.ts | 12 ++++++------ 1 file changed, 6 insertions(+),
+  6 deletions(-)`. Nothing else in the prototype modified.
+- `grep infraRetries src/` → only `runner.ts` (definition) and `demo-agent.ts` (read of the runner
+  summary). Rename contained.
+- `pnpm test` → `Test Files 1 failed | 5 passed (6)`, `Tests 1 failed | 178 passed (179)`. The one
+  failure is exactly godel's audit-side pin
+  (`agent-redteam.test.ts > audit-report (red-team edges) > "infraRetries and infraErrors
+  aggregate for a mixed run..."`, first tripped at line 662 `expect(data.totals.infraRetries)`,
+  also line 667 `toMatchObject({ infraRetries: 2 })`). Godel's runner-side assertions (lines 349,
+  408, 656) all pass — the runner name is untouched.
+- **Caveat — `pnpm typecheck` exits 1** with exactly one error, in godel's file:
+  `tests/agent-redteam.test.ts(662,26): Property 'infraRetries' does not exist on type ...`.
+  All `src/` code typechecks clean. The assignment pinned both "typecheck must pass" and "do not
+  touch test files"; godel's stale typed property access makes both impossible at once until godel
+  renames that access (662) and the `toMatchObject` key (667) to `retriedEpisodes`. Reported
+  rather than worked around: any alias keeping the old name compiling would re-introduce the
+  confusing field into `audit-data.json`, defeating the rename.
+
+### Deviations / blockers
+
+- Blocker (hand-off, not code): full-project typecheck stays red until godel updates its two
+  audit-side assertions. Everything in my ownership is green.

@@ -29,7 +29,7 @@ export interface CaseAudit {
   counts: Record<EpisodeOutcome, number>;
   passRate: number | null;
   excluded: number;
-  infraRetries: number;
+  retriedEpisodes: number;
   infraErrors: InfraErrorRecord[];
   inputTokens: number;
   outputTokens: number;
@@ -50,7 +50,7 @@ export interface AuditData {
     counts: Record<EpisodeOutcome, number>;
     passRate: number | null;
     excluded: number;
-    infraRetries: number;
+    retriedEpisodes: number;
     infraErrors: InfraErrorRecord[];
     inputTokens: number;
     outputTokens: number;
@@ -70,7 +70,7 @@ const emptyCounts = (): Record<EpisodeOutcome, number> => ({
 
 interface Bucket {
   counts: Record<EpisodeOutcome, number>;
-  infraRetries: number;
+  retriedEpisodes: number;
   infraErrors: InfraErrorRecord[];
   inputTokens: number;
   outputTokens: number;
@@ -80,7 +80,7 @@ interface Bucket {
 
 const emptyBucket = (): Bucket => ({
   counts: emptyCounts(),
-  infraRetries: 0,
+  retriedEpisodes: 0,
   infraErrors: [],
   inputTokens: 0,
   outputTokens: 0,
@@ -108,7 +108,7 @@ export function aggregateEpisodes(episodesDir: string): AuditData {
       const t = TranscriptSchema.parse(JSON.parse(readFileSync(path, "utf8")));
       for (const b of [bucket, totals]) {
         b.counts[t.outcome]++;
-        if (t.attempts > 1) b.infraRetries++;
+        if (t.attempts > 1) b.retriedEpisodes++;
         for (const err of t.infraErrors) {
           b.infraErrors.push({ file: path, kind: err.kind, message: err.message });
         }
@@ -134,7 +134,7 @@ export function aggregateEpisodes(episodesDir: string): AuditData {
       counts: b.counts,
       passRate: denominator === 0 ? null : b.counts.pass / denominator,
       excluded,
-      infraRetries: b.infraRetries,
+      retriedEpisodes: b.retriedEpisodes,
       infraErrors: b.infraErrors,
       inputTokens: b.inputTokens,
       outputTokens: b.outputTokens,

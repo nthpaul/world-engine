@@ -78,3 +78,39 @@ live output (no API keys in the environment, per archimedes's environment check)
 
 - None blocking. The `agent.test.ts` bullet should be re-checked against backus's real
   file once it lands; the wording tracks the assignment brief, not the file.
+
+## Follow-up (2026-07-29 ~03:55 local)
+
+**Assignment:** fix poincare's minor finding 1 — add the missing `tests/agent-redteam.test.ts`
+(godel) bullet to WALKTHROUGH.md's tests/ section; verify the rest of the section against
+reality. Own only WALKTHROUGH.md; no commit.
+
+**Done:**
+
+- Read `coordination/agents/poincare.md` and `tests/agent-redteam.test.ts` in full, then
+  added the bullet after `agent.test.ts`, matching the existing bullets' style and
+  count-free phrasing. Every clause checked against the real file: extraction strictness
+  (fence variants, nested fences, BOM, duplicate keys), schema-vs-domain layering,
+  classification edges (abort at call 0, wrong-action audit event, plain-Error provider
+  throw), runner edges (`infraRetries`/`attempts`/`infraErrors`, stale-transcript cleanup),
+  provider-selection errors, audit-report aggregation (flattened infra errors with file
+  paths, cost math).
+- Verified the rest of the section: six test files on disk (reconstruct, verifier,
+  interventions, redteam, agent, agent-redteam). The `agent.test.ts` bullet was also
+  independently confirmed accurate by poincare. Intro stays count-free.
+- The audit-side rename (poincare finding 2, `infraRetries` → `retriedEpisodes` in
+  `src/agent/audit-report.ts`) does not touch any WALKTHROUGH wording: my runner and
+  audit-report sections name no audit-side field, and the new bullet's runner clause
+  uses runner-side names, which are unchanged.
+
+**Heads-up for the orchestrator (not mine to fix):** `pnpm test` is currently
+**178/179** — `tests/agent-redteam.test.ts:662` still asserts `data.totals.infraRetries`
+(and `:667` per-case) after the audit-side rename to `retriedEpisodes` landed in
+`src/agent/audit-report.ts`. Presumably mid-fix; I left src/ and tests/ untouched per my
+bounds. The "Green under `pnpm test`" intro line stands as the acceptance statement and
+will be true again once the stale assertion is updated.
+
+**Files changed:** `prototypes/failure-to-intervention/WALKTHROUGH.md` (one bullet added);
+this log.
+
+**Status:** done.

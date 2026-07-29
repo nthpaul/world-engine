@@ -173,9 +173,10 @@ ship:
 
 ## Explicitly not this rung
 
-Multi-turn tool loops, a second model, local/Ollama drivers, difficulty
-escalation, prompt-injection red-teaming of the agent path, any training.
-Each is a separate gated plan if this one lands.
+Multi-turn tool loops, a second model, difficulty escalation, prompt-injection
+red-teaming of the agent path, any training. Each is a separate gated plan if
+this one lands. (The Ollama driver exists per the providers section above —
+local-model *evaluation* is its own later rung.)
 
 ## Build ownership (after sign-off)
 

@@ -632,12 +632,12 @@ describe("audit-report (red-team edges)", () => {
     }
   });
 
-  it("infraRetries and infraErrors aggregate for a mixed run; the audit counts retries more broadly than the runner", async () => {
-    // Naming difference, pinned for the AUDIT author: the runner's
-    // infraRetries counts RECOVERED episodes only (first attempt
-    // infrastructure, final outcome not); the audit's counts every transcript
-    // with attempts > 1, which also includes double-failures. Same run, two
-    // numbers: runner 1, audit 2.
+  it("infraRetries, retriedEpisodes, and infraErrors aggregate for a mixed run; the audit counts retries more broadly", async () => {
+    // Distinct names for distinct definitions, pinned for the AUDIT author:
+    // the runner's infraRetries counts RECOVERED episodes only (first attempt
+    // infrastructure, final outcome not); the audit's retriedEpisodes counts
+    // every transcript with attempts > 1, which also includes
+    // double-failures. Same run, two numbers: infraRetries 1, retriedEpisodes 2.
     const episodesDir = mkdtempSync(join(tmpdir(), "agent-redteam-audit-infra-"));
     try {
       let calls = 0;
@@ -659,12 +659,12 @@ describe("audit-report (red-team edges)", () => {
       expect(summary.passRate).toBe(1);
       const data = aggregateEpisodes(episodesDir);
       expect(data.totals.k).toBe(3);
-      expect(data.totals.infraRetries).toBe(2); // the recovered retry AND the double-failure
+      expect(data.totals.retriedEpisodes).toBe(2); // the recovered retry AND the double-failure
       expect(data.totals.infraErrors.map((entry) => entry.kind)).toEqual(["rate-limit", "timeout", "timeout"]);
       expect(data.totals.infraErrors[0].file).toContain("episode-0.json");
       expect(data.totals.infraErrors[1].file).toContain("episode-1.json");
       expect(data.totals.infraErrors[2].file).toContain("episode-1.json");
-      expect(data.cases[0]).toMatchObject({ infraRetries: 2 });
+      expect(data.cases[0]).toMatchObject({ retriedEpisodes: 2 });
       expect(data.cases[0].infraErrors).toHaveLength(3);
     } finally {
       rmSync(episodesDir, { recursive: true, force: true });
