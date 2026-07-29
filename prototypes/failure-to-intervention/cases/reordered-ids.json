@@ -1,0 +1,38 @@
+{
+  "case_id": "reordered-ids",
+  "kind": "counterfactual",
+  "description": "Same story as the original incident, but every id and invoice number differs and insertion order lies: the lower customer id (11) is the newer record, so the canonical customer is 27, not 11.",
+  "incident": {
+    "summary": "Counterfactual replay of the double-charge incident with reordered row ids and different invoice numbers.",
+    "observed_at": "2026-07-01T00:00:00Z"
+  },
+  "task": {
+    "issued_at": "2026-07-02T00:00:00Z",
+    "objective": "Resolve duplicate customer records: merge each duplicate pair into its canonical record, void only genuinely duplicated invoices, transfer legitimate history, and leave an accurate audit trail.",
+    "constraints": [
+      "Never delete a row; duplicates are deactivated, not removed",
+      "Void only genuinely duplicated invoice copies; voided rows stay where they were",
+      "Move the duplicate's tickets and remaining active invoices to the canonical customer",
+      "Write one customer.dedup.merge audit event per deactivated duplicate",
+      "Unrelated customers and their rows must not change"
+    ]
+  },
+  "seed": {
+    "customers": [
+      { "id": 11, "name": "Ada Byron", "email": "Ada@example.com", "created_at": "2024-06-01T00:00:00Z", "status": "active" },
+      { "id": 27, "name": "Ada Byron", "email": "ada@example.com", "created_at": "2024-01-15T00:00:00Z", "status": "active" },
+      { "id": 40, "name": "Grace Lee", "email": "grace@example.com", "created_at": "2024-03-01T00:00:00Z", "status": "active" }
+    ],
+    "tickets": [
+      { "id": 5, "customer_id": 11, "subject": "Charged twice for invoice INV-9001", "status": "open", "created_at": "2026-06-18T00:00:00Z" },
+      { "id": 9, "customer_id": 40, "subject": "Plan upgrade question", "status": "open", "created_at": "2026-06-25T00:00:00Z" }
+    ],
+    "invoices": [
+      { "id": 10, "customer_id": 27, "number": "INV-9001", "amount_cents": 12000, "issued_at": "2026-06-02T00:00:00Z", "status": "open" },
+      { "id": 12, "customer_id": 11, "number": "INV-9001", "amount_cents": 12000, "issued_at": "2026-06-05T00:00:00Z", "status": "open" },
+      { "id": 13, "customer_id": 27, "number": "INV-8700", "amount_cents": 12000, "issued_at": "2026-04-15T00:00:00Z", "status": "paid" },
+      { "id": 15, "customer_id": 40, "number": "INV-9100", "amount_cents": 4900, "issued_at": "2026-06-12T00:00:00Z", "status": "open" }
+    ],
+    "audit_events": []
+  }
+}
