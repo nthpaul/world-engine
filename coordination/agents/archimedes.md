@@ -1,7 +1,7 @@
 # Agent log: archimedes
 
 **Role:** build orchestrator for the agent rung (`PLAN-agent.md`) of the failure-to-intervention prototype
-**Completion status:** in_progress
+**Completion status:** done
 
 ## Assignment
 
@@ -162,3 +162,19 @@ after the live run, regenerable from episodes/.
 Orchestrator verification (final gate): `pnpm test` 179/179, `pnpm typecheck` clean,
 `pnpm demo` matrix unchanged, `pnpm demo:agent` with no key exits 1 with the clear
 provider error; frozen files zero-diff across the entire build (d210be9..HEAD).
+
+### Close-out — no key, delivered to the gate, pushed
+
+No `ANTHROPIC_API_KEY` (or any provider key) in the environment at any point, so per the
+mission rules no live calls were attempted: everything up to the gate is delivered —
+`PREDICTIONS.md` pre-registered (ff3250c, first commit), the full `src/agent/` layer, five
+real provider drivers, 119 new tests (58 backus + 61 godel), docs, and a verified
+no-key error path. AUDIT.md is correctly absent; it is authored from `audit-data.json`
+after the user runs the live evaluation with a key. Exact run instructions are in the
+prototype README ("Run it") and in my final report.
+
+Commits: ff3250c pre-registration; 57bd7ad src/agent layer (hamilton); 464037e tests +
+docs (backus, sagan); 7211a72 red-team + fixes (godel, hamilton); e7c1951 review fixes +
+close-out (poincare, sagan, hamilton, godel). Pushed `56b6bc1..e7c1951 master -> master`
+to origin. Pre-existing untracked planning files and the docs/DESIGN.md deletion were
+never staged.
