@@ -439,3 +439,13 @@ Orchestrator wrote `prototypes/failure-to-intervention/PLAN.md` as the contract;
 The failure-to-intervention prototype may add a real model in the intervention slot, per `prototypes/failure-to-intervention/PLAN-agent.md`. Locked: Claude API with a pinned snapshot (key from environment, never committed); single-shot JSON-plan episodes (multi-turn deferred); k=10 runs per case with a five-way outcome taxonomy; transcripts as gitignored local evidence. The verifier, four case seeds, and failure_trace.json are frozen — agent work adds files only. Build begins only after explicit user sign-off on the plan; the live `pnpm demo:agent` run needs the user's key and a sub-$1 spend. Still out: MCP, UI, deployment, training, second models, local drivers.
 
 **Rationale:** Prove the rig judges a stochastic agent fairly before investing in multi-turn or harder scenarios; keep the evaluation goalposts frozen so a pass means something.
+
+## D-0044 — Agent rung signed off; behavioral audit made a first-class deliverable
+
+**Status:** active  
+**Date:** 2026-07-29  
+**Source:** explicit user sign-off, 2026-07-29
+
+User signed off on `PLAN-agent.md` with one amendment, adopted: the behavioral-audit writeup (`AUDIT.md`) is a required deliverable with a seven-point substance checklist — pre-registered predictions committed before the first live run (`PREDICTIONS.md`), full distributions, transcript-cited failure attribution, counterfactual-sensitivity analysis (does the model replicate `naiveIntervention`'s mistakes), environment-honesty accounting, honest negative results, and traceability of every number to `audit-data.json` or transcripts. Build is delegated to a user-spawned orchestrator agent whose subagents use Auto model selection only; same frozen-file and incremental-commit rules as round one.
+
+**Rationale:** the writeup is the research output, not an afterthought — pre-registration is what separates a behavioral audit from a rationalization.

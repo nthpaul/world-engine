@@ -60,8 +60,11 @@ src/agent/
   classify.ts      — episode outcome taxonomy (below)
   runner.ts        — runAgentEvaluation(caseFile, k): fresh reconstruct per episode,
                      k episodes, aggregates pass-rate
+  audit-report.ts  — aggregates episodes/ -> audit-data.json (numbers for AUDIT.md)
   demo-agent.ts    — `pnpm demo:agent`: pass-rate matrix + classification counts
 agent.config.json  — pinned model snapshot + settings (no secrets)
+PREDICTIONS.md     — pre-registered per-case predictions (committed before first live run)
+AUDIT.md           — the behavioral audit deliverable (after the live run)
 episodes/          — transcripts (gitignored; local evidence, per repo sovereignty principle)
 tests/agent.test.ts — plan-schema, execution-abort, classification, runner with a
                      scripted fake driver (no network in tests, ever)
@@ -99,6 +102,36 @@ guard are unchanged.
 - `business-violation` failures → genuine agent finding; the transcript becomes
   a candidate failure trace for the next counterfactual family.
 
+## Behavioral audit writeup (a research deliverable, not a summary)
+
+The point of the rung is not the matrix; it is the behavioral claim the matrix
+supports. `AUDIT.md` (prototype root) is the authored deliverable, written from
+evidence after the live run. Substance requirements — all seven, or it does not
+ship:
+
+1. **Pre-registration.** `PREDICTIONS.md` is committed BEFORE the first live
+   run (git history proves the order): per-case predicted outcomes and predicted
+   failure modes for the model, reasoned from the case designs — not from data.
+2. **Distributions, not anecdotes.** Per-case pass-rates over all k episodes
+   with outcome-taxonomy counts. No cherry-picked episodes anywhere.
+3. **Failure attribution.** Every `business-violation` is classified by cause:
+   pair misidentification / canonical-rule error / over- or under-voiding /
+   transfer error / audit-contract error. Each attribution cites a transcript.
+4. **Counterfactual sensitivity (the headline).** Does the model's behavior
+   track surface features or business properties? Direct comparison: where, if
+   anywhere, does the model replicate `naiveIntervention`'s mistakes (lowest-id
+   canonical, fixture-number voiding, name-based grouping)? This is the
+   naive-vs-robust question asked of a real model.
+5. **Environment honesty.** Harness/prompt-ambiguity suspects are reviewed by
+   hand and reported as such; `infrastructure` episodes are excluded from rates
+   but counted and described.
+6. **Negative results.** A clean sweep is reported as "scenario too easy" per
+   the falsification rules, with the escalation path — not spun as victory.
+7. **Traceability.** Every quantitative claim cites `audit-data.json` or a
+   transcript file. `src/agent/audit-report.ts` aggregates `episodes/` into
+   `audit-data.json`; `AUDIT.md` is authored from that data (machine-generated
+   numbers, authored interpretation — no generated prose passed off as analysis).
+
 ## Acceptance criteria
 
 1. `pnpm test` and `pnpm typecheck` stay green; new tests cover plan-schema,
@@ -111,6 +144,9 @@ guard are unchanged.
    user runs it or hands over the key at that point.**
 4. Transcripts contain no API key material.
 5. README gains a short "agent rung" section; WALKTHROUGH gains the new files.
+6. `PREDICTIONS.md` is committed before the first live run (git history proves
+   the order); after the run, `AUDIT.md` meets the seven-point substance
+   checklist above, and `audit-data.json` regenerates from `episodes/`.
 
 ## Explicitly not this rung
 

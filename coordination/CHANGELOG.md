@@ -329,3 +329,14 @@ Commits explicitly authorized; staged by explicit path so the pre-existing `docs
 ### Status
 
 - Plan-only. Build waits on user sign-off; live demo run needs the user's API key.
+## 2026-07-29 — Orchestrator: agent rung signed off, audit deliverable amended (D-0044)
+
+### Modified
+
+- `prototypes/failure-to-intervention/PLAN-agent.md` — behavioral-audit section (seven substance requirements), PREDICTIONS.md/AUDIT.md/audit-report.ts added to file list, acceptance criterion 6
+- `coordination/DECISIONS.md` — appended D-0044
+- `coordination/CHANGELOG.md` — this entry
+
+### Status
+
+- Build delegated to a user-spawned kimi-k3 orchestrator with Auto-model subagents; orchestrator prompt drafted and handed to the user.

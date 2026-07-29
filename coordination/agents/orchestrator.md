@@ -87,3 +87,10 @@ done
 - Wrote `prototypes/failure-to-intervention/PLAN-agent.md`; recorded D-0043; changelog entry.
 
 - Completion status: plan presented for sign-off. No build yet.
+
+## Follow-up: agent rung signed off + audit amendment (2026-07-29)
+
+
+- User signed off on PLAN-agent.md; amended it per their substance bar: AUDIT.md is a required deliverable with pre-registration (PREDICTIONS.md committed before the first live run), failure attribution, counterfactual-sensitivity headline, environment honesty, honest negative results, and full traceability.
+
+- Recorded D-0044. Drafted the self-contained orchestrator prompt for the user to spawn a kimi-k3 orchestrator whose subagents use Auto model only.
