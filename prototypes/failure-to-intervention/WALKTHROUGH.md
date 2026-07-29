@@ -104,7 +104,13 @@ which one is canonical, which invoice copies must be voided — never hardcoded
 ids, so the same code judges every case, including cases not written yet.
 Notice that for `accurate-audit-event` the expected id sets are what actually
 moved or voided between the snapshots: an audit event that accurately
-describes a wrong merge still fails the other invariants.
+describes a wrong merge still fails the other invariants. Red-teaming hardened
+this file after the first draft: pair-member customer rows are now
+field-diffed (the canonical fully, duplicates ignoring only `status`), merge
+events must carry actor `"intervention"`, any extra non-merge audit event is
+flagged, and pre-existing audit rows must survive byte-identical. One kept
+limitation is documented in the code: `verify` receives no task clock, so a
+merge event's `created_at` cannot be checked.
 
 ## src/report.ts
 
@@ -124,11 +130,30 @@ each failing cell. It never exits non-zero — it is a display, not a gate.
 
 ## tests/
 
-Owned by shannon and hypatia per PLAN.md: determinism/digest tests, known-pass
-and known-fail verifier tests, naive-vs-robust across the four cases, and
-red-team cheat attempts that must be caught. The directory is not present yet
-at the time of writing, so `pnpm test` finds no test files until that work
-lands.
+Four files, 60 tests, green under `pnpm test`.
+
+- `reconstruct.test.ts` (shannon) — determinism of the environment. The same
+  seed rebuilds to identical snapshots and digests, case load order is
+  pinned, every case reconstructs into Zod-valid state, and mutating one
+  reconstruction leaves a fresh one pristine.
+- `verifier.test.ts` (shannon) — known-pass and known-fail. Robust passes
+  every case with zero violations, and the hand-built merge used as a base
+  is itself clean. Then six single-defect merges each trip exactly the
+  invariant ids they name. Also pinned: `verify(initial, initial)` fails on
+  every case, so a do-nothing run can never pass.
+- `interventions.test.ts` (shannon) — the demo matrix as assertions. Naive
+  passes only the incident, and each counterfactual trips its signature
+  invariant; robust passes all four. Plus report hygiene: every report
+  parses against `ReportSchema`, initial digests match across interventions
+  of the same case, and `checked_at` is the task's `issued_at`.
+- `redteam.test.ts` (hypatia) — eighteen numbered cheat scenarios that must
+  be caught: forged audit details, audit count and wording games, silent
+  content edits, void-semantics abuse, wrong merge targets, smuggled-in
+  rows, and normalization edges. It documents the two verifier holes found
+  and closed along the way (the H1 field-diff and H2 audit-trail fixes in
+  `src/verifier.ts`) and one kept-honest limitation: a backdated merge-event
+  `created_at` still passes, because `verify` gets no clock. A Cyrillic
+  homoglyph email is recorded as a seed blind spot, not a scored hole.
 
 ## package.json + tsconfig.json
 
@@ -136,7 +161,7 @@ Three scripts: `demo` (tsx), `test` (vitest run), `typecheck` (tsc --noEmit).
 Runtime dependencies are just better-sqlite3 and zod;
 `pnpm.onlyBuiltDependencies` permits the better-sqlite3 native build. The
 tsconfig is strict, ES2022, bundler module resolution, and its `include`
-already lists `tests`, so test files typecheck as soon as they exist. Also in
+lists `tests`, so the test files typecheck with the rest. Also in
 this directory: `.gitignore` (just `node_modules/`) and `pnpm-lock.yaml`
 (pinned installs).
 

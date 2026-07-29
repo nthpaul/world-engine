@@ -27,6 +27,11 @@ limits) and a WALKTHROUGH covering every file in reading order. Do not touch
   thrown interventions become failing reports), and the dropped `reason`
   argument on `voidInvoice`/`deactivateCustomer` (no DB column; reasons live
   in audit event details).
+- Follow-up (ramanujan review): rewrote the stale WALKTHROUGH `tests/` section
+  against the landed 4 files / 60 tests, updated the `verifier.ts` section for
+  the H1/H2 hardening plus the documented `created_at` limitation, and fixed a
+  future-tense `tests` mention in the tsconfig section; re-verified
+  `pnpm test` green (60/60).
 
 ## Evidence
 

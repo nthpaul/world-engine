@@ -16,7 +16,19 @@ export function runEvaluation(cf: CaseFile, name: string, fn: Intervention): Eva
 
   const thrown: InvariantViolation[] = [];
   try {
-    fn(api, task);
+    const result: unknown = fn(api, task);
+    if (
+      result !== null &&
+      (typeof result === "object" || typeof result === "function") &&
+      typeof (result as { then?: unknown }).then === "function"
+    ) {
+      // A thenable means an async intervention sneaking past the sync type;
+      // flagged as a contract breach and deliberately not awaited.
+      thrown.push({
+        invariant: "intervention-completed",
+        message: "intervention returned a promise; interventions must be synchronous",
+      });
+    }
   } catch (err) {
     thrown.push({
       invariant: "intervention-completed",

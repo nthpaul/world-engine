@@ -296,3 +296,22 @@ Experiment-design phase closed on the central ledger. Clean-session reset (D-003
 - Public planning docs; `.cursor/mcp.json`
 
 Commits explicitly authorized by the user for this work.
+## 2026-07-28 — Orchestrator: failure-to-intervention prototype complete (D-0042)
+
+### Created
+
+- `prototypes/failure-to-intervention/` — executable proof: deterministic SQLite reconstruction from trace seeds, constrained domain API, hidden property-based verifier (seven invariants), naive vs robust interventions, `pnpm demo` matrix, 60-test Vitest suite, README + WALKTHROUGH
+- `coordination/agents/{orchestrator,tesla,shannon,lamarr,hypatia,ramanujan}.md` — build, test, docs, red-team, and review audit logs
+
+### Modified
+
+- `README.md` — added Prototypes section linking the prototype (only authorized root change)
+- `coordination/CHANGELOG.md` — this entry
+
+### Verification
+
+- Red team (hypatia) found two verifier hole classes; tesla patched verifier.ts; all 7 hole pins converted to permanent assertions
+- Independent review (ramanujan): no blockers; one stale doc sentence fixed; two one-line hardenings applied
+- Orchestrator personally ran `pnpm demo` (matrix matches PLAN), `pnpm test` (60/60), `pnpm typecheck` (clean) at every stage and at integration
+
+Commits explicitly authorized; staged by explicit path so the pre-existing `docs/DESIGN.md` working-tree deletion stayed out of every commit.

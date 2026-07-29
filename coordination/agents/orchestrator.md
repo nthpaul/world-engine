@@ -1,7 +1,7 @@
 # Agent log: orchestrator
 
 **Role:** orchestrator / final integrator for the failure-to-intervention prototype
-**Completion status:** in_progress
+**Completion status:** done
 
 ## Assignment
 
@@ -52,3 +52,29 @@ Personally verify `pnpm demo` and the full test suite before reporting success.
 ## Unresolved questions
 
 - None yet; implementation-stage findings will land in subagent logs.
+
+## Follow-up: build complete (2026-07-28)
+
+### Execution record
+
+- `tesla` implemented the full core (src/, four case seeds, configs). Verified demo matrix matched PLAN.md cell-for-cell before commit.
+- `shannon` wrote 24 tests (reconstruction/digest determinism, per-invariant known-pass/known-fail, intervention matrix). `lamarr` wrote prototype README + WALKTHROUGH in parallel, verified against live runs.
+- `hypatia` red-teamed the verifier: 18 cheat families, 11 already caught, 2 real hole classes (pair-member customer edits; audit-trail fabrication/rewrites). `tesla` patched verifier.ts; `hypatia` converted all 7 hole pins to permanent assertions. One limitation kept and tested: audit `created_at` is not derivable from state (verifier has no task clock).
+- `ramanujan` independently reviewed the integrated diff: no blockers, no majors; one stale WALKTHROUGH sentence (fixed by `lamarr`), plus two one-line hardenings applied by `tesla` (code-unit ISO compare; async-intervention guard).
+- Orchestrator personally re-ran `pnpm demo`, `pnpm test` (60/60), `pnpm typecheck` after every stage and again at integration; inspected the diff; added the root README link (only permitted root change).
+
+### Commits (explicit-path staging; pre-existing docs/DESIGN.md deletion never staged)
+
+1. PLAN.md + coordination seeds (D-0042)
+2. Prototype core (tesla)
+3. Tests + docs (shannon, lamarr)
+4. Red-team + verifier hardening (hypatia, tesla)
+5. Review fixes + root README link + close-out
+
+### Files changed (this follow-up)
+
+- Modified: root `README.md` (prototype link only), `coordination/agents/orchestrator.md` (this file), `coordination/CHANGELOG.md` (close-out entry)
+
+### Completion status
+
+done

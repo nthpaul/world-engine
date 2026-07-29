@@ -58,6 +58,11 @@ no README/WALKTHROUGH, no commits.
   @types/better-sqlite3 7.6.13. Corepack added a `packageManager: pnpm@10.33.0`
   field to package.json on first install; left in place, it matches the pinned
   toolchain.
+- **ramanujan review follow-up:** replaced all four `localeCompare` ISO-timestamp
+  comparisons with a code-unit `compareIso` helper (2 in `verifier.ts`, 2 in
+  `robust.ts`) so the determinism claim does not rest on ICU locale data, and
+  `runEvaluation` now flags an intervention that returns a thenable as a contract
+  breach under `intervention-completed` (recorded, deliberately not awaited).
 
 ## Evidence
 

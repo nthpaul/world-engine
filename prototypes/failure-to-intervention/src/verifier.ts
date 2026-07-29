@@ -17,6 +17,10 @@ interface DupPair {
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
+// ISO-8601 UTC strings sort correctly by code units; localeCompare would make
+// the determinism claim rest on ICU locale data.
+const compareIso = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
 function derivePairs(initial: Snapshot): DupPair[] {
   const groups = new Map<string, Customer[]>();
   for (const customer of initial.customers) {
@@ -31,7 +35,7 @@ function derivePairs(initial: Snapshot): DupPair[] {
   for (const [emailKey, members] of groups) {
     if (members.length < 2) continue;
     const ordered = [...members].sort(
-      (a, b) => a.created_at.localeCompare(b.created_at) || a.id - b.id,
+      (a, b) => compareIso(a.created_at, b.created_at) || a.id - b.id,
     );
     const canonical = ordered[0];
     const duplicates = ordered.slice(1);
@@ -51,7 +55,7 @@ function derivePairs(initial: Snapshot): DupPair[] {
     for (const copies of byNumberAmount.values()) {
       if (copies.length < 2) continue;
       const sortedCopies = [...copies].sort(
-        (a, b) => a.issued_at.localeCompare(b.issued_at) || a.id - b.id,
+        (a, b) => compareIso(a.issued_at, b.issued_at) || a.id - b.id,
       );
       const survivor =
         sortedCopies.find((i) => i.customer_id === canonical.id) ?? sortedCopies[0];
