@@ -73,4 +73,26 @@ by explicit path, and push. Live run + AUDIT.md only if `ANTHROPIC_API_KEY` is p
 
 ## Stage log
 
-_(appended as stages complete)_
+### Stage 0 — pre-registration (commit ff3250c)
+
+Wrote `PREDICTIONS.md` (per-case predicted outcomes + failure-mode ranking, reasoned
+from case designs) and committed it with this log BEFORE any build, so git history
+proves it predates the first live run.
+
+### Stage 1 — `hamilton` implements `src/agent/` (verified, committed)
+
+Hamilton delivered all 16 files + surgical edits (`report.ts` async entry, package.json
+script+deps, `.gitignore` episodes/). Its log: coordination/agents/hamilton.md.
+Deviations it flagged, all accepted: openai default `gpt-4.1` (GPT-5.x reasoning models
+reject temperature 0); cursor usage stays undefined though @cursor/sdk 1.0.26 declares
+optional RunResult.usage; ollama maps prompt_eval/eval counts to usage; openrouter
+reuses the openai factory with baseURL override.
+
+Orchestrator verification (not trusting claims): `pnpm test` 60/60, `pnpm typecheck`
+clean, `pnpm demo` matrix unchanged; `git diff` shows ZERO changes to verifier.ts /
+failure_trace.json / cases/ / tests/; `runEvaluation` body byte-identical in the diff.
+Read all 15 new source files + agent.config.json myself. Personally spot-checked abort
+semantics with a scripted fake provider (no network): invalid call at index 1 aborts
+the rest (`invalid-action`, executedCalls=1), a correct full-merge plan passes with
+zero violations. Deleted hamilton's smoke-run `audit-data.json` and `episodes/` —
+fake data must never be committed.
