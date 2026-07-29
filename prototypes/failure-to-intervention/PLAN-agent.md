@@ -53,21 +53,41 @@ as a template with named slots.
 
 ```
 src/agent/
-  config.ts        — loads agent.config.json (model snapshot, temperature 0, max_tokens)
+  config.ts        — loads agent.config.json (provider, model, temperature 0, max_tokens)
   prompt.ts        — runbook + state + schema template, and its renderer
   plan-schema.ts   — Zod schema for the plan JSON (method union + per-method args)
-  driver.ts        — AgentDriver: builds prompt, calls Claude, parses plan, executes via API
+  providers/
+    types.ts       — ProviderDriver interface: one complete() call in, {text, usage} out
+    anthropic.ts   — Anthropic SDK driver
+    openai.ts      — OpenAI SDK driver
+    openrouter.ts  — OpenAI-compatible driver pointed at OpenRouter's base URL
+    ollama.ts      — plain-fetch driver for a local Ollama server (zero new deps)
+    cursor.ts      — Cursor SDK driver (@cursor/sdk, per its published API)
+    index.ts       — createProvider(config); lazy-imports so one broken provider
+                     never sinks the others
+  driver.ts        — AgentDriver: builds prompt, calls the configured provider,
+                     parses plan, executes via the domain API
   classify.ts      — episode outcome taxonomy (below)
   runner.ts        — runAgentEvaluation(caseFile, k): fresh reconstruct per episode,
                      k episodes, aggregates pass-rate
   audit-report.ts  — aggregates episodes/ -> audit-data.json (numbers for AUDIT.md)
   demo-agent.ts    — `pnpm demo:agent`: pass-rate matrix + classification counts
-agent.config.json  — pinned model snapshot + settings (no secrets)
+agent.config.json  — provider choice, pinned model snapshot, settings (no secrets)
 PREDICTIONS.md     — pre-registered per-case predictions (committed before first live run)
 AUDIT.md           — the behavioral audit deliverable (after the live run)
 episodes/          — transcripts (gitignored; local evidence, per repo sovereignty principle)
-tests/agent.test.ts — plan-schema, execution-abort, classification, runner with a
-                     scripted fake driver (no network in tests, ever)
+tests/agent.test.ts — plan-schema, execution-abort, classification, runner and
+                     provider selection with scripted fakes (no network, ever)
+```
+
+Provider rules: keys come only from env vars (`ANTHROPIC_API_KEY`,
+`OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `CURSOR_API_KEY`; Ollama needs none)
+and are never logged or written to transcripts. Default provider: `anthropic`
+(D-0043); override via `agent.config.json` or a `PROVIDER` env var. Providers
+are thin adapters behind the interface — the episode logic never changes. If a
+provider's SDK cannot be installed or its API verified, isolate it behind the
+interface, flag it in the report, and never let it block the others. The live
+acceptance run uses exactly one provider (anthropic when its key is present).
 ```
 
 `report.ts` gains an async agent entry point; the sync function path and its
@@ -147,6 +167,9 @@ ship:
 6. `PREDICTIONS.md` is committed before the first live run (git history proves
    the order); after the run, `AUDIT.md` meets the seven-point substance
    checklist above, and `audit-data.json` regenerates from `episodes/`.
+7. All five provider drivers exist behind `ProviderDriver`; `createProvider`
+   instantiates each with a mocked transport in tests; a misconfigured provider
+   fails with a clear error, never a silent fallthrough.
 
 ## Explicitly not this rung
 

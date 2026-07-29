@@ -94,3 +94,12 @@ done
 - User signed off on PLAN-agent.md; amended it per their substance bar: AUDIT.md is a required deliverable with pre-registration (PREDICTIONS.md committed before the first live run), failure attribution, counterfactual-sensitivity headline, environment honesty, honest negative results, and full traceability.
 
 - Recorded D-0044. Drafted the self-contained orchestrator prompt for the user to spawn a kimi-k3 orchestrator whose subagents use Auto model only.
+
+## Follow-up: agent-rung scope additions (2026-07-29)
+
+
+- User instructed: multi-provider driver (anthropic/openai/openrouter/ollama/cursor-sdk), no hiring/company context anywhere in agent outputs, shared coordination surface as before, incremental commits plus a final push.
+
+- Amended PLAN-agent.md (providers section, acceptance criterion 7); recorded D-0045.
+
+- Spawned the delegated build orchestrator as a subagent (inherits this model; its subagents use Auto selection only).

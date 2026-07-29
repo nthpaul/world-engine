@@ -340,3 +340,14 @@ Commits explicitly authorized; staged by explicit path so the pre-existing `docs
 ### Status
 
 - Build delegated to a user-spawned kimi-k3 orchestrator with Auto-model subagents; orchestrator prompt drafted and handed to the user.
+## 2026-07-29 — Orchestrator: agent-rung scope additions (D-0045)
+
+### Modified
+
+- `prototypes/failure-to-intervention/PLAN-agent.md` — ProviderDriver interface with five adapters (anthropic/openai/openrouter/ollama/cursor-sdk), provider rules, acceptance criterion 7
+- `coordination/DECISIONS.md` — appended D-0045
+- `coordination/CHANGELOG.md` — this entry
+
+### Status
+
+- Delegated orchestrator spawned (inherits this repo's orchestrator model; its subagents use Auto selection only). Push authorized for end of build.

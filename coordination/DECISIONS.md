@@ -449,3 +449,13 @@ The failure-to-intervention prototype may add a real model in the intervention s
 User signed off on `PLAN-agent.md` with one amendment, adopted: the behavioral-audit writeup (`AUDIT.md`) is a required deliverable with a seven-point substance checklist — pre-registered predictions committed before the first live run (`PREDICTIONS.md`), full distributions, transcript-cited failure attribution, counterfactual-sensitivity analysis (does the model replicate `naiveIntervention`'s mistakes), environment-honesty accounting, honest negative results, and traceability of every number to `audit-data.json` or transcripts. Build is delegated to a user-spawned orchestrator agent whose subagents use Auto model selection only; same frozen-file and incremental-commit rules as round one.
 
 **Rationale:** the writeup is the research output, not an afterthought — pre-registration is what separates a behavioral audit from a rationalization.
+
+## D-0045 — Agent rung scope additions: multi-provider driver, privacy, push
+
+**Status:** active  
+**Date:** 2026-07-29  
+**Source:** explicit user instruction, 2026-07-29
+
+Amends D-0044's build in three ways. (1) The agent driver is provider-agnostic behind a `ProviderDriver` interface: Anthropic (default, per D-0043), OpenAI, OpenRouter, Ollama, and Cursor SDK adapters; keys from env only; thin adapters, tests use fakes; one broken provider never blocks the others. (2) Build agents must not reference hiring, job applications, or external-company research in any file, log, commit message, or comment — the work stands as eval-rig engineering. (3) The delegated orchestrator pushes the branch after final verification, in addition to incremental commits.
+
+**Rationale:** provider optionality keeps one vendor's API changes from blocking the rung; the build's public surface stays scoped to the engineering; push is user-authorized for this branch.
