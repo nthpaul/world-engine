@@ -1,7 +1,7 @@
 # Agent log: tesla
 
 **Role:** implementation — entire prototype core at `prototypes/failure-to-intervention/`
-**Completion status:** done
+**Completion status:** done (initial build + verifier-hardening follow-up)
 
 ## Assignment
 
@@ -153,5 +153,71 @@ legend: naive is the overfit shortcut — expected to PASS original-incident and
   rather than guessing, since the file names are pinned.
 
 ## Completion status
+
+done
+
+---
+
+## Follow-up: verifier hardening (2026-07-29)
+
+### Assignment
+
+Orchestrator follow-up: hypatia's red team confirmed 11 cheat families caught but
+found 4 holes (H1, H2a, H2b, H2c). Patch ONLY `src/verifier.ts`; hypatia converts
+her 7 `test.fails` hole tests afterward.
+
+### Decisions
+
+- **H1 — pair-member customer rows now content-checked.** Canonical customer: no
+  field may change at all; violations land under `single-active-canonical` with
+  messages like `canonical customer 1 was edited (name: "Ada" -> "Eve")`. Each
+  duplicate: only `status` may change (`changedFields` ignore list `["status"]`);
+  violations land under `duplicate-deactivated-not-deleted`. Missing rows skip the
+  diff (already flagged by the existing missing-row violation). Blocks rename /
+  email-rewrite / created_at-backdating cheats.
+- **H2a — merge-event `actor` must be `"intervention"`** (the fixed value the
+  domain API stamps; a system property, not a fixture constant). Violation under
+  `accurate-audit-event`: `audit event N: actor should be "intervention" but is "..."`.
+  `created_at` stays unchecked, documented in a code comment: `verify()` receives
+  no task clock, so the expected value cannot be derived from state — known
+  limitation.
+- **H2b — new audit events with any action other than `customer.dedup.merge` are
+  flagged** under `accurate-audit-event`: `unexpected audit event N with action "..."`.
+  Same pass that already flags unexpected merge events.
+- **H2c — pre-existing audit events are diffed.** Every initial event must exist in
+  final, deep-equal via `changedFields`. Violations under `accurate-audit-event`:
+  `pre-existing audit event N changed (...)` or `pre-existing audit event N is
+  missing in final state` (the missing case overlaps `no-rows-deleted`
+  deliberately, consistent with existing overlap style).
+- Placement verified against shannon's exact-`invariantIds` assertions before
+  patching: her length-1 and exact-set tests all construct states where the new
+  checks stay silent, so nothing green flipped.
+
+### Evidence
+
+- `pnpm typecheck` — clean, exit 0.
+- `pnpm test` — exit 1 with exactly the 7 expected flips failing and everything
+  else green. Summary line: `Test Files  1 failed | 3 passed (4)` /
+  `Tests  7 failed | 52 passed (59)`. The 7 failures are precisely hypatia's hole
+  tests (10a, 10b, 10c, 10d, 17a, 17b, 17c), each failing with `Error: Expect test
+  to fail` — i.e. the cheats are now caught, so the `test.fails` expectation
+  inverted. All 52 other tests pass, including shannon's 24.
+- `pnpm demo` — matrix unchanged: original-incident naive PASS, all other naive
+  cells FAIL, all robust cells PASS.
+
+### Files changed
+
+- Modified `prototypes/failure-to-intervention/src/verifier.ts` (only)
+- Modified `coordination/agents/tesla.md` (this note)
+
+### Unresolved questions
+
+- Same as before (demo row order vs PLAN's printed matrix), unchanged.
+- Known limitation now explicit in code: merge-event `created_at` is not verified
+  (no clock available to `verify()`). If the orchestrator wants it checked,
+  `verify` would need the task or an expected timestamp passed in — a signature
+  change, so flagged rather than done.
+
+### Completion status
 
 done

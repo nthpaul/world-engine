@@ -104,6 +104,15 @@ export function verify(initial: Snapshot, final: Snapshot): InvariantViolation[]
         `pair ${pair.emailKey}: canonical customer ${pair.canonical.id} is not active (status: ${canonicalFinal.status})`,
       );
     }
+    if (canonicalFinal) {
+      const edited = changedFields(pair.canonical, canonicalFinal);
+      if (edited.length > 0) {
+        viol(
+          "single-active-canonical",
+          `canonical customer ${pair.canonical.id} was edited (${edited.join(", ")})`,
+        );
+      }
+    }
     for (const dup of pair.duplicates) {
       const dupFinal = finalCustomers.get(dup.id);
       if (dupFinal && dupFinal.status === "active") {
@@ -201,10 +210,19 @@ export function verify(initial: Snapshot, final: Snapshot): InvariantViolation[]
           "duplicate-deactivated-not-deleted",
           `duplicate customer ${dup.id} is missing in final state`,
         );
-      } else if (f.status !== "deactivated") {
+        continue;
+      }
+      if (f.status !== "deactivated") {
         viol(
           "duplicate-deactivated-not-deleted",
           `duplicate customer ${dup.id} should be deactivated but is ${f.status}`,
+        );
+      }
+      const edited = changedFields(dup, f, ["status"]);
+      if (edited.length > 0) {
+        viol(
+          "duplicate-deactivated-not-deleted",
+          `duplicate customer ${dup.id} was edited (${edited.join(", ")})`,
         );
       }
     }
@@ -212,6 +230,24 @@ export function verify(initial: Snapshot, final: Snapshot): InvariantViolation[]
 
   // accurate-audit-event
   const initialEventIds = new Set(initial.audit_events.map((e) => e.id));
+  const finalEvents = new Map(final.audit_events.map((e) => [e.id, e]));
+  for (const event of initial.audit_events) {
+    const f = finalEvents.get(event.id);
+    if (!f) {
+      viol(
+        "accurate-audit-event",
+        `pre-existing audit event ${event.id} is missing in final state`,
+      );
+      continue;
+    }
+    const edited = changedFields(event, f);
+    if (edited.length > 0) {
+      viol(
+        "accurate-audit-event",
+        `pre-existing audit event ${event.id} changed (${edited.join(", ")})`,
+      );
+    }
+  }
   const newMergeEvents = final.audit_events.filter(
     (e) => !initialEventIds.has(e.id) && e.action === "customer.dedup.merge",
   );
@@ -241,6 +277,14 @@ export function verify(initial: Snapshot, final: Snapshot): InvariantViolation[]
       continue;
     }
     const event = events[0];
+    // created_at stays unchecked: verify() receives no task clock, so the
+    // expected value cannot be derived from state (known limitation).
+    if (event.actor !== "intervention") {
+      viol(
+        "accurate-audit-event",
+        `audit event ${event.id}: actor should be "intervention" but is ${JSON.stringify(event.actor)}`,
+      );
+    }
     let details: Record<string, unknown>;
     try {
       details = JSON.parse(event.details) as Record<string, unknown>;
@@ -307,6 +351,13 @@ export function verify(initial: Snapshot, final: Snapshot): InvariantViolation[]
         `unexpected customer.dedup.merge audit event ${event.id} for ${event.entity_type} ${event.entity_id}`,
       );
     }
+  }
+  for (const event of final.audit_events) {
+    if (initialEventIds.has(event.id) || event.action === "customer.dedup.merge") continue;
+    viol(
+      "accurate-audit-event",
+      `unexpected audit event ${event.id} with action ${JSON.stringify(event.action)}`,
+    );
   }
 
   // unrelated-records-unchanged
