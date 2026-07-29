@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import type { CaseFile } from "../cases";
@@ -35,6 +35,8 @@ export const TranscriptSchema = z.object({
   wallMs: z.number(),
   startedAt: z.string(),
   endedAt: z.string(),
+  attempts: z.number().int().positive(),
+  infraErrors: z.array(z.object({ attempt: z.number().int(), kind: z.string(), message: z.string() })),
 });
 
 export type Transcript = z.infer<typeof TranscriptSchema>;
@@ -45,10 +47,21 @@ export interface AgentRunSummary {
   counts: Record<EpisodeOutcome, number>;
   passRate: number | null;
   excluded: number;
+  infraRetries: number;
   episodes: EpisodeResult[];
 }
 
-const toTranscript = (caseId: string, index: number, episode: EpisodeResult): Transcript => ({
+export interface EpisodeAttempts {
+  attempts: number;
+  infraErrors: { attempt: number; kind: string; message: string }[];
+}
+
+const toTranscript = (
+  caseId: string,
+  index: number,
+  episode: EpisodeResult,
+  episodeAttempts: EpisodeAttempts,
+): Transcript => ({
   case_id: caseId,
   index,
   outcome: episode.outcome,
@@ -64,13 +77,24 @@ const toTranscript = (caseId: string, index: number, episode: EpisodeResult): Tr
   wallMs: episode.wallMs,
   startedAt: episode.startedAt,
   endedAt: episode.endedAt,
+  attempts: episodeAttempts.attempts,
+  infraErrors: episodeAttempts.infraErrors,
 });
 
-export function writeTranscript(episodesDir: string, caseId: string, index: number, episode: EpisodeResult): string {
+export function writeTranscript(
+  episodesDir: string,
+  caseId: string,
+  index: number,
+  episode: EpisodeResult,
+  episodeAttempts: EpisodeAttempts,
+): string {
   const dir = join(episodesDir, caseId);
   mkdirSync(dir, { recursive: true });
   const path = join(dir, `episode-${index}.json`);
-  writeFileSync(path, JSON.stringify(TranscriptSchema.parse(toTranscript(caseId, index, episode)), null, 2));
+  writeFileSync(
+    path,
+    JSON.stringify(TranscriptSchema.parse(toTranscript(caseId, index, episode, episodeAttempts)), null, 2),
+  );
   return path;
 }
 
@@ -87,15 +111,37 @@ export async function runAgentEvaluation(
     infrastructure: 0,
   };
   const episodes: EpisodeResult[] = [];
+  let infraRetries = 0;
+
+  if (deps.episodesDir) {
+    // smaller-k reruns must not leak stale transcripts into the audit
+    const dir = join(deps.episodesDir, cf.trace.case_id);
+    mkdirSync(dir, { recursive: true });
+    for (const file of readdirSync(dir)) {
+      if (/^episode-\d+\.json$/.test(file)) rmSync(join(dir, file));
+    }
+  }
 
   for (let index = 0; index < k; index++) {
+    const episodeAttempts: EpisodeAttempts = { attempts: 1, infraErrors: [] };
     let episode = await runAgentEpisode(cf, deps.provider, deps.config);
     if (episode.outcome === "infrastructure") {
+      if (episode.providerError) {
+        episodeAttempts.infraErrors.push({ attempt: 1, ...episode.providerError });
+      }
       episode = await runAgentEpisode(cf, deps.provider, deps.config); // retried once, then excluded
+      episodeAttempts.attempts = 2;
+      if (episode.outcome === "infrastructure") {
+        if (episode.providerError) {
+          episodeAttempts.infraErrors.push({ attempt: 2, ...episode.providerError });
+        }
+      } else {
+        infraRetries++;
+      }
     }
     counts[episode.outcome]++;
     episodes.push(episode);
-    if (deps.episodesDir) writeTranscript(deps.episodesDir, cf.trace.case_id, index, episode);
+    if (deps.episodesDir) writeTranscript(deps.episodesDir, cf.trace.case_id, index, episode, episodeAttempts);
   }
 
   const excluded = counts.infrastructure;
@@ -106,6 +152,7 @@ export async function runAgentEvaluation(
     counts,
     passRate: denominator === 0 ? null : counts.pass / denominator,
     excluded,
+    infraRetries,
     episodes,
   };
 }

@@ -113,3 +113,26 @@ file added). Independent mutation check: swapped classify precedence (malformed 
 invalid-action) → exactly 1 test failed (the precedence pin); reverted → 58/58 green.
 Read the README diff in full and the test-file structure; WALKTHROUGH section list
 checked against the real tree.
+
+### Stage 3 — `godel` red-teams agent edges; fixes by `hamilton` (verified, committed)
+
+Godel probed six assigned families plus its own additions (BOM, trailing commas, nested
+fences, duplicate keys, OLLAMA_HOST slashes, cost math): 61 tests in
+`tests/agent-redteam.test.ts`, 58 passing pins + 3 failing findings, all minor, no
+blockers/majors. Orchestrator confirmed the three failures match their pinned reasons
+before dispatching fixes. Findings and fixes (hamilton, pinned shape):
+1. Retried infrastructure attempts vanished — runner gains `infraRetries` (recovered
+   episodes), transcripts gain `attempts` and per-attempt `infraErrors`; counts stay
+   final-outcome-only.
+2. Excluded infra episodes dropped error detail — transcripts now carry kind+message per
+   attempt; `EpisodeResult.providerError`; audit-report flattens `infraErrors` with file
+   paths (satisfies AUDIT substance rule 5: counted AND described).
+3. Smaller-k reruns left stale transcripts — runner cleans `episode-*.json` in the case
+   dir before writing.
+Godel then converted all three findings to permanent passing assertions and pinned the
+runner-vs-audit `infraRetries` naming difference (recovered-only vs all retried
+transcripts) in a comment for the AUDIT author.
+
+Orchestrator verification: `pnpm test` 179/179, `pnpm typecheck` clean, `pnpm demo`
+matrix unchanged, diff confined to the four src/agent fix files + the new red-team file;
+frozen files zero-diff.

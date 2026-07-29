@@ -25,6 +25,7 @@ export interface EpisodeResult {
   outcome: EpisodeOutcome;
   plan: Plan | null;
   planError: string | null;
+  providerError: { kind: string; message: string } | null;
   executionLog: CallLogEntry[];
   executedCalls: number;
   abortedAtCall: { index: number; method: string; error: string } | null;
@@ -96,7 +97,8 @@ export async function runAgentEpisode(
   let prompt = "";
   let rawResponse: string | null = null;
   let usage: CompletionUsage | undefined;
-  let providerError: ProviderCallError | null = null;
+  // boxed: TS narrowing cannot see assignments made inside the closure below
+  const providerErrorBox: { current: ProviderCallError | null } = { current: null };
   let plan: Plan | null = null;
   let planError: string | null = null;
   const executionLog: CallLogEntry[] = [];
@@ -121,7 +123,7 @@ export async function runAgentEpisode(
         maxTokens: config.maxTokens,
       });
     } catch (err) {
-      providerError =
+      providerErrorBox.current =
         err instanceof ProviderCallError
           ? err
           : new ProviderCallError(provider.name, "unknown", err instanceof Error ? err.message : String(err), {
@@ -155,6 +157,7 @@ export async function runAgentEpisode(
   });
 
   const endedAt = new Date();
+  const providerError = providerErrorBox.current;
   const outcome = classifyEpisode({
     providerError,
     planParsed: plan !== null,
@@ -166,6 +169,7 @@ export async function runAgentEpisode(
     outcome,
     plan,
     planError,
+    providerError: providerError ? { kind: providerError.kind, message: providerError.message } : null,
     executionLog,
     executedCalls: executionLog.filter((entry) => entry.ok).length,
     abortedAtCall,

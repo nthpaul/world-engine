@@ -17,12 +17,20 @@ export function priceFor(model: string): { input: number; output: number } | nul
   return MODEL_PRICES[model] ?? null;
 }
 
+export interface InfraErrorRecord {
+  file: string;
+  kind: string;
+  message: string;
+}
+
 export interface CaseAudit {
   case_id: string;
   k: number;
   counts: Record<EpisodeOutcome, number>;
   passRate: number | null;
   excluded: number;
+  infraRetries: number;
+  infraErrors: InfraErrorRecord[];
   inputTokens: number;
   outputTokens: number;
   costUsd: number | null;
@@ -42,6 +50,8 @@ export interface AuditData {
     counts: Record<EpisodeOutcome, number>;
     passRate: number | null;
     excluded: number;
+    infraRetries: number;
+    infraErrors: InfraErrorRecord[];
     inputTokens: number;
     outputTokens: number;
     costUsd: number | null;
@@ -60,6 +70,8 @@ const emptyCounts = (): Record<EpisodeOutcome, number> => ({
 
 interface Bucket {
   counts: Record<EpisodeOutcome, number>;
+  infraRetries: number;
+  infraErrors: InfraErrorRecord[];
   inputTokens: number;
   outputTokens: number;
   costUsd: number;
@@ -68,6 +80,8 @@ interface Bucket {
 
 const emptyBucket = (): Bucket => ({
   counts: emptyCounts(),
+  infraRetries: 0,
+  infraErrors: [],
   inputTokens: 0,
   outputTokens: 0,
   costUsd: 0,
@@ -94,6 +108,10 @@ export function aggregateEpisodes(episodesDir: string): AuditData {
       const t = TranscriptSchema.parse(JSON.parse(readFileSync(path, "utf8")));
       for (const b of [bucket, totals]) {
         b.counts[t.outcome]++;
+        if (t.attempts > 1) b.infraRetries++;
+        for (const err of t.infraErrors) {
+          b.infraErrors.push({ file: path, kind: err.kind, message: err.message });
+        }
         b.inputTokens += t.usage?.inputTokens ?? 0;
         b.outputTokens += t.usage?.outputTokens ?? 0;
         const price = priceFor(t.model);
@@ -116,6 +134,8 @@ export function aggregateEpisodes(episodesDir: string): AuditData {
       counts: b.counts,
       passRate: denominator === 0 ? null : b.counts.pass / denominator,
       excluded,
+      infraRetries: b.infraRetries,
+      infraErrors: b.infraErrors,
       inputTokens: b.inputTokens,
       outputTokens: b.outputTokens,
       costUsd: b.pricedEpisodes === 0 ? null : b.costUsd,

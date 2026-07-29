@@ -65,7 +65,8 @@ for (const summary of summaries) {
   const parts = (Object.entries(summary.counts) as [EpisodeOutcome, number][])
     .filter(([, n]) => n > 0)
     .map(([outcome, n]) => `${outcome} ${n}`);
-  console.log(`- ${summary.case_id}: ${parts.join(", ")}`);
+  const retried = summary.infraRetries > 0 ? `, retried ${summary.infraRetries}` : "";
+  console.log(`- ${summary.case_id}: ${parts.join(", ")}${retried}`);
 }
 
 const inputTokens = summaries.reduce(

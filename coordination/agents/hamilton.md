@@ -118,9 +118,9 @@ After implementation (exact outputs):
 
 - `audit-data.json` gitignore decision (above).
 - Cursor `RunResult.usage` exists in 1.0.26 but is unmapped per the pinned contract — relax or keep?
-- Re-running `demo:agent` overwrites `episode-<index>.json` deterministically but does not clear
-  stale higher-index files from an older, larger-k run; `audit-report` counts everything in
-  `episodes/`. Operator clears the dir between runs, or the runner gains a clean step later.
+- ~~Re-running `demo:agent` overwrites `episode-<index>.json` deterministically but does not clear
+  stale higher-index files~~ — resolved by the follow-up (below): the runner now clears
+  `episode-*.json` in the case dir before each run.
 - OpenAI temperature restriction (decision 1) — the openai driver works end to end with `gpt-4.1`;
   GPT-5.6 models need the Responses API or no custom temperature.
 
@@ -128,3 +128,88 @@ After implementation (exact outputs):
 
 Stage 1 complete 2026-07-29 ~02:35 local: all 16 new files + 4 modified files delivered;
 60/60 tests, clean typecheck, unchanged demo matrix, both smoke checks pass. Nothing committed.
+
+---
+
+## Follow-up (2026-07-29 ~03:25 local): godel's three findings fixed
+
+**Completion status:** done
+
+### Assignment
+
+Fix the three minor findings in `tests/agent-redteam.test.ts` (see `coordination/agents/godel.md`),
+exactly to the orchestrator's pinned shape. Own only `src/agent/`; godel updates its own FINDING
+tests; no commit.
+
+### What changed
+
+- **FIX 1 (retried infra attempts recorded)** — `runner.ts`: `AgentRunSummary` gains
+  `infraRetries: number` = episodes whose first attempt was infrastructure but whose final outcome
+  was not. `counts` stays final-outcome-only (sums to k); `excluded` stays = final infrastructure
+  outcomes. `TranscriptSchema` gains `attempts: z.number().int().positive()` (1 or 2).
+- **FIX 2 (infra error detail on disk)** — `driver.ts`: `EpisodeResult` gains
+  `providerError: { kind: string; message: string } | null` (populated from the ProviderCallError;
+  null unless outcome is infrastructure). `runner.ts`: transcript gains
+  `infraErrors: [{ attempt, kind, message }]` — one entry per infrastructure ATTEMPT: double-failure
+  records attempts 1 and 2; a recovered retry records attempt 1; empty array when no infra happened.
+- **FIX 3 (stale transcripts)** — `runner.ts` `runAgentEvaluation`: when `episodesDir` is set,
+  before the episode loop it mkdirs `<episodesDir>/<case_id>/` and deletes every file matching
+  `/^episode-\d+\.json$/`. Same-k overwrites unchanged; smaller-k reruns no longer leak.
+- **Propagation** — `audit-report.ts`: `CaseAudit` and `totals` gain `infraRetries` (sum of
+  transcripts with attempts > 1 — note this counts ALL retried episodes including double-failures,
+  per the pinned definition, so it can exceed the runner's recovered-only `infraRetries`) and
+  `infraErrors: { file, kind, message }[]` flattened from transcripts. `demo-agent.ts`:
+  classifications lines gain `, retried N` when `summary.infraRetries > 0`.
+
+### Decisions
+
+- **TS narrowing workaround in `driver.ts`:** the provider error is assigned inside the
+  `runAsyncEvaluation` closure; at the return statement TS narrows the `let` to `null` (closure
+  assignments aren't tracked), so the error is held in a boxed `{ current }` with a code comment.
+  No behavior change.
+- **`writeTranscript` signature** gains an `EpisodeAttempts` param (`{ attempts, infraErrors }`)
+  rather than stuffing retry data onto `EpisodeResult` — attempts are a runner-level concept the
+  driver knows nothing about. Only `EpisodeResult.providerError` crosses the driver boundary, as
+  pinned.
+
+### Evidence
+
+- `pnpm typecheck` → clean, exit 0.
+- `pnpm test` → `Test Files 1 failed | 5 passed (6)`, `Tests 2 failed | 177 passed (179)`.
+  The 2 failures are godel FINDING tests 1 and 2, which still assert the pre-fix shape
+  (`counts.infrastructure === 1` after a recovered retry; a `providerError` field on the
+  transcript). The pinned fix deliberately differs: counts stay final-only with the retry surfaced
+  via `infraRetries`, and the transcript field is named `infraErrors`. Godel updates both tests.
+  FINDING 3's existing assertion (`totals.k === 1` after a smaller-k rerun) already matches the fix
+  and now PASSES — hence 177 passing, one more than the brief's expected 176.
+- Manual smoke (throwaway `/tmp` script, scripted fake provider, tmp episodesDir, no network —
+  deleted after):
+  - 3-episode mix (flaky-once 429→pass, always-down timeout, clean pass): summary
+    `{k:3, counts:{pass:2, infrastructure:1}, passRate:1, excluded:1, infraRetries:1}`.
+  - Transcripts: episode-0 `outcome=pass attempts=2 infraErrors=[{attempt:1, rate-limit, 429}]`;
+    episode-1 `outcome=infrastructure attempts=2 infraErrors=[attempt 1 + attempt 2 timeouts]`;
+    episode-2 `attempts=1 infraErrors=[]`.
+  - k=1 rerun into the same dir: only `episode-0.json` survives; `aggregateEpisodes().totals.k === 1`.
+  - `aggregateEpisodes` on the 3-episode mix: `infraRetries: 2`, `infraErrors` flattened with file
+    paths (3 entries across 2 files).
+- Ownership check: `git status --porcelain` over the prototype shows modifications only under
+  `src/agent/` plus the pre-existing untracked `tests/agent-redteam.test.ts` (godel's). Frozen
+  files untouched; nothing committed.
+
+### Files changed (follow-up)
+
+- `src/agent/driver.ts` — `EpisodeResult.providerError`; boxed error for TS narrowing
+- `src/agent/runner.ts` — `AgentRunSummary.infraRetries`, `EpisodeAttempts`, transcript
+  `attempts`/`infraErrors`, stale-file cleanup, retry bookkeeping
+- `src/agent/audit-report.ts` — `InfraErrorRecord`, bucket/CaseAudit/totals `infraRetries` +
+  `infraErrors`
+- `src/agent/demo-agent.ts` — `, retried N` in classifications
+
+### Deviations
+
+None from the pinned shape. One note for godel: its FINDING 1 test asserts
+`counts.infrastructure === 1` for a recovered retry, which the pinned fix contradicts (counts stay
+final-outcome-only); the recovered attempt is visible via `summary.infraRetries === 1` and the
+transcript's `attempts: 2` + `infraErrors[0]`. FINDING 2's assertion should target
+`transcript.infraErrors` (and `episode.providerError` at the driver level) rather than a
+`transcript.providerError` field.
