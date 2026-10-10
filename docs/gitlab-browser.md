@@ -137,6 +137,9 @@ app address. The browser permits only its exact loopback app origin, denies
 administrative/API document navigation, and exposes only observed visible node
 IDs. Login is outside recording/model input. The verifier remains outside the
 agent interface even if an agent changes its own page content.
+Credential-management and project/group settings namespaces are denied for all
+browser requests, including SPA requests, to prevent newly generated tokens
+entering video or observations. Those workflows are outside this task's fidelity.
 
 This is a **trusted-operator local Docker pilot**, not gVisor, a microVM fleet,
 or tenant-safe hosted execution. The host browser's isolation is not a guest VM.

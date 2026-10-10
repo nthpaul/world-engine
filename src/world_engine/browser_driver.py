@@ -21,6 +21,7 @@ from world_engine.browser_contracts import (
 )
 
 BLOCKED_DOCUMENT_PATHS = ("/admin", "/api/", "/-/metrics", "/-/health", "/-/readiness")
+BLOCKED_CREDENTIAL_PATHS = ("/-/user_settings", "/-/profile", "/profile", "/oauth", "/users/edit", "/users/password")
 MAX_MEDIA_BYTES = 96 * 1024 * 1024
 
 
@@ -45,7 +46,16 @@ def allowed_app_url(value: str, origin: str, *, document: bool = False) -> bool:
                 or parsed.port != expected.port or parsed.username is not None or parsed.password is not None
                 or not value.isascii() or any(ord(char) < 32 for char in value)):
             return False
-        path = unquote(parsed.path)
+        path = parsed.path
+        for _ in range(4):
+            decoded = unquote(path)
+            if decoded == path:
+                break
+            path = decoded
+        if ("\\" in path or any(ord(char) < 32 for char in path) or ".." in path.split("/")
+                or any(path == prefix or path.startswith(prefix + "/") for prefix in BLOCKED_CREDENTIAL_PATHS)
+                or "/-/settings/" in path or path.endswith("/-/settings")):
+            return False
         if document and any(path == prefix or path.startswith(prefix.rstrip("/") + "/")
                             for prefix in BLOCKED_DOCUMENT_PATHS):
             return False

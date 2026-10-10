@@ -25,6 +25,25 @@ def test_browser_internal_app_requests_are_allowed_but_not_agent_api_navigation(
     assert allowed_app_url(ORIGIN + "/root/release-operations/-/issues/2", ORIGIN, document=True) is True
 
 
+@pytest.mark.parametrize("path", [
+    "/-/user_settings/personal_access_tokens", "/-/user_settings/ssh_keys", "/-/profile/account",
+    "/profile/personal_access_tokens", "/oauth/applications", "/users/edit", "/users/password",
+    "/root/release-operations/-/settings/access_tokens", "/root/release-operations/-/settings",
+    "/%2d/user_settings/personal_access_tokens", "/%252d/user_settings/personal_access_tokens",
+    "/root/../-/user_settings/personal_access_tokens", "/root/%5c../-/user_settings",
+])
+def test_browser_blocks_credential_documents_and_spa_requests(path):
+    assert allowed_app_url(ORIGIN + path, ORIGIN, document=True) is False
+    assert allowed_app_url(ORIGIN + path, ORIGIN, document=False) is False
+
+
+def test_browser_preserves_trusted_login_and_public_work_item_requests():
+    assert allowed_app_url(ORIGIN + "/users/sign_in", ORIGIN, document=True)
+    assert allowed_app_url(ORIGIN + "/root/release-operations/-/work_items?state=opened", ORIGIN, document=True)
+    assert allowed_app_url(ORIGIN + "/root/release-operations/-/issues/2/notes", ORIGIN)
+    assert allowed_app_url(ORIGIN + "/profiled", ORIGIN)
+
+
 @pytest.mark.parametrize("value", ["http://localhost:8929", "http://127.0.0.1:8929/", "http://127.0.0.1:8929/path",
                                      "http://secret@127.0.0.1:8929", "http://127.0.0.1:8929?token=private"])
 def test_operator_origin_requires_exact_literal_loopback(value):
