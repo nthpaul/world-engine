@@ -31,4 +31,5 @@ jobs:
       - run: npm run test:schema
       - run: npx playwright install --with-deps chromium
       - run: npm run test:history
+      - run: node ../scripts/ui-browser-check.mjs
       - run: npm run build

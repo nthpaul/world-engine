@@ -2,6 +2,12 @@
 
 Local workflow environments, bounded agent rollouts, trusted grading and trace curation. The Python SDK and operator console work with scripted policies without model credentials. Optional providers use an already-installed Ollama model or explicitly enabled remote inference.
 
+The new [real GitLab browser path](docs/gitlab-browser.md) uses a pinned GitLab CE
+instance, ordinary-user browser actions, post-login screenshots/video, durable
+traces and a separate persisted-state verifier. Start there for the phases 1--3
+architecture, local prerequisites and SDK. The four Python worlds below remain
+simulation diagnostics; their historical results are unchanged.
+
 ## Run locally
 
 Use Python 3.11 or newer, `uv`, and Node.js 22 or newer. Start the API:
@@ -61,4 +67,10 @@ Run `uv run pytest` and `uv run ruff check src tests`. Build the console with `n
 
 ## Scope
 
-The worlds are synthetic trusted-Python tool workflows, not replicas of production applications. The loopback API is a single-process operator service without authentication or tenant isolation. No trained checkpoint, cloud orchestration, production transfer, tokenizer-context guarantee or competitor advantage is claimed. Scripted passes establish implementation behavior; model results must be read with their fixed tasks, failures and budgets.
+The four original worlds are synthetic trusted-Python tool workflows. The new
+browser path runs real GitLab but covers one original workflow and a selected
+persisted-state projection, not complete production parity. Both use a loopback,
+single-process operator service without authentication or tenant isolation. No
+trained checkpoint, cloud orchestration, production transfer, tokenizer-context
+guarantee or competitor advantage is claimed. Scripted passes establish
+implementation behavior; model results require their fixed tasks and failures.

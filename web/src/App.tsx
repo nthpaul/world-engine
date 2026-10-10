@@ -14,6 +14,7 @@ import {
   FlaskConical,
   GitBranch,
   Layers3,
+  Monitor,
   LoaderCircle,
   Play,
   Plus,
@@ -36,10 +37,13 @@ import {
   type RunConfig,
   type RunDetail,
 } from "./api";
+import BrowserConsole from "./BrowserConsole";
 
-type View = "runs" | "worlds" | "benchmarks" | "runtime";
+type View = "browser-environments" | "attempts" | "runs" | "worlds" | "benchmarks" | "runtime";
 type Route = { view: View; runId: string | null };
 const navigation = [
+  { id: "browser-environments", label: "Browser Environments", icon: Monitor },
+  { id: "attempts", label: "Attempts", icon: Play },
   { id: "runs", label: "Rollout runs", icon: Activity },
   { id: "worlds", label: "World library", icon: Box },
   { id: "benchmarks", label: "Benchmarks", icon: FlaskConical },
@@ -69,7 +73,7 @@ function readRoute(): Route {
   const view = navigation.find((item) => item.id === parts[0])?.id ?? "runs";
   return {
     view,
-    runId: view === "runs" && parts[1] ? decodeURIComponent(parts[1]) : null,
+    runId: (view === "runs" || view === "attempts") && parts[1] ? decodeURIComponent(parts[1]) : null,
   };
 }
 function go(view: View, runId?: string) {
@@ -229,6 +233,7 @@ export default function App() {
             <a
               key={id}
               href={`#${id}`}
+              title={label}
               className={route.view === id ? "nav-item active" : "nav-item"}
               aria-current={route.view === id ? "page" : undefined}
             >
@@ -303,7 +308,9 @@ export default function App() {
               </button>
             </div>
           )}
-          {route.view === "runs" && route.runId ? (
+          {route.view === "browser-environments" || route.view === "attempts" ? (
+            <BrowserConsole view={route.view} attemptId={route.runId} notify={setNotice} />
+          ) : route.view === "runs" && route.runId ? (
             <RunInspector
               id={route.runId}
               environments={environments}
@@ -316,9 +323,9 @@ export default function App() {
                 <div>
                   <div className="eyebrow">
                     {route.view === "runs"
-                      ? "EXECUTION"
+                      ? "SIMULATION DIAGNOSTICS"
                       : route.view === "worlds"
-                        ? "ENVIRONMENTS"
+                        ? "SYNTHETIC SIMULATIONS"
                         : route.view === "benchmarks"
                           ? "EVALUATION"
                           : "CONFIGURATION"}
@@ -326,9 +333,9 @@ export default function App() {
                   <h1>{title}</h1>
                   <p>
                     {route.view === "runs"
-                      ? "Episode batches, outcomes, and reproducible agent traces."
+                      ? "Synthetic simulation batches, outcomes, and reproducible agent traces."
                       : route.view === "worlds"
-                        ? "Stateful workflow environments and their tool contracts."
+                        ? "Synthetic workflow simulations and their tool contracts."
                         : route.view === "benchmarks"
                           ? "Compare observed outcomes across runs and model providers."
                           : "Provider configuration and local execution readiness."}
