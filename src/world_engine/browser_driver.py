@@ -9,7 +9,7 @@ import os
 import re
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qsl, unquote, urlparse
 
 from world_engine.browser_contracts import (
     MAX_ATTEMPT_BYTES,
@@ -44,7 +44,10 @@ def allowed_app_url(value: str, origin: str, *, document: bool = False) -> bool:
         expected = urlparse(origin)
         if (parsed.scheme != expected.scheme or parsed.hostname != expected.hostname
                 or parsed.port != expected.port or parsed.username is not None or parsed.password is not None
-                or not value.isascii() or any(ord(char) < 32 for char in value)):
+                or parsed.params or not value.isascii() or any(ord(char) < 32 for char in value)):
+            return False
+        if any(key.lower() in ("password", "secret", "client_secret", "private_token", "access_token", "feed_token", "token")
+               or key.lower().endswith("_token") for key, _ in parse_qsl(parsed.query, max_num_fields=128)):
             return False
         path = parsed.path
         for _ in range(4):
@@ -54,7 +57,7 @@ def allowed_app_url(value: str, origin: str, *, document: bool = False) -> bool:
             path = decoded
         if ("\\" in path or "//" in path or ";" in path or any(ord(char) < 32 for char in path) or ".." in path.split("/")
                 or any(path == prefix or path.startswith(prefix + "/") for prefix in BLOCKED_CREDENTIAL_PATHS)
-                or "/-/settings/" in path or path.endswith("/-/settings")):
+                or any(segment + "/" in path or path.endswith(segment) for segment in ("/-/settings", "/-/runners"))):
             return False
         if document and any(path == prefix or path.startswith(prefix.rstrip("/") + "/")
                             for prefix in BLOCKED_DOCUMENT_PATHS):
@@ -133,6 +136,7 @@ class BrowserGymDriver:
                                   "observation_mode": "AX", "image_not_sent_to_model": True,
                                   "network_scope": "episode application origin only",
                                   "browser_location": "local host browser; development-only isolation"}
+        self.evidence_metadata["accessibility_url_properties"] = "omitted to exclude token-bearing link targets"
         if executable:
             self.evidence_metadata["browser_executable_sha256"] = hashlib.sha256(Path(executable).read_bytes()).hexdigest()
         login = self.browser.new_context(viewport={"width": 1440, "height": 1000}, accept_downloads=False,
@@ -175,7 +179,7 @@ class BrowserGymDriver:
             extract_dom_snapshot,
             extract_merged_axtree,
         )
-        from browsergym.utils.obs import flatten_axtree_to_str
+        from browsergym.utils.obs import IGNORED_AXTREE_PROPERTIES, flatten_axtree_to_str
 
         if not self.prepared or not allowed_app_url(self.page.url, self.origin, document=True):
             raise BrowserError("browser is not on an allowed application page")
@@ -184,7 +188,8 @@ class BrowserGymDriver:
             ax = extract_merged_axtree(self.page)
             properties = extract_dom_extra_properties(extract_dom_snapshot(self.page), scale_factor=1)
             text = flatten_axtree_to_str(ax, extra_properties=properties, with_visible=True,
-                                        filter_visible_only=True, hide_bid_if_invisible=True)
+                                        filter_visible_only=True, hide_bid_if_invisible=True,
+                                        ignored_properties=(*IGNORED_AXTREE_PROPERTIES, "url"))
         finally:
             _post_extract(self.page)
         if len(text) > 65_536:

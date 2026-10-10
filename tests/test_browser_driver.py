@@ -34,6 +34,9 @@ def test_browser_internal_app_requests_are_allowed_but_not_agent_api_navigation(
     "//-/user_settings/personal_access_tokens", "/-//user_settings/personal_access_tokens",
     "/root/release-operations/-//settings/access_tokens", "/%2f-/user_settings/personal_access_tokens",
     "/-/user_settings;variant/personal_access_tokens",
+    "/root/release-operations/-/runners/new", "/groups/release/-/runners/1/register",
+    "/root/release-operations/-/issues.atom?feed_token=ephemeral-fixture-value",
+    "/root/release-operations/-/issues?%74oken=ephemeral-fixture-value",
 ])
 def test_browser_blocks_credential_documents_and_spa_requests(path):
     assert allowed_app_url(ORIGIN + path, ORIGIN, document=True) is False

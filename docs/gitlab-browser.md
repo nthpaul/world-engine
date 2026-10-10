@@ -137,9 +137,12 @@ app address. The browser permits only its exact loopback app origin, denies
 administrative/API document navigation, and exposes only observed visible node
 IDs. Login is outside recording/model input. The verifier remains outside the
 agent interface even if an agent changes its own page content.
-Credential-management and project/group settings namespaces are denied for all
+Credential-management, runner-registration and project/group settings namespaces are denied for all
 browser requests, including SPA requests, to prevent newly generated tokens
 entering video or observations. Those workflows are outside this task's fidelity.
+Token-bearing query URLs are also denied. AX hyperlink URL properties are omitted
+using BrowserGym's formatter; the current safe page URL, names and node IDs remain.
+This does not certify universal secret detection across arbitrary applications.
 
 This is a **trusted-operator local Docker pilot**, not gVisor, a microVM fleet,
 or tenant-safe hosted execution. The host browser's isolation is not a guest VM.
