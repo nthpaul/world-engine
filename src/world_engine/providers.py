@@ -500,23 +500,26 @@ class HTTPProvider:
         self.prepared_model = None
         self.model_digest = None
         self.daemon_version = None
-        if "cloud" in self.model.lower():
+        requested_model = self.model
+        if "cloud" in requested_model.lower():
             raise ProviderError("local provider requires an installed local model; no downloads or cloud calls")
         tags = await local_metadata(self._client(), self.endpoint, "/api/tags")
         models = tags.get("models", [])
         if not isinstance(models, list):
             raise ProviderError("local model catalog invalid")
-        model = next((item for item in models if local_model_entry(item) and item["name"] == self.model), None)
+        model = next((item for item in models if local_model_entry(item) and item["name"] == requested_model), None)
         if model is None:
             raise ProviderError("requested installed local model or valid digest unavailable; no downloads or cloud calls")
-        shown = await local_metadata(self._client(), self.endpoint, "/api/show", {"model": self.model})
+        shown = await local_metadata(self._client(), self.endpoint, "/api/show", {"model": requested_model})
         capabilities = shown.get("capabilities", [])
         if shown.get("remote_host") or shown.get("remote_model") or not isinstance(capabilities, list) or "completion" not in capabilities:
             raise ProviderError("local provider requires local completion capability; no cloud calls")
         version = await local_metadata(self._client(), self.endpoint, "/api/version")
+        if self.model != requested_model:
+            raise ProviderError("local model changed during preparation; prepare again")
         self.daemon_version = printable_name(version.get("version"), 80)
         self.model_digest = model["digest"]
-        self.prepared_model = self.model
+        self.prepared_model = requested_model
         self.prepared = True
 
 
