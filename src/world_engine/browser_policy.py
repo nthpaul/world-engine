@@ -207,6 +207,7 @@ class BrowserReferencePolicy:
         self.visited: set[str] = set()
         self.confirmed_target_path: str | None = None
         self.confirmed_comment = False
+        self.comment_requested = False
         self.recorder: RECORDER = lambda kind, payload: None
         self.evidence_metadata = {"protocol": "public-ax-browser-control-v1", "scripted_control": True,
                                   "capability_measurement": False, "baseline": baseline, "training_eligible": False}
@@ -256,6 +257,8 @@ class BrowserReferencePolicy:
                     action = Navigate(url=self.issue_list_url)
             elif not is_target:
                 action = Wait(seconds=1.0)
+            elif self.comment_requested and not persisted_comment and not self.confirmed_comment:
+                action = Wait(seconds=1.0)
             elif persisted_comment and not choose("button", "Comment", exact=True):
                 # Read-only confirmation of a closed issue may still retain a comment form.
                 action = Finish() if "Closed" in observation.accessibility_text else Scroll(direction="up")
@@ -277,6 +280,7 @@ class BrowserReferencePolicy:
                         node = choose("button", "Comment", exact=True)
                         if node:
                             action = Click(bid=node["bid"])
+                            self.comment_requested = True
                     else:
                         action = Fill(bid=textbox["bid"], text=self.comment)
                 else:

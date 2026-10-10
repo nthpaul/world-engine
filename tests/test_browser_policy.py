@@ -160,6 +160,21 @@ async def test_reference_submits_draft_static_text_even_after_intervening_scroll
     assert next(node for node in ax_nodes(text) if node.get("in_textbox"))["name"] == policy.comment
 
 
+async def test_reference_does_not_repeat_comment_submission_while_ui_updates():
+    policy = BrowserReferencePolicy(PROMPT)
+    text = ("StaticText 'Deployment reference: REL-2026-1042'\n"
+            "[5] textbox 'Add a reply' value='Release checklist verified; ready for closure.'\n"
+            "\tStaticText 'Release checklist verified; ready for closure.'\n"
+            "[6] button 'Comment'\n[7] button 'Close issue'")
+    url = "http://127.0.0.1:8929/root/release-operations/-/issues/2"
+    decision = await policy.decide(observation(text, url), [])
+    assert decision.action.bid == "6"
+    history = [{"action": decision.action.model_dump(), "result": {"ok": True}}]
+    assert (await policy.decide(observation(text, url), history)).action.kind == "wait"
+    posted = text + "\nStaticText 'Release checklist verified; ready for closure.'"
+    assert (await policy.decide(observation(posted, url), history)).action.bid == "7"
+
+
 def test_ax_parser_handles_quotes_as_literals_not_code():
     assert ax_nodes("[3] link \"O'Reilly project\", visible") == [
         {"bid": "3", "role": "link", "name": "O'Reilly project"}]
