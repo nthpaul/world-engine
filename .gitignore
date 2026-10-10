@@ -22,6 +22,8 @@ docs/report/*.log
 docs/report/*-text.txt
 docs/report/*-metadata.txt
 docs/report/*-links.txt
+/docs/report/
+/docs/research/
 .env
 .env.*
 !.env.example

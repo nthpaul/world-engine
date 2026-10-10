@@ -7,6 +7,9 @@ instance, ordinary-user browser actions, post-login screenshots/video, durable
 traces and a separate persisted-state verifier. Start there for the phases 1--3
 architecture, local prerequisites and SDK. The four Python worlds below remain
 simulation diagnostics; their historical results are unchanged.
+The [GitLab results and media guide](docs/gitlab-browser-results.md) records the
+successful browser reference, the failed local-model rollout, isolated grading,
+screenshots, videos, timings and preserved qualification failures.
 
 ## Run locally
 
@@ -54,11 +57,9 @@ Exports provide exact-context SFT candidates, strictly comparable DPO pairs, tra
 
 ## Evidence and teaching
 
-- [Foundation report](docs/report/world-engine-report.pdf): environment design, behavioral fidelity, reward hacking, post-training and evaluation. Its three-world release and 82-test count are immutable historical evidence.
-- [Follow-up appendix](docs/report/world-engine-follow-up.md) and [PDF](docs/report/world-engine-follow-up.pdf): dated source corrections, measured outcomes, failed attempts and boundaries.
-- [Learning labs](docs/report/learning-labs.md) and [advanced workbook](docs/report/advanced-environment-labs.pdf): worked exercises; the advanced PDF has twelve pages, nine labs and 27 primary sources.
+- [Environment engineering guide](docs/engineering-guide.md): workflow fidelity, lifecycle ownership, reward integrity, durable traces, useful throughput and training eligibility.
 - [Matched adapter results](docs/workflow-model-study-results.md), [access context results](docs/access-ledger-study-results.md) and [admission results](docs/model-concurrency-study-results.md): separate locked experiments, not pooled capability scores.
-- [Public benchmark](docs/public-benchmark.md), [console proof](docs/ui.md), [primary sources](docs/research/SOURCES.md), [roadmap](docs/ROADMAP.md) and [build board](coordination/BUILD.md): reproducibility, rights and remaining gates.
+- [Public benchmark](docs/public-benchmark.md), [console proof](docs/ui.md), [roadmap](docs/ROADMAP.md) and [build board](coordination/BUILD.md): reproducibility, rights and remaining gates.
 - [Historical prototype](prototypes/failure-to-intervention/README.md): preserved earlier failure-to-intervention work, separate from the current SDK.
 
 At source `0f51b903` on October 10, 2026, verification passed all 1,743 tests, including optional actual Harbor and approved-existing-image Docker checks, with Ruff and the frontend build. The five-phase console receipt at `b4501029` passed 129 checks, with 34 new scripted episodes and two unchanged model imports; it is not new native API inference. The CPU profile saved 192 episodes and measured 728 redundant observation reads removed in profiled trials. The separate SDK admission study at `1d9f2315` observed sixteen business passes at admission one versus thirteen at two on eight repeated tasks; client overlap did not improve useful throughput in that run. Detailed denominators, partial usage and independent validations live in the linked evidence, not a production-performance claim. The later [native API smoke](artifacts/native-api-smoke/20261010-v1/report.json) verified two clean admissions on the same refund task, not a capability comparison. The preserved first controls attempt failed 360px visual acceptance; corrected controls/readonly receipt QA passed 65 checks without new inference.
