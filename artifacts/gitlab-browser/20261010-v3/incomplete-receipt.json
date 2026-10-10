@@ -1,0 +1,66 @@
+{
+  "cleanup": {
+    "error_code": null,
+    "status": "completed"
+  },
+  "elapsed_seconds": 191.86989408300724,
+  "id": "fd9bd56e-893c-46ec-ad06-466faa2f5bc7",
+  "invalid_actions": 0,
+  "outcome": {
+    "checks": [
+      {
+        "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+        "name": "fixed_records",
+        "passed": true
+      },
+      {
+        "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+        "name": "project_preservation",
+        "passed": true
+      },
+      {
+        "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+        "name": "issue_preservation",
+        "passed": true
+      },
+      {
+        "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+        "name": "authorized_closure",
+        "passed": false
+      },
+      {
+        "detail": "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved.",
+        "name": "exact_comment_and_history",
+        "passed": false
+      },
+      {
+        "detail": "One target closure state event, attributed to the ordinary actor.",
+        "name": "closure_certificate",
+        "passed": false
+      },
+      {
+        "detail": "The exact comment precedes authorized closure.",
+        "name": "requested_order",
+        "passed": false
+      }
+    ],
+    "grader_version": "gitlab-state-v3",
+    "passed": false,
+    "reward": 0.0,
+    "sealed_state_sha256": "d8a53fad717e98b71369104a728a6570f6b2c0558709d7b3e07ebe0173472758"
+  },
+  "passed": false,
+  "phase_seconds": {
+    "browser_close": 0.34340316604357213,
+    "cleanup": 0.853863290976733,
+    "grade": 0.202394749969244,
+    "provider_prepare": 0.0008209159132093191,
+    "rollout": 0.5174274579621851,
+    "seal": 28.467468125047162,
+    "startup": 161.47425274993293
+  },
+  "reward": 0.0,
+  "status": "completed",
+  "steps": 1,
+  "termination": "finished"
+}

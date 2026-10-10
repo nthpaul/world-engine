@@ -1,11 +1,20 @@
 import base64
+import hashlib
 import json
 
 import httpx
 import pytest
 
 from world_engine.browser_contracts import BrowserError, BrowserObservation
-from world_engine.browser_policy import BrowserReferencePolicy, OllamaBrowserPolicy, ax_nodes
+from world_engine.browser_policy import (
+    OPTIONS,
+    PROTOCOL,
+    BrowserReferencePolicy,
+    OllamaBrowserPolicy,
+    ax_nodes,
+    browser_tools,
+)
+from world_engine.models import canonical_json
 
 PROMPT = ("In Release Operations, find the open issue whose description says Deployment reference: REL-2026-1042. "
           "Add exactly: Release checklist verified; ready for closure. Then close that issue. "
@@ -52,14 +61,14 @@ async def policy_with_reply(reply, *, model_entry=None):
     return policy, events
 
 
-def valid_reply(arguments=None):
+def valid_reply(arguments=None, *, name="browser_finish"):
     return {"model": "qwen3:8b", "done": True, "done_reason": "stop", "message": {"role": "assistant",
-            "tool_calls": [{"function": {"name": "browser_action", "arguments": arguments or {"kind": "finish"}}}]},
+            "tool_calls": [{"function": {"name": name, "arguments": {} if arguments is None else arguments}}]},
             "prompt_eval_count": 42, "eval_count": 8}
 
 
 async def test_local_policy_persists_exact_request_and_raw_reply_before_action():
-    reply = valid_reply({"kind": "click", "bid": "3"})
+    reply = valid_reply({"bid": "3"}, name="browser_click")
     policy, events = await policy_with_reply(reply)
     try:
         await policy.prepare()
@@ -74,6 +83,156 @@ async def test_local_policy_persists_exact_request_and_raw_reply_before_action()
         assert public["observation"]["image_not_sent_to_model"] is True
         assert policy.evidence_metadata["model_digest"] == DIGEST
         assert policy.evidence_metadata["training_eligible"] is False
+        assert policy.evidence_metadata["protocol"] == PROTOCOL == "ollama-browser-tools-v2"
+        assert request["options"] == OPTIONS
+        assert request["think"] is False and request["stream"] is False
+        assert hashlib.sha256(canonical_json(request).encode()).hexdigest() == events[1][1]["request_sha256"]
+        raw = base64.b64decode(events[-1][1]["response_body_b64"])
+        assert hashlib.sha256(raw).hexdigest() == events[-1][1]["response_sha256"]
+    finally:
+        await policy.close()
+
+
+ACTION_CASES = [
+    ("navigate", {"url": "http://127.0.0.1:8929/dashboard/projects"}),
+    ("click", {"bid": "3"}),
+    ("fill", {"bid": "3", "text": "ordinary comment"}),
+    ("press", {"bid": "3", "key": "Enter"}),
+    ("scroll", {"direction": "down"}),
+    ("wait", {"seconds": 3.0}),
+    ("finish", {}),
+]
+
+
+def test_flat_tools_survive_object_properties_required_projection():
+    tools = browser_tools()
+    assert [tool["function"]["name"] for tool in tools] == [f"browser_{kind}" for kind, _ in ACTION_CASES]
+    for tool, (_, arguments) in zip(tools, ACTION_CASES, strict=True):
+        function = tool["function"]
+        schema = function["parameters"]
+        # The bounded object-property API projection must retain every action field.
+        projected = {key: schema[key] for key in ("type", "properties", "required")}
+        assert projected["type"] == "object"
+        assert set(projected["properties"]) == set(projected["required"]) == set(arguments)
+        assert schema["additionalProperties"] is False
+        assert function["description"]
+        assert not any(key in canonical_json(schema) for key in ('"$ref"', '"$defs"', '"oneOf"', '"discriminator"'))
+        assert "kind" not in projected["properties"]
+        assert all(field["type"] in ("string", "number") for field in projected["properties"].values())
+
+
+def test_tool_schema_bounds_enums_and_detachment():
+    tools = {tool["function"]["name"]: tool["function"] for tool in browser_tools()}
+    assert tools["browser_wait"]["parameters"]["properties"]["seconds"]["maximum"] == 3
+    assert tools["browser_wait"]["parameters"]["properties"]["seconds"]["exclusiveMinimum"] == 0
+    assert tools["browser_fill"]["parameters"]["properties"]["text"]["maxLength"] == 16384
+    assert tools["browser_click"]["parameters"]["properties"]["bid"]["maxLength"] == 80
+    assert tools["browser_press"]["parameters"]["properties"]["key"]["enum"] == [
+        "Enter", "Tab", "Escape", "ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "Space"]
+    assert tools["browser_scroll"]["parameters"]["properties"]["direction"]["enum"] == [
+        "up", "down", "left", "right"]
+    assert "700 pixels" in tools["browser_scroll"]["description"]
+    assert "3 seconds" in tools["browser_wait"]["description"]
+    tools["browser_fill"]["parameters"]["properties"]["text"]["maxLength"] = 1
+    fresh = next(tool for tool in browser_tools() if tool["function"]["name"] == "browser_fill")
+    assert fresh["function"]["parameters"]["properties"]["text"]["maxLength"] == 16384
+
+
+@pytest.mark.parametrize("kind,arguments", ACTION_CASES)
+async def test_each_flat_tool_maps_to_its_strict_action(kind, arguments):
+    policy, events = await policy_with_reply(valid_reply(arguments, name=f"browser_{kind}"))
+    try:
+        await policy.prepare()
+        action = (await policy.decide(observation(), [])).action
+        assert action.model_dump() == {"kind": kind, **arguments}
+        assert [event for event, _ in events] == ["policy_prepared", "inference_intent", "inference_result"]
+    finally:
+        await policy.close()
+
+
+@pytest.mark.parametrize("kind,arguments", ACTION_CASES)
+@pytest.mark.parametrize("supplied_kind", ["matching", "finish", None, True])
+async def test_caller_kind_is_rejected_even_when_matching(kind, arguments, supplied_kind):
+    arguments = {**arguments, "kind": kind if supplied_kind == "matching" else supplied_kind}
+    policy, events = await policy_with_reply(valid_reply(arguments, name=f"browser_{kind}"))
+    try:
+        await policy.prepare()
+        with pytest.raises(BrowserError, match="valid browser action"):
+            await policy.decide(observation(), [])
+        assert events[-1][0] == "inference_result"
+    finally:
+        await policy.close()
+
+
+@pytest.mark.parametrize("name,arguments", [
+    ("browser_action", {"kind": "finish"}), ("browser_shell", {}), ("finish", {}), (None, {}), ([], {}),
+    ("browser_finish", None), ("browser_finish", []), ("browser_finish", "{}"),
+    ("browser_finish", {"bid": "3"}), ("browser_click", {}), ("browser_click", {"bid": True}),
+    ("browser_click", {"bid": 3}), ("browser_click", {"bid": "3", "text": "wrong action"}),
+    ("browser_click", {"bid": "a" * 81}), ("browser_click", {"bid": "#css"}),
+    ("browser_fill", {"bid": "3"}), ("browser_fill", {"bid": "3", "text": "a" * 16385}),
+    ("browser_fill", {"bid": "3", "text": False}),
+    ("browser_press", {"bid": "3", "key": "Control+R"}),
+    ("browser_scroll", {"direction": "forward"}), ("browser_wait", {"seconds": 0.0}),
+    ("browser_wait", {"seconds": 3.01}), ("browser_wait", {"seconds": True}),
+    ("browser_wait", {"seconds": "1"}), ("browser_navigate", {"url": "file:///private/operator"}),
+])
+async def test_flat_tools_reject_invalid_or_mixed_arguments(name, arguments):
+    reply = valid_reply(name=name)
+    reply["message"]["tool_calls"][0]["function"]["arguments"] = arguments
+    policy, events = await policy_with_reply(reply)
+    try:
+        await policy.prepare()
+        with pytest.raises(BrowserError, match="valid browser action"):
+            await policy.decide(observation(), [])
+        assert events[-1][0] == "inference_result"
+        assert json.loads(base64.b64decode(events[-1][1]["response_body_b64"])) == reply
+    finally:
+        await policy.close()
+
+
+@pytest.mark.parametrize("message", [None, [], {}, {"role": "assistant", "content": ""},
+    {"role": "assistant", "tool_calls": [None]},
+    {"role": "assistant", "tool_calls": [{"function": None}]},
+    {"role": "assistant", "tool_calls": [valid_reply()["message"]["tool_calls"][0]] * 2},
+])
+async def test_missing_malformed_or_multiple_calls_are_retained_and_rejected(message):
+    policy, events = await policy_with_reply(valid_reply() | {"message": message})
+    try:
+        await policy.prepare()
+        with pytest.raises(BrowserError, match="valid browser action"):
+            await policy.decide(observation(), [])
+        assert events[-1][0] == "inference_result"
+    finally:
+        await policy.close()
+
+
+@pytest.mark.parametrize("reply", [None, [], "not an object", 1])
+async def test_nonobject_reply_is_retained_and_rejected(reply):
+    policy, events = await policy_with_reply(reply)
+    try:
+        await policy.prepare()
+        with pytest.raises(BrowserError, match="valid browser action"):
+            await policy.decide(observation(), [])
+        assert events[-1][0] == "inference_result"
+    finally:
+        await policy.close()
+
+
+async def test_failed_durable_intent_prevents_inference_request():
+    policy, events = await policy_with_reply(valid_reply())
+    try:
+        await policy.prepare()
+
+        def failed_record(kind, payload):
+            if kind == "inference_intent":
+                raise BrowserError("journal unavailable")
+            events.append((kind, payload))
+
+        policy.set_recorder(failed_record)
+        with pytest.raises(BrowserError, match="journal unavailable"):
+            await policy.decide(observation(), [])
+        assert [event for event, _ in events] == ["policy_prepared"]
     finally:
         await policy.close()
 
