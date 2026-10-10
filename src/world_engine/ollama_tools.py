@@ -148,7 +148,9 @@ class OllamaToolsProvider:
         if shown.get("remote_host") or shown.get("remote_model") or not isinstance(capabilities, list) or "tools" not in capabilities:
             raise ProviderError("native adapter requires local tool capability; no cloud calls")
         version = await self._metadata("/api/version")
-        self.daemon_version = version.get("version") if isinstance(version.get("version"), str) else None
+        daemon_version = version.get("version")
+        self.daemon_version = (daemon_version if isinstance(daemon_version, str)
+                               and 0 < len(daemon_version) <= 80 and daemon_version.isprintable() else None)
         self.model_digest = model_digest
         self.prepared = True
 
@@ -254,16 +256,18 @@ def verify_exchange(start: JsonObject, end: JsonObject, model: str, observation:
     if end["outcome"] == "oversized_response" and (end["body_complete"] or end["response_bytes"] != provider_records.MAX_RESPONSE_BYTES):
         raise ValueError("native oversized response has no bounded prefix")
     data = None
+    parsed = False
     if end["body_complete"] and end["http_status"] == 200:
         try:
             data = json.loads(provider_records.response_bytes(end))
+            parsed = True
         except ValueError:
             if end["outcome"] != "invalid_response":
                 raise ValueError("native invalid JSON failure is mislabeled") from None
         expected_usage = reported_usage(data) if isinstance(data, dict) else {}
         if end["usage"] != expected_usage:
             raise ValueError("native reported usage differs from response")
-        if end["outcome"] != "accepted" and data is not None:
+        if end["outcome"] != "accepted" and parsed:
             try:
                 parse_action(data)
             except NativeResponseError as error:

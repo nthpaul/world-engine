@@ -37,7 +37,7 @@ def response(tool="finish", args=None, **extra):
                 {"id": "reported-call-id", "function": {"index": 0, "name": tool, "arguments": args or {}}}]}, **extra}
 
 
-async def prepared(config, reply, *, tags=None, shown=None):
+async def prepared(config, reply, *, tags=None, shown=None, version="fixture-ollama"):
     requests = []
 
     async def respond(request):
@@ -47,7 +47,7 @@ async def prepared(config, reply, *, tags=None, shown=None):
         if request.url.path == "/api/show":
             return httpx.Response(200, json=shown or {"capabilities": ["tools", "completion"]})
         if request.url.path == "/api/version":
-            return httpx.Response(200, json={"version": "fixture-ollama"})
+            return httpx.Response(200, json={"version": version})
         if callable(reply):
             result = await reply(request)
         else:
@@ -113,6 +113,26 @@ async def test_missing_id_and_unknown_usage_are_not_invented():
     assert "total_prompt_tokens" not in document["final_metrics"]
     assert document["extra"]["world_engine"]["provider_events"] == episode["provider_events"]
     assert document["extra"]["training_eligible"] is False
+
+
+@pytest.mark.parametrize(("version", "expected"), [
+    ("v" * 80, "v" * 80),
+    ("v" * 60_000, None),
+    ("daemon\ncontrol", None),
+    ("daemon\x7fcontrol", None),
+    ("", None),
+    (None, None),
+    (17, None),
+], ids=["bounded", "oversized", "newline", "control", "empty", "missing", "nonstring"])
+async def test_daemon_version_metadata_is_bounded_printable_or_unknown(version, expected):
+    config = RunConfig(environment_id="crm-merge", provider_id="local")
+    provider, requests = await prepared(config, response(), version=version)
+    try:
+        assert provider.daemon_version == expected
+        assert provider.evidence_metadata()["ollama_version"] == expected
+        assert all(request.url.path != "/api/chat" for request in requests)
+    finally:
+        await provider.close()
 
 
 @pytest.mark.parametrize("value", [None, -1, True, 1.5, 2**63])
@@ -199,6 +219,20 @@ async def test_invalid_response_keeps_call_but_never_executes_prefix(data, outco
     assert json.loads(provider_records.response_bytes(end)) == data
     assert replay(episode)["verified"]
     assert "I cannot comply" not in episode["error"]
+
+
+@pytest.mark.parametrize("forged_outcome", ["invalid_response", "no_tool_call", "multiple_tool_calls"])
+async def test_replay_checks_complete_json_null_rejection_reason(forged_outcome):
+    async def reply(request):
+        return httpx.Response(200, stream=RawBody(b"null"))
+
+    episode, _ = await native_episode(reply)
+    end = episode["provider_events"][1]
+    assert end["outcome"] == "truncated_response" and end["body_complete"]
+    assert episode["steps"] == 0 and replay(episode)["verified"]
+    end["outcome"] = forged_outcome
+    with pytest.raises(ValueError, match="protocol failure is mislabeled"):
+        replay(episode)
 
 
 async def test_unknown_tool_is_an_environment_invalid_action():
