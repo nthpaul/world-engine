@@ -1,6 +1,6 @@
 # Operate World Engine locally
 
-This guide describes the delivered Python SDK and local operator API. The [technical report](report/world-engine-report.md) explains the design. The [roadmap](ROADMAP.md) lists work required for training, application parity, cloud execution, and multi-tenant deployment.
+This guide describes the delivered Python SDK and local operator API. The [engineering guide](engineering-guide.md) explains the design. The [roadmap](ROADMAP.md) lists work required for training, application parity, cloud execution, and multi-tenant deployment.
 
 ## Start the API and console
 
@@ -226,9 +226,9 @@ uv run python scripts/public-benchmark.py --output artifacts/public-benchmark/NE
 
 For a scripted-only public-task run, add `--skip-local`. This avoids model inference, not Docker build/network prerequisites. Each collector rejects a preexisting output rather than pruning or overwriting prior evidence. Console QA similarly requires fresh `--output` and makes no inference unless the standard phase explicitly receives `--local-cancel`; ATIF/access phases are scripted-only.
 
-The foundation report/PDF is historical release evidence; preserve its published bytes. The separate [follow-up appendix](report/world-engine-follow-up.md) and [PDF](report/world-engine-follow-up.pdf) cover later evidence. Its build command is `bash docs/report/build-follow-up.sh` when Pandoc, Tectonic, and Poppler are installed. The build leaves editable standalone TeX, metadata, link lists, text extraction, and page renders for QA. Reinspect every page after any content change.
+The original research reports, PDFs and build sources are retained in a private local archive rather than the current public tree. Public design and interpretation guidance lives in the [engineering guide](engineering-guide.md); dated results and original measurement receipts remain linked below. Moving the research documents does not change recorded outcomes or source pins.
 
-The [learning labs](report/learning-labs.md) walk through executable SDK grading, exploit attempts, paired policies, split-aware exports, RL batch requirements, and concurrency profiling. The [public-task protocol](public-benchmark.md) documents the separate evaluation-only Docker runner and its build-time network requirements.
+The [engineering guide](engineering-guide.md) covers grading, failure interpretation, split-aware exports, training-data requirements and concurrency measurement. The [public-task protocol](public-benchmark.md) documents the separate evaluation-only Docker runner and its build-time network requirements.
 
 Recorded measurements are available in the [scripted matrix](../examples/benchmark-results/benchmark.md), [paired local-model sample](../examples/benchmark-results/local-model.md), and [final public-task evidence](../artifacts/public-benchmark/native-tools-v2-final/report.md). The local workflow sample uses one task per world, not a broad benchmark. The final public native-tool attempt executed eight shell commands and failed the task. Earlier JSON-v1 attempts executed no commands because their responses were truncated; those historical protocol failures are separate evidence.
 
@@ -250,13 +250,43 @@ The [scripted candidate collector](scripted-candidate-corpus.md) completed its a
 
 Root and console independently verified replay, actual Harbor 0.24.0 interchange, source scope and byte-exact exports; console reconstructed the latter without the exporter. Original artifacts total 19,021,481 bytes; elapsed time was 11.456073333043605 seconds. The later publication archive is 359,286 compressed / 9,344,170 expanded bytes, containing protected synthetic snapshots in SQL row order, not execution chronology; archive and sidecar bytes are separate. [Results and replay guidance](scripted-candidate-results.md), [independent validation](../artifacts/candidate-corpus/20261010-v1/independent-validation.json). No model, tokenizer, training or cloud calls occurred. Default/`--plan` still creates no Store/provider; future collection requires separate authorization, clean reviewed source, fresh output and quotas. The pure native-ledger builder's 76 tests precede SDK integration and the later zero-pass access comparison; none establishes a cache gain or trained improvement.
 
-Public-boundary hardening is recorded in [PR #28](https://github.com/nthpaul/world-engine/pull/28), source `451c1cf9923488f0031a50170e8b714dc31284f2`, with 26 focused tests. These local boundary checks do not complete authentication or multi-tenant deployment gates. The [advanced workbook](report/advanced-environment-labs.pdf) is a separate published twelve-page teach-in, not a replacement for immutable foundation evidence.
+Public-boundary hardening is recorded in [PR #28](https://github.com/nthpaul/world-engine/pull/28), source `451c1cf9923488f0031a50170e8b714dc31284f2`, with 26 focused tests. These local boundary checks do not complete authentication or multi-tenant deployment gates. The [engineering guide](engineering-guide.md) explains the remaining evidence and deployment boundaries; original research workbooks are retained privately.
 
 At source `b4501029a332d7675a12fbf84b00358230d3d154`, the [five-phase console receipt](../artifacts/qa/20261010-current-final-validation-v1/independent-validation.json) passed 129 checks with 56 screenshots, five videos and 26 byte-exact downloads. It created 34 scripted episodes and inspected two unchanged imported native episodes. All 36 replay/Harbor checks passed; native inspection made no model calls. Final operator history was eleven runs/68 episodes, including prior records, not 68 new executions. Standard candidates are not blanket-excluded: their captured exports contain 52 SFT decisions, eight DPO pairs and eight nontrainable groups. The other phases provide sixty episode-format exclusion checks. Original QA accounting is 98 files/21,210,254 bytes; later sidecar bytes are separate.
 
 The [post-change CPU profile](../artifacts/profiling/20261010-v2/independent-validation.json) at that source preserves 192 reference episodes and 1,456 decisions, all passing cleanly. Independent proofs checked replay, actual Harbor, 576 training exclusions, eight binary profiles and logical equivalence. Across four profiled trials, 728 redundant observation reads were removed. Unprofiled read counts were not instrumented. The older profile preserved only 96 profiled episodes; its 96 unprofiled executions were unsaved and its producer was a retrospective sidecar. Do not claim byte-exact reconstruction of that original stdin producer or unsaved records. The new collector preserves both trials; no inference or model-speed claim follows. See [profiling contract](scripted-profiling.md).
 
 The [model-admission study](model-concurrency-study-results.md) at source `1d9f2315348cbea192f7ae5c4f1cf0343ba6618a` completed 32 evaluation-only attempts in 441.573 seconds: 29 business passes, twelve clean successes, 233 decisions, 32 denied actions and three timeouts. Admission one passed 16/16; admission two 13/16. Useful rates were 0.072657230 versus 0.059262489 passes per summed batch-wall second, with preparation/cleanup separate. All 32 replay/Harbor and 96 real-exporter exclusions passed; original raw/report bytes total 4,473,315. Eight unique tasks repeat four times, not 32 independent samples. Partial known usage covers 233/236 chat attempts. This is SDK caller-wave admission, not API throughput or an optimal/GPU/cache policy. Never rerun a locked collector merely to improve a result; new collection needs separate authorization, reviewed source and a fresh output. Root's 1,499 tests/six optional skips, Ruff and frontend build describe source `1d9f2315`, not future changes.
+
+## Read-only database checks
+
+Use the SDK runtime's structured `sqlite3` API with a `mode=ro` URI and
+`PRAGMA query_only=ON` for live SQL-data inspection. Close the connection in
+`finally`. For a live backup, use `Connection.backup` into a fresh private
+destination; copying only the main SQLite file can omit committed WAL data.
+Read-only SQL access may still create or manage WAL/SHM sidecar files. It is
+not a promise of zero filesystem activity.
+
+The final audit at documentation source `51bd144` used an online backup of the
+operator history into a temporary directory. All thirteen runs, seventy episodes
+and 37 lifecycle events matched row-for-row; all episode content hashes and
+denormalized fields matched. Two synthetic queued/running jobs were recovered
+to `interrupted` on the copy, a second writer was rejected, and reopening was
+idempotent. The real database's original rows stayed unchanged; all scratch
+resources were removed. Root separately confirmed live integrity `ok` and zero
+active jobs. This does not test abrupt power loss, filesystem flush guarantees
+or hostile-host authenticity.
+
+On this machine, Apple SQLite CLI 3.54.0 returned error 14 for read-only opening
+of a WAL-mode database after its sidecars disappeared. A minimal one-row fixture
+reproduced it independently of World Engine's schema and path. Python SQLite
+3.47.1 read-only opening succeeded, as did the CLI while that connection held
+WAL/SHM sidecars open. A disposable backup converted to DELETE journal mode also
+opened through the read-only CLI. This narrows the observed portability issue;
+it does not establish the internal Apple VFS cause. Do not interpret that CLI
+error alone as corruption, switch the live database to a different journal mode,
+open it read-write for an audit, or use an immutable URI against an active WAL
+database. The audit changed journal mode only on a disposable copy.
 
 ## Current limits
 
