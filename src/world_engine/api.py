@@ -39,7 +39,23 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
 
     @app.middleware("http")
     async def local_boundary(request: Request, call_next):
-        host = urlparse("http://" + request.headers.get("host", "")).hostname
+        authority = request.headers.get("host", "")
+        try:
+            if not authority or not authority.isascii() or any(char.isspace() or ord(char) < 32 or ord(char) == 127 for char in authority):
+                raise ValueError
+            parsed = urlparse("http://" + authority)
+            host, port = parsed.hostname, parsed.port
+            if (host is None or parsed.netloc != authority or parsed.path or parsed.params or parsed.query or parsed.fragment
+                    or parsed.username is not None or parsed.password is not None):
+                raise ValueError
+            host_part = f"[{host}]" if ":" in host else host
+            suffix = authority[len(host_part):]
+            if (authority[:len(host_part)].lower() != host_part
+                    or suffix and (not suffix.startswith(":") or port is None)
+                    or port is not None and not 1 <= port <= 65535):
+                raise ValueError
+        except ValueError:
+            return JSONResponse({"detail": "invalid host authority"}, status_code=400)
         if host not in ALLOWED_HOSTS:
             return JSONResponse({"detail": "host is not allowed"}, status_code=403)
         origin = request.headers.get("origin")
