@@ -220,7 +220,7 @@ class BrowserReferencePolicy:
                 node = choose("tab", "Member")
                 if node:
                     action = Click(bid=node["bid"])
-        elif re.search(r"/-/issues/[0-9]+", observation.url):
+        elif re.search(r"/-/(?:issues|work_items)/[0-9]+", observation.url):
             if self.marker not in observation.accessibility_text:
                 if observation.url not in self.visited:
                     self.visited.add(observation.url)
@@ -232,7 +232,7 @@ class BrowserReferencePolicy:
                 action = Finish() if "Closed" in observation.accessibility_text else Scroll(direction="up")
             elif persisted_comment and any(
                     item["action"].get("kind") == "click" for item in history):
-                node = choose("button", "Close issue", exact=True)
+                node = choose("button", "Close issue", exact=True) or choose("button", "Close item", exact=True)
                 if node:
                     action = Click(bid=node["bid"])
                 elif "Closed" in observation.accessibility_text:
@@ -251,7 +251,7 @@ class BrowserReferencePolicy:
                         action = Fill(bid=textbox["bid"], text=self.comment)
                 else:
                     action = Scroll(direction="down")
-        elif observation.url.rstrip("/").endswith("/-/issues"):
+        elif re.search(r"/-/(?:issues|work_items)/?$", observation.url):
             self.issue_list_url = observation.url
             candidates = [node for node in nodes if node["role"] == "link"
                           and node["bid"]
@@ -259,7 +259,7 @@ class BrowserReferencePolicy:
             if self.issue_cursor < len(candidates):
                 action = Click(bid=candidates[self.issue_cursor]["bid"])
         else:
-            node = choose("link", "Issues") or choose("button", "Plan", exact=True)
+            node = choose("link", "Issues", exact=True) or choose("link", "Work items", exact=True) or choose("button", "Plan", exact=True)
             if node:
                 action = Click(bid=node["bid"])
         if action is None:
