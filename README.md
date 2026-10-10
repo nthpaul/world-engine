@@ -1,149 +1,51 @@
 # World Engine
 
-Open infrastructure that turns **production agent failures** into **validated, guarded improvements**.
+Local workflow environments, bounded agent rollouts, trusted grades, and trace curation. The Python SDK and operator console run without model credentials. An optional local Ollama provider runs an existing model. Remote model calls require explicit opt-in.
 
-This repository is in a **planning-only** phase (see [ARCHITECTURE.md](ARCHITECTURE.md), [ROADMAP.md](ROADMAP.md), [RESEARCH.md](RESEARCH.md)). No product runtime is claimed yet. Coordination audit surface: [`SWARM.md`](SWARM.md), [`coordination/`](coordination/).
+## Run locally
 
----
+Use Python 3.11 or newer, `uv`, and Node.js 22 or newer. In one terminal:
 
-## Mission
-
-Give builders and reliability operators a closed path from *what broke in production* to *a change that earned the right to ship*—or an explicit, auditable refuse.
-
-Improvement is a **control problem**, not a dataset bake-off. The scarce asset is contracts, validators, and gate discipline—not a proprietary weight dump.
-
----
-
-## Precise problem
-
-Deployed agents fail in ways offline evals miss. Operators see incidents, regressions, and silent drift, but the path from evidence to a safe update is broken in four places:
-
-1. Evidence stays thin or untyped—logs do not become causal explanations.
-2. Diagnosis does not yield replayable counterfactual tasks.
-3. Rewards and updates go unvalidated—patches can optimize the wrong signal or memorize the incident.
-4. Deployment lacks a held-out and canary gate—changes ship without adversarial checks or evidence re-entry.
-
-**One sentence:** Build a model- and harness-agnostic closed loop that turns production failures into causally grounded counterfactual tasks, adversarially validated rewards, and guarded updates—then proves those updates improve held-out behavior before they touch live traffic.
-
----
-
-## Users
-
-| Persona | Role |
-|---------|------|
-| **Agent builder** (primary) | Ships tools, harness, prompts, memory, optional post-training. Needs reproducible failures and measurable lifts with low lock-in. |
-| **Reliability / eval operator** (primary) | Owns quality gates, incidents, release criteria. Needs typed evidence, pass/fail gates, rollback. |
-| **Research contributor** (secondary) | Extends environments, diagnosers, probes, update adapters behind stable contracts. |
-| **Platform integrator** (secondary) | Connects an existing harness, telemetry store, and deploy path via thin adapters. |
-
-End consumers of the agent’s output are beneficiaries, not direct users of this system.
-
----
-
-## Full closed loop
-
-```
-production evidence
-        ↓
-causal diagnosis
-        ↓
-counterfactual environments & tasks
-        ↓
-adversarial reward validation
-        ↓
-update (choose + apply intervention)
-        ↓
-held-out simulation evaluation
-        ↓
-guarded deployment
-        ↓
-new production evidence ──┘
+```sh
+uv sync --extra dev
+uv run python -m world_engine serve
 ```
 
-Each stage’s output must be a valid input to the next under distribution shift and Goodhart pressure. Skipping a stage requires a ledgered break-glass exception and taints the promote path.
+In a second terminal:
 
-**Reject, abstain, and rollback are successful outcomes** when warranted. Silent hope is not.
+```sh
+cd web
+npm ci
+npm run dev
+```
 
----
+Open [the console](http://127.0.0.1:5173). The API listens on [loopback port 8000](http://127.0.0.1:8000/api/health). Start with the scripted reference and baseline providers to inspect successful and incomplete workflows.
 
-## Differentiating principles
+## Workflows and data
 
-1. **Evidence before update** — no shippable change without evidence → diagnosis → counterfactual lineage.
-2. **Counterfactuals over anecdotes** — incidents become environments/tasks that can fail again under variation.
-3. **Causal honesty** — constructed elicitation ≠ independent recovery; claim grades rise only with identification plans (primary + placebo + rivals).
-4. **Reward is guilty until validated** — every promote path carries a reward-validation artifact (`certified` or explicit `not_applicable`).
-5. **Held-out is sacred** — sealed access classes and taint closure are architectural invariants, not honor systems.
-6. **Least risk that works** — prefer reversible structure-only interventions; every applied change has a rollback spec.
-7. **Guarded by default** — canary, kill criteria, evidence re-entry; docs-only deploy templates are not loop proof.
-8. **Local / sovereign by default** — data stays on the operator’s machine; portable, digest-addressed artifacts for export.
-9. **Agnostic at the seams** — models, harnesses, and vendors plug in behind contracts; core never hard-depends on one stack.
-10. **Falsifiability** — the thesis states how it dies; anti-metrics catch self-deception.
+| World | Outcome checked |
+| --- | --- |
+| `crm-merge` | Canonical customer, ticket ownership, invoice conservation, unrelated records, merge audit |
+| `refund-ops` | Eligibility, exact payment, finance approval, idempotency, ticket resolution |
+| `incident-control` | Acknowledgement, preflight checks, approval, healthy rollback, preserved service data |
 
----
+Runs persist episode state, tool events, grades, scenario splits, provenance, and fingerprints in SQLite. Replay recomputes transitions and final grades. Exports provide SFT candidates, comparable DPO pairs, raw grouped rollouts, and traces. Raw grouped rollouts are explicitly `trainable: false`; a PPO or GRPO trainer still needs sampled tokens, masks, behavior probabilities, and a fixed policy checkpoint.
 
-## First open-source wedge
+## Read and verify
 
-**Name:** Failure-class canary loop (one harness, one class, one reversible update).
+- [Operations guide](docs/OPERATIONS.md): startup, SDK use, API routes, exports, recovery, and limits.
+- [Technical report](docs/report/world-engine-report.md) and [formal PDF](docs/report/world-engine-report.pdf): environment design, fidelity, reward hacking, post-training, evaluation, and throughput.
+- [Learning labs](docs/report/learning-labs.md): six reproducible experiments with worked interpretation.
+- [Primary sources](docs/research/SOURCES.md): verified Fleet, Proximal, Harbor, PufferLib, benchmark, and training references.
+- [Roadmap](docs/ROADMAP.md) and [build evidence](coordination/BUILD.md): explicit completion gates and remaining work.
+- [Historical prototype](prototypes/failure-to-intervention/README.md): earlier SQLite failure-to-intervention experiment.
 
-Prove **loop closure**, not artifact volume:
+Run focused backend checks with `uv run pytest` and `uv run ruff check src tests`. Build the console with `npm run build` in `web`. Browser QA instructions live in [the console guide](docs/ui.md).
 
-1. Ingest recorded/redacted evidence for one recurring failure class from **one reference harness**.
-2. Emit a human-legible diagnosis with cited spans.
-3. Compile a runnable counterfactual family with **deterministic replay**, contrast set (causal flip + placebo + rivals when claiming ID), and **pre-update fail attestation**.
-4. Attach adversarial reward validation (planted-bug catch required when claiming adversarial completeness; `structure_only` may emit `not_applicable`).
-5. Apply one **reversible non-weight** update (`structure_only`: prompt / tool policy / diagnosis-justified memory).
-6. Run **sealed held-out** evaluation (target class + adjacent regress).
-7. Reach a **guarded deployment decision** (ship *or* rollback) and close H7: post-canary episodes CAS-put as redacted `EvidenceBundle`s under the same failure class, with `EvidenceReentryPlan` outcome recorded.
+Measured evidence includes [the scripted workload matrix](examples/benchmark-results/benchmark.md), [paired local-model/reference/baseline attempts](examples/benchmark-results/local-model.md), and [one adapted public Terminal-Bench task](docs/public-benchmark.md). The public native-tool attempt executed eight shell commands but failed to produce the required CSV; earlier malformed-JSON attempts are retained separately. These are bounded integration samples, not general capability scores.
 
-**Not in the wedge:** multi-tenant control plane, weight training, pack marketplaces, N≥50 vanity suites, second harness, hosted SKUs.
+The final local model passed the single sampled refund task and failed the sampled CRM and incident tasks. All nine final reference/baseline/model records replay with `uv run python -m world_engine replay --file examples/benchmark-results/local-model-traces.jsonl`.
 
-**Claim split (marketing forbid):**
+## Scope
 
-| Claim | Allowed when |
-|-------|----------------|
-| Harness smoke | Offline pack runs; artifacts emit |
-| Canary-affidavit provisional | Partner/local canary with kill criteria + public or shared **hash list**, but post-canary bodies not yet CAS-ingested |
-| Full loop proven | Deploy decision **and** post-canary episodes ingested as redacted `EvidenceBundle` digests in a permitted local or tenant-private CAS **and** `EvidenceReentryPlan` outcome recorded (partner canary OK; YAML-only / hash-list-only **not**). Public disclosure of sensitive content is not required. |
-| Safe to optimize (`reward_dependent`) | Live unexpired `certified` certificate — **not** implied by wedge success or by E6 lab GO |
-
----
-
-## North-star and anti-metrics
-
-### North-star
-
-**TTVI — time-to-validated-improvement:** median wall time from first detection of a production failure class to a held-out-gated update that shows meaningful lift on that class (and no material regress on the sealed suite) under guarded deploy—**or** an explicit lineage-complete reject.
-
-Supporting: failure-class coverage, gate precision (held-out pass ↔ canary move), loop completion rate (deploy-or-reject, no silent abandonment).
-
-### Anti-metrics (drive these down)
-
-| Anti-metric | Why toxic |
-|-------------|-----------|
-| Offline-only win rate | Lift on tasks derived from the same incidents used to fit |
-| Vacuous adversarial pass | “Search found none” without planted-bug catch |
-| Suite contamination | Held-out leakage into fit data |
-| Silent patch rate | Changes without evidence chain |
-| Canary revert without lineage | Gates are theater |
-| Vendor-coupled core PRs | Agnostic seams eroding |
-| Task-count vanity | Volume without reproduction attestation |
-
----
-
-## Prototypes
-
-- [`prototypes/failure-to-intervention/`](prototypes/failure-to-intervention/) — first executable slice of the loop: a synthetic duplicate-customer ops incident reconstructed as deterministic SQLite state, scored by business invariants, varied across three counterfactuals, and used to separate an overfit fix from a robust one. Run `pnpm demo` inside the directory for the result matrix.
-
----
-
-## Current phase
-
-| Item | Status |
-|------|--------|
-| Phase | **Planning only** — no product code |
-| Doctrine | Synthesized from specialist proposals (see `coordination/DECISIONS.md`) |
-| Next | Freeze contracts → thin vertical slice per [ROADMAP.md](ROADMAP.md) |
-| Research kill chain | [RESEARCH.md](RESEARCH.md) |
-| Architecture | [ARCHITECTURE.md](ARCHITECTURE.md) |
-
-**Thesis falsifiers (kill or narrow):** systematic failures too rare; diagnosis not operationalizable; rewards unvalidatable; held-out never transfers to canary; agnostic seams impossible; TTVI no better (and no safer) than baseline ops; guarded deploy unavailable. Details in RESEARCH.md and `coordination/DECISIONS.md`.
+The included worlds simulate business rules in trusted Python objects. They do not replicate a production application's visual interface or sandbox arbitrary code. The local API is a single-process operator service, not a multi-tenant deployment. No model training, cloud sandbox orchestration, production-transfer result, or competitor speed advantage is claimed. A successful scripted reference execution verifies implementation behavior; any actual model or public benchmark result must be read with its sample count and execution protocol.

@@ -1,0 +1,1777 @@
+{
+  "created_at": "2026-10-10T04:51:42.827797+00:00",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "python": "3.13.5",
+  "model": "qwen3:8b",
+  "model_downloaded": false,
+  "paid_calls": 0,
+  "seed": 42,
+  "evaluation_only": true,
+  "max_steps": 20,
+  "episode_timeout_seconds": 120,
+  "limitations": "Tiny paired local evaluation, not a population estimate or comparison with hosted systems. Tool replay is deterministic; model inference may not be bitwise deterministic.",
+  "rows": [
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "scripted-oracle",
+      "run_id": "b06d0d11-656d-422f-94b5-193a03e09c0a",
+      "status": "completed",
+      "passed": 1,
+      "count": 1,
+      "success_rate": 1.0,
+      "elapsed_seconds": 0.01605533401016146,
+      "error": null,
+      "episodes": [
+        {
+          "id": "85b5dc77-b480-4949-82b2-0a24fa7f7a34",
+          "seed": 42,
+          "scenario_id": "8bd192f7b17a6ce759c86c4ce13f9f203bd793839d1753c83b5bc0b2e10bff1e",
+          "provenance": {
+            "environment_code_hash": "2037549ca39e99b102e33fb0e93e65956744a4a3b6c4bbda0f4a24ee4c2bf0a5",
+            "environment_id": "crm-merge",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "grader_code_hash": "0418851f9cc09fe398a1bbfd628cc1454578c27bca7f9d3429cb291bd844dd22",
+            "grader_version": "1.0.0",
+            "initial_state_hash": "0952ad44ac865d820d9edb2b727cb997fa4b44855ea83fe9b3c61e845deebb2e",
+            "model": "scripted-oracle",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "db1b1f08c53822661bf4889911577861727822b11e1934ec3654a11624e27aca",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "c0b175c533498f98bcb2d014c2bfca305acd4b915953208c3dc25821d36c303a",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-oracle",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "8bd192f7b17a6ce759c86c4ce13f9f203bd793839d1753c83b5bc0b2e10bff1e",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "c0433fb12a1fd7b3c2a0fb2e9524ba9fed4c5053683bed92d7c4b599a78eaa5d"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 1.0,
+          "passed": true,
+          "steps": 6,
+          "elapsed_seconds": 0.009141208021901548,
+          "invalid_actions": 0,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "train",
+          "final_state_hash": "1b1a263d31fdb8c9e81eeba9232475f74e8fea6f7e0d9d32c295d8244bcf3258",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "resource_id": 381
+                },
+                "tool": "void_invoice"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1.415582955814898,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "resource_id": 854,
+                  "to_customer_id": 754
+                },
+                "tool": "transfer_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1.2143750209361315,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "resource_id": 350,
+                  "to_customer_id": 754
+                },
+                "tool": "transfer_invoice"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1.3176669599488378,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "customer_id": 214
+                },
+                "tool": "deactivate_customer"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1.305124955251813,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "customer_id": 214
+                },
+                "tool": "complete_merge"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 2.3761660559102893,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 1.398624968715012,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "scripted-baseline",
+      "run_id": "d8648a0f-2c45-4c9a-ab92-fefee1e2af38",
+      "status": "completed",
+      "passed": 0,
+      "count": 1,
+      "success_rate": 0.0,
+      "elapsed_seconds": 0.008287791977636516,
+      "error": null,
+      "episodes": [
+        {
+          "id": "59c204cf-e04f-40b2-8600-46e6c70c41ca",
+          "seed": 42,
+          "scenario_id": "8bd192f7b17a6ce759c86c4ce13f9f203bd793839d1753c83b5bc0b2e10bff1e",
+          "provenance": {
+            "environment_code_hash": "2037549ca39e99b102e33fb0e93e65956744a4a3b6c4bbda0f4a24ee4c2bf0a5",
+            "environment_id": "crm-merge",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "grader_code_hash": "0418851f9cc09fe398a1bbfd628cc1454578c27bca7f9d3429cb291bd844dd22",
+            "grader_version": "1.0.0",
+            "initial_state_hash": "0952ad44ac865d820d9edb2b727cb997fa4b44855ea83fe9b3c61e845deebb2e",
+            "model": "scripted-baseline",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "abae34a17293011ed6905b2f7569fa4e4e7d418e37e076cceabe3ba6b054010c",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "c0b175c533498f98bcb2d014c2bfca305acd4b915953208c3dc25821d36c303a",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-baseline",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "8bd192f7b17a6ce759c86c4ce13f9f203bd793839d1753c83b5bc0b2e10bff1e",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "c0433fb12a1fd7b3c2a0fb2e9524ba9fed4c5053683bed92d7c4b599a78eaa5d"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 0.2,
+          "passed": false,
+          "steps": 2,
+          "elapsed_seconds": 0.002960709040053189,
+          "invalid_actions": 1,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "train",
+          "final_state_hash": "859c471b4db1fdabccbce6123263dbe36e51ed45a635717a15e1deb75c664880",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "customer_id": 214
+                },
+                "tool": "deactivate_customer"
+              },
+              "result": {
+                "error": "duplicate still owns tickets",
+                "ok": false
+              },
+              "elapsed_ms": 1.4154169475659728,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 1.4565830351784825,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "local",
+      "run_id": "ae69f380-aaf7-4922-aba1-efde4cd9f603",
+      "status": "completed",
+      "passed": 0,
+      "count": 1,
+      "success_rate": 0.0,
+      "elapsed_seconds": 61.02347945899237,
+      "error": null,
+      "episodes": [
+        {
+          "id": "31655179-e127-4560-8b50-f66077c7c0ed",
+          "seed": 42,
+          "scenario_id": "8bd192f7b17a6ce759c86c4ce13f9f203bd793839d1753c83b5bc0b2e10bff1e",
+          "provenance": {
+            "environment_code_hash": "2037549ca39e99b102e33fb0e93e65956744a4a3b6c4bbda0f4a24ee4c2bf0a5",
+            "environment_id": "crm-merge",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "grader_code_hash": "0418851f9cc09fe398a1bbfd628cc1454578c27bca7f9d3429cb291bd844dd22",
+            "grader_version": "1.0.0",
+            "initial_state_hash": "0952ad44ac865d820d9edb2b727cb997fa4b44855ea83fe9b3c61e845deebb2e",
+            "model": "qwen3:8b",
+            "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "f178ccba31360a149effe5ced74a4a03070ba0b2a08265f376f42b7f0f18115e",
+            "policy_identity": "local-catalog-digest",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "c0b175c533498f98bcb2d014c2bfca305acd4b915953208c3dc25821d36c303a",
+            "provider_class": "world_engine.providers.HTTPProvider",
+            "provider_id": "local",
+            "provider_source_hash": "69ffc653c1e72b43409c90609ae5dbcd0f8ee5b21c84622a131fe3d023a0a782",
+            "runtime": "3.13.5",
+            "scenario_id": "8bd192f7b17a6ce759c86c4ce13f9f203bd793839d1753c83b5bc0b2e10bff1e",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "c0433fb12a1fd7b3c2a0fb2e9524ba9fed4c5053683bed92d7c4b599a78eaa5d"
+          },
+          "status": "completed",
+          "termination": "max_steps",
+          "reward": 0.2,
+          "passed": false,
+          "steps": 20,
+          "elapsed_seconds": 60.96875225007534,
+          "invalid_actions": 0,
+          "error": null,
+          "usage": {
+            "input_tokens": 25921,
+            "output_tokens": 200
+          },
+          "split": "train",
+          "final_state_hash": "0fb14d94ff402cafe8c4a4acf4c4ecef35b9042c36c65141f7284f68e4d8326c",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 6597.69945894368,
+              "usage": {
+                "inference_ns": 6594123541,
+                "input_tokens": 1069,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 24417.509459075518,
+              "usage": {
+                "inference_ns": 24411095792,
+                "input_tokens": 1092,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1596.6853749705479,
+              "usage": {
+                "inference_ns": 1591795917,
+                "input_tokens": 1116,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1560.8026250265539,
+              "usage": {
+                "inference_ns": 1555136458,
+                "input_tokens": 1140,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1631.5153749892488,
+              "usage": {
+                "inference_ns": 1624124125,
+                "input_tokens": 1164,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1573.365707998164,
+              "usage": {
+                "inference_ns": 1566083333,
+                "input_tokens": 1188,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1601.1768749449402,
+              "usage": {
+                "inference_ns": 1596036042,
+                "input_tokens": 1212,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1640.8265830250457,
+              "usage": {
+                "inference_ns": 1635164958,
+                "input_tokens": 1236,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1631.196416914463,
+              "usage": {
+                "inference_ns": 1623447958,
+                "input_tokens": 1260,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1643.796917051077,
+              "usage": {
+                "inference_ns": 1636138833,
+                "input_tokens": 1284,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1716.431500040926,
+              "usage": {
+                "inference_ns": 1710049000,
+                "input_tokens": 1308,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1647.878292016685,
+              "usage": {
+                "inference_ns": 1644036209,
+                "input_tokens": 1332,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1684.6617920091376,
+              "usage": {
+                "inference_ns": 1681510917,
+                "input_tokens": 1356,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1715.4123750515282,
+              "usage": {
+                "inference_ns": 1710384875,
+                "input_tokens": 1380,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1693.3169999392703,
+              "usage": {
+                "inference_ns": 1685155541,
+                "input_tokens": 1404,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1702.9752499656752,
+              "usage": {
+                "inference_ns": 1695906417,
+                "input_tokens": 1428,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1723.0762499384582,
+              "usage": {
+                "inference_ns": 1715347458,
+                "input_tokens": 1452,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1705.879999906756,
+              "usage": {
+                "inference_ns": 1701206167,
+                "input_tokens": 1476,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1716.5282500209287,
+              "usage": {
+                "inference_ns": 1713494083,
+                "input_tokens": 1500,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1767.878417042084,
+              "usage": {
+                "inference_ns": 1765011458,
+                "input_tokens": 1524,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "scripted-oracle",
+      "run_id": "0eeca68a-dd85-4506-99e9-0b9236f37a16",
+      "status": "completed",
+      "passed": 1,
+      "count": 1,
+      "success_rate": 1.0,
+      "elapsed_seconds": 0.008431500056758523,
+      "error": null,
+      "episodes": [
+        {
+          "id": "857589bb-e978-453a-b376-789521293024",
+          "seed": 42,
+          "scenario_id": "be2b48f9cc042b14df7fdd59d1d9e5f46fe836e4102ee959b444794ccbbb5ddc",
+          "provenance": {
+            "environment_code_hash": "2037549ca39e99b102e33fb0e93e65956744a4a3b6c4bbda0f4a24ee4c2bf0a5",
+            "environment_id": "refund-ops",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "grader_code_hash": "0418851f9cc09fe398a1bbfd628cc1454578c27bca7f9d3429cb291bd844dd22",
+            "grader_version": "1.0.0",
+            "initial_state_hash": "7ee471139693bc15ad7611857bdea3756ad13ed1f2dbc209665bb694dc4d01f0",
+            "model": "scripted-oracle",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "db1b1f08c53822661bf4889911577861727822b11e1934ec3654a11624e27aca",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "436e8d084c7b327edf063a4f5b3da2176fd79e681f9fa450482df1023b4af06f",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-oracle",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "be2b48f9cc042b14df7fdd59d1d9e5f46fe836e4102ee959b444794ccbbb5ddc",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "0c9dec4f642e1e8e753fa53fa6d73d235f41b579a06fc67f60a7aab69bf4b210"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 1.0,
+          "passed": true,
+          "steps": 3,
+          "elapsed_seconds": 0.0032068330328911543,
+          "invalid_actions": 0,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "test",
+          "final_state_hash": "331b4df92d7baf9568d69e3b59bfab5034c8f5e85f8db926503b5269c6582d12",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "amount_cents": 4500,
+                  "idempotency_key": "ticket-3253-refund",
+                  "order_id": 6238
+                },
+                "tool": "issue_refund"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1.1595410760492086,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1.0739159770309925,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 0.9336250368505716,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "scripted-baseline",
+      "run_id": "fe06e208-cd95-4f11-95fe-849a628fdc58",
+      "status": "completed",
+      "passed": 0,
+      "count": 1,
+      "success_rate": 0.0,
+      "elapsed_seconds": 0.006993500050157309,
+      "error": null,
+      "episodes": [
+        {
+          "id": "5da26a94-b01b-4d63-a464-ea58a27904f0",
+          "seed": 42,
+          "scenario_id": "be2b48f9cc042b14df7fdd59d1d9e5f46fe836e4102ee959b444794ccbbb5ddc",
+          "provenance": {
+            "environment_code_hash": "2037549ca39e99b102e33fb0e93e65956744a4a3b6c4bbda0f4a24ee4c2bf0a5",
+            "environment_id": "refund-ops",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "grader_code_hash": "0418851f9cc09fe398a1bbfd628cc1454578c27bca7f9d3429cb291bd844dd22",
+            "grader_version": "1.0.0",
+            "initial_state_hash": "7ee471139693bc15ad7611857bdea3756ad13ed1f2dbc209665bb694dc4d01f0",
+            "model": "scripted-baseline",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "abae34a17293011ed6905b2f7569fa4e4e7d418e37e076cceabe3ba6b054010c",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "436e8d084c7b327edf063a4f5b3da2176fd79e681f9fa450482df1023b4af06f",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-baseline",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "be2b48f9cc042b14df7fdd59d1d9e5f46fe836e4102ee959b444794ccbbb5ddc",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "0c9dec4f642e1e8e753fa53fa6d73d235f41b579a06fc67f60a7aab69bf4b210"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 0.6,
+          "passed": false,
+          "steps": 2,
+          "elapsed_seconds": 0.002113208989612758,
+          "invalid_actions": 1,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "test",
+          "final_state_hash": "be689cf1d0b28adbdd7a2e3ac7ade8b6e243394bda24d58acf166c994f26c97e",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "error": "refund must settle before closing the ticket",
+                "ok": false
+              },
+              "elapsed_ms": 1.0006659431383014,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 1.07833300717175,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "local",
+      "run_id": "5b21607e-c9de-4a4f-bad8-87c5adb30ec5",
+      "status": "completed",
+      "passed": 1,
+      "count": 1,
+      "success_rate": 1.0,
+      "elapsed_seconds": 15.425040500005707,
+      "error": null,
+      "episodes": [
+        {
+          "id": "bfc1f32b-957c-48c8-b6bc-d9e96536250f",
+          "seed": 42,
+          "scenario_id": "be2b48f9cc042b14df7fdd59d1d9e5f46fe836e4102ee959b444794ccbbb5ddc",
+          "provenance": {
+            "environment_code_hash": "2037549ca39e99b102e33fb0e93e65956744a4a3b6c4bbda0f4a24ee4c2bf0a5",
+            "environment_id": "refund-ops",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "grader_code_hash": "0418851f9cc09fe398a1bbfd628cc1454578c27bca7f9d3429cb291bd844dd22",
+            "grader_version": "1.0.0",
+            "initial_state_hash": "7ee471139693bc15ad7611857bdea3756ad13ed1f2dbc209665bb694dc4d01f0",
+            "model": "qwen3:8b",
+            "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "f178ccba31360a149effe5ced74a4a03070ba0b2a08265f376f42b7f0f18115e",
+            "policy_identity": "local-catalog-digest",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "436e8d084c7b327edf063a4f5b3da2176fd79e681f9fa450482df1023b4af06f",
+            "provider_class": "world_engine.providers.HTTPProvider",
+            "provider_id": "local",
+            "provider_source_hash": "69ffc653c1e72b43409c90609ae5dbcd0f8ee5b21c84622a131fe3d023a0a782",
+            "runtime": "3.13.5",
+            "scenario_id": "be2b48f9cc042b14df7fdd59d1d9e5f46fe836e4102ee959b444794ccbbb5ddc",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "0c9dec4f642e1e8e753fa53fa6d73d235f41b579a06fc67f60a7aab69bf4b210"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 1.0,
+          "passed": true,
+          "steps": 9,
+          "elapsed_seconds": 15.401703374926,
+          "invalid_actions": 1,
+          "error": null,
+          "usage": {
+            "input_tokens": 9487,
+            "output_tokens": 217
+          },
+          "split": "test",
+          "final_state_hash": "7f76f8883dacf6f993d2bbd1adf7f1ce334f789ac4c98e4762f3cfc50966007d",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "amount_cents": 4500,
+                  "idempotency_key": "previous-refund",
+                  "order_id": 6238
+                },
+                "tool": "issue_refund"
+              },
+              "result": {
+                "error": "idempotency key already used for a different payment",
+                "ok": false
+              },
+              "elapsed_ms": 1688.3752919966355,
+              "usage": {
+                "inference_ns": 1685864750,
+                "input_tokens": 817,
+                "model": "qwen3:8b",
+                "output_tokens": 37
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "amount_cents": 4500,
+                  "idempotency_key": "new-refund-key",
+                  "order_id": 6238
+                },
+                "tool": "issue_refund"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1857.3227090528235,
+              "usage": {
+                "inference_ns": 1851679791,
+                "input_tokens": 874,
+                "model": "qwen3:8b",
+                "output_tokens": 38
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1724.9938750173897,
+              "usage": {
+                "inference_ns": 1717994709,
+                "input_tokens": 992,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1729.0434159804136,
+              "usage": {
+                "inference_ns": 1722876291,
+                "input_tokens": 1049,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1675.027416087687,
+              "usage": {
+                "inference_ns": 1668353667,
+                "input_tokens": 1083,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1690.7866660039872,
+              "usage": {
+                "inference_ns": 1683726959,
+                "input_tokens": 1117,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1752.220958005637,
+              "usage": {
+                "inference_ns": 1745147125,
+                "input_tokens": 1151,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1725.6622089771554,
+              "usage": {
+                "inference_ns": 1721030125,
+                "input_tokens": 1185,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 1558.116292115301,
+              "usage": {
+                "inference_ns": 1553329167,
+                "input_tokens": 1219,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "scripted-oracle",
+      "run_id": "88b98f72-fed8-420a-b899-471e7f153fd3",
+      "status": "completed",
+      "passed": 1,
+      "count": 1,
+      "success_rate": 1.0,
+      "elapsed_seconds": 0.024135124986059964,
+      "error": null,
+      "episodes": [
+        {
+          "id": "3bf3aad6-0d03-4e65-a216-7250730b6089",
+          "seed": 42,
+          "scenario_id": "d574c49ae8c739acf01aadb7b8b7bbb60c51c35ee913d0a21f2ed27897e8133c",
+          "provenance": {
+            "environment_code_hash": "2037549ca39e99b102e33fb0e93e65956744a4a3b6c4bbda0f4a24ee4c2bf0a5",
+            "environment_id": "incident-control",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "grader_code_hash": "0418851f9cc09fe398a1bbfd628cc1454578c27bca7f9d3429cb291bd844dd22",
+            "grader_version": "1.0.0",
+            "initial_state_hash": "05205126dc4428ec5ca68aa8d25b493d2ff6074cbc466ecda97e66f497a67ba3",
+            "model": "scripted-oracle",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "db1b1f08c53822661bf4889911577861727822b11e1934ec3654a11624e27aca",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "8e014b03b56845e481691caa8e2d3e34f51e65f6474762839be67034a1c50948",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-oracle",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "d574c49ae8c739acf01aadb7b8b7bbb60c51c35ee913d0a21f2ed27897e8133c",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "2d0d2da45e4a2c4e9edc117c680cb6ba8a22a3fe29baee5200c15a850eaa359f"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 1.0,
+          "passed": true,
+          "steps": 8,
+          "elapsed_seconds": 0.016073500039055943,
+          "invalid_actions": 0,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "train",
+          "final_state_hash": "30fd9a1c9752c89561c769504c23d24d8a2b4d7769589691453f360d046d326c",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754
+                },
+                "tool": "acknowledge_incident"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 2.27012496907264,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754,
+                  "target_version": "v24"
+                },
+                "tool": "propose_rollback"
+              },
+              "result": {
+                "change_id": 1754,
+                "message": "change proposed",
+                "ok": true
+              },
+              "elapsed_ms": 1.8269579159095883,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754,
+                  "check": "compatibility"
+                },
+                "tool": "run_change_check"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1.996292034164071,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754,
+                  "check": "health"
+                },
+                "tool": "run_change_check"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 2.033584052696824,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 2.0249580265954137,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "execute_change"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1.9296669634059072,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754
+                },
+                "tool": "resolve_incident"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1.8619169713929296,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 2.070375019684434,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "scripted-baseline",
+      "run_id": "0c1aeb7b-8950-4a5c-8193-d29a18b46299",
+      "status": "completed",
+      "passed": 0,
+      "count": 1,
+      "success_rate": 0.0,
+      "elapsed_seconds": 0.0089339999249205,
+      "error": null,
+      "episodes": [
+        {
+          "id": "31f6a95d-5ce7-4ff9-96ef-d8d67e2f1f07",
+          "seed": 42,
+          "scenario_id": "d574c49ae8c739acf01aadb7b8b7bbb60c51c35ee913d0a21f2ed27897e8133c",
+          "provenance": {
+            "environment_code_hash": "2037549ca39e99b102e33fb0e93e65956744a4a3b6c4bbda0f4a24ee4c2bf0a5",
+            "environment_id": "incident-control",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "grader_code_hash": "0418851f9cc09fe398a1bbfd628cc1454578c27bca7f9d3429cb291bd844dd22",
+            "grader_version": "1.0.0",
+            "initial_state_hash": "05205126dc4428ec5ca68aa8d25b493d2ff6074cbc466ecda97e66f497a67ba3",
+            "model": "scripted-baseline",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "abae34a17293011ed6905b2f7569fa4e4e7d418e37e076cceabe3ba6b054010c",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "8e014b03b56845e481691caa8e2d3e34f51e65f6474762839be67034a1c50948",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-baseline",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "d574c49ae8c739acf01aadb7b8b7bbb60c51c35ee913d0a21f2ed27897e8133c",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "2d0d2da45e4a2c4e9edc117c680cb6ba8a22a3fe29baee5200c15a850eaa359f"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 0.4,
+          "passed": false,
+          "steps": 2,
+          "elapsed_seconds": 0.0032151249470189214,
+          "invalid_actions": 1,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "train",
+          "final_state_hash": "02db28d60c1c937948a62c3cec326b0bc4226bc855de2ae8991de2ec25a4f6e7",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754
+                },
+                "tool": "resolve_incident"
+              },
+              "result": {
+                "error": "incident requires acknowledged, approved healthy recovery",
+                "ok": false
+              },
+              "elapsed_ms": 1.622042036615312,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 1.5587500529363751,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "local",
+      "run_id": "671e6b5c-79e8-4bfe-995c-0be2c356e6c8",
+      "status": "completed",
+      "passed": 0,
+      "count": 1,
+      "success_rate": 0.0,
+      "elapsed_seconds": 35.54476874996908,
+      "error": null,
+      "episodes": [
+        {
+          "id": "c864c460-614f-4788-a474-7d8116b2b31a",
+          "seed": 42,
+          "scenario_id": "d574c49ae8c739acf01aadb7b8b7bbb60c51c35ee913d0a21f2ed27897e8133c",
+          "provenance": {
+            "environment_code_hash": "2037549ca39e99b102e33fb0e93e65956744a4a3b6c4bbda0f4a24ee4c2bf0a5",
+            "environment_id": "incident-control",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "grader_code_hash": "0418851f9cc09fe398a1bbfd628cc1454578c27bca7f9d3429cb291bd844dd22",
+            "grader_version": "1.0.0",
+            "initial_state_hash": "05205126dc4428ec5ca68aa8d25b493d2ff6074cbc466ecda97e66f497a67ba3",
+            "model": "qwen3:8b",
+            "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "f178ccba31360a149effe5ced74a4a03070ba0b2a08265f376f42b7f0f18115e",
+            "policy_identity": "local-catalog-digest",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "8e014b03b56845e481691caa8e2d3e34f51e65f6474762839be67034a1c50948",
+            "provider_class": "world_engine.providers.HTTPProvider",
+            "provider_id": "local",
+            "provider_source_hash": "69ffc653c1e72b43409c90609ae5dbcd0f8ee5b21c84622a131fe3d023a0a782",
+            "runtime": "3.13.5",
+            "scenario_id": "d574c49ae8c739acf01aadb7b8b7bbb60c51c35ee913d0a21f2ed27897e8133c",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "2d0d2da45e4a2c4e9edc117c680cb6ba8a22a3fe29baee5200c15a850eaa359f"
+          },
+          "status": "completed",
+          "termination": "max_steps",
+          "reward": 0.4,
+          "passed": false,
+          "steps": 20,
+          "elapsed_seconds": 35.52128812496085,
+          "invalid_actions": 17,
+          "error": null,
+          "usage": {
+            "input_tokens": 25326,
+            "output_tokens": 372
+          },
+          "split": "train",
+          "final_state_hash": "3551a0001a76ebe1219dbd3b9dfb2b99521f8ef7268d1e130b14af858c97b67d",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754
+                },
+                "tool": "acknowledge_incident"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1470.4697499983013,
+              "usage": {
+                "inference_ns": 1464472375,
+                "input_tokens": 832,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754,
+                  "target_version": "v24"
+                },
+                "tool": "propose_rollback"
+              },
+              "result": {
+                "change_id": 1754,
+                "message": "change proposed",
+                "ok": true
+              },
+              "elapsed_ms": 1656.8314169999212,
+              "usage": {
+                "inference_ns": 1649146542,
+                "input_tokens": 881,
+                "model": "qwen3:8b",
+                "output_tokens": 25
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754,
+                  "check": "compatibility"
+                },
+                "tool": "run_change_check"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1749.6726249810308,
+              "usage": {
+                "inference_ns": 1744185166,
+                "input_tokens": 986,
+                "model": "qwen3:8b",
+                "output_tokens": 23
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1727.3698330391198,
+              "usage": {
+                "inference_ns": 1721193667,
+                "input_tokens": 1051,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1725.6065420806408,
+              "usage": {
+                "inference_ns": 1718656583,
+                "input_tokens": 1086,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1689.1829170053825,
+              "usage": {
+                "inference_ns": 1682331084,
+                "input_tokens": 1121,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1702.534082927741,
+              "usage": {
+                "inference_ns": 1694029625,
+                "input_tokens": 1156,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1773.2561670709401,
+              "usage": {
+                "inference_ns": 1765000125,
+                "input_tokens": 1191,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1726.908375043422,
+              "usage": {
+                "inference_ns": 1719523875,
+                "input_tokens": 1226,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1765.741707989946,
+              "usage": {
+                "inference_ns": 1758123875,
+                "input_tokens": 1261,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1808.113459032029,
+              "usage": {
+                "inference_ns": 1800366500,
+                "input_tokens": 1296,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1801.2498340103775,
+              "usage": {
+                "inference_ns": 1792674667,
+                "input_tokens": 1331,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1785.069957957603,
+              "usage": {
+                "inference_ns": 1779550250,
+                "input_tokens": 1366,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1840.0229580001906,
+              "usage": {
+                "inference_ns": 1834390667,
+                "input_tokens": 1401,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1822.4115829216316,
+              "usage": {
+                "inference_ns": 1814642209,
+                "input_tokens": 1436,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1818.1460839696229,
+              "usage": {
+                "inference_ns": 1810338166,
+                "input_tokens": 1471,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1921.4050830341876,
+              "usage": {
+                "inference_ns": 1913162709,
+                "input_tokens": 1506,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1871.8749170657247,
+              "usage": {
+                "inference_ns": 1864148917,
+                "input_tokens": 1541,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1891.6038749739528,
+              "usage": {
+                "inference_ns": 1884478375,
+                "input_tokens": 1576,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1973.670957959257,
+              "usage": {
+                "inference_ns": 1965092291,
+                "input_tokens": 1611,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

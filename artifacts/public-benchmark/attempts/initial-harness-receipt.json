@@ -1,0 +1,15 @@
+{
+  "evaluation_only": true,
+  "training_eligible": false,
+  "policy": "local",
+  "model": "qwen3:8b",
+  "model_requests": 1,
+  "executed_commands": 0,
+  "elapsed_seconds": 17.7175,
+  "grader_passed": false,
+  "error": "Unterminated string starting at: line 2 column 14 (char 15)",
+  "diagnosis": "Malformed or truncated model command JSON; no shell command executed and the empty CSV failed the official grader.",
+  "receipt_source": "Initial runner report inspected before rerunning the corrected harness.",
+  "raw_response": null,
+  "limitation": "The first harness parsed before appending its raw response to the receipt. Its original response was not retained. Subsequent runs record every provider response before parsing, including rejected responses and retries. This receipt preserves the observed first failure and does not recreate missing data."
+}

@@ -1,0 +1,151 @@
+{
+  "before": "schema-cache-before.json",
+  "after": "schema-cache-after.json",
+  "pairs": [
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "scripted-oracle",
+      "concurrency": 1,
+      "before_episodes_per_second": 76.68473977666386,
+      "after_episodes_per_second": 166.77526336054817,
+      "ratio": 2.1748168389990417
+    },
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "scripted-oracle",
+      "concurrency": 4,
+      "before_episodes_per_second": 78.96657329887633,
+      "after_episodes_per_second": 186.47815795169038,
+      "ratio": 2.3614822090088583
+    },
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "scripted-oracle",
+      "concurrency": 8,
+      "before_episodes_per_second": 75.17349423716189,
+      "after_episodes_per_second": 214.48264314708277,
+      "ratio": 2.8531684648104814
+    },
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "scripted-baseline",
+      "concurrency": 1,
+      "before_episodes_per_second": 142.3041334020813,
+      "after_episodes_per_second": 337.3763844692944,
+      "ratio": 2.370812262466299
+    },
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "scripted-baseline",
+      "concurrency": 4,
+      "before_episodes_per_second": 149.96997525857168,
+      "after_episodes_per_second": 358.3781570218302,
+      "ratio": 2.3896660408453774
+    },
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "scripted-baseline",
+      "concurrency": 8,
+      "before_episodes_per_second": 148.89467442929944,
+      "after_episodes_per_second": 294.7363766105088,
+      "ratio": 1.9794957592688127
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "scripted-oracle",
+      "concurrency": 1,
+      "before_episodes_per_second": 137.6317250170813,
+      "after_episodes_per_second": 300.15883492180376,
+      "ratio": 2.180884057687655
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "scripted-oracle",
+      "concurrency": 4,
+      "before_episodes_per_second": 126.77531667560385,
+      "after_episodes_per_second": 251.43720876876935,
+      "ratio": 1.9833293685406739
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "scripted-oracle",
+      "concurrency": 8,
+      "before_episodes_per_second": 134.32655405700422,
+      "after_episodes_per_second": 259.97575712145,
+      "ratio": 1.9354010749886725
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "scripted-baseline",
+      "concurrency": 1,
+      "before_episodes_per_second": 180.70139251565863,
+      "after_episodes_per_second": 309.3737685326593,
+      "ratio": 1.7120718563685149
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "scripted-baseline",
+      "concurrency": 4,
+      "before_episodes_per_second": 174.85120073941084,
+      "after_episodes_per_second": 326.6070427556855,
+      "ratio": 1.8679142114811307
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "scripted-baseline",
+      "concurrency": 8,
+      "before_episodes_per_second": 177.5365910195542,
+      "after_episodes_per_second": 335.10972414016493,
+      "ratio": 1.8875529952203223
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "scripted-oracle",
+      "concurrency": 1,
+      "before_episodes_per_second": 55.41520884232346,
+      "after_episodes_per_second": 176.00955499425586,
+      "ratio": 3.176195825501036
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "scripted-oracle",
+      "concurrency": 4,
+      "before_episodes_per_second": 54.30415068977183,
+      "after_episodes_per_second": 172.88724584001824,
+      "ratio": 3.183683818713723
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "scripted-oracle",
+      "concurrency": 8,
+      "before_episodes_per_second": 54.48224276856712,
+      "after_episodes_per_second": 178.11989990788084,
+      "ratio": 3.269320256592759
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "scripted-baseline",
+      "concurrency": 1,
+      "before_episodes_per_second": 137.6743587829219,
+      "after_episodes_per_second": 329.9830883724002,
+      "ratio": 2.39683766308802
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "scripted-baseline",
+      "concurrency": 4,
+      "before_episodes_per_second": 142.06773673231544,
+      "after_episodes_per_second": 280.1029981674972,
+      "ratio": 1.971615826436852
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "scripted-baseline",
+      "concurrency": 8,
+      "before_episodes_per_second": 126.05339934133735,
+      "after_episodes_per_second": 323.7951694308254,
+      "ratio": 2.5687142998343684
+    }
+  ],
+  "method": "Same committed implementation, 30 seeded cases, three timing trials, three worlds, two scripted policies, concurrency 1/4/8, SQLite persistence. The standalone control bypasses only the schema memoization wrapper; the after run enables it. Sequential runs on the same host; background load is uncontrolled. This compares tool-schema caching within this engine, not model or competitor performance."
+}

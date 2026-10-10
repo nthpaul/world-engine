@@ -1,0 +1,1869 @@
+{
+  "created_at": "2026-10-10T05:04:21.271521+00:00",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "python": "3.13.5",
+  "model": "qwen3:8b",
+  "model_downloaded": false,
+  "paid_calls": 0,
+  "seed": 42,
+  "evaluation_only": true,
+  "max_steps": 20,
+  "episode_timeout_seconds": 120,
+  "limitations": "Tiny paired local evaluation, not a population estimate or comparison with hosted systems. Tool replay is deterministic; model inference may not be bitwise deterministic. A separate UI local-model request was submitted and immediately cancelled around 2026-10-10 05:03:10-05:03:15 UTC; inference durations may include brief server contention.",
+  "rows": [
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "scripted-oracle",
+      "run_id": "b5ca8f53-53f0-412c-a493-ee98e7182e04",
+      "status": "completed",
+      "passed": 1,
+      "count": 1,
+      "success_rate": 1.0,
+      "elapsed_seconds": 0.042166917002759874,
+      "error": null,
+      "episodes": [
+        {
+          "id": "dadba2cf-8c71-47aa-8b68-d6c29955273c",
+          "seed": 42,
+          "scenario_id": "3f16fa2baa1dcc97b19efe6165ddf3caefdf5d7074d41907d96bdf9f6162fd5d",
+          "provenance": {
+            "environment_code_hash": "69e3af2322a35041f20eff6e0f26f8705227a3599e2db9ea9621c895cb904d9d",
+            "environment_id": "crm-merge",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "git_dirty": true,
+            "git_dirty_scope": "entire checkout including docs and generated artifacts",
+            "git_revision": "7fdf4c6ae511dc81cc4074ea54122c0671ba2469",
+            "grader_code_hash": "2f6d40a76d4b368dab03510ca67f6ff506e7f20df31abefcace36a67dd664cba",
+            "grader_version": "1.0.0",
+            "implementation_dirty": false,
+            "implementation_dirty_scope": [
+              "src/world_engine",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "initial_state_hash": "0952ad44ac865d820d9edb2b727cb997fa4b44855ea83fe9b3c61e845deebb2e",
+            "lineage_id": "329da40321c4cf537f5ff01685218adacadcddffcb7668a90abba138a9679b0f",
+            "model": "scripted-oracle",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "db1b1f08c53822661bf4889911577861727822b11e1934ec3654a11624e27aca",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "c0b175c533498f98bcb2d014c2bfca305acd4b915953208c3dc25821d36c303a",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-oracle",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "3f16fa2baa1dcc97b19efe6165ddf3caefdf5d7074d41907d96bdf9f6162fd5d",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "c0433fb12a1fd7b3c2a0fb2e9524ba9fed4c5053683bed92d7c4b599a78eaa5d"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 1.0,
+          "passed": true,
+          "steps": 6,
+          "elapsed_seconds": 0.002000999986194074,
+          "invalid_actions": 0,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "test",
+          "final_state_hash": "1b1a263d31fdb8c9e81eeba9232475f74e8fea6f7e0d9d32c295d8244bcf3258",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "resource_id": 381
+                },
+                "tool": "void_invoice"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.38829189725220203,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "resource_id": 854,
+                  "to_customer_id": 754
+                },
+                "tool": "transfer_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.2934999065473676,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "resource_id": 350,
+                  "to_customer_id": 754
+                },
+                "tool": "transfer_invoice"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.2995419781655073,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "customer_id": 214
+                },
+                "tool": "deactivate_customer"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.2949590561911464,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "customer_id": 214
+                },
+                "tool": "complete_merge"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.30654098372906446,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 0.29499991796910763,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "scripted-baseline",
+      "run_id": "b0ff0efe-4d41-46df-9dd5-1209ac61e77d",
+      "status": "completed",
+      "passed": 0,
+      "count": 1,
+      "success_rate": 0.0,
+      "elapsed_seconds": 0.003976291976869106,
+      "error": null,
+      "episodes": [
+        {
+          "id": "d3c7618d-44f9-4429-ba51-d458b07b0597",
+          "seed": 42,
+          "scenario_id": "3f16fa2baa1dcc97b19efe6165ddf3caefdf5d7074d41907d96bdf9f6162fd5d",
+          "provenance": {
+            "environment_code_hash": "69e3af2322a35041f20eff6e0f26f8705227a3599e2db9ea9621c895cb904d9d",
+            "environment_id": "crm-merge",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "git_dirty": true,
+            "git_dirty_scope": "entire checkout including docs and generated artifacts",
+            "git_revision": "7fdf4c6ae511dc81cc4074ea54122c0671ba2469",
+            "grader_code_hash": "2f6d40a76d4b368dab03510ca67f6ff506e7f20df31abefcace36a67dd664cba",
+            "grader_version": "1.0.0",
+            "implementation_dirty": false,
+            "implementation_dirty_scope": [
+              "src/world_engine",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "initial_state_hash": "0952ad44ac865d820d9edb2b727cb997fa4b44855ea83fe9b3c61e845deebb2e",
+            "lineage_id": "329da40321c4cf537f5ff01685218adacadcddffcb7668a90abba138a9679b0f",
+            "model": "scripted-baseline",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "abae34a17293011ed6905b2f7569fa4e4e7d418e37e076cceabe3ba6b054010c",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "c0b175c533498f98bcb2d014c2bfca305acd4b915953208c3dc25821d36c303a",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-baseline",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "3f16fa2baa1dcc97b19efe6165ddf3caefdf5d7074d41907d96bdf9f6162fd5d",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "c0433fb12a1fd7b3c2a0fb2e9524ba9fed4c5053683bed92d7c4b599a78eaa5d"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 0.2,
+          "passed": false,
+          "steps": 2,
+          "elapsed_seconds": 0.000647583045065403,
+          "invalid_actions": 1,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "test",
+          "final_state_hash": "859c471b4db1fdabccbce6123263dbe36e51ed45a635717a15e1deb75c664880",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "customer_id": 214
+                },
+                "tool": "deactivate_customer"
+              },
+              "result": {
+                "error": "duplicate still owns tickets",
+                "ok": false
+              },
+              "elapsed_ms": 0.3084170166403055,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 0.27191697154194117,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "crm-merge",
+      "provider_id": "local",
+      "run_id": "c6b0c3e8-b512-4023-8463-c208b0509c01",
+      "status": "completed",
+      "passed": 0,
+      "count": 1,
+      "success_rate": 0.0,
+      "elapsed_seconds": 33.24239291693084,
+      "error": null,
+      "episodes": [
+        {
+          "id": "f883c1dc-a157-49cd-b3f1-97b5cc7d5452",
+          "seed": 42,
+          "scenario_id": "3f16fa2baa1dcc97b19efe6165ddf3caefdf5d7074d41907d96bdf9f6162fd5d",
+          "provenance": {
+            "environment_code_hash": "69e3af2322a35041f20eff6e0f26f8705227a3599e2db9ea9621c895cb904d9d",
+            "environment_id": "crm-merge",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "git_dirty": true,
+            "git_dirty_scope": "entire checkout including docs and generated artifacts",
+            "git_revision": "7fdf4c6ae511dc81cc4074ea54122c0671ba2469",
+            "grader_code_hash": "2f6d40a76d4b368dab03510ca67f6ff506e7f20df31abefcace36a67dd664cba",
+            "grader_version": "1.0.0",
+            "implementation_dirty": false,
+            "implementation_dirty_scope": [
+              "src/world_engine",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "initial_state_hash": "0952ad44ac865d820d9edb2b727cb997fa4b44855ea83fe9b3c61e845deebb2e",
+            "lineage_id": "329da40321c4cf537f5ff01685218adacadcddffcb7668a90abba138a9679b0f",
+            "model": "qwen3:8b",
+            "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "f178ccba31360a149effe5ced74a4a03070ba0b2a08265f376f42b7f0f18115e",
+            "policy_identity": "local-catalog-digest",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "c0b175c533498f98bcb2d014c2bfca305acd4b915953208c3dc25821d36c303a",
+            "provider_class": "world_engine.providers.HTTPProvider",
+            "provider_id": "local",
+            "provider_source_hash": "69ffc653c1e72b43409c90609ae5dbcd0f8ee5b21c84622a131fe3d023a0a782",
+            "runtime": "3.13.5",
+            "scenario_id": "3f16fa2baa1dcc97b19efe6165ddf3caefdf5d7074d41907d96bdf9f6162fd5d",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "c0433fb12a1fd7b3c2a0fb2e9524ba9fed4c5053683bed92d7c4b599a78eaa5d"
+          },
+          "status": "completed",
+          "termination": "max_steps",
+          "reward": 0.0,
+          "passed": false,
+          "steps": 20,
+          "elapsed_seconds": 33.185398582951166,
+          "invalid_actions": 0,
+          "error": null,
+          "usage": {
+            "input_tokens": 25921,
+            "output_tokens": 200
+          },
+          "split": "test",
+          "final_state_hash": "0fb14d94ff402cafe8c4a4acf4c4ecef35b9042c36c65141f7284f68e4d8326c",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1489.697709097527,
+              "usage": {
+                "inference_ns": 1487945791,
+                "input_tokens": 1069,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1368.8179169548675,
+              "usage": {
+                "inference_ns": 1367183792,
+                "input_tokens": 1092,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1379.8920409753919,
+              "usage": {
+                "inference_ns": 1378308792,
+                "input_tokens": 1116,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1492.1245420118794,
+              "usage": {
+                "inference_ns": 1490487833,
+                "input_tokens": 1140,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1519.9514579726383,
+              "usage": {
+                "inference_ns": 1518131167,
+                "input_tokens": 1164,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1547.2814159002155,
+              "usage": {
+                "inference_ns": 1545607208,
+                "input_tokens": 1188,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1601.0500830598176,
+              "usage": {
+                "inference_ns": 1599424334,
+                "input_tokens": 1212,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1663.1262499140576,
+              "usage": {
+                "inference_ns": 1661607792,
+                "input_tokens": 1236,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1739.4491250161082,
+              "usage": {
+                "inference_ns": 1737854250,
+                "input_tokens": 1260,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1839.220124995336,
+              "usage": {
+                "inference_ns": 1837593750,
+                "input_tokens": 1284,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1938.1388750625774,
+              "usage": {
+                "inference_ns": 1936582208,
+                "input_tokens": 1308,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1944.9714999645948,
+              "usage": {
+                "inference_ns": 1943464792,
+                "input_tokens": 1332,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1910.4037089273334,
+              "usage": {
+                "inference_ns": 1908226834,
+                "input_tokens": 1356,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1766.0537080373615,
+              "usage": {
+                "inference_ns": 1764171666,
+                "input_tokens": 1380,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1636.6464999737218,
+              "usage": {
+                "inference_ns": 1634983083,
+                "input_tokens": 1404,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1637.1011659502983,
+              "usage": {
+                "inference_ns": 1633495000,
+                "input_tokens": 1428,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1673.333999933675,
+              "usage": {
+                "inference_ns": 1668714958,
+                "input_tokens": 1452,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1678.3710410818458,
+              "usage": {
+                "inference_ns": 1674608875,
+                "input_tokens": 1476,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1668.9177920343354,
+              "usage": {
+                "inference_ns": 1663338625,
+                "input_tokens": 1500,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "inspect"
+              },
+              "result": {
+                "message": "current operational state returned",
+                "ok": true
+              },
+              "elapsed_ms": 1690.5973750399426,
+              "usage": {
+                "inference_ns": 1686889542,
+                "input_tokens": 1524,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "scripted-oracle",
+      "run_id": "3a56b00f-db12-4b90-b60a-a99eadb2c446",
+      "status": "completed",
+      "passed": 1,
+      "count": 1,
+      "success_rate": 1.0,
+      "elapsed_seconds": 0.007418625056743622,
+      "error": null,
+      "episodes": [
+        {
+          "id": "ebe89a68-933f-43f4-ab5b-170f58fb7821",
+          "seed": 42,
+          "scenario_id": "f4917ee15e953945f01c66ed68517c0db971af06753fade6b8141cdacdddb215",
+          "provenance": {
+            "environment_code_hash": "172396eb500f1fe5f498191d5430d02e8faa23e2ca1e544fa084b48a898b3c5a",
+            "environment_id": "refund-ops",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "git_dirty": true,
+            "git_dirty_scope": "entire checkout including docs and generated artifacts",
+            "git_revision": "7fdf4c6ae511dc81cc4074ea54122c0671ba2469",
+            "grader_code_hash": "5876a52c711072ab7e6b2760d37793c0ff855e5664efb0a22e342b5771ee2ee2",
+            "grader_version": "1.0.0",
+            "implementation_dirty": false,
+            "implementation_dirty_scope": [
+              "src/world_engine",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "initial_state_hash": "7ee471139693bc15ad7611857bdea3756ad13ed1f2dbc209665bb694dc4d01f0",
+            "lineage_id": "7c8ae47a760566f8f3a5c047e40731b6f48dbf794786710a073af41fa1e048a0",
+            "model": "scripted-oracle",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "db1b1f08c53822661bf4889911577861727822b11e1934ec3654a11624e27aca",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "436e8d084c7b327edf063a4f5b3da2176fd79e681f9fa450482df1023b4af06f",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-oracle",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "f4917ee15e953945f01c66ed68517c0db971af06753fade6b8141cdacdddb215",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "0c9dec4f642e1e8e753fa53fa6d73d235f41b579a06fc67f60a7aab69bf4b210"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 1.0,
+          "passed": true,
+          "steps": 3,
+          "elapsed_seconds": 0.001179208979010582,
+          "invalid_actions": 0,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "train",
+          "final_state_hash": "331b4df92d7baf9568d69e3b59bfab5034c8f5e85f8db926503b5269c6582d12",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "amount_cents": 4500,
+                  "idempotency_key": "ticket-3253-refund",
+                  "order_id": 6238
+                },
+                "tool": "issue_refund"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.4028748953714967,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.3672910388559103,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 0.349957961589098,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "scripted-baseline",
+      "run_id": "a3e00683-7a04-4c61-8743-389e93fb8c64",
+      "status": "completed",
+      "passed": 0,
+      "count": 1,
+      "success_rate": 0.0,
+      "elapsed_seconds": 0.004518541973084211,
+      "error": null,
+      "episodes": [
+        {
+          "id": "44d4521b-58a9-47d4-90dc-d3a1921d97f8",
+          "seed": 42,
+          "scenario_id": "f4917ee15e953945f01c66ed68517c0db971af06753fade6b8141cdacdddb215",
+          "provenance": {
+            "environment_code_hash": "172396eb500f1fe5f498191d5430d02e8faa23e2ca1e544fa084b48a898b3c5a",
+            "environment_id": "refund-ops",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "git_dirty": true,
+            "git_dirty_scope": "entire checkout including docs and generated artifacts",
+            "git_revision": "7fdf4c6ae511dc81cc4074ea54122c0671ba2469",
+            "grader_code_hash": "5876a52c711072ab7e6b2760d37793c0ff855e5664efb0a22e342b5771ee2ee2",
+            "grader_version": "1.0.0",
+            "implementation_dirty": false,
+            "implementation_dirty_scope": [
+              "src/world_engine",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "initial_state_hash": "7ee471139693bc15ad7611857bdea3756ad13ed1f2dbc209665bb694dc4d01f0",
+            "lineage_id": "7c8ae47a760566f8f3a5c047e40731b6f48dbf794786710a073af41fa1e048a0",
+            "model": "scripted-baseline",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "abae34a17293011ed6905b2f7569fa4e4e7d418e37e076cceabe3ba6b054010c",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "436e8d084c7b327edf063a4f5b3da2176fd79e681f9fa450482df1023b4af06f",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-baseline",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "f4917ee15e953945f01c66ed68517c0db971af06753fade6b8141cdacdddb215",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "0c9dec4f642e1e8e753fa53fa6d73d235f41b579a06fc67f60a7aab69bf4b210"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 0.6,
+          "passed": false,
+          "steps": 2,
+          "elapsed_seconds": 0.0005407090066000819,
+          "invalid_actions": 1,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "train",
+          "final_state_hash": "be689cf1d0b28adbdd7a2e3ac7ade8b6e243394bda24d58acf166c994f26c97e",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "error": "refund must settle before closing the ticket",
+                "ok": false
+              },
+              "elapsed_ms": 0.2871250035241246,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 0.22108398843556643,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "refund-ops",
+      "provider_id": "local",
+      "run_id": "6e1da8c9-278d-4bff-a84f-0dde45304597",
+      "status": "completed",
+      "passed": 1,
+      "count": 1,
+      "success_rate": 1.0,
+      "elapsed_seconds": 15.127191332983784,
+      "error": null,
+      "episodes": [
+        {
+          "id": "dd7d5618-17ca-43d8-9145-3fb750d2113b",
+          "seed": 42,
+          "scenario_id": "f4917ee15e953945f01c66ed68517c0db971af06753fade6b8141cdacdddb215",
+          "provenance": {
+            "environment_code_hash": "172396eb500f1fe5f498191d5430d02e8faa23e2ca1e544fa084b48a898b3c5a",
+            "environment_id": "refund-ops",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "git_dirty": true,
+            "git_dirty_scope": "entire checkout including docs and generated artifacts",
+            "git_revision": "7fdf4c6ae511dc81cc4074ea54122c0671ba2469",
+            "grader_code_hash": "5876a52c711072ab7e6b2760d37793c0ff855e5664efb0a22e342b5771ee2ee2",
+            "grader_version": "1.0.0",
+            "implementation_dirty": false,
+            "implementation_dirty_scope": [
+              "src/world_engine",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "initial_state_hash": "7ee471139693bc15ad7611857bdea3756ad13ed1f2dbc209665bb694dc4d01f0",
+            "lineage_id": "7c8ae47a760566f8f3a5c047e40731b6f48dbf794786710a073af41fa1e048a0",
+            "model": "qwen3:8b",
+            "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "f178ccba31360a149effe5ced74a4a03070ba0b2a08265f376f42b7f0f18115e",
+            "policy_identity": "local-catalog-digest",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "436e8d084c7b327edf063a4f5b3da2176fd79e681f9fa450482df1023b4af06f",
+            "provider_class": "world_engine.providers.HTTPProvider",
+            "provider_id": "local",
+            "provider_source_hash": "69ffc653c1e72b43409c90609ae5dbcd0f8ee5b21c84622a131fe3d023a0a782",
+            "runtime": "3.13.5",
+            "scenario_id": "f4917ee15e953945f01c66ed68517c0db971af06753fade6b8141cdacdddb215",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "0c9dec4f642e1e8e753fa53fa6d73d235f41b579a06fc67f60a7aab69bf4b210"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 1.0,
+          "passed": true,
+          "steps": 9,
+          "elapsed_seconds": 15.107101500034332,
+          "invalid_actions": 1,
+          "error": null,
+          "usage": {
+            "input_tokens": 9487,
+            "output_tokens": 217
+          },
+          "split": "train",
+          "final_state_hash": "7f76f8883dacf6f993d2bbd1adf7f1ce334f789ac4c98e4762f3cfc50966007d",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "amount_cents": 4500,
+                  "idempotency_key": "previous-refund",
+                  "order_id": 6238
+                },
+                "tool": "issue_refund"
+              },
+              "result": {
+                "error": "idempotency key already used for a different payment",
+                "ok": false
+              },
+              "elapsed_ms": 1654.804666992277,
+              "usage": {
+                "inference_ns": 1651663375,
+                "input_tokens": 817,
+                "model": "qwen3:8b",
+                "output_tokens": 37
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "amount_cents": 4500,
+                  "idempotency_key": "new-refund-key",
+                  "order_id": 6238
+                },
+                "tool": "issue_refund"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1778.4864170243964,
+              "usage": {
+                "inference_ns": 1774366375,
+                "input_tokens": 874,
+                "model": "qwen3:8b",
+                "output_tokens": 38
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1715.7601669896394,
+              "usage": {
+                "inference_ns": 1712257458,
+                "input_tokens": 992,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1712.5317909521982,
+              "usage": {
+                "inference_ns": 1710142500,
+                "input_tokens": 1049,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1638.5732090566307,
+              "usage": {
+                "inference_ns": 1635747625,
+                "input_tokens": 1083,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1599.3620420340449,
+              "usage": {
+                "inference_ns": 1595317875,
+                "input_tokens": 1117,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1765.542250010185,
+              "usage": {
+                "inference_ns": 1761671250,
+                "input_tokens": 1151,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "resolution": "refunded",
+                  "ticket_id": 3253
+                },
+                "tool": "close_ticket"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1731.592332944274,
+              "usage": {
+                "inference_ns": 1727651792,
+                "input_tokens": 1185,
+                "model": "qwen3:8b",
+                "output_tokens": 22
+              }
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 1510.326666990295,
+              "usage": {
+                "inference_ns": 1506251666,
+                "input_tokens": 1219,
+                "model": "qwen3:8b",
+                "output_tokens": 10
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "scripted-oracle",
+      "run_id": "2aca7014-504f-4e86-9d97-9dbb0fdc9335",
+      "status": "completed",
+      "passed": 1,
+      "count": 1,
+      "success_rate": 1.0,
+      "elapsed_seconds": 0.011710374965332448,
+      "error": null,
+      "episodes": [
+        {
+          "id": "f38a78cb-5d4f-496b-89a6-080954af14fa",
+          "seed": 42,
+          "scenario_id": "b58b3855298d2e4647657bc8877b786952c2b549ecef3ac9b278f605288af25c",
+          "provenance": {
+            "environment_code_hash": "4278096ee261ffb6d46bcc7b33af5d90009cc8e9e424208f27f4a1bee26dd117",
+            "environment_id": "incident-control",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "git_dirty": true,
+            "git_dirty_scope": "entire checkout including docs and generated artifacts",
+            "git_revision": "7fdf4c6ae511dc81cc4074ea54122c0671ba2469",
+            "grader_code_hash": "45be085507c52ceff11669b6bbf8b68b8faf5bc5ee9977d1fa36b3635abb2627",
+            "grader_version": "1.0.0",
+            "implementation_dirty": false,
+            "implementation_dirty_scope": [
+              "src/world_engine",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "initial_state_hash": "05205126dc4428ec5ca68aa8d25b493d2ff6074cbc466ecda97e66f497a67ba3",
+            "lineage_id": "91e59be4f68d9c49253130a4fbf1c32bac4265016b4dfb9a317396c6b1555d73",
+            "model": "scripted-oracle",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "db1b1f08c53822661bf4889911577861727822b11e1934ec3654a11624e27aca",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "8e014b03b56845e481691caa8e2d3e34f51e65f6474762839be67034a1c50948",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-oracle",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "b58b3855298d2e4647657bc8877b786952c2b549ecef3ac9b278f605288af25c",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "2d0d2da45e4a2c4e9edc117c680cb6ba8a22a3fe29baee5200c15a850eaa359f"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 1.0,
+          "passed": true,
+          "steps": 8,
+          "elapsed_seconds": 0.003915790934115648,
+          "invalid_actions": 0,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "train",
+          "final_state_hash": "30fd9a1c9752c89561c769504c23d24d8a2b4d7769589691453f360d046d326c",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754
+                },
+                "tool": "acknowledge_incident"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.4633339121937752,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754,
+                  "target_version": "v24"
+                },
+                "tool": "propose_rollback"
+              },
+              "result": {
+                "change_id": 1754,
+                "message": "change proposed",
+                "ok": true
+              },
+              "elapsed_ms": 0.45537506230175495,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754,
+                  "check": "compatibility"
+                },
+                "tool": "run_change_check"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.4653750220313668,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754,
+                  "check": "health"
+                },
+                "tool": "run_change_check"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.4741670563817024,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.4908749833703041,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "execute_change"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.4954580217599869,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754
+                },
+                "tool": "resolve_incident"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 0.5051670596003532,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 0.5080420523881912,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "scripted-baseline",
+      "run_id": "c96110e2-39fd-4099-86a1-371c23ee71ae",
+      "status": "completed",
+      "passed": 0,
+      "count": 1,
+      "success_rate": 0.0,
+      "elapsed_seconds": 0.00445033295545727,
+      "error": null,
+      "episodes": [
+        {
+          "id": "dced4973-830a-4621-8cd6-a61ac99e8dc2",
+          "seed": 42,
+          "scenario_id": "b58b3855298d2e4647657bc8877b786952c2b549ecef3ac9b278f605288af25c",
+          "provenance": {
+            "environment_code_hash": "4278096ee261ffb6d46bcc7b33af5d90009cc8e9e424208f27f4a1bee26dd117",
+            "environment_id": "incident-control",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "git_dirty": true,
+            "git_dirty_scope": "entire checkout including docs and generated artifacts",
+            "git_revision": "7fdf4c6ae511dc81cc4074ea54122c0671ba2469",
+            "grader_code_hash": "45be085507c52ceff11669b6bbf8b68b8faf5bc5ee9977d1fa36b3635abb2627",
+            "grader_version": "1.0.0",
+            "implementation_dirty": false,
+            "implementation_dirty_scope": [
+              "src/world_engine",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "initial_state_hash": "05205126dc4428ec5ca68aa8d25b493d2ff6074cbc466ecda97e66f497a67ba3",
+            "lineage_id": "91e59be4f68d9c49253130a4fbf1c32bac4265016b4dfb9a317396c6b1555d73",
+            "model": "scripted-baseline",
+            "model_digest": null,
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "abae34a17293011ed6905b2f7569fa4e4e7d418e37e076cceabe3ba6b054010c",
+            "policy_identity": "configuration-only; weights unverified",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "8e014b03b56845e481691caa8e2d3e34f51e65f6474762839be67034a1c50948",
+            "provider_class": "world_engine.providers.ScriptedProvider",
+            "provider_id": "scripted-baseline",
+            "provider_source_hash": "d6777efa658698a20568c46943801e7b3336011dc780fe0cc9c9f504aa57fd85",
+            "runtime": "3.13.5",
+            "scenario_id": "b58b3855298d2e4647657bc8877b786952c2b549ecef3ac9b278f605288af25c",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "2d0d2da45e4a2c4e9edc117c680cb6ba8a22a3fe29baee5200c15a850eaa359f"
+          },
+          "status": "completed",
+          "termination": "finished",
+          "reward": 0.4,
+          "passed": false,
+          "steps": 2,
+          "elapsed_seconds": 0.0006844589952379465,
+          "invalid_actions": 1,
+          "error": null,
+          "usage": {
+            "input_tokens": 0,
+            "output_tokens": 0
+          },
+          "split": "train",
+          "final_state_hash": "02db28d60c1c937948a62c3cec326b0bc4226bc855de2ae8991de2ec25a4f6e7",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754
+                },
+                "tool": "resolve_incident"
+              },
+              "result": {
+                "error": "incident requires acknowledged, approved healthy recovery",
+                "ok": false
+              },
+              "elapsed_ms": 0.33187505323439837,
+              "usage": {}
+            },
+            {
+              "action": {
+                "args": {},
+                "tool": "finish"
+              },
+              "result": {
+                "message": "episode finished",
+                "ok": true
+              },
+              "elapsed_ms": 0.3209999995306134,
+              "usage": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment_id": "incident-control",
+      "provider_id": "local",
+      "run_id": "bf24fffe-1c5f-4b0a-a8b5-4ce6a7121f2a",
+      "status": "completed",
+      "passed": 0,
+      "count": 1,
+      "success_rate": 0.0,
+      "elapsed_seconds": 34.375411416986026,
+      "error": null,
+      "episodes": [
+        {
+          "id": "d17a9b3b-3f0e-4776-bc3c-5e9bc44d8478",
+          "seed": 42,
+          "scenario_id": "b58b3855298d2e4647657bc8877b786952c2b549ecef3ac9b278f605288af25c",
+          "provenance": {
+            "environment_code_hash": "4278096ee261ffb6d46bcc7b33af5d90009cc8e9e424208f27f4a1bee26dd117",
+            "environment_id": "incident-control",
+            "environment_version": "1.0.0",
+            "evaluation_only": true,
+            "git_dirty": true,
+            "git_dirty_scope": "entire checkout including docs and generated artifacts",
+            "git_revision": "7fdf4c6ae511dc81cc4074ea54122c0671ba2469",
+            "grader_code_hash": "45be085507c52ceff11669b6bbf8b68b8faf5bc5ee9977d1fa36b3635abb2627",
+            "grader_version": "1.0.0",
+            "implementation_dirty": false,
+            "implementation_dirty_scope": [
+              "src/world_engine",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "initial_state_hash": "05205126dc4428ec5ca68aa8d25b493d2ff6074cbc466ecda97e66f497a67ba3",
+            "lineage_id": "91e59be4f68d9c49253130a4fbf1c32bac4265016b4dfb9a317396c6b1555d73",
+            "model": "qwen3:8b",
+            "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+            "policy_code_hash": "07b8b9aa39959af48c894bfa60430bb7456fb2431691ebbdcac72b9222ddffcc",
+            "policy_hash": "f178ccba31360a149effe5ced74a4a03070ba0b2a08265f376f42b7f0f18115e",
+            "policy_identity": "local-catalog-digest",
+            "policy_version": "workflow-json-v1",
+            "prompt_hash": "8e014b03b56845e481691caa8e2d3e34f51e65f6474762839be67034a1c50948",
+            "provider_class": "world_engine.providers.HTTPProvider",
+            "provider_id": "local",
+            "provider_source_hash": "69ffc653c1e72b43409c90609ae5dbcd0f8ee5b21c84622a131fe3d023a0a782",
+            "runtime": "3.13.5",
+            "scenario_id": "b58b3855298d2e4647657bc8877b786952c2b549ecef3ac9b278f605288af25c",
+            "schema_version": "1.0.0",
+            "seed": 42,
+            "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+            "task_hash": "2d0d2da45e4a2c4e9edc117c680cb6ba8a22a3fe29baee5200c15a850eaa359f"
+          },
+          "status": "completed",
+          "termination": "max_steps",
+          "reward": 0.0,
+          "passed": false,
+          "steps": 20,
+          "elapsed_seconds": 34.35674158309121,
+          "invalid_actions": 17,
+          "error": null,
+          "usage": {
+            "input_tokens": 25326,
+            "output_tokens": 372
+          },
+          "split": "train",
+          "final_state_hash": "3551a0001a76ebe1219dbd3b9dfb2b99521f8ef7268d1e130b14af858c97b67d",
+          "replay_verified": true,
+          "actions": [
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754
+                },
+                "tool": "acknowledge_incident"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1409.6298340009525,
+              "usage": {
+                "inference_ns": 1407268125,
+                "input_tokens": 832,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "incident_id": 754,
+                  "target_version": "v24"
+                },
+                "tool": "propose_rollback"
+              },
+              "result": {
+                "change_id": 1754,
+                "message": "change proposed",
+                "ok": true
+              },
+              "elapsed_ms": 1546.1407919647172,
+              "usage": {
+                "inference_ns": 1542072459,
+                "input_tokens": 881,
+                "model": "qwen3:8b",
+                "output_tokens": 25
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754,
+                  "check": "compatibility"
+                },
+                "tool": "run_change_check"
+              },
+              "result": {
+                "message": "operation applied",
+                "ok": true
+              },
+              "elapsed_ms": 1754.5566250337288,
+              "usage": {
+                "inference_ns": 1749803125,
+                "input_tokens": 986,
+                "model": "qwen3:8b",
+                "output_tokens": 23
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1722.617999999784,
+              "usage": {
+                "inference_ns": 1718627250,
+                "input_tokens": 1051,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1615.3118340298533,
+              "usage": {
+                "inference_ns": 1610100667,
+                "input_tokens": 1086,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1657.152457977645,
+              "usage": {
+                "inference_ns": 1652750666,
+                "input_tokens": 1121,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1692.0039999531582,
+              "usage": {
+                "inference_ns": 1686855583,
+                "input_tokens": 1156,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1746.4520829962566,
+              "usage": {
+                "inference_ns": 1742279542,
+                "input_tokens": 1191,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1631.1484581092373,
+              "usage": {
+                "inference_ns": 1626909125,
+                "input_tokens": 1226,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1700.8915410842746,
+              "usage": {
+                "inference_ns": 1697149833,
+                "input_tokens": 1261,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1888.6364579666406,
+              "usage": {
+                "inference_ns": 1883895959,
+                "input_tokens": 1296,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1705.4187919711694,
+              "usage": {
+                "inference_ns": 1700614584,
+                "input_tokens": 1331,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1789.8285840637982,
+              "usage": {
+                "inference_ns": 1784987375,
+                "input_tokens": 1366,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1916.183584020473,
+              "usage": {
+                "inference_ns": 1910941167,
+                "input_tokens": 1401,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1726.4741669641808,
+              "usage": {
+                "inference_ns": 1722086291,
+                "input_tokens": 1436,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1740.6136670615524,
+              "usage": {
+                "inference_ns": 1736113084,
+                "input_tokens": 1471,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1841.5767080150545,
+              "usage": {
+                "inference_ns": 1837171625,
+                "input_tokens": 1506,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1766.2122499896213,
+              "usage": {
+                "inference_ns": 1761652500,
+                "input_tokens": 1541,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1697.7244999725372,
+              "usage": {
+                "inference_ns": 1694820042,
+                "input_tokens": 1576,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            },
+            {
+              "action": {
+                "args": {
+                  "change_id": 1754
+                },
+                "tool": "request_change_approval"
+              },
+              "result": {
+                "error": "both trusted preflight checks must pass",
+                "ok": false
+              },
+              "elapsed_ms": 1808.0758330179378,
+              "usage": {
+                "inference_ns": 1806291666,
+                "input_tokens": 1611,
+                "model": "qwen3:8b",
+                "output_tokens": 18
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "collection_revision": "7fdf4c6ae511dc81cc4074ea54122c0671ba2469",
+  "collection_dirty": true
+}
