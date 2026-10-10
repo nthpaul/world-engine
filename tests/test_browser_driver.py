@@ -26,7 +26,7 @@ def test_browser_internal_app_requests_are_allowed_but_not_agent_api_navigation(
 
 
 @pytest.mark.parametrize("path", [
-    "/-/user_settings/personal_access_tokens", "/-/user_settings/ssh_keys", "/-/profile/account",
+    "/-/user_settings/personal_access_tokens", "/-/user_settings/ssh_keys", "/user_settings/applications", "/-/profile/account",
     "/profile/personal_access_tokens", "/oauth/applications", "/users/edit", "/users/password",
     "/root/release-operations/-/settings/access_tokens", "/root/release-operations/-/settings",
     "/%2d/user_settings/personal_access_tokens", "/%252d/user_settings/personal_access_tokens",

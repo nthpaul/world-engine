@@ -21,7 +21,7 @@ from world_engine.browser_contracts import (
 )
 
 BLOCKED_DOCUMENT_PATHS = ("/admin", "/api/", "/-/metrics", "/-/health", "/-/readiness")
-BLOCKED_CREDENTIAL_PATHS = ("/-/user_settings", "/-/profile", "/profile", "/oauth", "/users/edit", "/users/password")
+BLOCKED_CREDENTIAL_PATHS = ("/-/user_settings", "/user_settings", "/-/profile", "/profile", "/oauth", "/users/edit", "/users/password")
 MAX_MEDIA_BYTES = 96 * 1024 * 1024
 
 
