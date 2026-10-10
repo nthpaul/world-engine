@@ -31,6 +31,9 @@ def test_browser_internal_app_requests_are_allowed_but_not_agent_api_navigation(
     "/root/release-operations/-/settings/access_tokens", "/root/release-operations/-/settings",
     "/%2d/user_settings/personal_access_tokens", "/%252d/user_settings/personal_access_tokens",
     "/root/../-/user_settings/personal_access_tokens", "/root/%5c../-/user_settings",
+    "//-/user_settings/personal_access_tokens", "/-//user_settings/personal_access_tokens",
+    "/root/release-operations/-//settings/access_tokens", "/%2f-/user_settings/personal_access_tokens",
+    "/-/user_settings;variant/personal_access_tokens",
 ])
 def test_browser_blocks_credential_documents_and_spa_requests(path):
     assert allowed_app_url(ORIGIN + path, ORIGIN, document=True) is False

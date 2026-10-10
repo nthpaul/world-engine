@@ -52,7 +52,7 @@ def allowed_app_url(value: str, origin: str, *, document: bool = False) -> bool:
             if decoded == path:
                 break
             path = decoded
-        if ("\\" in path or any(ord(char) < 32 for char in path) or ".." in path.split("/")
+        if ("\\" in path or "//" in path or ";" in path or any(ord(char) < 32 for char in path) or ".." in path.split("/")
                 or any(path == prefix or path.startswith(prefix + "/") for prefix in BLOCKED_CREDENTIAL_PATHS)
                 or "/-/settings/" in path or path.endswith("/-/settings")):
             return False
