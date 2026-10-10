@@ -264,20 +264,85 @@ class RunManager:
 
 
 def replay(episode: JsonObject) -> JsonObject:
+    """Verify seeded state, grading and envelope consistency, not collection authenticity.
+
+    ``policy_input`` is the controller's recorded context. A custom Provider may
+    transform it internally; replay cannot attest its actual model request.
+    Timing, usage, external failure causes and model identity remain reported data.
+    """
+    try:
+        return _replay(episode)
+    except (KeyError, TypeError, IndexError, AttributeError) as error:
+        raise ValueError("malformed episode envelope") from error
+
+
+def _replay(episode: JsonObject) -> JsonObject:
+    def matches(actual, expected, label: str) -> None:
+        # Canonical comparison also distinguishes booleans from numeric labels.
+        if digest(actual) != digest(expected):
+            raise ValueError(f"{label} differs from the replayed episode")
+
     provenance = episode["provenance"]
+    if type(episode["seed"]) is not int or not 0 <= episode["seed"] < 2 ** 31:
+        raise ValueError("episode seed is invalid")
+    if not isinstance(episode["trace"], list) or len(episode["trace"]) > 100:
+        raise ValueError("episode trace is invalid")
     world = make_environment(provenance["environment_id"], episode["seed"])
     if provenance["environment_version"] != world.version or provenance["grader_version"] != GRADER_VERSION:
         raise ValueError("environment or grader version differs from the recorded episode")
     current_environment_hash, current_grader_hash = world_fingerprints(world)
     if provenance["environment_code_hash"] != current_environment_hash or provenance["grader_code_hash"] != current_grader_hash:
         raise ValueError("environment or grader implementation fingerprint differs from the recorded episode")
-    if digest(world.snapshot()) != provenance["initial_state_hash"]:
-        raise ValueError("initial state hash differs from the recorded episode")
-    for step in episode["trace"]:
+    initial_snapshot = world.snapshot()
+    initial_observation = world.observe()
+    initial_state_hash = digest(initial_snapshot)
+    task_hash = digest({"task": initial_observation["task"], "tools": initial_observation["tools"]})
+    lineage_id = digest({"environment_family": world.id, "seed": episode["seed"]})
+    scenario_id = digest({"environment": world.id, "version": world.version, "grader_version": GRADER_VERSION,
+                          "environment_code_hash": current_environment_hash, "grader_code_hash": current_grader_hash,
+                          "seed": episode["seed"], "initial_state_hash": initial_state_hash, "task_hash": task_hash})
+    for key, expected in {"schema_version": "1.0.0", "seed": episode["seed"], "initial_state_hash": initial_state_hash,
+                          "task_hash": task_hash, "lineage_id": lineage_id, "scenario_id": scenario_id,
+                          "prompt_hash": digest(policy_messages(initial_observation, [])),
+                          "policy_version": POLICY_VERSION, "system_prompt_hash": digest(SYSTEM_PROMPT)}.items():
+        matches(provenance[key], expected, f"provenance {key}")
+    for key, expected in {"initial_snapshot": initial_snapshot, "initial_observation": initial_observation,
+                          "lineage_id": lineage_id, "scenario_id": scenario_id,
+                          "split": scenario_split(lineage_id)}.items():
+        matches(episode[key], expected, key)
+    policy_hash = digest({"provider_id": provenance["provider_id"], "provider_class": provenance["provider_class"],
+                          "provider_source_hash": provenance["provider_source_hash"], "model": provenance["model"],
+                          "model_digest": provenance["model_digest"], "policy_code_hash": provenance["policy_code_hash"],
+                          "system_prompt_hash": provenance["system_prompt_hash"], "temperature": 0})
+    matches(provenance["policy_hash"], policy_hash, "policy configuration hash")
+    history = []
+    for index, step in enumerate(episode["trace"]):
+        if world.done:
+            raise ValueError("episode trace continues after the world finished")
+        matches(step["index"], index, "step index")
+        matches(step["policy_input"], policy_messages(world.observe(), history), f"policy input at step {index}")
         transition = world.step(step["action"])
-        if transition["state_hash"] != step["state_hash"] or transition["result"] != step["result"] or transition["observation"] != step["observation"]:
-            raise ValueError(f"replay diverged at step {step['index']}")
+        for key in ("state_hash", "result", "observation"):
+            matches(step[key], transition[key], f"replay diverged: {key} at step {index}")
+        history.append(step)
     evaluation = world.evaluate().model_dump()
-    if world.state_hash() != episode["final_state_hash"] or evaluation != episode["grader"]:
-        raise ValueError("final state or trusted grade differs from the recorded episode")
-    return {"verified": True, "steps": len(episode["trace"]), "final_state_hash": world.state_hash(), "grader": evaluation}
+    for key, expected in {"final_state_hash": world.state_hash(), "grader": evaluation,
+                          "final_snapshot": world.snapshot(), "final_observation": world.observe(),
+                          "steps": len(history), "invalid_actions": sum(not step["result"]["ok"] for step in history)}.items():
+        matches(episode[key], expected, key)
+    status, termination = episode["status"], episode["termination"]
+    valid_outcomes = {("completed", "finished"), ("completed", "max_steps"), ("cancelled", "cancelled"),
+                      ("failed", "timeout"), ("failed", "provider_error"), ("failed", "internal_error")}
+    if (status, termination) not in valid_outcomes or world.done != (termination == "finished"):
+        raise ValueError("status or termination contradicts the replayed world")
+    if status == "completed" and (episode["error"] is not None or not history):
+        raise ValueError("completed episode has an error or no executed steps")
+    if status != "completed" and (not isinstance(episode["error"], str) or not episode["error"]):
+        raise ValueError("failed or cancelled episode has no reported error")
+    finished = status == "completed" and termination == "finished"
+    reward = evaluation["reward"] if finished else 0.0
+    passed = evaluation["passed"] and finished
+    matches(episode["reward"], reward, "authoritative reward")
+    matches(episode["passed"], passed, "authoritative passed label")
+    return {"verified": True, "steps": len(history), "final_state_hash": world.state_hash(), "grader": evaluation,
+            "reward": reward, "passed": passed, "status": status, "termination": termination}
