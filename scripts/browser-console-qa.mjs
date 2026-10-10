@@ -38,6 +38,8 @@ export function plan() {
     new_attempts: 0,
     inference_calls: 0,
     allowed_methods: ["GET"],
+    preview_websockets: "Vite HMR at the selected loopback UI origin and root path only",
+    preview_permission: "local-network-access scoped to that UI origin",
     artifact_cap_bytes: ARTIFACT_CAP,
     overall_ms: OVERALL_MS,
     limits:
@@ -156,6 +158,90 @@ export function readOnlyRoute(baseURL, report) {
     }
   };
 }
+export async function installReadOnlyNetwork(context, baseURL, report) {
+  baseURL = localBaseURL(baseURL);
+  await context.grantPermissions(["local-network-access"], { origin: baseURL });
+  report.preview_network = {
+    permission: "local-network-access",
+    permission_origin: baseURL,
+    websocket_limit: "Same UI protocol and host, root path, no URL credentials; Vite HMR only",
+  };
+  await context.route("**/*", readOnlyRoute(baseURL, report));
+  await context.routeWebSocket("**/*", (socket) => {
+    let allowed = false;
+    try {
+      const url = new URL(socket.url());
+      const origin = new URL(baseURL);
+      allowed =
+        url.protocol === (origin.protocol === "https:" ? "wss:" : "ws:") &&
+        url.host === origin.host &&
+        url.pathname === "/" &&
+        !url.username &&
+        !url.password;
+    } catch {
+      /* Invalid socket destinations remain closed. */
+    }
+    if (!allowed) {
+      report.blocked_requests.push({ method: "WEBSOCKET", redirected: false });
+      socket.close({
+        code: 1008,
+        reason: "Only local preview HMR is permitted",
+      });
+      return;
+    }
+    report.local_preview_hmr_connections += 1;
+    socket.connectToServer();
+  });
+}
+export async function verifyVideoPlayback(video, timeout) {
+  return video.evaluate(async (element, limit) => {
+    const deadline = performance.now() + limit;
+    const waitFor = async (condition) => {
+      while (true) {
+        if (element.error || performance.now() >= deadline)
+          throw new Error("Recorded video playback failed");
+        if (condition()) return;
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    };
+    await waitFor(
+      () =>
+        element.readyState >= 2 &&
+        Number.isFinite(element.duration) &&
+        element.duration > 0 &&
+        element.videoWidth > 0 &&
+        element.videoHeight > 0,
+    );
+    element.muted = true;
+    const before = element.currentTime;
+    const frames = element.getVideoPlaybackQuality().totalVideoFrames;
+    try {
+      let playError = false;
+      element.play().catch(() => {
+        playError = true;
+      });
+      await waitFor(
+        () =>
+          element.currentTime > before + Math.min(0.2, element.duration / 4) &&
+          element.getVideoPlaybackQuality().totalVideoFrames > frames &&
+          !playError,
+      );
+      return {
+        duration_seconds: element.duration,
+        before_seconds: before,
+        after_seconds: element.currentTime,
+        decoded_frames_before: frames,
+        decoded_frames_after:
+          element.getVideoPlaybackQuality().totalVideoFrames,
+        width: element.videoWidth,
+        height: element.videoHeight,
+        error: null,
+      };
+    } finally {
+      element.pause();
+    }
+  }, timeout);
+}
 export async function sourceIdentity(expected) {
   try {
     const git = (args) =>
@@ -236,6 +322,7 @@ export async function collect(options) {
     status: "inconclusive",
     checks: [],
     get_requests: 0,
+    local_preview_hmr_connections: 0,
     blocked_requests: [],
     browser_errors: [],
     artifacts: [],
@@ -281,7 +368,7 @@ export async function collect(options) {
       recordVideo: { dir: videoDirectory, size: { width: 1440, height: 960 } },
       serviceWorkers: "block",
     });
-    await context.route("**/*", readOnlyRoute(baseURL, report));
+    await installReadOnlyNetwork(context, baseURL, report);
     const get = async (pathname, limit) => {
       if (!allowedRequest(baseURL, "GET", baseURL + pathname))
         throw new Error("Unsafe read-only request");
@@ -404,6 +491,17 @@ export async function collect(options) {
       );
       report.screenshots.push(`${name}.png`);
     };
+    if (detail.artifacts.some((artifact) => artifact.kind === "video")) {
+      const video = page.locator("video");
+      await video.scrollIntoViewIfNeeded();
+      report.recorded_video_playback = await verifyVideoPlayback(
+        video,
+        Math.min(10000, remaining()),
+      );
+      check("Recorded browser video decodes and advances frames", true);
+    } else {
+      report.recorded_video_playback = { available: false };
+    }
     for (const width of [1440, 390, 360]) {
       await page.setViewportSize({ width, height: width === 1440 ? 960 : 844 });
       for (const tab of ["Browser", "Timeline", "Outcome"]) {

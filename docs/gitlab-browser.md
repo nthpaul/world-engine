@@ -115,6 +115,12 @@ For read-only console QA, use `node scripts/browser-console-qa.mjs --plan`, then
 its explicit committed-source/attempt/fresh-output arguments. It creates no
 attempts or inference calls and records desktop, 390px and 360px views plus a
 console video. Rollout media and console QA recordings are separate artifacts.
+The QA browser grants local-network access only to the selected loopback UI
+origin, permits that preview's root-path Vite HMR socket, and blocks other
+destinations. Its receipt distinguishes HTTP GETs from preview sockets and
+requires actual video decoding and advancing playback; browser errors still fail
+acceptance. Diagnostic WebSocket tokens must remain private or be explicitly
+redacted in a public copy.
 With local FFmpeg/ffprobe installed, `scripts/check_browser_video.py` decodes
 three timestamped frames and checks nonblank pixels; use `--require-motion` for
 the active reference/model recordings, then inspect the frames visually. Its
