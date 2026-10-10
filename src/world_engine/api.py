@@ -11,6 +11,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 
 from world_engine import __version__
+from world_engine.browser_api import browser_router
+from world_engine.browser_runs import default_browser_manager
 from world_engine.environments import ENVIRONMENTS
 from world_engine.exports import ExportFormat, Quality, export_records, jsonl
 from world_engine.models import RunConfig
@@ -23,15 +25,25 @@ ALLOWED_HOSTS = {"127.0.0.1", "localhost", "::1", "testserver"}
 ALLOWED_ORIGINS = {"http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:8000", "http://127.0.0.1:8000"}
 
 
-def create_app(db_path: str | Path | None = None) -> FastAPI:
+def create_app(db_path: str | Path | None = None, *, browser_factory=default_browser_manager) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         store = Store(db_path or os.environ.get("WORLD_ENGINE_DB", ".world-engine/engine.sqlite3"))
         app.state.manager = RunManager(store)
-        yield
-        await app.state.manager.close()
+        browser_manager = None
+        try:
+            browser_manager = browser_factory(store.path.parent / "browser")
+            app.state.browser_manager = browser_manager
+            yield
+        finally:
+            try:
+                if browser_manager is not None:
+                    await browser_manager.close()
+            finally:
+                await app.state.manager.close()
 
     app = FastAPI(title="World Engine", version=__version__, lifespan=lifespan)
+    app.include_router(browser_router())
 
     @app.exception_handler(RequestValidationError)
     async def safe_validation_error(request: Request, error: RequestValidationError):
