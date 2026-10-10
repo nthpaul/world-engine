@@ -214,7 +214,7 @@ class BrowserReferencePolicy:
         persisted_comment = any(node["role"] == "StaticText" and node["name"] == self.comment for node in nodes)
         path = urlsplit(observation.url).path
         action = None
-        if path == "/dashboard/projects":
+        if path == "/dashboard/projects" or path.startswith("/dashboard/projects/"):
             node = choose("link", "Release Operations")
             if node:
                 action = Click(bid=node["bid"])

@@ -166,6 +166,9 @@ async def test_reference_discovers_identically_named_distractors_without_hidden_
 async def test_reference_discovers_member_projects_when_default_tab_is_empty():
     policy = BrowserReferencePolicy(PROMPT)
     assert (await policy.decide(observation("[8] tab 'Contributed 0'\n[9] tab 'Member 1'"), [])).action.bid == "9"
+    member = observation("[10] link 'Release Operations'\n[11] link 'Work items'",
+                         "http://127.0.0.1:8929/dashboard/projects/member")
+    assert (await policy.decide(member, [])).action.bid == "10"
 
 
 async def test_reference_preserves_queried_work_item_list_url():
