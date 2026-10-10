@@ -217,9 +217,11 @@ class BrowserReferencePolicy:
         path = urlsplit(observation.url).path
         action = None
         full_page = choose("link", "Open in full page", exact=True)
-        if full_page:
-            action = Click(bid=full_page["bid"])
-        elif path == "/dashboard/projects" or path.startswith("/dashboard/projects/"):
+        if re.search(r"/-/(?:issues|work_items)/?$", path):
+            parsed = urlsplit(observation.url)
+            query = urlencode([(key, value) for key, value in parse_qsl(parsed.query) if key != "show"])
+            self.issue_list_url = urlunsplit(parsed._replace(query=query))
+        if path == "/dashboard/projects" or path.startswith("/dashboard/projects/"):
             node = choose("link", "Release Operations")
             if node:
                 action = Click(bid=node["bid"])
@@ -227,10 +229,11 @@ class BrowserReferencePolicy:
                 node = choose("tab", "Member")
                 if node:
                     action = Click(bid=node["bid"])
-        elif re.search(r"/-/(?:issues|work_items)/[0-9]+", path):
+        elif full_page or re.search(r"/-/(?:issues|work_items)/[0-9]+", path):
+            detail_key = observation.url if full_page else path
             if self.marker in observation.accessibility_text:
-                self.confirmed_target_path = path
-            is_target = self.confirmed_target_path == path
+                self.confirmed_target_path = detail_key
+            is_target = self.confirmed_target_path == detail_key
             if not is_target and "Deployment reference:" in observation.accessibility_text:
                 if observation.url not in self.visited:
                     self.visited.add(observation.url)
@@ -266,9 +269,6 @@ class BrowserReferencePolicy:
                     node = choose("button", "Switch to plain text editing", exact=True)
                     action = Click(bid=node["bid"]) if node else Scroll(direction="down")
         elif re.search(r"/-/(?:issues|work_items)/?$", path):
-            parsed = urlsplit(observation.url)
-            query = urlencode([(key, value) for key, value in parse_qsl(parsed.query) if key != "show"])
-            self.issue_list_url = urlunsplit(parsed._replace(query=query))
             candidates = [node for node in nodes if node["role"] == "link"
                           and node["bid"]
                           and "release checklist" in node["name"].lower()]
