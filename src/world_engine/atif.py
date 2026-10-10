@@ -111,4 +111,19 @@ def export_episode(episode: JsonObject, *, run_id: str | None = None) -> JsonObj
     }
     if run_id is not None:
         output["session_id"] = run_id
+    if "provider_events" in episode:
+        output["final_metrics"]["extra"]["token_accounting_scope"] = (
+            "standard token totals cover executed decisions only; all recorded request-attempt usage is preserved in extra"
+        )
+        output["extra"]["world_engine"]["provider_events"] = copy.deepcopy(episode["provider_events"])
+        output["extra"]["world_engine"]["provider_recording"] = copy.deepcopy(episode["provider_recording"])
+        output["extra"]["world_engine"]["recorded_provider_usage"] = copy.deepcopy(episode["usage"])
+        output["notes"] = (
+            "Text-only normalized actions with export-derived tool IDs; not a native chronological transcript. "
+            "Controller context is separate from bounded exact native request/response evidence in extra. "
+            "Completeness flags distinguish full bodies from observed prefixes; times are collector observations. "
+            "Reported model names/catalog digests do not attest execution or frozen weights. "
+            "Token IDs, action loss masks, behavior logprobs and costs are not available. "
+            "Operator interchange only, training_eligible=false, not a Harbor trial result or trainer-ready batch."
+        )
     return output

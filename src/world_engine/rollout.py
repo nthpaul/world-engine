@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from world_engine import provider_records
 from world_engine.environments import make_environment
 from world_engine.models import JsonObject, RunConfig, digest, utc_now
 from world_engine.providers import SYSTEM_PROMPT, Provider, ProviderError, make_provider, policy_messages
@@ -107,11 +108,18 @@ async def rollout(config: RunConfig, index: int, provider: Provider | None = Non
     if provider_class.__module__ != "world_engine.providers":
         provenance["provider_id"] = "custom"
         provenance["model"] = getattr(provider, "model", provider_identity)
+    provider_protocol = getattr(provider, "provider_protocol", POLICY_VERSION)
+    if provider_protocol != POLICY_VERSION:
+        provenance["provider_protocol"] = provider_protocol
+        provenance["training_eligible"] = False
+        if hasattr(provider, "evidence_metadata"):
+            provenance["provider_evidence"] = provider.evidence_metadata()
     provenance["policy_hash"] = digest({"provider_id": provenance["provider_id"], "provider_class": provider_identity,
                                         "provider_source_hash": provider_source_hash, "model": provenance["model"],
                                         "model_digest": provenance["model_digest"], "policy_code_hash": POLICY_CODE_HASH,
                                         "system_prompt_hash": provenance["system_prompt_hash"], "temperature": 0})
     trace: list[JsonObject] = []
+    provider_events, recorder_token = provider_records.begin_episode()
     started = time.perf_counter()
     status, error, termination = "completed", None, "max_steps"
     try:
@@ -138,12 +146,13 @@ async def rollout(config: RunConfig, index: int, provider: Provider | None = Non
     except Exception as unexpected:
         status, termination, error = "failed", "internal_error", f"episode failed ({type(unexpected).__name__}); details redacted"
     finally:
+        provider_records.end_episode(recorder_token)
         if owns_provider and hasattr(provider, "close"):
             await provider.close()
     evaluation = world.evaluate().model_dump()
     passed = evaluation["passed"] and status == "completed" and termination == "finished"
     reward = evaluation["reward"] if status == "completed" and termination == "finished" else 0.0
-    return {
+    episode = {
         "id": str(uuid.uuid4()), "index": index, "seed": seed, "status": status,
         "reward": reward, "passed": passed, "steps": len(trace),
         "elapsed_seconds": time.perf_counter() - started, "error": error,
@@ -155,6 +164,12 @@ async def rollout(config: RunConfig, index: int, provider: Provider | None = Non
         "usage": {"input_tokens": sum(step["usage"].get("input_tokens", 0) for step in trace),
                   "output_tokens": sum(step["usage"].get("output_tokens", 0) for step in trace)},
     }
+    if provider_protocol != POLICY_VERSION or provider_events:
+        episode["provider_events"] = provider_events
+        episode["provider_recording"] = {"schema": provider_records.RECORD_SCHEMA,
+                                         "durability": "finalized episode only; not process-crash durable"}
+        episode["usage"] = provider_records.usage_summary(provider_events)
+    return episode
 
 
 @dataclass
@@ -283,6 +298,19 @@ def _replay(episode: JsonObject) -> JsonObject:
             raise ValueError(f"{label} differs from the replayed episode")
 
     provenance = episode["provenance"]
+    if (provenance.get("provider_class") == "world_engine.ollama_tools.OllamaToolsProvider"
+            and provenance.get("provider_protocol") != "ollama-tools-v1"):
+        raise ValueError("native provider is missing its native protocol contract")
+    native_pairs = None
+    if provenance.get("provider_protocol") == "ollama-tools-v1":
+        from world_engine.ollama_tools import PROTOCOL, contract, module_hashes, verify_exchange
+        evidence = provenance["provider_evidence"]
+        for key, value in module_hashes().items():
+            matches(evidence[key], value, f"native {key}")
+        matches(evidence["native_contract"], contract(), "native contract")
+        matches(evidence["native_contract_hash"], digest(contract()), "native contract hash")
+        matches(provenance["training_eligible"], False, "native training eligibility")
+        native_pairs = provider_records.validate_pairs(episode["provider_events"], PROTOCOL)
     if type(episode["seed"]) is not int or not 0 <= episode["seed"] < 2 ** 31:
         raise ValueError("episode seed is invalid")
     if not isinstance(episode["trace"], list) or len(episode["trace"]) > 100:
@@ -321,10 +349,25 @@ def _replay(episode: JsonObject) -> JsonObject:
             raise ValueError("episode trace continues after the world finished")
         matches(step["index"], index, "step index")
         matches(step["policy_input"], policy_messages(world.observe(), history), f"policy input at step {index}")
+        if native_pairs is not None:
+            if index >= len(native_pairs):
+                raise ValueError("native executed action has no recorded request")
+            start, end = native_pairs[index]
+            verify_exchange(start, end, provenance["model"], world.observe(), history, step["action"])
+            matches(step["usage"], end["usage"], f"native usage at step {index}")
         transition = world.step(step["action"])
         for key in ("state_hash", "result", "observation"):
             matches(step[key], transition[key], f"replay diverged: {key} at step {index}")
         history.append(step)
+    if native_pairs is not None:
+        if not len(history) <= len(native_pairs) <= len(history) + 1:
+            raise ValueError("native request count differs from executed decisions")
+        if len(native_pairs) > len(history):
+            if episode["status"] == "completed":
+                raise ValueError("completed native episode has an unexecuted request")
+            start, end = native_pairs[-1]
+            verify_exchange(start, end, provenance["model"], world.observe(), history, None)
+        matches(episode["usage"], provider_records.usage_summary(episode["provider_events"]), "native aggregate usage")
     evaluation = world.evaluate().model_dump()
     for key, expected in {"final_state_hash": world.state_hash(), "grader": evaluation,
                           "final_snapshot": world.snapshot(), "final_observation": world.observe(),
