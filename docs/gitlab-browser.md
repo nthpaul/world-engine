@@ -4,6 +4,8 @@ This is the phases 1--3 local implementation: versioned task/runtime contracts,
 a real GitLab application with detached persisted-state grading, and a browser
 operator console plus Python SDK. Older Python worlds remain available as
 **simulation diagnostics**. They are not evidence of browser fidelity.
+The [dated results and media guide](gitlab-browser-results.md) includes the actual
+successful reference, failed model attempt, timings and desktop/mobile QA.
 
 ## Architecture
 
@@ -115,6 +117,12 @@ For read-only console QA, use `node scripts/browser-console-qa.mjs --plan`, then
 its explicit committed-source/attempt/fresh-output arguments. It creates no
 attempts or inference calls and records desktop, 390px and 360px views plus a
 console video. Rollout media and console QA recordings are separate artifacts.
+The QA browser grants local-network access only to the selected loopback UI
+origin, permits that preview's root-path Vite HMR socket, and blocks other
+destinations. Its receipt distinguishes HTTP GETs from preview sockets and
+requires actual video decoding and advancing playback; browser errors still fail
+acceptance. Diagnostic WebSocket tokens must remain private or be explicitly
+redacted in a public copy.
 With local FFmpeg/ffprobe installed, `scripts/check_browser_video.py` decodes
 three timestamped frames and checks nonblank pixels; use `--require-motion` for
 the active reference/model recordings, then inspect the frames visually. Its
@@ -155,26 +163,14 @@ There is no daemon-enforced TTL after a controller/host crash, hard media disk
 quota, authenticated console, snapshot fork, exact replay, distributed scheduler
 or measured high-concurrency browser throughput.
 
-## Design Lineage
+## Remaining Gates
 
-[Fleet's public SDK](https://github.com/fleet-ai/fleet-sdk) informs explicit
-instance lifecycle and versioned environment identity. Its archived client is
-not evidence of its private hosted implementation. World Engine retains its
-original separation of environment transitions, rollout, grading and storage,
-but adds a distinct real-application lifecycle rather than treating a synthetic
-tool transition as a browser action.
-
-[Proximal's infrastructure account](https://www.proximal.ai/blog/posttraining-infra/)
-separates inference, sandbox rollouts and training, and describes exact sampled
-token/logprob capture. Here only the first two paths exist locally; training
-eligibility is deliberately false. Its image-aware scheduling and durable rollout
-store are future scaling ideas, not benchmarks achieved by this pilot.
-
-[Prime Intellect's sandbox design](https://www.primeintellect.ai/blog/sandboxes)
-emphasizes real system behavior, immutable images and an isolation boundary
-outside the workload. Its microVM isolation is stronger than this local Docker
-deployment. We adopt pinned real applications and detached evaluation without
-claiming to have implemented their VM infrastructure.
+World Engine separates environment transitions, rollout, grading and storage.
+The browser path adds a distinct real-application lifecycle; a synthetic tool
+transition is not a browser action. Instance identity, task versions and durable
+rollout evidence remain explicit across those boundaries. Inference and sandbox
+rollouts exist locally; sampled-token training batches and model updates do not.
+The [engineering guide](engineering-guide.md) describes these contracts.
 
 Next gates are a killable isolated browser worker, host-crash reconciliation/TTL,
 more original varied tasks, a second real application, covered-state parity

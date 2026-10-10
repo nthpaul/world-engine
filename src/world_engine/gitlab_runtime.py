@@ -64,7 +64,7 @@ def gitlab_task(seed: int = 42) -> TaskPack:
     )
     return TaskPack(
         id="gitlab-issue-close",
-        version="1.0.1",
+        version="1.0.2",
         name="GitLab release issue closure",
         instruction=(
             f"In Release Operations, find the open issue whose description says {MARKER}. "
@@ -76,7 +76,7 @@ def gitlab_task(seed: int = 42) -> TaskPack:
         application_version=GITLAB_VERSION,
         image_digest=APP_DIGEST,
         fixture_hash=_hash(fixture.encode()),
-        grader_version="gitlab-state-v2",
+        grader_version="gitlab-state-v3",
         seed=seed,
     )
 

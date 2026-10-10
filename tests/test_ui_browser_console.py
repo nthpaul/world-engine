@@ -122,3 +122,57 @@ def test_production_browser_schema_offline():
                             capture_output=True, text=True, timeout=30)
     assert result.returncode == 0, result.stderr
     assert "boundaries passed" in result.stdout
+
+
+@pytest.mark.parametrize("destination", [
+    "ws://127.0.0.1:5173/?token=SECRET_SENTINEL", "wss://127.0.0.1:5173/",
+    "ws://external.test/", "ws://127.0.0.1:5173/api/browser/attempts",
+    "ws://user:SECRET_SENTINEL@127.0.0.1:5173/", "invalid",
+])
+def test_local_preview_permission_and_hmr_socket_gate(destination):
+    imported(f"""
+      const report={{blocked_requests:[],local_preview_hmr_connections:0}};
+      let handler,connected=0,closed=0;
+      const context={{grantPermissions:async(p,o)=>{{assert.deepEqual(p,['local-network-access']);assert.deepEqual(o,{{origin:'http://127.0.0.1:5173'}})}},
+        route:async(pattern,handler)=>{{assert.equal(pattern,'**/*');assert.equal(typeof handler,'function')}},
+        routeWebSocket:async(pattern,h)=>{{assert.equal(pattern,'**/*');handler=h}}}};
+      await q.installReadOnlyNetwork(context,'http://127.0.0.1:5173',report);
+      handler({{url:()=>{json.dumps(destination)},connectToServer:()=>connected++,close:()=>closed++}});
+      const allowed={json.dumps(destination)}==='ws://127.0.0.1:5173/?token=SECRET_SENTINEL';
+      assert.equal(connected,Number(allowed));assert.equal(closed,Number(!allowed));
+      assert.equal(report.local_preview_hmr_connections,Number(allowed));
+      assert.equal(JSON.stringify(report).includes('SECRET_SENTINEL'),false);
+      await assert.rejects(q.installReadOnlyNetwork(context,'http://external.test',report),/loopback/);
+    """)
+
+
+@pytest.mark.parametrize("mode", ["advances", "time_only", "frames_only", "decode_error", "play_rejected", "not_ready"])
+def test_recorded_video_requires_ready_time_and_decoded_frame_advance(mode):
+    imported(f"""
+      const mode={json.dumps(mode)};let paused=0;
+      const element={{readyState:mode==='not_ready'?0:4,duration:16,videoWidth:1440,videoHeight:1000,
+        currentTime:0,error:mode==='decode_error'?{{code:3}}:null,frames:1,
+        getVideoPlaybackQuality(){{return{{totalVideoFrames:this.frames}}}},pause(){{paused++}},
+        play(){{if(mode==='play_rejected')return Promise.reject(Error('SECRET_SENTINEL'));
+          if(['advances','time_only'].includes(mode))this.currentTime=0.3;
+          if(['advances','frames_only'].includes(mode))this.frames=3;
+          return Promise.resolve();}}}};
+      const locator={{evaluate:async(fn,arg)=>fn(element,arg)}};
+      if(mode==='advances'){{const result=await q.verifyVideoPlayback(locator,100);assert.equal(result.after_seconds,0.3);assert.equal(result.decoded_frames_after,3);assert.equal(paused,1)}}
+      else{{await assert.rejects(q.verifyVideoPlayback(locator,10),/Recorded video playback failed/);assert.equal(paused,mode==='not_ready'||mode==='decode_error'?0:1)}}
+    """)
+
+
+def test_installed_playwright_supports_scoped_local_network_permission():
+    if not (ROOT / "web/node_modules/playwright").exists():
+        pytest.skip("Playwright is installed in the separate console CI job")
+    imported("""
+      import {createRequire} from 'node:module';import path from 'node:path';
+      const require=createRequire(path.resolve('web/package.json'));const {chromium}=require('playwright');
+      const browser=await chromium.launch({headless:true});
+      try {const context=await browser.newContext();
+        const report={blocked_requests:[],local_preview_hmr_connections:0};
+        await q.installReadOnlyNetwork(context,'http://127.0.0.1:5173',report);
+        assert.deepEqual(report.blocked_requests,[]);await context.close();
+      } finally {await browser.close();}
+    """)
