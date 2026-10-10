@@ -115,6 +115,10 @@ For read-only console QA, use `node scripts/browser-console-qa.mjs --plan`, then
 its explicit committed-source/attempt/fresh-output arguments. It creates no
 attempts or inference calls and records desktop, 390px and 360px views plus a
 console video. Rollout media and console QA recordings are separate artifacts.
+With local FFmpeg/ffprobe installed, `scripts/check_browser_video.py` decodes
+three timestamped frames and checks nonblank pixels; use `--require-motion` for
+the active reference/model recordings, then inspect the frames visually. Its
+fresh output and video hash preserve which exact recording was checked.
 
 ## Grading and Limits
 
