@@ -86,8 +86,8 @@ def parse_action(data: JsonObject) -> Action:
         action = Action.model_validate({"tool": function["name"], "args": function["arguments"]})
         canonical_json(action.model_dump())
         return action
-    except (KeyError, TypeError, ValueError) as error:
-        raise NativeResponseError("invalid_response") from error
+    except (KeyError, TypeError, ValueError, RecursionError):
+        raise NativeResponseError("invalid_response") from None
 
 
 class OllamaToolsProvider:
@@ -102,6 +102,7 @@ class OllamaToolsProvider:
         self.model_digest: str | None = None
         self.daemon_version: str | None = None
         self.prepared = False
+        self.prepared_model: str | None = None
 
     def evidence_metadata(self) -> JsonObject:
         return {**module_hashes(), "native_contract_hash": digest(contract()), "native_contract": contract(),
@@ -115,47 +116,58 @@ class OllamaToolsProvider:
     async def _metadata(self, path: str, body: JsonObject | None = None) -> JsonObject:
         try:
             async with self._client().stream("POST" if body else "GET", self.endpoint + path,
-                                             json=body, timeout=3) as response:
+                                             json=body, timeout=3, headers={"Accept-Encoding": "identity"}) as response:
                 if response.status_code != 200:
                     raise ProviderError("native local model metadata unavailable; response redacted")
+                if response.headers.get("content-encoding", "identity").strip().lower() != "identity":
+                    raise ProviderError("native model metadata used unsupported response encoding")
                 content = bytearray()
-                async for chunk in response.aiter_bytes():
-                    if len(content) + len(chunk) > provider_records.MAX_RESPONSE_BYTES:
+                async for chunk in response.aiter_raw():
+                    room = provider_records.MAX_RESPONSE_BYTES - len(content)
+                    content.extend(chunk[:room])
+                    if len(chunk) > room:
                         raise ProviderError("native model metadata exceeded its limit")
-                    content.extend(chunk)
             data = json.loads(content)
             if not isinstance(data, dict):
                 raise ValueError("not an object")
             return data
-        except (httpx.HTTPError, ValueError) as error:
-            raise ProviderError("native local model metadata unavailable; details redacted") from error
+        except (httpx.HTTPError, ValueError, RecursionError):
+            raise ProviderError("native local model metadata unavailable; details redacted") from None
 
     async def prepare(self) -> None:
-        if "cloud" in self.model.lower():
+        self.prepared = False
+        self.prepared_model = None
+        self.model_digest = None
+        self.daemon_version = None
+        requested_model = self.model
+        if "cloud" in requested_model.lower():
             raise ProviderError("native adapter accepts installed local models only")
         tags = await self._metadata("/api/tags")
         models = tags.get("models", [])
         if not isinstance(models, list):
             raise ProviderError("native local model catalog invalid")
-        model = next((item for item in models if isinstance(item, dict) and item.get("name") == self.model), None)
+        model = next((item for item in models if isinstance(item, dict) and item.get("name") == requested_model), None)
         if model is None or model.get("remote_host") or model.get("remote_model"):
             raise ProviderError("native adapter requires an installed local model; no downloads or cloud calls")
         model_digest = model.get("digest")
         if not isinstance(model_digest, str) or len(model_digest) != 64 or any(char not in "0123456789abcdef" for char in model_digest):
             raise ProviderError("native local model catalog has no immutable digest")
-        shown = await self._metadata("/api/show", {"model": self.model})
+        shown = await self._metadata("/api/show", {"model": requested_model})
         capabilities = shown.get("capabilities", [])
         if shown.get("remote_host") or shown.get("remote_model") or not isinstance(capabilities, list) or "tools" not in capabilities:
             raise ProviderError("native adapter requires local tool capability; no cloud calls")
         version = await self._metadata("/api/version")
+        if self.model != requested_model:
+            raise ProviderError("native model changed during preparation; prepare again")
         daemon_version = version.get("version")
         self.daemon_version = (daemon_version if isinstance(daemon_version, str)
                                and 0 < len(daemon_version) <= 80 and daemon_version.isprintable() else None)
         self.model_digest = model_digest
+        self.prepared_model = requested_model
         self.prepared = True
 
     async def decide(self, observation: JsonObject, history: list[JsonObject]) -> Decision:
-        if not self.prepared or not provider_records.recording():
+        if not self.prepared or self.prepared_model != self.model or not provider_records.recording():
             raise ProviderError("prepare the native provider and use it through rollout or RunManager")
         body = canonical_json(request_body(self.model, observation, history)).encode("utf-8")
         if len(body) > provider_records.MAX_REQUEST_BYTES:
@@ -203,21 +215,21 @@ class OllamaToolsProvider:
             return Decision(action, usage)
         except NativeResponseError as error:
             outcome = str(error)
-            raise ProviderError(f"native provider protocol rejected: {outcome}; response redacted") from error
+            raise ProviderError(f"native provider protocol rejected: {outcome}; response redacted") from None
         except ProviderError:
             raise
         except asyncio.CancelledError:
             outcome = "cancelled"
             raise
-        except httpx.TimeoutException as error:
+        except httpx.TimeoutException:
             outcome = "timeout"
-            raise ProviderError("native provider call timed out") from error
-        except httpx.HTTPError as error:
+            raise ProviderError("native provider call timed out") from None
+        except httpx.HTTPError:
             outcome = "connection_error"
-            raise ProviderError("native provider connection failed; details redacted") from error
-        except (ValueError, TypeError) as error:
+            raise ProviderError("native provider connection failed; details redacted") from None
+        except (ValueError, TypeError, RecursionError):
             outcome = "invalid_response"
-            raise ProviderError("native provider returned invalid JSON; response redacted") from error
+            raise ProviderError("native provider returned invalid JSON; response redacted") from None
         finally:
             response_body = bytes(content)
             provider_records.record({**identity, "event": "request_finished", "observed_at": utc_now(),
@@ -233,6 +245,7 @@ class OllamaToolsProvider:
             await self.client.aclose()
             self.client = None
         self.prepared = False
+        self.prepared_model = None
 
 
 def verify_exchange(start: JsonObject, end: JsonObject, model: str, observation: JsonObject,
@@ -261,7 +274,7 @@ def verify_exchange(start: JsonObject, end: JsonObject, model: str, observation:
         try:
             data = json.loads(provider_records.response_bytes(end))
             parsed = True
-        except ValueError:
+        except (ValueError, RecursionError):
             if end["outcome"] != "invalid_response":
                 raise ValueError("native invalid JSON failure is mislabeled") from None
         expected_usage = reported_usage(data) if isinstance(data, dict) else {}
@@ -272,7 +285,7 @@ def verify_exchange(start: JsonObject, end: JsonObject, model: str, observation:
                 parse_action(data)
             except NativeResponseError as error:
                 if end["outcome"] != str(error):
-                    raise ValueError("native protocol failure is mislabeled") from error
+                    raise ValueError("native protocol failure is mislabeled") from None
             else:
                 raise ValueError("native rejected response contains a valid action")
     elif end["usage"]:

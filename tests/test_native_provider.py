@@ -43,11 +43,12 @@ async def prepared(config, reply, *, tags=None, shown=None, version="fixture-oll
     async def respond(request):
         requests.append(request)
         if request.url.path == "/api/tags":
-            return httpx.Response(200, json=tags or {"models": [{"name": "qwen3:8b", "digest": FIXTURE_DIGEST}]})
+            body = tags or {"models": [{"name": "qwen3:8b", "digest": FIXTURE_DIGEST}]}
+            return httpx.Response(200, stream=RawBody(json.dumps(body).encode()))
         if request.url.path == "/api/show":
-            return httpx.Response(200, json=shown or {"capabilities": ["tools", "completion"]})
+            return httpx.Response(200, stream=RawBody(json.dumps(shown or {"capabilities": ["tools", "completion"]}).encode()))
         if request.url.path == "/api/version":
-            return httpx.Response(200, json={"version": version})
+            return httpx.Response(200, stream=RawBody(json.dumps({"version": version}).encode()))
         if callable(reply):
             result = await reply(request)
         else:
