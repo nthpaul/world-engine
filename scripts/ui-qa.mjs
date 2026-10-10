@@ -1,21 +1,43 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, unlink, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { parseArgs } from "node:util";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+export function parseOptions(args) {
+  const { values } = parseArgs({ args, strict: true, allowPositionals: false,
+    options: { output: { type: "string" }, atif: { type: "boolean" },
+      access: { type: "boolean" }, "local-cancel": { type: "boolean" } } });
+  if (!values.output?.trim()) throw new Error("An explicit fresh --output directory is required");
+  if (values.atif && values.access) throw new Error("--atif and --access are mutually exclusive");
+  if (values["local-cancel"] && (values.atif || values.access))
+    throw new Error("--local-cancel is only permitted in the standard QA phase");
+  return { output: path.resolve(values.output),
+    phase: values.atif ? "atif" : values.access ? "access" : "standard",
+    localCancel: values["local-cancel"] === true };
+}
+
+export async function reserveFreshOutput(output) {
+  try {
+    await lstat(output);
+    throw new Error("QA output already exists; refusing to overwrite evidence");
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+  await mkdir(path.dirname(output), { recursive: true });
+  await mkdir(output); // Exclusive reservation also closes the preflight existence race.
+}
+
+async function main(options) {
+const output = options.output;
+await reserveFreshOutput(output);
 const require = createRequire(path.join(root, "web/package.json"));
 const { chromium } = require("playwright");
 const baseURL = process.env.WORLD_ENGINE_UI_URL ?? "http://127.0.0.1:5173";
-const atifPhase = process.argv.includes("--atif");
-const output = path.join(
-  root,
-  atifPhase ? "artifacts/atif/qa" : "artifacts/qa",
-);
-await mkdir(output, { recursive: true });
 const browser = await chromium.launch();
 const context = await browser.newContext({
   baseURL,
@@ -353,9 +375,178 @@ async function runAtifQA() {
   );
 }
 
+async function runAccessQA() {
+  const healthResponse = await context.request.get("/api/health");
+  check("Access API responds through the local Vite proxy", healthResponse.ok());
+  const health = await healthResponse.json();
+  const catalogResponse = await context.request.get("/api/environments");
+  const { environments } = await catalogResponse.json();
+  const world = environments.find((environment) => environment.id === "access-provisioning");
+  check("Actual catalog contains the synthetic partial-observation access world",
+    Boolean(world) && world.tags.includes("partial-observation") &&
+    world.tools.some((tool) => tool.name === "search_employees") &&
+    world.tools.some((tool) => tool.name === "grant_access"));
+  const revision = execFileSync("git", ["-C", root, "rev-parse", "HEAD"],
+    { encoding: "utf8", timeout: 2000 }).trim();
+  const scope = ["src/world_engine", "web/src", "web/package.json", "web/package-lock.json",
+    "scripts/ui-qa.mjs", "tests/test_ui_qa.py", "pyproject.toml", "uv.lock"];
+  const dirty = execFileSync("git", ["-C", root, "status", "--porcelain", "--untracked-files=all", "--", ...scope],
+    { encoding: "utf8", timeout: 2000 }).trim();
+  check("Access QA uses a committed controller and runtime source scope", !dirty);
+  const files = {};
+  const tracked = execFileSync("git", ["-C", root, "ls-files", "--", ...scope],
+    { encoding: "utf8", timeout: 2000 }).trim().split("\n");
+  for (const file of tracked)
+    files[file] = createHash("sha256").update(await readFile(path.join(root, file))).digest("hex");
+  const details = [];
+  const operatorEpisodes = [];
+  for (const provider of ["scripted-oracle", "scripted-baseline"]) {
+    await page.goto("/#runs");
+    await page.getByText("Runtime connected", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "New rollout", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "New rollout" });
+    await dialog.getByLabel("Run label").fill(`QA / Access ${provider}`);
+    await dialog.getByLabel("Environment", { exact: true }).selectOption("access-provisioning");
+    await dialog.getByLabel("Provider", { exact: true }).selectOption(provider);
+    await dialog.getByLabel("Episodes", { exact: true }).fill("8");
+    await dialog.getByLabel("Starting seed").fill("0");
+    await dialog.getByLabel("Max steps / episode").fill("20");
+    await dialog.getByLabel("Timeout / episode (s)").fill("30");
+    await dialog.getByLabel("Concurrency", { exact: true }).fill("1");
+    await dialog.getByRole("checkbox", {
+      name: "Evaluation-only batch (excluded from training exports)",
+    }).check();
+    if (provider === "scripted-oracle") await screenshot("desktop-access-new-rollout.png");
+    const createdPromise = page.waitForResponse((response) =>
+      response.url().endsWith("/api/runs") && response.request().method() === "POST");
+    await dialog.getByRole("button", { name: "Start rollout", exact: true }).click();
+    const createdResponse = await createdPromise;
+    check(`${provider}: actual API accepts the UI configuration`, createdResponse.ok());
+    const created = await createdResponse.json();
+    assert.equal(created.config.environment_id, "access-provisioning");
+    assert.equal(created.config.provider_id, provider);
+    assert.equal(created.config.episodes, 8);
+    assert.equal(created.config.seed, 0);
+    assert.equal(created.config.max_steps, 20);
+    assert.equal(created.config.timeout_seconds, 30);
+    assert.equal(created.config.concurrency, 1);
+    assert.equal(created.config.evaluation_only, true);
+    assert.equal(created.config.allow_paid, false);
+    await page.waitForURL(`**/#runs/${created.id}`);
+    await page.locator(".detail-subtitle .status-completed").waitFor();
+    await page.getByText("Hidden grader", { exact: true }).waitFor();
+    const detailResponse = await context.request.get(`/api/runs/${created.id}`);
+    assert.ok(detailResponse.ok());
+    const detail = await detailResponse.json();
+    assert.equal(detail.episodes.length, 8);
+    assert.deepEqual(detail.episodes.map((episode) => episode.seed).sort((a, b) => a - b), [0, 1, 2, 3, 4, 5, 6, 7]);
+    for (const episode of detail.episodes) {
+      assert.equal(episode.provenance.environment_id, world.id);
+      assert.equal(episode.provenance.environment_version, world.version);
+      assert.equal(episode.provenance.git_revision, revision);
+      assert.equal(episode.provenance.implementation_dirty, false);
+      assert.equal(episode.provenance.evaluation_only, true);
+      assert.equal(episode.provenance.provider_id, provider);
+      assert.equal(episode.termination, "finished");
+      assert.ok(episode.steps > 0 && episode.steps <= 20);
+      assert.equal(episode.passed, provider === "scripted-oracle");
+      let observation = episode.initial_observation;
+      const history = [];
+      for (const step of episode.trace) {
+        assert.deepEqual(Object.keys(observation.state).sort(), ["assigned_request_id", "current_view"]);
+        assert.deepEqual(observation.tools.map((tool) => tool.name), world.tools.map((tool) => tool.name));
+        assert.equal(step.policy_input.length, 2);
+        assert.equal(step.policy_input[0].role, "system");
+        assert.equal(step.policy_input[1].role, "user");
+        assert.deepEqual(JSON.parse(step.policy_input[1].content), { observation, history });
+        history.push({ action: step.action, result: step.result });
+        observation = step.observation;
+      }
+      assert.deepEqual(Object.keys(episode.final_observation.state).sort(), ["assigned_request_id", "current_view"]);
+      assert.ok(Buffer.byteLength(JSON.stringify(episode)) <= 1024 * 1024);
+      operatorEpisodes.push(episode);
+    }
+    check(`${provider}: eight recorded episodes preserve committed provenance and bounded partial contexts`, true);
+    await withinViewport(`Desktop access ${provider}`);
+    await checkTextContrast(`Access ${provider} inspector`);
+    await screenshot(`desktop-access-${provider}.png`);
+    for (const format of ["traces", "atif", "sft", "dpo", "grpo"]) {
+      await page.getByLabel("Export format").selectOption(format);
+      await page.getByLabel("Export quality").selectOption("all");
+      const downloadPromise = page.waitForEvent("download");
+      const responsePromise = page.waitForResponse((response) =>
+        response.url().includes(`format=${format}`) && response.url().includes("quality=all"));
+      await page.getByRole("button", { name: "Export", exact: true }).click();
+      const download = await downloadPromise;
+      const response = await responsePromise;
+      const filename = `${created.id}-${format}-all.jsonl`;
+      await download.saveAs(path.join(output, filename));
+      const content = await readFile(path.join(output, filename), "utf8");
+      const rows = content.trim() ? content.trim().split("\n").map((line) => JSON.parse(line)) : [];
+      const expected = ["traces", "atif"].includes(format) ? 8 : 0;
+      check(`${provider}: ${format} preserves evaluation-only export boundary`,
+        response.ok() && rows.length === expected && response.headers()["x-export-records"] === String(expected));
+      if (format === "traces") {
+        assert.deepEqual(rows.map((record) => record.passed), detail.episodes.map((episode) => episode.passed));
+        assert.ok(rows.every((record) => record.provenance.evaluation_only === true));
+      }
+      if (format === "atif") {
+        assert.ok(rows.every((record) => record.schema_version === "ATIF-v1.8" &&
+          record.extra.evaluation_only === true && record.extra.training_eligible === false));
+        assert.deepEqual(rows.map((record) => record.extra.world_engine.passed), detail.episodes.map((episode) => episode.passed));
+      }
+      downloads.push({ format, quality: "all", run_id: created.id, rows: rows.length, filename,
+        suggested_filename: download.suggestedFilename(), sha256: createHash("sha256").update(content).digest("hex") });
+    }
+    await page.getByRole("tab", { name: "Provenance", exact: true }).click();
+    await page.locator(".frozen-provenance summary").first().click();
+    await screenshot(`desktop-access-${provider}-provenance.png`);
+    for (const width of [390, 360]) {
+      await page.setViewportSize({ width, height: 844 });
+      await withinViewport(`Mobile ${width} access ${provider} provenance`);
+      await screenshot(`mobile-${width}-access-${provider}-provenance.png`);
+      await page.getByRole("tab", { name: "Episode traces", exact: true }).click();
+      await page.locator(".trace-layout").scrollIntoViewIfNeeded();
+      await withinViewport(`Mobile ${width} access ${provider} timeline`);
+      await screenshot(`mobile-${width}-access-${provider}-trace.png`);
+      await page.getByRole("tab", { name: "Provenance", exact: true }).click();
+    }
+    await page.setViewportSize({ width: 1440, height: 960 });
+    details.push(detail);
+  }
+  const encoded = operatorEpisodes.map((episode) => JSON.stringify(episode)).join("\n") + "\n";
+  assert.ok(Buffer.byteLength(encoded) <= 16 * 1024 * 1024);
+  const operatorFilename = "access-evaluation-episodes.jsonl";
+  await writeFile(path.join(output, operatorFilename), encoded, { flag: "wx" });
+  const replayOutput = execFileSync("uv", ["run", "python", "-m", "world_engine", "replay", "--file", path.join(output, operatorFilename)],
+    { cwd: root, encoding: "utf8", timeout: 30000, maxBuffer: 1024 * 1024 });
+  const verified = JSON.parse(replayOutput);
+  check("All sixteen full operator episodes pass current-source CLI replay", verified.verified_episodes === 16 &&
+    verified.results.every((result) => result.verified === true));
+  await writeFile(path.join(output, "access-replay.json"), JSON.stringify(verified, null, 2), { flag: "wx" });
+  check("Access phase has no browser runtime errors", errors.length === 0);
+  completedReport = { downloads, video: await page.video().path() };
+  await writeFile(path.join(output, "ui-report.json"), JSON.stringify({
+    generated_at: new Date().toISOString(), phase: "access", base_url: baseURL,
+    controller_source: { revision, files, source_dirty: false, source_dirty_scope: scope },
+    api_health: health, api_episode_provenance: details.map((detail) => detail.episodes[0].provenance),
+    run_ids: details.map((detail) => detail.id), protocol: { environment_id: world.id,
+      providers: ["scripted-oracle", "scripted-baseline"], seeds: [0, 1, 2, 3, 4, 5, 6, 7],
+      episodes: 16, max_steps: 20, timeout_seconds: 30, concurrency: 1, evaluation_only: true },
+    model_calls: 0, paid_calls: 0, local_cancellation_requested: false,
+    outcome_control_only: true, training_eligible: false, checks, downloads,
+    real_episode_count: 16, real_trace_steps: operatorEpisodes.reduce((total, episode) => total + episode.steps, 0),
+    operator_episode_file: operatorFilename, operator_episode_sha256: createHash("sha256").update(encoded).digest("hex"),
+    replay_file: "access-replay.json", text_contrast: contrastResults, browser_errors: errors, video: completedReport.video,
+  }, null, 2), { flag: "wx" });
+  console.log(`Access UI QA passed: ${checks.length} checks, 16 scripted evaluation episodes; ${output}`);
+}
+
 try {
-  if (atifPhase) {
+  if (options.phase === "atif") {
     await runAtifQA();
+  } else if (options.phase === "access") {
+    await runAccessQA();
   } else {
     const health = await context.request.get("/api/health");
     check("API health responds through the Vite proxy", health.ok());
@@ -550,7 +741,7 @@ try {
     await page.getByLabel("Search runs").fill("this-query-has-no-result");
     check(
       "Run search has a working empty state",
-      await page.getByRole("heading", { name: "No matching runs" }).isVisible(),
+      await page.getByRole("heading", { name: "No matching runs on this page", exact: true }).isVisible(),
     );
     await page.getByLabel("Search runs").fill("");
     await page
@@ -608,7 +799,7 @@ try {
     const local = providers.find(
       (provider) => provider.id === "local" && provider.configured,
     );
-    if (local) {
+    if (options.localCancel && local) {
       await page
         .getByRole("link", { name: "Rollout runs", exact: true })
         .click();
@@ -656,7 +847,8 @@ try {
         (await final.json()).status === "cancelled",
       );
     } else
-      checks.push("Local cancellation not exercised: provider unavailable");
+      checks.push(options.localCancel ? "Local cancellation not exercised: provider unavailable"
+        : "Local cancellation not requested: no local inference");
 
     await page.setViewportSize({ width: 390, height: 844 });
     for (const view of ["runs", "worlds", "benchmarks", "runtime"]) {
@@ -718,17 +910,7 @@ try {
   await browser.close();
 }
 
-if (completedReport) {
-  const currentDownloads = new Set(
-    completedReport.downloads.map((item) => item.filename),
-  );
-  for (const name of await readdir(output)) {
-    if (name.endsWith(".jsonl") && !currentDownloads.has(name))
-      await unlink(path.join(output, name));
-  }
-  for (const name of await readdir(path.join(output, "video"))) {
-    const file = path.join(output, "video", name);
-    if (name.endsWith(".webm") && file !== completedReport.video)
-      await unlink(file);
-  }
 }
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))
+  await main(parseOptions(process.argv.slice(2)));
