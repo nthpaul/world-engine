@@ -413,7 +413,7 @@ try {
       })
       .click();
     await page
-      .getByText("Exact recorded model input", { exact: false })
+      .getByText("Recorded model user context", { exact: false })
       .waitFor();
     const image = page.getByRole("img", {
       name: /Captured browser screen at event 1/,

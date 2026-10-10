@@ -744,7 +744,7 @@ function ObservationPane({
         <details className="browser-ax">
           <summary>
             <FileText size={15} />
-            Exact recorded model input{" "}
+            Recorded model user context{" "}
             <span>
               {modelInput.observation.accessibility_truncated
                 ? "AX truncated"
