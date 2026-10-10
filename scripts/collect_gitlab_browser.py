@@ -62,9 +62,11 @@ def request(client: httpx.Client, method: str, path: str, *, payload: dict | Non
             limit: int = 32 * 1024 * 1024, evidence: Path | None = None) -> bytes:
     if not path.startswith("/api/") or ".." in path or "?" in path or "#" in path:
         raise ValueError("invalid local API path")
-    with client.stream(method, API + path, json=payload) as response:
+    with client.stream(method, API + path, json=payload, headers={"Accept-Encoding": "identity"}) as response:
+        if response.headers.get("content-encoding", "identity") != "identity":
+            raise RuntimeError("encoded local API response is not accepted")
         chunks, size = [], 0
-        for chunk in response.iter_bytes():
+        for chunk in response.iter_raw():
             size += len(chunk)
             if size > limit:
                 raise RuntimeError("local API response exceeded its bound")

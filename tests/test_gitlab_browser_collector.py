@@ -27,7 +27,7 @@ def test_collector_refuses_existing_output_before_source_or_api(tmp_path, monkey
 def test_collector_local_request_rejects_redirect_and_oversized_body():
     module = collector()
     for response in (httpx.Response(302, headers={"Location": "https://example.com"}),
-                     httpx.Response(200, content=b"too large")):
+                     httpx.Response(200, stream=httpx.ByteStream(b"too large"))):
         with httpx.Client(transport=httpx.MockTransport(lambda request: response), follow_redirects=False) as client:
             with pytest.raises(RuntimeError):
                 module.request(client, "GET", "/api/browser/status", limit=2)
@@ -50,7 +50,7 @@ def test_collector_requires_controller_revision_and_module_hash_match():
 
 def test_collector_preserves_rejected_http_reply_before_raising(tmp_path):
     module = collector()
-    with httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(409, content=b"rejected"))) as client:
+    with httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(409, stream=httpx.ByteStream(b"rejected")))) as client:
         with pytest.raises(RuntimeError):
             module.request(client, "POST", "/api/browser/attempts", payload={}, evidence=tmp_path)
     assert (tmp_path / "0000.body").read_bytes() == b"rejected"
