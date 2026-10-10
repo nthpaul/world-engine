@@ -256,7 +256,7 @@ class BrowserReferencePolicy:
                 else:
                     action = Scroll(direction="up")
             else:
-                textbox = choose("textbox", "comment") or choose("textbox", "write")
+                textbox = choose("textbox", "comment") or choose("textbox", "write") or choose("textbox", "Add a reply", exact=True)
                 if textbox:
                     filled = bool(history and history[-1]["action"].get("kind") == "fill")
                     if filled:

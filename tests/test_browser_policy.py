@@ -196,6 +196,12 @@ async def test_reference_uses_side_panel_and_plain_text_editor_without_popup():
     loading_target = observation("StaticText 'Deployment reference: REL-2026-1042'\n[15] image 'Loading'",
                                  url.split("?")[0] + "/2")
     assert (await policy.decide(loading_target, [])).action.kind == "wait"
+    reply = observation("StaticText 'Deployment reference: REL-2026-1042'\n[16] textbox 'Add a reply'",
+                        url.split("?")[0] + "/2")
+    decision = await policy.decide(reply, [])
+    assert decision.action.kind == "fill"
+    assert decision.action.bid == "16"
+    assert decision.action.text == policy.comment
 
 
 async def test_local_policy_preserves_bounded_http_failure_body():
