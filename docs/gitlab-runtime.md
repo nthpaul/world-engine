@@ -1,0 +1,51 @@
+# Local GitLab runtime
+
+This pilot runs the real GitLab CE application, not a synthetic replacement of its tools or database. The task is original: discover the correct issue among three same-title issues, post the exact requested comment, and close it through the ordinary browser UI. It does not borrow WebArena task fixtures and does not establish parity with GitLab's complete feature set. Browser episodes are evaluation-only, not training-ready trajectories.
+
+## Image and resource boundary
+
+The approved application is GitLab CE 19.4.1 on Linux arm64:
+
+```text
+gitlab/gitlab-ce@sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24
+```
+
+The manifest was resolved from the official CE image and the exact arm64 image was downloaded locally on 2026-10-10. Runtime execution uses `--pull never`; it does not download a missing application or model. The verifier and fixed-destination relay are built from the already-installed Python base `python@sha256:a1165e272e578941b84abc79e4ab38a0305cd12803a5c4247979ac7655f4d641`, with code baked into each image. Builds use the cached base and no build-network commands. Resulting image IDs and source hashes are recorded per attempt. Image labels are consistency metadata, not cryptographic attestations against a malicious Docker administrator.
+
+`GitLabRuntime` admits one instance at a time. It creates unique owner-labelled containers, three named volumes and two networks. GitLab has a 4 GiB memory limit, four CPU quota, 1,024 PID limit and 256 MiB shared memory. Small-instance configuration uses single-process Puma and five Sidekiq workers during trusted setup. Sidekiq is stopped before the baseline is exported; this avoids background provisioning changing protected records during the browser task. Asynchronous mail, external integrations and background-workflow fidelity are outside this pilot.
+
+The application remains on an internal Docker network. This Docker Desktop daemon does not expose published ports for an internal-only network, so a bounded, nonroot TCP relay joins both that internal network and a separate frontend network. Only its ephemeral `127.0.0.1` port is published. It always forwards to this instance's GitLab port 80; it cannot accept CONNECT requests, arbitrary upstream addresses or agent code. Its frontend network has ordinary Docker connectivity, but the fixed relay program does not choose external destinations. The application has no default outbound route. This design is local development isolation, not a production multi-tenant security guarantee.
+
+The runtime rejects remote Docker endpoints, resolves the local Unix-socket endpoint once and pins it for later commands. It never mounts the Docker socket, host files, grader code or administrator credentials into the browser or verifier. The controller and Docker administrator remain trusted.
+
+## Reset and browser capability
+
+The controller's trusted reset creates a private Release Operations project, an ordinary developer account, a reporter account and three same-title issues. Their descriptions carry distinct deployment references; the seed rotates creation order. Each issue has an existing comment that must be preserved. The browser task names the public target description and required comment, not database identities. The ordinary account begins on the project dashboard, where project membership must be discovered through the public UI.
+
+Reset uses a short-lived controller-created administrator token, revokes it before returning the runtime handle, and never serializes it. The installed GitLab internal Duo bot is initialized before baseline capture to avoid its lazy creation becoming an unexplained grader difference. That setup does not run a model or enable a paid service. The ordinary password is held in a `SecretStr` credential object. The browser driver authenticates before creating the recorded episode context; credentials and cookies are not part of policy observations.
+
+The task manifest binds the seed, fixture parameters and adapter/configuration/export source hashes. Runtime provenance separately records the exact application image, configuration, exporter, grader, grader image, relay image and actual baseline-state hash. These hashes establish consistency of the recorded local inputs, not signed authenticity of the host.
+
+## Seal and independent grading
+
+After the browser capability is closed, sealing stops the relay first, then Puma and Sidekiq. A controller-only Rails reader exports a repeatable-read, read-only transaction while PostgreSQL remains available; the application container is then stopped. The exclusive, fsynced sealed JSON includes trusted baseline and final state, private fixture facts and provenance. It is operator-only and is never exposed through browser observations or training exports. Credential-bearing attributes are replaced by SHA-256 commitments before export.
+
+The projection covers all instance projects, project features, namespaces, selected noncredential user identity/role fields, members, issues, notes, labels, label links and issue state events. It is not a complete database backup: repositories, object storage, every application table, user session history and external integration effects are not attested. Any broader task needs an explicitly expanded projection and corresponding tests.
+
+The separate verifier container has no network, no app volumes, no Docker socket and no administrator credentials. It is nonroot, read-only, capability-free and bounded to 128 MiB, one CPU and 32 PIDs. It receives the sealed JSON on stdin. Its binary reward is one only when all checks pass: the unique assigned issue is closed by the ordinary developer; exactly one exact ordinary comment (`internal` strictly false) and one closure system note are added; the closure event identifies the correct actor and issue; the comment precedes closure; and protected unrelated records and permissions remain unchanged. Missing, malformed, duplicate, internal-note or wrong-actor effects yield zero. The verifier never trusts an agent's final answer or calls operational mutation code to determine success.
+
+Every verifier container is uniquely named and registered with the same owner before launch, including timeout/cancellation cases. Cleanup removes only resources whose owner labels match, verifies their absence, and is idempotent. An uncertified cleanup blocks later admission, including startup failures before a handle could be returned. Sealed evidence remains on the host after app resources are removed.
+
+## Current Verification
+
+Development probes are separate from committed-source model evidence. The first probe reached application health but demonstrated that internal-only port publication was unavailable. The second exposed monitoring-endpoint allowlist behavior through the relay. Both were stopped and all owned resources were removed. The third created the fixture, logged in with the ordinary browser account, captured a real AX observation and screenshot, then sealed the unchanged task and received zero reward. It exposed the lazy bot and timestamp serialization issues corrected above. Its zero-byte video is retained as a failed recording artifact, not presented as valid video evidence.
+
+Later reference probes produced nonempty browser videos but failed during public navigation: GitLab 19.4 uses Work items, preserves list filters in query parameters, and opens issue detail in a side panel. These failed traces remain development-only. The sixth probe's unchanged task received zero while all three preservation checks passed after trusted initialization normalized the lazily populated `has_external_wiki` project field. The seventh startup was cancelled before login after detecting a controller debug-script defect; cleanup completed. The eighth probe contains explicitly recorded policy revisions and stopped after a class reload lacked newly added instance fields. Its trace and flushed media remain intact; cleanup completed, but it was not sealed or graded. A proposed popup explanation for the full-page link was not measured.
+
+The ninth probe reached the correct issue's ordinary reply editor and filled the requested text. It did not submit the comment or close the issue. An earlier policy revision had mistaken the textarea's draft text for a posted comment; that stale confirmation survived development-only class reloading even after the parser was corrected. The bounded pause expired instead of silently repairing the live instance. The 14 recorded actions, 18 screenshots and 30,119,824-byte video remain intact. Sealing produced 38,918 bytes, zero reward and three passing preservation checks; cleanup completed. Its actual baseline comments have `internal: false` and `type: null`; no new note was persisted. The subsequent refinement is task version `1.0.1` and grader `gitlab-state-v2`: it requires an explicit false internal flag and rejects absent or wrong-typed flags. Earlier `gitlab-state-v1` outcomes and sealed bytes remain unchanged. No model call has been made by these probes.
+
+Offline tests cover exact completion, incomplete work, duplicate comments/closures, wrong identities, unrelated-record changes, permission changes, missing histories, typed identities, local-only Docker selection, admission, exclusive sealing and certified ownership cleanup. Actual reference-browser completion and source-pinned model collection remain separate gates until their receipts exist.
+
+## Sources
+
+Accessed 2026-10-10. [GitLab's Docker installation documentation](https://docs.gitlab.com/install/docker/installation/) documents CE image selection, version pinning and the three persistent data/config/log locations. [Memory-constrained configuration](https://docs.gitlab.com/omnibus/settings/memory_constrained_envs/) documents reduced Puma/Sidekiq and monitoring settings. The installed, pinned application's `lib/users/internal.rb` was read directly to verify `Users::Internal.duo_code_review_bot`; that is an installed-source observation, not an inferred public API guarantee. The pilot's fixture/export/grading code is canonical in [the packaged task assets](../src/world_engine/taskpacks/gitlab/verify.py) and [runtime](../src/world_engine/gitlab_runtime.py).
