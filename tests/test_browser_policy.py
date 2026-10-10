@@ -193,6 +193,9 @@ async def test_reference_uses_side_panel_and_plain_text_editor_without_popup():
     assert (await policy.decide(target, [])).action.bid == "12"
     loading = observation("StaticText 'Loading'", url.split("?")[0] + "/1")
     assert (await policy.decide(loading, [])).action.kind == "wait"
+    loading_target = observation("StaticText 'Deployment reference: REL-2026-1042'\n[15] image 'Loading'",
+                                 url.split("?")[0] + "/2")
+    assert (await policy.decide(loading_target, [])).action.kind == "wait"
 
 
 async def test_local_policy_preserves_bounded_http_failure_body():

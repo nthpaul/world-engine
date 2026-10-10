@@ -267,7 +267,8 @@ class BrowserReferencePolicy:
                         action = Fill(bid=textbox["bid"], text=self.comment)
                 else:
                     node = choose("button", "Switch to plain text editing", exact=True)
-                    action = Click(bid=node["bid"]) if node else Scroll(direction="down")
+                    loading = any(node["role"] == "image" and "loading" in node["name"].lower() for node in nodes)
+                    action = Click(bid=node["bid"]) if node else Wait(seconds=1.0) if loading else Scroll(direction="down")
         elif re.search(r"/-/(?:issues|work_items)/?$", path):
             candidates = [node for node in nodes if node["role"] == "link"
                           and node["bid"]
