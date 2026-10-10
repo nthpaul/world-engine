@@ -1,0 +1,17 @@
+{
+  "repository": "https://github.com/harbor-framework/terminal-bench-2",
+  "revision": "2fd12b88aafdd04a52c298e3940bcb189f9766d6",
+  "evaluation_only": true,
+  "training_eligible": false,
+  "sha256": {
+    "LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "log-summary-date-ranges/instruction.md": "c1d4516ad4ec2238209740eaf01291df9ab48b0028a3fc5df383c6f831453484",
+    "log-summary-date-ranges/task.toml": "9a9593673d6805ef3a301ea734e9c4dbaf80da1b37c0fe9d1f2ceea2a8c57e18",
+    "log-summary-date-ranges/README.md": "026000415cb577f3d3d5132902670262f7d5d8f69841903ec06a882292f756b4",
+    "log-summary-date-ranges/environment/Dockerfile": "b479f6e987b63a6ec118fa1691b8bb85c437b2a6a0fe63feab5ed7154957fdfc",
+    "log-summary-date-ranges/environment/log_generator_deterministic.py": "beb6eff59979e9aa0be63ce8a0f1b0df1178f92871f04ba9f76fa70cf8beb81c",
+    "log-summary-date-ranges/solution/solve.sh": "9f6a8ee8947bdf1c0f31b530b6194ae998d66841a3b785fa2e246ee840350ab6",
+    "log-summary-date-ranges/tests/test.sh": "4770437ea96c3cc84684b4f99d55fb148fcac09f9ea1e8ef49de487716e6c334",
+    "log-summary-date-ranges/tests/test_outputs.py": "2fc06a6ce1944ad82f84fb437395fa75ed8c0eadd385b92e375c27e5bc9cb2b4"
+  }
+}
