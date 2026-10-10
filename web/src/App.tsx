@@ -1452,8 +1452,8 @@ function RunInspector({
           note="Across completed episodes"
         />
         <Metric
-          label="Throughput"
-          value={`${number(run.steps_per_second)} / s`}
+          label="Step throughput"
+          value={`${number(run.steps_per_second)} steps/s`}
           note={`${duration(run.elapsed_seconds)} elapsed`}
         />
       </div>
