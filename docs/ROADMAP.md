@@ -8,6 +8,8 @@ The rebuild provides workflow worlds, a Python SDK, bounded rollout jobs, grades
 
 Completion requires reference and failing policies, permission-boundary tests, independent episode state, consistent replay, truthful export labels, a frontend build, and browser QA. A bounded local language-model experiment adds actual policy evidence. Report its sample count and costs.
 
+Scoped follow-ups now include deterministic CRM/refund boundary variants, incident grader integrity, pinned Harbor ATIF interchange, an SDK-only native tool adapter, and a constrained local Docker SDK. The native six-case receipt records four business passes and two clean successes across 48 transport attempts; this does not complete larger matched policy evaluation. Docker lifecycle measurements use four repeated synthetic inputs, not real-model or cloud workloads. The [build board](../coordination/BUILD.md) distinguishes source and artifact delivery status.
+
 ## Real application parity
 
 Select one task family and a pinned application revision. Compare transitions, permissions, observations, timing, and outcomes against the real application. Have a domain expert independently review feasibility and grading.
@@ -20,13 +22,15 @@ Run a licensed public task with pinned source, image digest, bounded local compu
 
 Completion requires a run receipt, saved model actions, original revision, grader outcome, cleanup evidence, and a reproducible command. An oracle pass proves feasibility. A model pass is one observed attempt.
 
-The rebuild delivers one separate, adapted Terminal-Bench task runner with pinned source, recorded images, separate verification, a passing reference, and a failing negative control. Its bounded local-model attempt produced no executable command because JSON responses were truncated. [The protocol and evidence](public-benchmark.md) satisfy a local integration check, not broad benchmark coverage or the official leaderboard protocol. Wider task coverage and native Harbor job integration remain future work.
+The rebuild delivers one separate, adapted Terminal-Bench task runner with pinned source, recorded images, separate verification, a passing reference, and a failing negative control. Its final bounded native-tool local-model attempt executed eight shell commands but failed to produce the required CSV. Earlier JSON-v1 attempts produced no executable commands because responses were truncated; those historical protocol failures remain separate. [The protocol and evidence](public-benchmark.md) satisfy a local integration check, not broad benchmark coverage or the official leaderboard protocol. Wider task coverage and native Harbor job integration remain future work. ATIF schema interchange does not complete the native Harbor execution gate.
 
 ## Trainer integration
 
 Choose an established trainer and a small open model whose license permits the experiment. Establish SFT formatting and masks first. Add DPO after validating pair provenance. Add PPO or GRPO when exact behavior tokens, probabilities, masks, group identity, and policy version are available.
 
 Completion requires an actual checkpoint, pinned configuration, logs, data manifest, held-out comparison at equal budgets, confidence intervals, and regression analysis. Candidate JSONL exports do not complete this gate.
+
+The [local feasibility audit](trainer-preprocessing-feasibility.md) found no installed exact tokenizer/template executor or trainer framework in the inspected runtimes. Public installed model metadata supplies vocabulary and template details, but that is not an executable preprocessing adapter or training checkpoint. This gate remains blocked without separately authorized, verified prerequisites.
 
 ## Cloud sandbox execution
 

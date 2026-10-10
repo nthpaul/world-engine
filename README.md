@@ -29,7 +29,11 @@ Open [the console](http://127.0.0.1:5173). The API listens on [loopback port 800
 | `refund-ops` | Eligibility, exact payment, finance approval, idempotency, ticket resolution |
 | `incident-control` | Acknowledgement, preflight checks, approval, healthy rollback, preserved service data |
 
+Current versions are CRM `1.1.0`, refund `1.1.1`, and incident `1.0.1`. [Workflow variants](docs/workflow-variants.md) and [incident integrity](docs/incident-integrity.md) document their rule-boundary coverage and authoritative grader corrections.
+
 Runs persist episode state, tool events, grades, scenario splits, provenance, and fingerprints in SQLite. Replay recomputes transitions and final grades. Exports provide SFT candidates, comparable DPO pairs, raw grouped rollouts, and traces. Raw grouped rollouts are explicitly `trainable: false`; a PPO or GRPO trainer still needs sampled tokens, masks, behavior probabilities, and a fixed policy checkpoint.
+
+[ATIF](docs/atif.md) provides pinned-schema operator interchange. The [native Ollama tool adapter](docs/native-provider.md) is SDK-only and excluded from SFT/DPO/grouped training exports; the registered `local` provider still uses JSON actions. The separate [local Docker executor](docs/docker-executor.md) runs constrained terminal/file sessions with detached artifact grading, not a new HTTP workflow provider.
 
 ## Read and verify
 
@@ -45,6 +49,8 @@ Run focused backend checks with `uv run pytest` and `uv run ruff check src tests
 Measured evidence includes [the scripted workload matrix](examples/benchmark-results/benchmark.md), [paired local-model/reference/baseline attempts](examples/benchmark-results/local-model.md), and [one adapted public Terminal-Bench task](docs/public-benchmark.md). The public native-tool attempt executed eight shell commands but failed to produce the required CSV; earlier malformed-JSON attempts are retained separately. These are bounded integration samples, not general capability scores.
 
 The foundation local model passed the single sampled refund task and failed the sampled CRM and incident tasks. Its nine records, the report, and learning labs describe foundation source, not later workflow versions. CRM/refund version 1.1 adds deterministic rule-boundary fixtures; module fingerprints change for all built-in worlds. Replay older receipts in the pinned foundation checkout `1675734`, as shown in [operations](docs/OPERATIONS.md#export-candidate-data-and-replay). Do not overwrite or relabel foundation evidence under new generators.
+
+The separate [six-case native evaluation](artifacts/native-provider/final/report.md) at source `7de2512` recorded 48 transport attempts: four business-task passes, but only two clean successes with no invalid actions. Both CRM cases failed; refund and incident cases passed, with invalid incident actions retained. All six episodes replayed and their ATIF documents passed pinned Harbor schema validation. This is not a matched comparison against the historical JSON sample. The [hardened scripted study](artifacts/workflow-variants/hardened/report.md) covers 64 unique tasks and 128 attempts without inference; the [Docker receipt](artifacts/docker-executor/final/lifecycle.json) covers 24 executions of four repeated synthetic inputs, also without inference.
 
 ## Scope
 

@@ -1,0 +1,108 @@
+{
+  "generated_at": "2026-10-10T06:03:46.360304+00:00",
+  "schema": "world-engine.native-independent-validation.v1",
+  "source_revision": "7de25124fd752acf61571ec0860309c139652fff",
+  "source_hashes_rechecked": true,
+  "upstream_harbor_revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+  "harbor_schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c",
+  "harbor_distribution_version": "0.24.0",
+  "harbor_direct_url": {
+    "url": "file:///tmp/harbor-09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+    "dir_info": {}
+  },
+  "replayed_episodes": 6,
+  "upstream_validated_documents": 6,
+  "training_formats_rejected_per_episode": [
+    "sft",
+    "dpo",
+    "grpo"
+  ],
+  "counts": {
+    "attempts": 48,
+    "task_passes": 4,
+    "clean_successes": 2,
+    "invalid_actions": 18
+  },
+  "reported_tokens_complete_across_attempts": {
+    "input_tokens": 71531,
+    "output_tokens": 1258
+  },
+  "maximum_observed_bytes": {
+    "request_bytes": 9586,
+    "response_bytes": 470,
+    "episode_record_bytes": 147643
+  },
+  "collection_elapsed_seconds": 88.28858362499159,
+  "artifact_digests_rechecked": {
+    "evaluation-episodes.jsonl": "5c237c37f93b5e5fe4cd8e8b02943b2fbc58c80cb3cec6cf95858bca328a2e51",
+    "operator-traces.jsonl": "967321c95a0b5388feb9de0b8c1f46cfb03c28840ccc026d5232c17e086896b0",
+    "atif.jsonl": "46ccb5a2128a01192a76dd827481038348bd2bb807b0000f9ef35b0ed18c06fd"
+  },
+  "artifact_sizes_before_receipt": {
+    "operator-traces.jsonl": 989562,
+    "report.json": 31339,
+    "native-evaluation.sqlite3": 1077248,
+    "report.md": 1181,
+    "atif.jsonl": 1071305,
+    "evaluation-episodes.jsonl": 1030994
+  },
+  "artifact_bytes_before_receipt": 4201629,
+  "model_requests_from_validation": 0,
+  "outcomes": [
+    {
+      "environment_id": "crm-merge",
+      "seed": 42,
+      "passed": false,
+      "reward": 0.2,
+      "termination": "finished",
+      "steps": 7,
+      "invalid_actions": 5
+    },
+    {
+      "environment_id": "crm-merge",
+      "seed": 730,
+      "passed": false,
+      "reward": 0.2,
+      "termination": "finished",
+      "steps": 9,
+      "invalid_actions": 7
+    },
+    {
+      "environment_id": "refund-ops",
+      "seed": 42,
+      "passed": true,
+      "reward": 1.0,
+      "termination": "finished",
+      "steps": 5,
+      "invalid_actions": 0
+    },
+    {
+      "environment_id": "refund-ops",
+      "seed": 730,
+      "passed": true,
+      "reward": 1.0,
+      "termination": "finished",
+      "steps": 5,
+      "invalid_actions": 0
+    },
+    {
+      "environment_id": "incident-control",
+      "seed": 42,
+      "passed": true,
+      "reward": 1.0,
+      "termination": "finished",
+      "steps": 13,
+      "invalid_actions": 5
+    },
+    {
+      "environment_id": "incident-control",
+      "seed": 730,
+      "passed": true,
+      "reward": 1.0,
+      "termination": "finished",
+      "steps": 9,
+      "invalid_actions": 1
+    }
+  ],
+  "limitations": "Finalized application evidence only, not signed execution or frozen-weight attestation; six evaluation cases are not a population estimate, leaderboard or native-versus-JSON comparison."
+}
