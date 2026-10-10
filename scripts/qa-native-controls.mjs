@@ -273,6 +273,13 @@ export async function collect(options) {
       const dialog = await page.getByRole("dialog", { name: "New rollout", exact: true }).boundingBox();
       assert.ok(dialog && dialog.x >= 0 && dialog.x + dialog.width <= page.viewportSize().width + 1);
       assert.ok(dialog.y >= 0 && dialog.y + dialog.height <= page.viewportSize().height + 1);
+      for (const name of ["Start rollout", "Cancel"]) {
+        const button = await page.getByRole("dialog", { name: "New rollout", exact: true })
+          .getByRole("button", { name, exact: true }).boundingBox();
+        assert.ok(button && button.x >= dialog.x && button.x + button.width <= dialog.x + dialog.width &&
+          button.y >= dialog.y && button.y + button.height <= dialog.y + dialog.height &&
+          button.y + button.height <= page.viewportSize().height + 1);
+      }
       const bytes = await page.screenshot({ fullPage: false });
       remaining();
       await writeBounded(options.output, name, bytes);
