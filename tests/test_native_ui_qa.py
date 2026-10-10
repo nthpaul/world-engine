@@ -28,8 +28,15 @@ pytestmark = pytest.mark.skipif(NODE is None, reason="Node.js is required for re
 
 
 def node(code):
-    return subprocess.run([NODE, "--input-type=module", "-e", code], cwd=ROOT,
+    return subprocess.run([NODE, "--input-type=module"], input=code, cwd=ROOT,
                           capture_output=True, text=True, timeout=30)
+
+
+def test_node_helper_accepts_large_receipt_code_via_stdin():
+    code = "/*" + "x" * (128 * 1024) + "*/\nconsole.log('stdin-ok');"
+    result = node(code)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "stdin-ok"
 
 
 class RawBody(httpx.AsyncByteStream):
@@ -258,6 +265,72 @@ def test_imported_api_detail_is_exact_and_rejects_rewrites(tmp_path, recorded):
       assert.throws(()=>validateApiDetail(receipt,JSON.stringify(JSON.parse(raw)),'imported'));
     """)
     assert result.returncode == 0, result.stderr
+
+
+def test_native_api_wrapper_and_batch_overhead_are_exact(tmp_path, recorded):
+    run_id = "00000000-0000-0000-0000-000000000050"
+    episode = recorded["episode"]
+    wrapper = {"evaluation_only": True, "training_eligible": False, "run_id": run_id, "episode": episode}
+    file = tmp_path / "api-original.jsonl"
+    file.write_text(canonical_json(wrapper) + "\n")
+    alias = "local-tools" if episode["provenance"]["provider_protocol"] == PROTOCOL else "local-tools-ledger"
+    detail = {"id": run_id, "label": "native-api-smoke-v1", "status": episode["status"],
+              "elapsed_seconds": episode["elapsed_seconds"] + 0.5, "config": {"evaluation_only": True, "episodes": 1,
+              "environment_id": episode["provenance"]["environment_id"], "seed": episode["seed"],
+              "model": episode["provenance"]["model"], "allow_paid": False, "provider_id": alias,
+              "label": "native-api-smoke-v1", "concurrency": 1, "max_steps": 20,
+              "timeout_seconds": 35}, "episodes": [episode]}
+    detail_file = tmp_path / "detail.json"
+    detail_file.write_text(canonical_json(detail))
+    result = node(f"""
+      import assert from 'node:assert/strict';
+      import {{readFile}} from 'node:fs/promises';
+      import {{preflightReceipt,validateApiDetail,prepare}} from {json.dumps(SCRIPT.as_uri())};
+      const receipt=await preflightReceipt({json.dumps(str(file))});
+      assert.equal(receipt.receipt_kind,'native-api');assert.equal(receipt.slot,null);
+      assert.equal(receipt.receipt_run_id,{json.dumps(run_id)});
+      assert.equal(receipt.canonical_episode,{json.dumps(canonical_json(episode))});
+      assert.deepEqual(receipt.raw,await readFile({json.dumps(str(file))}));
+      const raw=await readFile({json.dumps(str(detail_file))},'utf8');
+      validateApiDetail(receipt,raw,{json.dumps(run_id)});
+      for(const field of ['id','index','seed','reward']){{
+        const changed=JSON.parse(raw);changed.episodes[0][field]='rewritten';
+        assert.throws(()=>validateApiDetail(receipt,JSON.stringify(changed),{json.dumps(run_id)}));
+      }}
+      for(const [field,value] of [['provider_id','local'],['label','Imported operator receipt'],['evaluation_only',1],['allow_paid',true],
+                                ['concurrency',2],['max_steps',19],['timeout_seconds',36]]){{
+        const changed=JSON.parse(raw);changed.config[field]=value;
+        assert.throws(()=>validateApiDetail(receipt,JSON.stringify(changed),{json.dumps(run_id)}));
+      }}
+      const changed=JSON.parse(raw);changed.elapsed_seconds=-1;
+      assert.throws(()=>validateApiDetail(receipt,JSON.stringify(changed),{json.dumps(run_id)}));
+      await assert.rejects(prepare({{receipt:{json.dumps(str(file))},output:{json.dumps(str(tmp_path/'fresh'))},runId:'other'}}));
+    """)
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize("mutation", ["eval_int", "train_int", "run_id", "extra", "schema", "protocol"])
+def test_api_wrapper_mutations_fail_before_browser_redacted(tmp_path, recorded, mutation):
+    wrapper = {"evaluation_only": True, "training_eligible": False,
+               "run_id": "00000000-0000-0000-0000-000000000050", "episode": copy.deepcopy(recorded["episode"])}
+    if mutation == "eval_int":
+        wrapper["evaluation_only"] = 1
+    elif mutation == "train_int":
+        wrapper["training_eligible"] = 0
+    elif mutation == "run_id":
+        wrapper["run_id"] = "PRIVATE_SENTINEL"
+    elif mutation == "extra":
+        wrapper["extra"] = "PRIVATE_SENTINEL"
+    elif mutation == "schema":
+        wrapper["schema"] = "unknown"
+    else:
+        wrapper["episode"]["provenance"]["provider_protocol"] = "unknown"
+    file = tmp_path / "bad.jsonl"
+    file.write_text(canonical_json(wrapper) + "\n")
+    result = node(f"import {{preflightReceipt}} from {json.dumps(SCRIPT.as_uri())};"
+                  f"await preflightReceipt({json.dumps(str(file))});")
+    assert result.returncode != 0 and "PRIVATE_SENTINEL" not in result.stderr
+    assert "supplied values and subprocess details redacted" in result.stderr
 
 
 def test_native_download_boundaries_and_no_invented_usage(tmp_path, recorded):

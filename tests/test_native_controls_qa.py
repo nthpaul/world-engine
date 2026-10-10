@@ -196,7 +196,7 @@ def test_mock_dialog_transitions_never_start_or_open_model_dropdown():
     """)
 
 
-@pytest.mark.parametrize("mode", ["completed", "mutation", "close_failure", "source_drift", "modal_overlap"])
+@pytest.mark.parametrize("mode", ["completed", "mutation", "close_failure", "source_drift", "modal_overlap", "button_overlap"])
 def test_fake_collector_report_cleanup_and_privacy(tmp_path, mode):
     guard, output = tmp_path / "fake.cjs", tmp_path / "out"
     guard.write_text("""
@@ -217,8 +217,10 @@ def test_fake_collector_report_cleanup_and_privacy(tmp_path, mode):
         uncheck:async()=>evaluation=false};
       const dialog={getByLabel:(name)=>name==='Concurrency'?worker:name==='Model'?{inputValue:async()=> 'qwen3:8b'}:
         {selectOption:async(v)=>{const prior=native();provider=v;if(native()){evaluation=true;if(!prior)workers='1'}}},
-        getByRole:(role,{name})=>{if(role==='checkbox')return checkbox;if(name!=='Cancel')throw Error('START_FORBIDDEN');
-          return {click:async()=>visible=false}},locator:()=>({count:async()=>0}),isVisible:async()=>visible,
+        getByRole:(role,{name})=>{if(role==='checkbox')return checkbox;
+          return {click:async()=>{if(name!=='Cancel')throw Error('START_FORBIDDEN');visible=false},
+            boundingBox:async()=>({x:20,y:process.env.MODE==='button_overlap'?190:150,width:100,height:40})}},
+        locator:()=>({count:async()=>0}),isVisible:async()=>visible,
         boundingBox:async()=>({x:0,y:0,width:viewport.width,
           height:process.env.MODE==='modal_overlap'?viewport.height+2:200})};
       let videoPath;
@@ -253,7 +255,7 @@ def test_fake_collector_report_cleanup_and_privacy(tmp_path, mode):
     assert cleanup.read_text() == "context\nbrowser\n"
     assert report["api_startup_revision_declared"] == "b" * 40
     assert report["new_rollouts"] == report["inference_requests"] == report["api_mutations"] == 0
-    assert len(list(output.glob("*.png"))) == (0 if mode == "modal_overlap" else 12)
+    assert len(list(output.glob("*.png"))) == (0 if mode in ("modal_overlap", "button_overlap") else 12)
     assert report["artifact_total_bytes"] == sum(file.stat().st_size for file in output.iterdir())
     assert report["report_bytes"] == (output / "report.json").stat().st_size
     assert report["artifact_total_bytes"] < 64 * 1024 ** 2
