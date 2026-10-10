@@ -181,6 +181,7 @@ COMMON_TOOLS = (Tool("inspect", "Read operational state without changing it.", E
 
 class CRMMerge(Environment):
     id = "crm-merge"
+    version = "1.1.0"
     name = "CRM Duplicate Merge"
     description = "Merge duplicate accounts while preserving tickets, legitimate invoices, and unrelated customers."
     tags = ("crm", "data-integrity", "multi-step")
@@ -202,6 +203,8 @@ class CRMMerge(Environment):
             {"id": outsider, "email": f"billing+{self.seed}@acme.example", "name": "Acme Purchasing", "created_at": "2024-01-01", "status": "active"},
             {"id": canonical, "email": email, "name": "Acme Purchasing", "created_at": "2025-01-01", "status": "active"},
         ]
+        if self.seed % 4 == 1:
+            customers[0]["created_at"] = customers[2]["created_at"]
         self.rng.shuffle(customers)
         invoices = [
             {"id": ids[3], "customer_id": canonical, "number": "INV-101", "amount_cents": amount, "issued_at": "2025-04-01", "status": "open"},
@@ -212,6 +215,10 @@ class CRMMerge(Environment):
         ]
         if self.seed % 3 == 0:
             invoices[2]["number"] = "INV-101"  # Same number, different amount is a legitimate invoice.
+        if self.seed % 4 in (2, 3):
+            invoices[0]["customer_id"] = duplicate
+            if self.seed % 4 == 3:
+                invoices[1]["issued_at"] = invoices[0]["issued_at"]
         tickets = [
             {"id": ids[8], "customer_id": duplicate, "subject": "Missing shipment", "status": "open"},
             {"id": ids[9], "customer_id": outsider, "subject": "Billing question", "status": "open"},
@@ -329,6 +336,7 @@ class CRMMerge(Environment):
 
 class RefundOps(Environment):
     id = "refund-ops"
+    version = "1.1.0"
     name = "Customer Refund Operations"
     description = "Resolve a refund request with eligibility checks, approval limits, an idempotent payment ledger, and ticket closure."
     tags = ("finance", "permissions", "idempotency")
@@ -341,15 +349,20 @@ class RefundOps(Environment):
     def build(self) -> tuple[JsonObject, str]:
         ids = self.rng.sample(range(1000, 9000), 5)
         amount = self.rng.choice([2500, 4500, 8900, 12900])
-        late = self.seed % 5 == 0
+        case = self.seed % 8
+        if case in (2, 3):
+            amount = 5000 if case == 2 else 5001
+        delivery_age = self.rng.randrange(1, 29)
+        if case in (1, 4):
+            delivery_age = 30 if case == 1 else 31
         orders = [
-            {"id": ids[0], "customer_id": ids[2], "captured_cents": amount + 1000, "refunded_cents": 1000, "delivery_age_days": 45 if late else self.rng.randrange(1, 29), "chargeback": False},
+            {"id": ids[0], "customer_id": ids[2], "captured_cents": amount + 1000 - int(case == 5), "refunded_cents": 1000, "delivery_age_days": delivery_age, "chargeback": case == 6},
             {"id": ids[1], "customer_id": ids[3], "captured_cents": 19500, "refunded_cents": 0, "delivery_age_days": 5, "chargeback": True},
         ]
         return {
             "role": "refund-agent", "approval_limit_cents": 5000, "target_ticket_id": ids[4],
             "orders": orders,
-            "tickets": [{"id": ids[4], "order_id": ids[0], "requested_cents": amount, "damage_verified": True, "status": "open", "resolution": None}],
+            "tickets": [{"id": ids[4], "order_id": ids[0], "requested_cents": amount, "damage_verified": case != 7, "status": "open", "resolution": None}],
             "approvals": [], "ledger": [{"id": "existing-refund", "order_id": ids[0], "amount_cents": 1000, "idempotency_key": "previous-refund"}],
             "audit": [],
         }, (

@@ -44,7 +44,7 @@ Run focused backend checks with `uv run pytest` and `uv run ruff check src tests
 
 Measured evidence includes [the scripted workload matrix](examples/benchmark-results/benchmark.md), [paired local-model/reference/baseline attempts](examples/benchmark-results/local-model.md), and [one adapted public Terminal-Bench task](docs/public-benchmark.md). The public native-tool attempt executed eight shell commands but failed to produce the required CSV; earlier malformed-JSON attempts are retained separately. These are bounded integration samples, not general capability scores.
 
-The final local model passed the single sampled refund task and failed the sampled CRM and incident tasks. All nine final reference/baseline/model records replay with `uv run python -m world_engine replay --file examples/benchmark-results/local-model-traces.jsonl`.
+The foundation local model passed the single sampled refund task and failed the sampled CRM and incident tasks. Its nine records, the report, and learning labs describe foundation source, not later workflow versions. CRM/refund version 1.1 adds deterministic rule-boundary fixtures; module fingerprints change for all built-in worlds. Replay older receipts in the pinned foundation checkout `1675734`, as shown in [operations](docs/OPERATIONS.md#export-candidate-data-and-replay). Do not overwrite or relabel foundation evidence under new generators.
 
 ## Scope
 

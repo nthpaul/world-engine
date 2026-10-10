@@ -133,13 +133,15 @@ Replay recreates the seeded world, checks environment and grader versions, valid
 
 Replay also derives authoritative episode reward and pass and rejects contradictory labels, status, termination, split, lineage, counts, or controller contexts. This guards SDK and file ingestion against semantically forged success records. It does not authenticate collection, verify reported timing/usage/model identity, or recursively fingerprint imported dependencies. Retain source and dependency manifests for reproducibility beyond the hashed modules and classes.
 
-Replay the delivered evaluation-only operator records without the original local database:
+Replay the foundation evaluation-only operator records without the original local database. Later CRM/refund version 1.1 changes the shared environment module fingerprint, including that used for incident replay. Use the pinned foundation checkout rather than the current generators:
 
 ```sh
+git worktree add --detach /tmp/world-engine-foundation-replay 1675734
+cd /tmp/world-engine-foundation-replay
 uv run python -m world_engine replay --file examples/benchmark-results/local-model-traces.jsonl
 ```
 
-All nine final records replay against their committed implementation. These files contain operator evidence and are not training exports. The separately retained historical intermediate-source sample has no source-recovery guarantee and must not be represented as replayable against the release.
+All nine final records replay against that foundation implementation, not the changed 1.1 generators. Use an unused checkout path if the example path already exists. Existing database records from prior source also require their source checkout for replay and replay-gated training exports; no automatic migration to new task semantics is performed. These files contain operator evidence and are not training exports. The separately retained historical intermediate-source sample has no source-recovery guarantee and must not be represented as replayable against the release. Hashes cover whole source modules, so unchanged world semantics do not imply identical recorded fingerprints.
 
 ## Persistence and recovery
 

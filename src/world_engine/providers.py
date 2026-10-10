@@ -52,8 +52,12 @@ class ScriptedProvider:
             if history:
                 return Decision(Action(tool="finish"))
             if environment_id == "crm-merge":
-                customer = next(row for row in state["customers"] if row["created_at"] == "2025-03-01")
-                return Decision(Action(tool="deactivate_customer", args={"customer_id": customer["id"]}))
+                grouped: dict[str, list[JsonObject]] = {}
+                for customer in state["customers"]:
+                    grouped.setdefault(customer["email"].strip().lower(), []).append(customer)
+                members = next(group for group in grouped.values() if len(group) > 1)
+                duplicate = max(members, key=lambda row: (row["created_at"], row["id"]))
+                return Decision(Action(tool="deactivate_customer", args={"customer_id": duplicate["id"]}))
             if environment_id == "refund-ops":
                 ticket = state["tickets"][0]
                 return Decision(Action(tool="close_ticket", args={"ticket_id": ticket["id"], "resolution": "refunded"}))
@@ -95,8 +99,11 @@ class ScriptedProvider:
         order = next(order for order in state["orders"] if order["id"] == ticket["order_id"])
         if ticket["status"] == "closed":
             return Action(tool="finish")
-        eligible = ticket["damage_verified"] and order["delivery_age_days"] <= 30 and not order["chargeback"]
-        settled = any(row["idempotency_key"] == f"ticket-{ticket['id']}-refund" for row in state["ledger"])
+        settled = any(row["idempotency_key"] == f"ticket-{ticket['id']}-refund"
+                      and row["order_id"] == order["id"] and row["amount_cents"] == ticket["requested_cents"]
+                      for row in state["ledger"])
+        eligible = (ticket["damage_verified"] and order["delivery_age_days"] <= 30 and not order["chargeback"]
+                    and (settled or ticket["requested_cents"] <= order["captured_cents"] - order["refunded_cents"]))
         if eligible and not settled:
             args = {"order_id": order["id"], "amount_cents": ticket["requested_cents"]}
             if ticket["requested_cents"] > state["approval_limit_cents"] and not state["approvals"]:
