@@ -1,6 +1,33 @@
-# Native Ollama Tool Provider
+# Native Ollama tool provider
 
-This SDK-only adapter uses Ollama native `tools` through `OllamaToolsProvider`. The existing registered `local` provider still uses structured JSON actions. Native calls are operator-only: they are excluded from SFT, DPO and grouped-RL exports, including candidate pools, even when the episode passed on a training split. They are not a new console/API provider option.
+`OllamaToolsProvider` uses Ollama native `tools`. It is available through the SDK, API, console, and CLI. The existing `local` provider still uses structured JSON actions. Native episodes are operator-only: SFT, DPO, and grouped-RL exports exclude them and their candidate pools, even when an episode passes on a training split.
+
+## Entrypoints and defaults
+
+| Provider ID | Console name | Native protocol |
+|---|---|---|
+| `local-tools` | Native Tools | `ollama-tools-v1` |
+| `local-tools-ledger` | Native Ledger | `ollama-tools-ledger-v2` |
+
+API requests for these IDs use `NativeRunConfig`, not the base `RunConfig`. Import it from `world_engine.native_config`; it is not exported from `world_engine.__init__`. Its defaults include `evaluation_only=true` and `concurrency=1`. Explicit concurrency values from 1 through 8 are accepted. Explicit false or nonboolean evaluation flags are rejected, not silently changed. The original `RunConfig` retains its concurrency default of 4 and rejects native IDs.
+
+The console selects one worker when entering native mode. You can change that value; switching between native protocols preserves the chosen count. The evaluation-only checkbox stays checked and disabled. Provider discovery reuses the local model catalog, while preparation checks the selected model's tool capability before any chat request.
+
+The CLI accepts both IDs and always sets evaluation-only and `allow_paid=false`. An omitted `--concurrency` uses the selected config class's default. Explicit zero or values above 8 fail validation before the CLI opens its Store or RunManager. This command is a local inference template, not a command executed by this guide:
+
+```sh
+uv run python -m world_engine --db .world-engine/native-evaluation.sqlite3 rollout \
+  --environment refund-ops --provider local-tools-ledger --model qwen3:8b \
+  --episodes 1 --max-steps 20 --timeout 35
+```
+
+Add `--episodes 2 --concurrency 2` to admit up to two concurrent episodes. Changing only `--concurrency` in the one-episode example raises the worker limit but does not create another episode. One is a conservative local default, not a claim that one worker is optimal for every model or machine. Both IDs use only an installed loopback model. They do not enable paid calls, hosted fallback, or downloads.
+
+The API accepts, for example, `{"environment_id":"refund-ops","provider_id":"local-tools-ledger","model":"qwen3:8b","episodes":1}` at `POST /api/runs`. The omitted evaluation flag defaults to true, and the omitted concurrency defaults to one. These entrypoints use the existing RunManager admission, preparation, cancellation, and cleanup rules.
+
+Entrypoint regression coverage uses mocked transport and console requests. The earlier console QA at source `b4501029a332d7675a12fbf84b00358230d3d154` imported historical native episodes read-only, without new inference.
+
+On 2026-10-10, the separately authorized [native API integration smoke](native-api-smoke-results.md) submitted one evaluation-only refund attempt per native alias at source `8b82c7aa5ac944ec35b62ef2d12f28f4b8d254cb`. Both attempts on the same fixed task passed with no invalid actions. Their nine recorded native requests were accepted and had complete reported usage. This proves those two bounded API executions, not model quality, speed, or new console-initiated inference. Actual SDK study receipts retain their own collection source and protocol.
 
 ## Protocol
 
@@ -27,7 +54,22 @@ Exactly one native tool call is accepted. Explicit `finish` is the only completi
 
 Preparation requires a loopback URL, an exact installed catalog entry with a 64-character digest, and tool capability from `/api/show`. Cloud names and reported `remote_host`/`remote_model` are rejected before inference. The catalog digest describes inspected metadata, not attestation that a particular weight file was used by a trusted server. A mutable tag or an untrusted daemon cannot be made authentic by recording its response. Reported model names are likewise not verified weights.
 
-## SDK Use
+## SDK use
+
+To use a registered native ID with the provider factory, construct the separate config type:
+
+```python
+from world_engine.native_config import NativeRunConfig
+from world_engine.providers import make_provider
+
+config = NativeRunConfig(environment_id="refund-ops", provider_id="local-tools-ledger",
+                         model="qwen3:8b", episodes=1, max_steps=20, timeout_seconds=35)
+provider = make_provider(config)
+```
+
+`RunManager.submit(config)` owns preparation and cleanup. For direct `rollout`, prepare and close the returned provider as in the explicit-constructor example below. Construction alone does not contact Ollama.
+
+The original SDK path remains supported. Its base config defaults are unchanged, so this example sets evaluation-only and concurrency explicitly:
 
 ```python
 from world_engine import RunConfig
@@ -52,7 +94,8 @@ To opt in at construction, use
 endpoint setup. The provider derives v2's initial public observation from the
 first controller history context without retaining an initial observation on
 the shared provider. Model preflight and actual inference still require the
-same explicit authorization as v1; no collector or console setting is changed.
+same explicit authorization as v1. Existing locked collectors retain their own
+fixed protocol and concurrency settings.
 
 ## Evidence And Boundaries
 
