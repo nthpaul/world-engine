@@ -14,6 +14,7 @@ World Engine is a local workflow environment, evaluation, and trace-curation pla
 
 - Every episode owns its mutable state. Eliminate cross-episode sharing before introducing locks.
 - Validate inputs at HTTP, configuration, provider-response, and tool boundaries. Internal code uses parsed types with explicit state transitions.
+- Production validation must use explicit guards, never `assert`: Python `-O` removes assertions. The AST regression scans production modules; tests/examples may use assertions, but validation must not depend on them.
 - A seed is not proof of deterministic replay. Control or record random choices, time, IDs, external responses, and action ordering.
 - Keep terminal completion, budget truncation, cancellation, provider failure, and environment failure distinct in persisted evidence.
 - Preserve task, environment, grader, policy, and export schema revisions when the format supports them. Investigate replay mismatches rather than silently replacing values.
@@ -23,6 +24,8 @@ World Engine is a local workflow environment, evaluation, and trace-curation pla
 ## Grader and data boundaries
 
 - Grade trusted state and committed effects. Never accept the agent's final answer as proof a transaction occurred.
+- Anchor the whole operational state, immutable metadata, role/target permissions, prior history, generated identities, and exact change certificates to trusted initial facts. Checking selected fields or operation names is insufficient. Audit missing/extra/duplicate/misordered events must not retain full credit.
+- Graders must not call operational `apply`, replay, or a scripted provider to determine authorization. Independently validate legal contract states/certificates. Preserve legitimate partial progress, all allowed operation orders, optional approvals, and idempotent retries; only actual changes produce audit certificates.
 - Test preservation of unrelated records, permissions, idempotency, and known reward exploits alongside positive reference executions.
 - Do not expose private expected values, protected grading code, sealed evaluation fixtures, credentials, or operator-only snapshots in agent observations or training exports.
 - Hidden tests inside an agent-readable filesystem are not hidden. For untrusted code, isolate the evaluator outside the agent's writable environment.

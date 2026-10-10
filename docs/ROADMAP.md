@@ -10,6 +10,8 @@ Completion requires reference and failing policies, permission-boundary tests, i
 
 Scoped follow-ups now include deterministic CRM/refund boundary variants, incident grader integrity, pinned Harbor ATIF interchange, an SDK-only native tool adapter, and a constrained local Docker SDK. The native six-case receipt records four business passes and two clean successes across 48 transport attempts; this does not complete larger matched policy evaluation. Docker lifecycle measurements use four repeated synthetic inputs, not real-model or cloud workloads. The [build board](../coordination/BUILD.md) distinguishes source and artifact delivery status.
 
+The latest [CRM/refund certificate correction](workflow-grader-integrity.md) strengthens whole-state/history grading and accepts legitimate transfer-before-void ownership. Its source review and fresh scripted coverage are pending; previously collected model/scripted outcomes remain pinned historical evidence, not proof that the new counterfactual corruption cases were rejected then.
+
 ## Real application parity
 
 Select one task family and a pinned application revision. Compare transitions, permissions, observations, timing, and outcomes against the real application. Have a domain expert independently review feasibility and grading.

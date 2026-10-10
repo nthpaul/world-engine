@@ -29,7 +29,7 @@ Open [the console](http://127.0.0.1:5173). The API listens on [loopback port 800
 | `refund-ops` | Eligibility, exact payment, finance approval, idempotency, ticket resolution |
 | `incident-control` | Acknowledgement, preflight checks, approval, healthy rollback, preserved service data |
 
-Current versions are CRM `1.1.0`, refund `1.1.1`, and incident `1.0.1`. [Workflow variants](docs/workflow-variants.md) and [incident integrity](docs/incident-integrity.md) document their rule-boundary coverage and authoritative grader corrections.
+Current source versions are CRM `1.1.1`, refund `1.1.2`, and incident `1.0.1`. [Workflow variants](docs/workflow-variants.md), [workflow grader certificates](docs/workflow-grader-integrity.md), and [incident integrity](docs/incident-integrity.md) document coverage and corrections. Existing `4bc73fe6`/`7de25124` receipts predate the latest CRM/refund certificate hardening; their original grades remain unchanged and pinned-source sidecars explain the gaps. Corrected-source collection is pending authorization.
 
 Runs persist episode state, tool events, grades, scenario splits, provenance, and fingerprints in SQLite. Replay recomputes transitions and final grades. Exports provide SFT candidates, comparable DPO pairs, raw grouped rollouts, and traces. Raw grouped rollouts are explicitly `trainable: false`; a PPO or GRPO trainer still needs sampled tokens, masks, behavior probabilities, and a fixed policy checkpoint.
 

@@ -12,7 +12,7 @@ Use the verified native-tool and structured-JSON adapters, with one attempt per 
 
 | Field | Proposed value |
 |---|---|
-| Worlds | `crm-merge` 1.1.0; `refund-ops` 1.1.1; `incident-control` 1.0.1 |
+| Worlds | `crm-merge` 1.1.1; `refund-ops` 1.1.2; `incident-control` 1.0.1 |
 | Seeds | Exact new evaluation-seed lists below; no previously collected low seeds |
 | Unique tasks | 32 family/seed fixtures: 8 CRM, 16 refund, 8 incident |
 | Coverage | Four CRM cases with two seeds each; eight refund cases with two seeds each; four SEV1 and four SEV2 incidents |
