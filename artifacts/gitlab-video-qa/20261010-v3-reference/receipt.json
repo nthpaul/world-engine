@@ -1,0 +1,66 @@
+{
+  "changing_frames": true,
+  "duration_seconds": 14.48,
+  "frames": [
+    {
+      "file": "frame-0.png",
+      "mean": [
+        247.56968541666666,
+        245.45088263888888,
+        247.49718055555556
+      ],
+      "nonblank": true,
+      "seconds": 1.4480000000000002,
+      "sha256": "91e59145c94921ea66abfae9e5aaae17d69b88db9b035fae1e05fb54655105b3",
+      "stddev": [
+        19.694949248148628,
+        19.92572339370931,
+        19.528281459794528
+      ]
+    },
+    {
+      "file": "frame-1.png",
+      "mean": [
+        246.21056388888888,
+        245.70743402777777,
+        247.56850277777778
+      ],
+      "nonblank": true,
+      "seconds": 7.24,
+      "sha256": "a227e08f5135fff28372606b0fc2e3b6763284e2665c4be362a04c7de547bb00",
+      "stddev": [
+        21.06521547780779,
+        21.295703864126295,
+        20.94895931205945
+      ]
+    },
+    {
+      "file": "frame-2.png",
+      "mean": [
+        242.0924361111111,
+        242.27062916666668,
+        243.00154027777776
+      ],
+      "nonblank": true,
+      "seconds": 13.032,
+      "sha256": "56024d997cae8cb6124d64f12535ecafa9856414ff6e4781dc8db6f9eb4aeea4",
+      "stddev": [
+        28.96123409948837,
+        28.730995750210113,
+        28.415968962398395
+      ]
+    }
+  ],
+  "limits": "Pixel variation checks decoded recording, not task success or semantic fidelity; inspect frames visually.",
+  "motion_required": true,
+  "passed": true,
+  "schema": "world-engine.video-qa.v1",
+  "stream": {
+    "codec_name": "vp8",
+    "height": 1000,
+    "width": 1440
+  },
+  "video": "/Users/ple/projects/world-engine/artifacts/gitlab-browser/20261010-v3/reference/video/9be7abeafee18ecd123cd092692adf52.webm",
+  "video_bytes": 1308747,
+  "video_sha256": "341d671f466871356a3ad61ad6cc9383a9202e92bebaa99af35ccfc0961646e3"
+}
