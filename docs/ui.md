@@ -26,6 +26,8 @@ Inspect a run's episodes, termination reason, action arguments, tool results, ob
 
 Exports download server-generated JSONL as raw traces, SFT, DPO pairs, or grouped RL trajectories. The quality selector restricts exports to passed episodes or includes all episodes. Empty DPO exports can be valid when a run has no usable preference pairs. Benchmark comparisons use observed completed episodes; matching seeds and bounds are necessary for meaningful policy comparisons.
 
+The Harbor ATIF option downloads operator interchange as JSONL containing one ATIF-v1.8 document per episode. It preserves evaluation-only and held-out provenance instead of treating those documents as training exports; every ATIF document has `training_eligible: false`. See [the ATIF contract](atif.md) for upstream validation and the distinction between recorded controller context and provider transcripts.
+
 ## Verification
 
 ```sh
@@ -38,3 +40,5 @@ npm run qa
 `scripts/ui-qa.mjs` connects to the real API through Vite, launches matched oracle/baseline rollouts, inspects traces and frozen provenance, exercises nonempty exports and input bounds, verifies navigation, tests the paid-call rejection, and cancels a local job when that provider is configured. It records desktop and 390px mobile screenshots, a browser video, exported JSONL, and a machine-readable report in `artifacts/qa`. After a successful run it retains only the latest QA video and downloads. No remote model calls are made. The QA runs and cancelled job remain in local API history as recorded evidence.
 
 Set `WORLD_ENGINE_UI_URL` to run the same checks against another local preview address. Browser errors fail the check. Tables intentionally scroll horizontally at narrow widths; the document itself must not overflow.
+
+Run the separate ATIF product checks with `npm run qa -- --atif`. They create only a scripted evaluation-only batch, inspect failure-preserving ATIF downloads and passed-only filtering, and save screenshots, video, source fingerprints, and a receipt under `artifacts/atif/qa`. This phase makes no model calls and does not overwrite foundation QA artifacts.

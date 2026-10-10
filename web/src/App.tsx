@@ -1366,12 +1366,14 @@ function RunInspector({
                 selected === "sft" ||
                 selected === "dpo" ||
                 selected === "grpo" ||
+                selected === "atif" ||
                 selected === "traces"
               )
                 setFormat(selected);
             }}
           >
             <option value="traces">Raw traces</option>
+            <option value="atif">Harbor ATIF</option>
             <option value="sft">SFT</option>
             <option value="dpo">DPO pairs</option>
             <option value="grpo">Grouped RL</option>

@@ -54,9 +54,10 @@ def main() -> None:
     bench.add_argument("--output", type=Path, default=Path("examples/benchmark-results"))
     bench.add_argument("--episodes", type=int, default=30)
     bench.add_argument("--trials", type=int, default=3)
-    export = commands.add_parser("export", help="Write provenance-bearing JSONL to stdout")
+    export = commands.add_parser("export", help="Write dataset/operator-interchange JSONL to stdout")
     export.add_argument("run_id")
-    export.add_argument("--format", choices=["sft", "dpo", "grpo", "traces"], default="sft")
+    export.add_argument("--format", choices=["sft", "dpo", "grpo", "traces", "atif"], default="sft",
+                        help="ATIF is replay-verified operator interchange, not training-ready data")
     export.add_argument("--quality", choices=["passed", "all"], default="passed")
     verify = commands.add_parser("replay", help="Verify every stored transition and trusted final grade")
     verify.add_argument("run_id", nargs="?")

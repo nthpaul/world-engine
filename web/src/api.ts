@@ -139,7 +139,7 @@ export type Environment = z.infer<typeof environmentSchema>;
 export type Provider = z.infer<typeof providerSchema>;
 export type RunConfig = z.infer<typeof configSchema>;
 export type Health = z.infer<typeof healthSchema>;
-export type ExportFormat = "sft" | "dpo" | "grpo" | "traces";
+export type ExportFormat = "sft" | "dpo" | "grpo" | "traces" | "atif";
 
 async function request<T>(
   path: string,

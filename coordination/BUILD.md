@@ -19,7 +19,7 @@ A local, runnable platform for constructing workflow environments, running concu
 
 | Requirement | Evidence required | State |
 | --- | --- | --- |
-| Executable environment lifecycle | Reset, observation, step, terminal grade, episode cleanup, runnable SDK example | Implemented; verification in progress |
+| Executable environment lifecycle | Reset, observation, step, terminal grade, episode cleanup, runnable SDK example | Delivered; foundation tests, replay, and executable labs verified |
 | Meaningful workflow worlds | Three task families with trusted state, permissions, goals, and concrete reward-hacking tests | Implemented; backend tests green |
 | Concurrent jobs | Bounded concurrency, independent episode state, persisted status, cancellation semantics | Implemented; writer lease and global limit 8 |
 | Trace provenance | Version, seed, policy, action, observation, trusted outcome, digest or replay consistency | Implemented; code hashes and local model digest recorded |
@@ -29,7 +29,7 @@ A local, runnable platform for constructing workflow environments, running concu
 | Documentation | Verified startup commands, SDK guide, runbook, research report and source ledger | Written; 18-page PDF compiled and all final pages visually verified; executable labs verified |
 | Security limits | In-process isolation explicitly distinguished from an untrusted-code sandbox | Documented; public task runtime limits, write probe and cleanup verified |
 | Reproducible verification | Focused backend tests, frontend build, desktop and mobile browser evidence | Root verified 82 foundation tests and Ruff; nine delivered traces replay; 35 connected UI checks |
-| Repository delivery | User-authorized GitHub workflow, atomic CI-passing changes, attached PR when created | Root owns |
+| Repository delivery | User-authorized GitHub workflow, atomic CI-passing changes, attached PR when created | Foundation PR #1 published; root verified backend, console, and GitGuardian CI success |
 
 ## Phases
 
@@ -66,11 +66,15 @@ Final local-model collection used recoverable core revision `7fdf4c6ae511dc81cc4
 
 Root separately verified the preserved historical failure-to-intervention prototype: `npm test` passed 179 tests in six files and `npm run typecheck` passed using its installed dependencies. This is historical regression evidence, not part of the new Python test count and not a dependency of the current platform.
 
+Foundation delivery: [PR #1](https://github.com/nthpaul/world-engine/pull/1), published at head `1675734`. Root verified backend, console, and GitGuardian checks succeeded. Replay-envelope hardening was committed separately at `8e000412` before the final documentation/evidence commit. The foundation report is an immutable historical release record; later follow-up capabilities and test counts must not be silently added to it.
+
 ## Overnight follow-up backlog
 
 These are ordered proposed tasks, distinct from foundation acceptance and not delivered claims. Work must fit the original eight-continuation window, existing local resources, and zero paid-call/cloud budget. Do not add redundant polish merely to consume the window. Each completed task needs committed source, focused tests, reproducible artifacts, and an explicit account of limitations.
 
-Active next-phase task: Console is implementing the upstream-validated ATIF adapter in the new files listed in ownership. Status: in progress. It is excluded from foundation-release claims and will be reviewed and verified separately, potentially in a dependent GitHub PR. Do not delay the foundation's report for this new feature or mark native Harbor compatibility complete from a draft exporter.
+Active next-phase task: Console owns the upstream-validated ATIF adapter in the new files listed in ownership, on `codex/world-engine-atif`. Status: awaiting root integration and separate review. Root reports eight unit tests plus one optional upstream-validation test; these are additional to, not part of, the 82-test foundation count. It is excluded from foundation-release claims and will be reviewed and verified separately, potentially in a dependent GitHub PR. Do not delay the foundation's report for this new feature or mark native Harbor compatibility complete from a draft exporter.
+
+Workflow expansion proposal submitted to root, not assigned or implemented: CRM canonical/survivor tie and fallback fixtures; refund eligibility and approval-limit boundary fixtures; optionally a blocked incident-change outcome with an explicitly authorized defer branch. Each requires grader invariants, counterfactual/metamorphic regressions, stable lineage, and per-case coverage reporting. The first two are recommended before adding a new incident terminal outcome. These proposals add synthetic workflow coverage, not verified parity with any production application.
 
 1. Add a real Harbor/ATIF compatibility adapter. Validate output against the pinned native schema and test supported and rejected structures. Preserve tool, timing, source, and usage provenance without inventing missing fields or importing hidden tests into agent observations.
 2. Reuse the proven standalone Docker lifecycle for a narrowly scoped local execution integration. Keep separate evaluation, no-egress/nonroot/resource boundaries, artifact checks, and cleanup tests intact. Do not replace a tested boundary with a speculative general provider layer.

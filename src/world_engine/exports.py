@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, get_args
 
+from world_engine.atif import export_episode
 from world_engine.models import JsonObject, canonical_json, digest
 from world_engine.providers import policy_messages
 from world_engine.rollout import replay
 from world_engine.store import Store
 
-ExportFormat = Literal["sft", "dpo", "grpo", "traces"]
+ExportFormat = Literal["sft", "dpo", "grpo", "traces", "atif"]
 Quality = Literal["passed", "all"]
 
 
@@ -36,6 +37,10 @@ def comparable(left: JsonObject, right: JsonObject) -> bool:
 
 
 def export_records(store: Store, run_id: str, format: ExportFormat = "sft", quality: Quality = "passed") -> tuple[list[JsonObject], JsonObject]:
+    if format not in get_args(ExportFormat):
+        raise ValueError("unsupported export format")
+    if quality not in get_args(Quality):
+        raise ValueError("unsupported export quality")
     store.get_run(run_id)
     episodes = store.episodes(run_id)
     records: list[JsonObject] = []
@@ -43,6 +48,19 @@ def export_records(store: Store, run_id: str, format: ExportFormat = "sft", qual
     skipped = 0
     excluded = {"heldout_split": 0, "evaluation_only": 0, "quality": 0, "replay_mismatch": 0, "insufficient_alternatives": 0}
     for episode in episodes:
+        if format == "atif":
+            try:
+                record = export_episode(episode, run_id=run_id)
+            except ValueError:
+                skipped += 1
+                excluded["replay_mismatch"] += 1
+                continue
+            if quality == "passed" and not clean_success(episode):
+                skipped += 1
+                excluded["quality"] += 1
+                continue
+            records.append(record)
+            continue
         if format != "traces" and episode["provenance"].get("evaluation_only"):
             skipped += 1
             excluded["evaluation_only"] += 1
@@ -124,9 +142,13 @@ def export_records(store: Store, run_id: str, format: ExportFormat = "sft", qual
                             "policy_consistent": len({candidate["provenance"]["policy_hash"] for candidate in candidates}) == 1,
                             "trainable": False,
                             "missing_training_fields": ["sampled_token_ids", "action_loss_mask", "behavior_logprobs", "frozen_policy_checkpoint"]})
+    note = ("ATIF is replay-verified operator interchange across all splits and evaluation-only episodes. "
+            "Every record is training_eligible=false; this is not a curated training batch or a Harbor trial result."
+            if format == "atif" else
+            "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch.")
     return records, {"format": format, "quality": quality, "records": len(records), "source_episodes": len(episodes), "skipped": skipped,
                      "excluded": excluded,
-                     "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."}
+                     "note": note}
 
 
 def jsonl(records: list[JsonObject]) -> str:
