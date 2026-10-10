@@ -10,6 +10,7 @@ import uvicorn
 
 from world_engine.api import create_app
 from world_engine.benchmark import benchmark
+from world_engine.environments import ENVIRONMENTS
 from world_engine.exports import export_records, jsonl
 from world_engine.models import RunConfig, canonical_json
 from world_engine.rollout import RunManager, replay
@@ -39,7 +40,7 @@ def main() -> None:
     serve.add_argument("--host", choices=["127.0.0.1", "localhost", "::1"], default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
     run = commands.add_parser("rollout", help="Execute and persist a bounded batch")
-    run.add_argument("--environment", choices=["crm-merge", "refund-ops", "incident-control"], required=True)
+    run.add_argument("--environment", choices=tuple(ENVIRONMENTS), required=True)
     run.add_argument("--provider", choices=["scripted-oracle", "scripted-baseline", "local", "openai", "anthropic"], default="scripted-oracle")
     run.add_argument("--episodes", type=int, default=10)
     run.add_argument("--seed", type=int, default=42)

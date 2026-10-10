@@ -54,6 +54,12 @@ class ScriptedProvider:
         await asyncio.sleep(0)
         state = observation["state"]
         environment_id = observation["environment_id"]
+        if environment_id == "access-provisioning":
+            from world_engine.access_provisioning import reference_action
+            if self.oracle:
+                return Decision(reference_action(observation, history))
+            return Decision(Action(tool="finish") if history else Action(tool="close_request", args={
+                "request_id": state["assigned_request_id"], "resolution": "denied", "reason": "policy_denied"}))
         if not self.oracle:
             if history:
                 return Decision(Action(tool="finish"))

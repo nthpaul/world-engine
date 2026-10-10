@@ -685,7 +685,10 @@ class IncidentControl(Environment):
         ], safe=safe)
 
 
-ENVIRONMENTS: dict[str, type[Environment]] = {world.id: world for world in (CRMMerge, RefundOps, IncidentControl)}
+# The access world depends on the base protocol defined above.
+from world_engine.access_provisioning import AccessProvisioning  # noqa: E402
+
+ENVIRONMENTS: dict[str, type[Environment]] = {world.id: world for world in (CRMMerge, RefundOps, IncidentControl, AccessProvisioning)}
 
 
 def make_environment(environment_id: str, seed: int = 42) -> Environment:

@@ -11,7 +11,7 @@ from world_engine.providers import ProviderError, local_endpoint, make_provider
 def test_api_lifecycle_downloads_and_browser_boundaries(tmp_path):
     with TestClient(create_app(tmp_path / "engine.sqlite3")) as client:
         assert client.get("/api/health").json()["execution"] == "in-process"
-        assert len(client.get("/api/environments").json()["environments"]) == 3
+        assert len(client.get("/api/environments").json()["environments"]) == 4
         assert client.get("/api/runs").json() == {"runs": []}
         assert client.post("/api/runs", json={"environment_id": "crm-merge"}, headers={"Origin": "https://evil.example"}).status_code == 403
         assert client.get("/api/health", headers={"Host": "evil.example"}).status_code == 403
