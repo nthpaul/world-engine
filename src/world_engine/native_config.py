@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 
 from world_engine.models import RunConfig
 
@@ -10,6 +10,7 @@ class NativeRunConfig(RunConfig):
 
     provider_id: Literal["local-tools", "local-tools-ledger"] = "local-tools"
     evaluation_only: Literal[True] = True
+    concurrency: int = Field(default=1, ge=1, le=8)
 
     @field_validator("evaluation_only", mode="before")
     @classmethod
