@@ -1,10 +1,10 @@
 # Learning labs
 
-These six labs use the delivered SDK, CLI, tests, and public-task runner. Read the [technical report](world-engine-report.md) for the underlying concepts and [operations guide](../OPERATIONS.md) for lifecycle and export contracts. Run commands from the repository root after `uv sync --extra dev`. None requires paid model calls. Use a separate database from the running API.
+These six labs use the current SDK, CLI, tests and public-task runner. Read the immutable [foundation report](world-engine-report.md) for concepts and [operations guide](../OPERATIONS.md) for current lifecycle and export contracts. Run commands from the repository root after `uv sync --extra dev`. None requires paid model calls. Use a separate, fresh database from the running API. Inference-bearing commands require a separately authorized window and must not run alongside another locked experiment.
 
-Verification on 2026-10-10 executed every embedded Python experiment against the final core. Denied overpayment preserved state, fixture corruption returned zero reward, and paired reference/incomplete-policy runs, replay, and split-aware exports behaved as described. Exact final counts appear below. Scenario identity includes implementation fingerprints, while split membership uses stable environment-family/seed lineage so a grader repair does not move a related task between training and holdout. The selected exploit and curation regression tests also passed.
+Historical verification on 2026-10-10 executed these experiments against the three-world foundation release `1675734`, not the current four-world source. Denied overpayment preserved state, fixture corruption returned zero reward, and paired reference/incomplete-policy runs, replay and split-aware exports behaved as described. The exact counts below belong to that foundation checkpoint. Current commands remain executable but new versions can change decision/export counts and grades; inspect their actual output rather than expecting historical totals. Scenario identity includes implementation fingerprints, while split membership uses stable environment-family/seed lineage so a grader repair does not move a related task between training and holdout.
 
-The final twenty paired seeds produced reference 20/20 and incomplete policy 0/20, with twenty successful replays. The reference source contained fourteen train, four validation, and two test episodes. SFT selected 46 tool decisions and excluded all six held-out episodes. DPO and grouped selection each produced fourteen comparable scenarios; grouped records were `trainable: false` and `policy_consistent: false` as expected.
+The foundation's twenty paired seeds produced reference 20/20 and incomplete policy 0/20, with twenty successful replays. The reference source contained fourteen train, four validation and two test episodes. SFT selected 46 tool decisions and excluded all six held-out episodes. DPO and grouped selection each produced fourteen comparable scenarios; grouped records were `trainable: false` and `policy_consistent: false`. These are historical controls, not current-source collection or learned-model results. Use a pinned foundation checkout to reproduce these exact counts.
 
 ## 1. A transition is not a completed task
 
@@ -31,7 +31,7 @@ PY
 
 **Questions.** Why can the snapshot change when the operational state does not? Why can a failed task receive positive reward? Does `finish` certify success?
 
-**Worked answer.** The logical tick advances for an action, so the whole snapshot changes even for inspection. The grader averages satisfied checks when no safety violation exists. An untouched eligible refund can preserve unrelated records and approval constraints while failing payment conservation and resolution. Seed 42 gives reward 0.6 and `passed: false` in this version. `finish` terminates the attempt; trusted grading, not the stop action, certifies success. A positive shaped reward is not a passing workflow.
+**Worked answer.** The logical tick advances for an action, so the whole snapshot changes even for inspection. The legacy refund grader averages satisfied checks when no safety violation exists. Untouched state can preserve unrelated records and approval constraints while failing settlement. Foundation seed 42 returned 0.6 and `passed: false`; read the current experiment's printed reward/checks rather than assuming that value after a version change. `finish` terminates the attempt; trusted grading certifies success. A positive diagnostic shaped reward is not a passing workflow. Access uses binary outcome reward instead. A timed-out rollout receives zero episode reward even if its diagnostic `Grade` retains partial credit.
 
 Verify the same distinction across worlds:
 
@@ -85,12 +85,16 @@ Collect reference and incomplete-policy runs on the same seeded tasks. This crea
 ```sh
 uv run python - <<'PY'
 import asyncio
+from pathlib import Path
 from world_engine.models import RunConfig
 from world_engine.rollout import RunManager
 from world_engine.store import Store
 
 async def main():
-    manager = RunManager(Store(".world-engine/labs.sqlite3"))
+    database = Path(".world-engine/labs.sqlite3")
+    if database.exists() or database.is_symlink():
+        raise SystemExit("Choose a fresh database path in labs 3, 4 and 5; preserve old evidence")
+    manager = RunManager(Store(database))
     try:
         runs = []
         for provider in ("scripted-oracle", "scripted-baseline"):
@@ -173,6 +177,8 @@ uv run python -m world_engine --db .world-engine/labs.sqlite3 export RUN_ID --fo
 
 The reference and baseline are different policies, so their grouped candidates are not an on-policy GRPO batch. Even a policy-consistent group lacks exact sampled token IDs, action masks, behavior log probabilities, and a frozen checkpoint here; `trainable: false` is intentional. Model token counts are not token sequences or probabilities.
 
+**Later measured example.** The [scripted corpus](../../artifacts/candidate-corpus/20261010-v1/manifest.json) at `5e5eb0d9` verified 128 episodes on 64 tasks: 51 train, six validation and seven test. It produced 397 exact train SFT decisions, 51 strict DPO pairs and 51 mixed-policy nontrainable groups. Each format excluded thirteen heldout reference cases. Why does 128 episodes not imply 128 preference pairs? Each pair uses one comparable task's two alternatives, and heldout tasks are excluded; only 51 train tasks remain. These are candidate outputs, not a checkpoint or an independent rule-family evaluation. Baseline business failures may retain positive legacy shaped rewards.
+
 For group rewards `[1, 1, 1, 1]`, the mean is 1 and standard deviation is 0. With epsilon stabilization, each normalized reward advantage is zero. There is no relative reward direction for the update, though a separate KL term can still have an effect. The right response is to inspect task difficulty, sampling diversity, and the algorithm's handling of zero-variance groups, not fabricate preferences. For `[0, 0, 1, 1]`, population mean is 0.5 and standard deviation is 0.5, so advantages are approximately `[-1, -1, 1, 1]`. Those numbers alone do not supply the missing policy probabilities.
 
 ## 6. Measure the bottleneck and the isolation boundary
@@ -184,11 +190,24 @@ uv run python -m world_engine benchmark \
   --episodes 30 --trials 3 --output .world-engine/lab-benchmark
 ```
 
-Read `benchmark.json` and `benchmark.md` in that directory. The matrix includes all three workflow worlds and both scripted policies. Repeated trials measure timing variation; success intervals use unique first-trial scenarios rather than counting the same deterministic task repeatedly as independent evidence.
+Use a new unused output directory each time; a preexisting path or symlink is rejected. Read `benchmark.json` and `benchmark.md` there. The current matrix includes all four registered workflow worlds and both scripted policies; the foundation receipt covered three. Repeated trials measure timing variation; success intervals use the first observed outcome per distinct scenario across trials, rather than counting deterministic repeats as independent evidence. An empty first trial does not erase later observations; conflicting repeated outcomes are counted separately.
 
-Compare [the same-source schema-cache measurement](../../examples/benchmark-results/schema-cache-comparison.md) to see a measured CPU optimization with unchanged outcomes. Run `uv run python examples/io_overlap_benchmark.py` for a separate control that inserts a simulated 25-millisecond wait per decision. Its concurrency gains demonstrate awaited I/O overlap, not a GPU or cloud benchmark. Do not merge these regimes into a single throughput claim.
+Compare [the historical same-source schema-cache measurement](../../examples/benchmark-results/schema-cache-comparison.md) to see a CPU optimization with unchanged outcomes at its recorded source. Run `uv run python examples/io_overlap_benchmark.py --output .world-engine/lab-io-NEW_RUN` for a fresh control that inserts a simulated 25-millisecond wait per decision. Its concurrency gains demonstrate awaited I/O overlap, not a GPU or cloud benchmark. Do not merge these regimes into a single throughput claim.
 
-Then, only when an existing local Ollama model is available, compare the latency regime:
+The later [four-world receipt](../../artifacts/benchmarks/20261010-four-world-v1/benchmark.json) has 2,160 episodes, 72 batches and 24 summary cells at source `ee26d7b9`. Only 120 world/seed tasks are unique; each repeats nine times. Independently recomputed rates use each recorded batch wall time, medians use three trial rates, percentiles use the declared nearest-rank rule, and Wilson intervals count thirty distinct scenarios per world/policy/concurrency cell. [Validation](../../artifacts/benchmarks/20261010-four-world-v1/independent-validation.json) correlates SQLite and the full gzip journal. This is a newer scripted receipt, not a replacement for this workbook's foundation counts.
+
+The [later CPU profile](../../artifacts/profiling/20261010-v2/independent-validation.json)
+at `b4501029` saved both trials: 192 episodes and 1,456 decisions. Exact saved
+profile counts confirm 728 redundant observation reads removed across the four
+profiled trials, without changed logical outcomes. The historical run saved only
+96 profiled episodes; its 96 unprofiled records were not saved and its producer
+was retrospective. Why not claim 1,456 measured read removals? The unprofiled
+read counts were not instrumented. Also distinguish fewer simulator reads from
+a measured model-speed gain: this collection made no inference calls.
+
+The [native-ledger SDK](../native-ledger.md) now supports explicit v2 at `d71a05d`; default v1 remains unchanged. Mock/source checks establish public-context regeneration and replay guards, not cache reuse. Why does an append-stable UTF-8 user message not prove a speed gain or full context consumption? The daemon's template/tokenizer and serving scheduler determine token prefixes, truncation and cache behavior. The [later eight-pair comparison](../../artifacts/access-ledger-study/20261010-v1/report.json) recorded zero business/clean passes for either protocol, despite lower aggregate v2 request-body bytes. V2 terminated earlier with different actions and many more invalid actions; those unequal trajectories do not isolate caching or prove useful speed. Independent tokenizer/context proof remains absent.
+
+Then, only in a separately approved inference window with an existing local Ollama model, compare the latency regime. Do not execute this during another locked experiment:
 
 ```sh
 uv run python -m world_engine --db .world-engine/lab-local.sqlite3 rollout \
@@ -200,10 +219,31 @@ uv run python -m world_engine --db .world-engine/lab-local.sqlite3 rollout \
 
 **Worked answer.** These small workflows are synchronous Python transitions with hashing and SQLite persistence. Cooperative scheduling is not additional CPU execution capacity, and higher concurrency can add overhead. A model episode waits on repeated inference calls, so model capacity and context length can dominate environment cost. One attempt is a functional integration sample, not a reliable capability estimate or controlled policy comparison. Count provider failures separately from attempted task failures.
 
+**Later real-model counterexample.** The [SDK admission study](../model-concurrency-study-results.md)
+at `1d9f2315` repeats eight refund tasks in fixed waves 1/2/2/1. Admission one
+passed 16/16, admission two 13/16, with three timeouts retained. Useful rates
+were 0.072657230 versus 0.059262489 passes per summed continuous batch-wall
+second. Twelve attempts were clean successes overall, not 29 clean passes.
+Why does higher client overlap not guarantee better useful throughput? Requests
+can wait or contend inside the daemon, and the episode deadline includes that
+wait. The experiment does not isolate a GPU/queue/cache mechanism or establish
+an optimal policy. Count eight distinct fixed task clusters, not 32 independent
+attempts; keep preparation/cleanup outside, but validation inside, the declared
+batch clock. All 32 records replayed, passed actual Harbor schema checks and
+were excluded from training. Known usage over 233/236 requests is partial.
+
+The later [native API smoke](../native-api-smoke-results.md) passes two clean
+attempts on the same refund seed54000 through the actual API/RunManager/factory.
+Why does that not overturn the zero-pass access study or establish a better
+adapter? These are different tasks and study purposes; no new weights, tuning
+or matched performance design was used. Its two actual episodes, source50,
+stay separate from source51 read-only UI checks, which make no model calls.
+
 Finally inspect the public task's distinct trust boundary:
 
 ```sh
-python3 scripts/public-benchmark.py --skip-local
+uv run python scripts/public-benchmark.py --skip-local \
+  --output artifacts/public-benchmark/lab-NEW_RUN
 python3 -m unittest discover -s tests -p test_public_benchmark.py
 ```
 

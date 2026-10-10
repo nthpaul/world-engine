@@ -1,6 +1,6 @@
 # Repository guidance
 
-World Engine is a local workflow environment, evaluation, and trace-curation platform. Treat `docs/report/world-engine-report.md`, `docs/OPERATIONS.md`, and `coordination/BUILD.md` as current guidance. The failure-to-intervention prototype and older coordination proposals are historical references.
+World Engine is a local workflow environment, evaluation, and trace-curation platform. Read `docs/OPERATIONS.md` and `coordination/BUILD.md` for current delivery status. Dated reports and receipts describe their pinned collection revisions, not every later implementation. The failure-to-intervention prototype and older coordination proposals are historical references.
 
 ## Work and ownership
 
@@ -17,7 +17,10 @@ World Engine is a local workflow environment, evaluation, and trace-curation pla
 - Production validation must use explicit guards, never `assert`: Python `-O` removes assertions. The AST regression scans production modules; tests/examples may use assertions, but validation must not depend on them.
 - A seed is not proof of deterministic replay. Control or record random choices, time, IDs, external responses, and action ordering.
 - Keep terminal completion, budget truncation, cancellation, provider failure, and environment failure distinct in persisted evidence.
+- New worlds use binary business-outcome reward by default. Preserve diagnostic checks separately; unchanged safety constraints and `finish` alone must not earn positive outcome reward. Existing shaped-reward contracts require an explicit versioned change, not silent reinterpretation of historical receipts.
+- Respect provider ownership: the manager owns one provider per batch, direct rollout owns an internally created provider, and a supplied rollout provider belongs to its caller. Cleanup failures must preserve finalized evidence, terminal outcome coherence, admission release, and redacted errors. Cooperative deadlines do not prove actual resource closure.
 - Preserve task, environment, grader, policy, and export schema revisions when the format supports them. Investigate replay mismatches rather than silently replacing values.
+- Check fingerprint inputs before changing a shared module. Keep adapter-only configuration separate from domain and grader schemas; adding a provider must not silently invalidate historical world evidence. Test representative pinned receipts alongside the new entry point.
 - Validate imported episode outcome labels and lineage against replayed trusted state. Module/class fingerprints do not recursively attest external helpers; retain dependency and source manifests.
 - Regrading creates a new recorded decision. Keep the original grade and evidence.
 
@@ -39,6 +42,8 @@ World Engine is a local workflow environment, evaluation, and trace-curation pla
 
 - Verify actual runtime artifacts. Run focused checks, inspect API values and exports, and exercise the console on desktop and mobile after user-facing changes.
 - Keep a reproducible command and evidence for every benchmark claim. Record machine, revision, workload, policy, seed, budget, errors, and sample count.
+- Collect into an explicit fresh directory and refuse existing files, directories, or symlinks before performing work. Never prune or replace another run's raw evidence, screenshots, videos, or failure receipts. Preserve stopped and unattempted outcomes alongside successful attempts.
+- Commit and review runtime, collector, and fixed experiment protocol before model collection. Pin the exact revision, model identity, task sample, budgets, attempt order, retry policy, and analysis. Keep the pinned source unchanged until collection finishes; tuning or retries require a separate protocol and receipt.
 - Do not generalize a tiny local model experiment into overall capability. Do not claim production transfer, 100% fidelity, security certification, or competitor superiority without corresponding evidence.
 - Separate measured facts, documented external claims, and proposed designs in docs. Cite primary sources for technical comparisons.
 - Do not make paid model calls, provision paid cloud resources, download large models, create accounts, or send external messages without explicit user authorization. Existing local resources can support bounded experiments.
