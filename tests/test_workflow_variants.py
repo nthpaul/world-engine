@@ -123,7 +123,7 @@ def test_crm_wrong_survivor_and_unrelated_mutations_cannot_earn_reward(seed):
 @pytest.mark.parametrize("seed", range(8))
 def test_refund_case_fields_and_exact_operational_outcome(seed):
     world = make_environment("refund-ops", seed)
-    assert world.version == "1.1.0"
+    assert world.version == "1.1.1"
     ticket, order = world.target()
     expected_eligible = seed in (0, 1, 2, 3)
     assert world.eligible() is expected_eligible
@@ -256,6 +256,37 @@ def test_refund_forged_final_state_is_not_accepted(corruption):
         world.state["ledger"][0]["amount_cents"] = 0
     assert not world.evaluate().passed
     assert world.evaluate().reward == 0
+
+
+@pytest.mark.parametrize("seed,corruption", [(6, "exact"), (2, "reviewer"), (2, "amount"),
+                                           (2, "outsider"), (2, "duplicate")])
+def test_refund_approval_collection_cannot_bypass_trusted_final_state_grading(seed, corruption):
+    world = complete(make_environment("refund-ops", seed))
+    ticket, order = world.target()
+    approval = {"order_id": order["id"], "amount_cents": ticket["requested_cents"], "approved_by": "finance-reviewer"}
+    if corruption == "reviewer":
+        approval["approved_by"] = "agent"
+    elif corruption == "amount":
+        approval["amount_cents"] -= 1
+    elif corruption == "outsider":
+        approval["order_id"] = world.state["orders"][1]["id"]
+    world.state["approvals"].append(approval)
+    if corruption == "duplicate":
+        world.state["approvals"].append(copy.deepcopy(approval))
+    assert world.evaluate().reward == 0
+    assert not world.evaluate().passed
+
+
+def test_voluntary_valid_approval_at_role_limit_remains_permitted():
+    world = make_environment("refund-ops", 2)
+    ticket, order = world.target()
+    args = {"order_id": order["id"], "amount_cents": ticket["requested_cents"]}
+    assert world.step(Action(tool="request_refund_approval", args=args))["result"]["ok"]
+    before = copy.deepcopy(world.state)
+    assert world.step(Action(tool="request_refund_approval", args=args))["result"]["ok"]
+    assert world.state == before
+    complete(world)
+    assert len(world.state["approvals"]) == 1
 
 
 def test_refund_unrelated_order_permutation_does_not_change_target_resolution():

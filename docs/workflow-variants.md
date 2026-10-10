@@ -4,7 +4,7 @@ CRM and refund worlds now exercise additional branches of their existing documen
 
 ## Deterministic cases
 
-The environment IDs remain `crm-merge` and `refund-ops`. Their versions are `1.1.0`. Each case is selected deterministically from the nonnegative integer seed; the same seed still generates reproducible IDs and amounts. Labels below are operator receipt metadata, not extra fields in the policy observation and not hidden expected outcomes.
+The environment IDs remain `crm-merge` and `refund-ops`. CRM is version `1.1.0`; refund is `1.1.1`, including approval-history grader hardening after the initial `1.1.0` receipt. Each case is selected deterministically from the nonnegative integer seed; the same seed still generates reproducible IDs and amounts. Labels below are operator receipt metadata, not extra fields in the policy observation and not hidden expected outcomes.
 
 | CRM `seed % 4` | Case | Required decision |
 |---:|---|---|
@@ -48,6 +48,8 @@ Denied actions advance the logical tick but leave operational state unchanged. E
 
 The scripted CRM baseline no longer assumes a hardcoded creation date. The refund reference policy now checks sufficient captured funds and recognizes its own exact settled payment before deciding ticket closure. Otherwise, checking the reduced post-payment balance would incorrectly turn a completed eligible payment into an ineligible request. No HTTP or model adapter is changed by this work.
 
+An additional corruption test exposed a grader gap: an ineligible ticket with correct denial could acquire a manually forged approval and still pass because the old approval check short-circuited on ineligibility. The tool boundary already rejected that action, and replay rejected forged transitions. The grader now also preserves the original approval prefix and permits at most one new exact target/request approval from `finance-reviewer`, only for an originally eligible request. A valid voluntary approval at or below the role limit remains permitted and idempotent. This is final-state integrity hardening, not a claim that Python objects isolate hostile code.
+
 ## Locked evaluation
 
 Protocol: 32 seeds per world, two scripted policies on each identical task, 64 unique world/seed tasks and 128 attempts. Both policies have 20 decisions and 30 seconds per episode at concurrency 1. All episodes are evaluation-only. There are no model calls, training updates, cloud resources, or extra model weights.
@@ -57,11 +59,13 @@ The collector refuses an existing output directory and uncommitted implementatio
 ```sh
 uv run pytest -q tests/test_workflow_variants.py tests/test_environments.py
 uv run ruff check src/world_engine/environments.py src/world_engine/providers.py tests/test_workflow_variants.py examples/workflow_variant_benchmark.py
-uv run python examples/workflow_variant_benchmark.py --output artifacts/workflow-variants/final
-uv run python -m world_engine replay --file artifacts/workflow-variants/final/traces.jsonl
+uv run python examples/workflow_variant_benchmark.py --output artifacts/workflow-variants/hardened
+uv run python -m world_engine replay --file artifacts/workflow-variants/hardened/traces.jsonl
 ```
 
 The receipt records the protocol hash, collector hash, Git revision and dirty scopes, exact source fingerprints, per-case and split counts, both outcomes, and full replay-checked operator traces. Reference success is expected implementation coverage, not evidence of learned-model quality. Incomplete-policy failure is a negative control, not a competitive agent score. Timing is diagnostic under uncontrolled background load.
+
+The immutable initial [1.1.0 receipt](../artifacts/workflow-variants/final/report.md) collected 128 valid attempts at source `6cc84237384f04b5a205b04a127ce99ba9ff00d9`. Its normal executions are preserved, but it predates the forged-approval grader correction. The [integrity sidecar](../artifacts/workflow-variants/final/INTEGRITY-NOTE.md) records that gap. The new collector uses a separate `hardened` directory only after committed source is frozen; no corrected receipt is claimed before collection. Neither historical traces nor measured outcomes are overwritten or relabeled.
 
 ## Lineage and source boundaries
 

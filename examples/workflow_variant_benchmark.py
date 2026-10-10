@@ -22,8 +22,8 @@ CASES = {
     ),
 }
 PROTOCOL = {
-    "name": "workflow-variants-scripted-v1",
-    "world_versions": {world: "1.1.0" for world in CASES},
+    "name": "workflow-variants-scripted-v2",
+    "world_versions": {"crm-merge": "1.1.0", "refund-ops": "1.1.1"},
     "seeds": list(range(32)),
     "policies": ["scripted-oracle", "scripted-baseline"],
     "max_steps": 20,
@@ -113,5 +113,5 @@ async def collect(output: Path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=Path("artifacts/workflow-variants/final"))
+    parser.add_argument("--output", type=Path, default=Path("artifacts/workflow-variants/hardened"))
     asyncio.run(collect(parser.parse_args().output))
