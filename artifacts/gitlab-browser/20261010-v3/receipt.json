@@ -1,0 +1,433 @@
+{
+  "automatic_retries": 0,
+  "paid_resources": false,
+  "results": [
+    {
+      "cleanup": {
+        "error_code": null,
+        "status": "completed"
+      },
+      "elapsed_seconds": 191.86989408300724,
+      "id": "fd9bd56e-893c-46ec-ad06-466faa2f5bc7",
+      "invalid_actions": 0,
+      "name": "incomplete",
+      "outcome": {
+        "checks": [
+          {
+            "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+            "name": "fixed_records",
+            "passed": true
+          },
+          {
+            "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+            "name": "project_preservation",
+            "passed": true
+          },
+          {
+            "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+            "name": "issue_preservation",
+            "passed": true
+          },
+          {
+            "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+            "name": "authorized_closure",
+            "passed": false
+          },
+          {
+            "detail": "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved.",
+            "name": "exact_comment_and_history",
+            "passed": false
+          },
+          {
+            "detail": "One target closure state event, attributed to the ordinary actor.",
+            "name": "closure_certificate",
+            "passed": false
+          },
+          {
+            "detail": "The exact comment precedes authorized closure.",
+            "name": "requested_order",
+            "passed": false
+          }
+        ],
+        "grader_version": "gitlab-state-v3",
+        "passed": false,
+        "reward": 0.0,
+        "sealed_state_sha256": "d8a53fad717e98b71369104a728a6570f6b2c0558709d7b3e07ebe0173472758"
+      },
+      "passed": false,
+      "phase_seconds": {
+        "browser_close": 0.34340316604357213,
+        "cleanup": 0.853863290976733,
+        "grade": 0.202394749969244,
+        "provider_prepare": 0.0008209159132093191,
+        "rollout": 0.5174274579621851,
+        "seal": 28.467468125047162,
+        "startup": 161.47425274993293
+      },
+      "reward": 0.0,
+      "status": "completed",
+      "steps": 1,
+      "termination": "finished"
+    },
+    {
+      "cleanup": {
+        "error_code": null,
+        "status": "completed"
+      },
+      "elapsed_seconds": 193.31609662505798,
+      "id": "65290263-20e0-4895-97eb-19ac5c2a418b",
+      "invalid_actions": 0,
+      "name": "reference",
+      "outcome": {
+        "checks": [
+          {
+            "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+            "name": "fixed_records",
+            "passed": true
+          },
+          {
+            "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+            "name": "project_preservation",
+            "passed": true
+          },
+          {
+            "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+            "name": "issue_preservation",
+            "passed": true
+          },
+          {
+            "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+            "name": "authorized_closure",
+            "passed": true
+          },
+          {
+            "detail": "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved.",
+            "name": "exact_comment_and_history",
+            "passed": true
+          },
+          {
+            "detail": "One target closure state event, attributed to the ordinary actor.",
+            "name": "closure_certificate",
+            "passed": true
+          },
+          {
+            "detail": "The exact comment precedes authorized closure.",
+            "name": "requested_order",
+            "passed": true
+          }
+        ],
+        "grader_version": "gitlab-state-v3",
+        "passed": true,
+        "reward": 1.0,
+        "sealed_state_sha256": "aba6c9d669c058be5b3a2cce0a54e34d0d7b9867064b77861d90a8a59fc3e0a4"
+      },
+      "passed": true,
+      "phase_seconds": {
+        "browser_close": 0.15222645900212228,
+        "cleanup": 0.8795844169799238,
+        "grade": 0.1945970410015434,
+        "provider_prepare": 0.000614666030742228,
+        "rollout": 12.023959415964782,
+        "seal": 27.131379875005223,
+        "startup": 152.9171823329525
+      },
+      "reward": 1.0,
+      "status": "completed",
+      "steps": 14,
+      "termination": "finished"
+    },
+    {
+      "cleanup": {
+        "error_code": null,
+        "status": "completed"
+      },
+      "elapsed_seconds": 261.48792800004594,
+      "id": "bddafe06-9cc8-4289-9e68-f3714b051e5c",
+      "invalid_actions": 0,
+      "name": "model",
+      "outcome": {
+        "checks": [
+          {
+            "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+            "name": "fixed_records",
+            "passed": true
+          },
+          {
+            "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+            "name": "project_preservation",
+            "passed": true
+          },
+          {
+            "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+            "name": "issue_preservation",
+            "passed": true
+          },
+          {
+            "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+            "name": "authorized_closure",
+            "passed": false
+          },
+          {
+            "detail": "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved.",
+            "name": "exact_comment_and_history",
+            "passed": false
+          },
+          {
+            "detail": "One target closure state event, attributed to the ordinary actor.",
+            "name": "closure_certificate",
+            "passed": false
+          },
+          {
+            "detail": "The exact comment precedes authorized closure.",
+            "name": "requested_order",
+            "passed": false
+          }
+        ],
+        "grader_version": "gitlab-state-v3",
+        "passed": false,
+        "reward": 0.0,
+        "sealed_state_sha256": "8968c67781afaac4acf52bcab36932e663f319dae2897da836c80dd999cc3039"
+      },
+      "passed": false,
+      "phase_seconds": {
+        "browser_close": 0.6538896249840036,
+        "cleanup": 0.8849327500211075,
+        "grade": 0.19516320794355124,
+        "provider_prepare": 0.22832229197956622,
+        "rollout": 73.22494416695554,
+        "seal": 29.00956637505442,
+        "startup": 157.26448224997148
+      },
+      "reward": 0.0,
+      "status": "completed",
+      "steps": 30,
+      "termination": "max_steps"
+    }
+  ],
+  "schema": "world-engine.gitlab-cohort.v1",
+  "slots": [
+    {
+      "cleanup": {
+        "error_code": null,
+        "status": "completed"
+      },
+      "elapsed_seconds": 191.86989408300724,
+      "id": "fd9bd56e-893c-46ec-ad06-466faa2f5bc7",
+      "invalid_actions": 0,
+      "name": "incomplete",
+      "outcome": {
+        "checks": [
+          {
+            "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+            "name": "fixed_records",
+            "passed": true
+          },
+          {
+            "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+            "name": "project_preservation",
+            "passed": true
+          },
+          {
+            "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+            "name": "issue_preservation",
+            "passed": true
+          },
+          {
+            "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+            "name": "authorized_closure",
+            "passed": false
+          },
+          {
+            "detail": "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved.",
+            "name": "exact_comment_and_history",
+            "passed": false
+          },
+          {
+            "detail": "One target closure state event, attributed to the ordinary actor.",
+            "name": "closure_certificate",
+            "passed": false
+          },
+          {
+            "detail": "The exact comment precedes authorized closure.",
+            "name": "requested_order",
+            "passed": false
+          }
+        ],
+        "grader_version": "gitlab-state-v3",
+        "passed": false,
+        "reward": 0.0,
+        "sealed_state_sha256": "d8a53fad717e98b71369104a728a6570f6b2c0558709d7b3e07ebe0173472758"
+      },
+      "passed": false,
+      "phase_seconds": {
+        "browser_close": 0.34340316604357213,
+        "cleanup": 0.853863290976733,
+        "grade": 0.202394749969244,
+        "provider_prepare": 0.0008209159132093191,
+        "rollout": 0.5174274579621851,
+        "seal": 28.467468125047162,
+        "startup": 161.47425274993293
+      },
+      "reward": 0.0,
+      "status": "completed",
+      "steps": 1,
+      "termination": "finished"
+    },
+    {
+      "cleanup": {
+        "error_code": null,
+        "status": "completed"
+      },
+      "elapsed_seconds": 193.31609662505798,
+      "id": "65290263-20e0-4895-97eb-19ac5c2a418b",
+      "invalid_actions": 0,
+      "name": "reference",
+      "outcome": {
+        "checks": [
+          {
+            "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+            "name": "fixed_records",
+            "passed": true
+          },
+          {
+            "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+            "name": "project_preservation",
+            "passed": true
+          },
+          {
+            "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+            "name": "issue_preservation",
+            "passed": true
+          },
+          {
+            "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+            "name": "authorized_closure",
+            "passed": true
+          },
+          {
+            "detail": "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved.",
+            "name": "exact_comment_and_history",
+            "passed": true
+          },
+          {
+            "detail": "One target closure state event, attributed to the ordinary actor.",
+            "name": "closure_certificate",
+            "passed": true
+          },
+          {
+            "detail": "The exact comment precedes authorized closure.",
+            "name": "requested_order",
+            "passed": true
+          }
+        ],
+        "grader_version": "gitlab-state-v3",
+        "passed": true,
+        "reward": 1.0,
+        "sealed_state_sha256": "aba6c9d669c058be5b3a2cce0a54e34d0d7b9867064b77861d90a8a59fc3e0a4"
+      },
+      "passed": true,
+      "phase_seconds": {
+        "browser_close": 0.15222645900212228,
+        "cleanup": 0.8795844169799238,
+        "grade": 0.1945970410015434,
+        "provider_prepare": 0.000614666030742228,
+        "rollout": 12.023959415964782,
+        "seal": 27.131379875005223,
+        "startup": 152.9171823329525
+      },
+      "reward": 1.0,
+      "status": "completed",
+      "steps": 14,
+      "termination": "finished"
+    },
+    {
+      "cleanup": {
+        "error_code": null,
+        "status": "completed"
+      },
+      "elapsed_seconds": 261.48792800004594,
+      "id": "bddafe06-9cc8-4289-9e68-f3714b051e5c",
+      "invalid_actions": 0,
+      "name": "model",
+      "outcome": {
+        "checks": [
+          {
+            "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+            "name": "fixed_records",
+            "passed": true
+          },
+          {
+            "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+            "name": "project_preservation",
+            "passed": true
+          },
+          {
+            "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+            "name": "issue_preservation",
+            "passed": true
+          },
+          {
+            "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+            "name": "authorized_closure",
+            "passed": false
+          },
+          {
+            "detail": "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved.",
+            "name": "exact_comment_and_history",
+            "passed": false
+          },
+          {
+            "detail": "One target closure state event, attributed to the ordinary actor.",
+            "name": "closure_certificate",
+            "passed": false
+          },
+          {
+            "detail": "The exact comment precedes authorized closure.",
+            "name": "requested_order",
+            "passed": false
+          }
+        ],
+        "grader_version": "gitlab-state-v3",
+        "passed": false,
+        "reward": 0.0,
+        "sealed_state_sha256": "8968c67781afaac4acf52bcab36932e663f319dae2897da836c80dd999cc3039"
+      },
+      "passed": false,
+      "phase_seconds": {
+        "browser_close": 0.6538896249840036,
+        "cleanup": 0.8849327500211075,
+        "grade": 0.19516320794355124,
+        "provider_prepare": 0.22832229197956622,
+        "rollout": 73.22494416695554,
+        "seal": 29.00956637505442,
+        "startup": 157.26448224997148
+      },
+      "reward": 0.0,
+      "status": "completed",
+      "steps": 30,
+      "termination": "max_steps"
+    }
+  ],
+  "source": {
+    "collector_sha256": "cb91c6c2758a02d2585c69b792807172c269af56573ac052d9d1920a1d152888",
+    "controller_modules": {
+      "browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+      "browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+      "browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+      "browser_policy.py": "453d64577371f3e1b66e6bcf87bf75677f6baf37e261916e3df24ad8424a4734",
+      "browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+      "browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+      "gitlab_runtime.py": "b6cd5cf20171729c9eb681ff63941f9b55016866f6fd2a8ee17748986879694a"
+    },
+    "git_revision": "222c9d22b89f92bea43fc7ad7404f750854e8111",
+    "protocol_sha256": "297b8c66c9824af976fc945d7ad2efa22737737abcf5298cbff2685f57219f9e",
+    "untracked_non_source_paths": [
+      "artifacts/gitlab-video-qa/development-v4/frame-0.png",
+      "artifacts/gitlab-video-qa/development-v4/frame-1.png",
+      "artifacts/gitlab-video-qa/development-v4/frame-2.png",
+      "artifacts/gitlab-video-qa/development-v4/receipt.json",
+      "artifacts/guided-run-20261010-0171b8ff/completed-run.jpg"
+    ]
+  },
+  "status": "completed"
+}

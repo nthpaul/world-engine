@@ -393,13 +393,23 @@ class HTTPProvider:
             if not self.key:
                 raise ProviderError(f"{variable} is not configured")
             default = "https://api.openai.com/v1" if self.kind == "openai" else "https://api.anthropic.com/v1"
-            self.endpoint = os.environ.get("WORLD_ENGINE_OPENAI_URL" if self.kind == "openai" else "WORLD_ENGINE_ANTHROPIC_URL", default).rstrip("/")
-            parsed = urlparse(self.endpoint)
-            if (parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.username or parsed.password
-                    or parsed.query or parsed.fragment):
-                raise ProviderError("provider endpoint must be a plain HTTP URL without credentials, query or fragment")
+            endpoint = os.environ.get("WORLD_ENGINE_OPENAI_URL" if self.kind == "openai" else "WORLD_ENGINE_ANTHROPIC_URL", default)
+            if not endpoint or endpoint != endpoint.strip() or any(not character.isprintable() for character in endpoint):
+                raise ProviderError("provider endpoint must be a plain HTTP URL without credentials, query or fragment") from None
+            self.endpoint = endpoint.rstrip("/")
             try:
-                loopback = parsed.hostname == "localhost" or ipaddress.ip_address(parsed.hostname).is_loopback
+                parsed = urlparse(self.endpoint)
+                host, port = parsed.hostname, parsed.port
+                httpx.URL(self.endpoint)
+            except (ValueError, httpx.InvalidURL):
+                raise ProviderError("provider endpoint must be a plain HTTP URL without credentials, query or fragment") from None
+            if parsed.netloc.endswith(":") or port is not None and not 1 <= port <= 65535:
+                raise ProviderError("provider endpoint must have a valid port") from None
+            if (parsed.scheme not in ("http", "https") or not host or parsed.username is not None or parsed.password is not None
+                    or parsed.query or parsed.fragment):
+                raise ProviderError("provider endpoint must be a plain HTTP URL without credentials, query or fragment") from None
+            try:
+                loopback = host == "localhost" or ipaddress.ip_address(host).is_loopback
             except ValueError:
                 loopback = False
             if parsed.scheme != "https" and not loopback:
