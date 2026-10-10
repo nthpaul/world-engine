@@ -168,6 +168,15 @@ async def test_reference_discovers_member_projects_when_default_tab_is_empty():
     assert (await policy.decide(observation("[8] tab 'Contributed 0'\n[9] tab 'Member 1'"), [])).action.bid == "9"
 
 
+async def test_reference_preserves_queried_work_item_list_url():
+    policy = BrowserReferencePolicy(PROMPT)
+    url = "http://127.0.0.1:8929/root/release-operations/-/work_items?state=opened"
+    listing = observation("[8] link 'Release checklist review'", url)
+    assert (await policy.decide(listing, [])).action.bid == "8"
+    wrong = observation("StaticText 'Deployment reference: REL-2026-1043'", url.split("?")[0] + "/3")
+    assert (await policy.decide(wrong, [])).action.url == url
+
+
 async def test_local_policy_preserves_bounded_http_failure_body():
     policy, events = await policy_with_reply(valid_reply())
     try:

@@ -8,6 +8,7 @@ import hashlib
 import json
 import re
 from collections.abc import Callable
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -211,8 +212,9 @@ class BrowserReferencePolicy:
                          and (node["name"] == name if exact else name.lower() in node["name"].lower())), None)
 
         persisted_comment = any(node["role"] == "StaticText" and node["name"] == self.comment for node in nodes)
+        path = urlsplit(observation.url).path
         action = None
-        if "/dashboard/projects" in observation.url:
+        if path == "/dashboard/projects":
             node = choose("link", "Release Operations")
             if node:
                 action = Click(bid=node["bid"])
@@ -220,7 +222,7 @@ class BrowserReferencePolicy:
                 node = choose("tab", "Member")
                 if node:
                     action = Click(bid=node["bid"])
-        elif re.search(r"/-/(?:issues|work_items)/[0-9]+", observation.url):
+        elif re.search(r"/-/(?:issues|work_items)/[0-9]+", path):
             if self.marker not in observation.accessibility_text:
                 if observation.url not in self.visited:
                     self.visited.add(observation.url)
@@ -251,7 +253,7 @@ class BrowserReferencePolicy:
                         action = Fill(bid=textbox["bid"], text=self.comment)
                 else:
                     action = Scroll(direction="down")
-        elif re.search(r"/-/(?:issues|work_items)/?$", observation.url):
+        elif re.search(r"/-/(?:issues|work_items)/?$", path):
             self.issue_list_url = observation.url
             candidates = [node for node in nodes if node["role"] == "link"
                           and node["bid"]

@@ -76,8 +76,8 @@ not an assertion that this ARM collection proves compatibility everywhere.
 
 Start the console with `npm run dev` in `web`, then open
 [Browser Environments](http://127.0.0.1:5173/#browser-environments).
-The first browser attempt is admitted only when preparation validates the local
-resources. "Runtime enabled" is not a preflight promise. Model mode requires an
+An admitted attempt checks application and model prerequisites during
+preparation. "Runtime enabled" is not a preflight promise. Model mode requires an
 already-installed tool-capable Ollama model; no model is downloaded and no paid
 provider is available in the browser contract. Controls exercise the environment
 and grader, not learned-model ability.
