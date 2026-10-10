@@ -8,7 +8,7 @@ import platform
 import subprocess
 import time
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
@@ -30,6 +30,13 @@ GRADER_VERSION = "1.0.0"
 POLICY_VERSION = "workflow-json-v1"
 MAX_GLOBAL_EPISODES = 8
 MAX_ACTIVE_RUNS = 32
+PROVIDER_CLEANUP_TIMEOUT_SECONDS = 2.0
+PROVIDER_CLEANUP_SCHEMA = "world-engine.provider-cleanup.v1"
+PROVIDER_CLEANUP_ERRORS = {
+    "failed": "provider cleanup failed; details redacted",
+    "timeout": "provider cleanup exceeded its cooperative timeout",
+    "cancelled": "provider cleanup cancelled; resource closure unconfirmed",
+}
 ENVIRONMENT_CODE_HASH = hashlib.sha256(Path(__file__).with_name("environments.py").read_bytes()).hexdigest()
 GRADER_CODE_HASH = digest({"environments": ENVIRONMENT_CODE_HASH,
                           "models": hashlib.sha256(Path(__file__).with_name("models.py").read_bytes()).hexdigest()})
@@ -74,16 +81,55 @@ def collection_revision() -> JsonObject:
         return {"git_revision": None, "git_dirty": None, "implementation_dirty": None}
 
 
+async def cleanup_provider(provider: Provider) -> JsonObject | None:
+    """Bound cooperative cleanup without exposing extension exception payloads."""
+    status = "completed"
+    try:
+        close = getattr(provider, "close", None)
+        if close is None:
+            return None
+        async with asyncio.timeout(PROVIDER_CLEANUP_TIMEOUT_SECONDS):
+            await close()
+    except TimeoutError:
+        status = "timeout"
+    except asyncio.CancelledError:
+        status = "cancelled"
+    except Exception:
+        status = "failed"
+    return {"schema": PROVIDER_CLEANUP_SCHEMA, "status": status,
+            "error": PROVIDER_CLEANUP_ERRORS.get(status)}
+
+
 async def rollout(config: RunConfig, index: int, provider: Provider | None = None) -> JsonObject:
     owns_provider = provider is None
     provider = provider or make_provider(config)
-    if owns_provider and hasattr(provider, "prepare"):
-        try:
+    if not owns_provider:
+        return await _rollout(config, index, provider)
+    started = time.perf_counter()
+    try:
+        if hasattr(provider, "prepare"):
             await provider.prepare()
-        except BaseException:
-            if hasattr(provider, "close"):
-                await provider.close()
-            raise
+        episode = await _rollout(config, index, provider)
+    except BaseException as error:
+        await cleanup_provider(provider)
+        if isinstance(error, Exception) and not isinstance(error, ProviderError):
+            raise ProviderError("episode initialization failed; details redacted") from None
+        raise error from None
+    cleanup = await cleanup_provider(provider)
+    if cleanup is not None:
+        episode["provider_cleanup"] = cleanup
+        if cleanup["status"] != "completed":
+            if cleanup["status"] == "cancelled":
+                episode["status"] = "cancelled"
+            elif episode["status"] == "completed":
+                episode["status"] = "failed"
+            episode["error"] = episode["error"] or cleanup["error"]
+            episode["reward"], episode["passed"] = 0.0, False
+    episode["elapsed_seconds"] = time.perf_counter() - started
+    return episode
+
+
+async def _rollout(config: RunConfig, index: int, provider: Provider) -> JsonObject:
     seed = config.seed + index
     world = make_environment(config.environment_id, seed)
     initial_observation = world.observe()
@@ -163,8 +209,6 @@ async def rollout(config: RunConfig, index: int, provider: Provider | None = Non
         status, termination, error = "failed", "internal_error", f"episode failed ({type(unexpected).__name__}); details redacted"
     finally:
         provider_records.end_episode(recorder_token)
-        if owns_provider and hasattr(provider, "close"):
-            await provider.close()
     evaluation = world.evaluate().model_dump()
     passed = evaluation["passed"] and status == "completed" and termination == "finished"
     reward = evaluation["reward"] if status == "completed" and termination == "finished" else 0.0
@@ -193,6 +237,9 @@ async def rollout(config: RunConfig, index: int, provider: Provider | None = Non
 @dataclass
 class Job:
     task: asyncio.Task[None]
+    started: asyncio.Event = field(default_factory=asyncio.Event)
+    stop_requested: bool = False
+    cleanup_started: bool = False
     shutdown: bool = False
 
 
@@ -226,7 +273,7 @@ class RunManager:
 
     async def _execute(self, run_id: str, config: RunConfig, provider: Provider) -> None:
         started = time.perf_counter()
-        self.store.update_run(run_id, "running")
+        job = self.jobs[run_id]
         indices = iter(range(config.episodes))
         workers: list[asyncio.Task[None]] = []
 
@@ -244,13 +291,18 @@ class RunManager:
 
         final_status, error = "completed", None
         try:
+            # Cancellation before scheduling must still enter provider ownership's finally.
+            job.started.set()
+            await asyncio.sleep(0)
+            if job.stop_requested:
+                raise asyncio.CancelledError
+            self.store.update_run(run_id, "running")
             if hasattr(provider, "prepare"):
                 await provider.prepare()
             workers = [asyncio.create_task(worker()) for _ in range(min(config.concurrency, config.episodes))]
             await asyncio.gather(*workers)
         except asyncio.CancelledError:
-            job = self.jobs.get(run_id)
-            final_status = "interrupted" if job and job.shutdown else "cancelled"
+            final_status = "interrupted" if job.shutdown else "cancelled"
             for task in workers:
                 task.cancel()
             await asyncio.gather(*workers, return_exceptions=True)
@@ -260,10 +312,18 @@ class RunManager:
                 task.cancel()
             await asyncio.gather(*workers, return_exceptions=True)
         finally:
-            if hasattr(provider, "close"):
-                await provider.close()
-            self.store.update_run(run_id, final_status, elapsed=time.perf_counter() - started, error=error)
-            self.jobs.pop(run_id, None)
+            job.cleanup_started = True
+            try:
+                cleanup = await cleanup_provider(provider)
+                if job.stop_requested:
+                    final_status = "interrupted" if job.shutdown else "cancelled"
+                if cleanup is not None and cleanup["status"] != "completed":
+                    if final_status == "completed":
+                        final_status = "failed"
+                    error = f"{error}; {cleanup['error']}" if error else cleanup["error"]
+                self.store.update_run(run_id, final_status, elapsed=time.perf_counter() - started, error=error)
+            finally:
+                self.jobs.pop(run_id, None)
 
     async def wait(self, run_id: str) -> JsonObject:
         job = self.jobs.get(run_id)
@@ -275,25 +335,27 @@ class RunManager:
         self.store.get_run(run_id)
         job = self.jobs.get(run_id)
         if job:
-            job.task.cancel()
+            await self._request_stop(job)
             await asyncio.gather(job.task, return_exceptions=True)
-            if self.store.get_run(run_id)["status"] == "queued":
-                self.store.update_run(run_id, "cancelled")
-                self.jobs.pop(run_id, None)
         return self.store.get_run(run_id)
+
+    async def _request_stop(self, job: Job) -> None:
+        already_requested = job.stop_requested
+        job.stop_requested = True
+        await job.started.wait()
+        if not already_requested and not job.cleanup_started:
+            job.task.cancel()
 
     async def close(self) -> None:
         self.closing = True
         jobs = list(self.jobs.values())
-        for job in jobs:
-            job.shutdown = True
-            job.task.cancel()
-        await asyncio.gather(*(job.task for job in jobs), return_exceptions=True)
-        for run_id in list(self.jobs):
-            if self.store.get_run(run_id)["status"] == "queued":
-                self.store.update_run(run_id, "interrupted")
-            self.jobs.pop(run_id, None)
-        self.owner_lock.close()
+        try:
+            for job in jobs:
+                job.shutdown = True
+            await asyncio.gather(*(self._request_stop(job) for job in jobs))
+            await asyncio.gather(*(job.task for job in jobs), return_exceptions=True)
+        finally:
+            self.owner_lock.close()
 
 
 def replay(episode: JsonObject) -> JsonObject:
@@ -427,6 +489,24 @@ def _replay(episode: JsonObject) -> JsonObject:
     status, termination = episode["status"], episode["termination"]
     valid_outcomes = {("completed", "finished"), ("completed", "max_steps"), ("cancelled", "cancelled"),
                       ("failed", "timeout"), ("failed", "provider_error"), ("failed", "internal_error")}
+    cleanup = episode.get("provider_cleanup")
+    if cleanup is not None:
+        if (not isinstance(cleanup, dict) or set(cleanup) != {"schema", "status", "error"}
+                or cleanup["schema"] != PROVIDER_CLEANUP_SCHEMA
+                or cleanup["status"] not in {"completed", *PROVIDER_CLEANUP_ERRORS}
+                or cleanup["error"] != PROVIDER_CLEANUP_ERRORS.get(cleanup["status"])):
+            raise ValueError("provider cleanup metadata is invalid")
+        if cleanup["status"] in {"failed", "timeout"}:
+            valid_outcomes.update({("failed", "finished"), ("failed", "max_steps")})
+            if status == "completed":
+                raise ValueError("failed provider cleanup contradicts completed status")
+        elif cleanup["status"] == "cancelled":
+            valid_outcomes.update(("cancelled", value) for value in
+                                  ("finished", "max_steps", "timeout", "provider_error", "internal_error"))
+            if status != "cancelled":
+                raise ValueError("cancelled provider cleanup contradicts episode status")
+        if cleanup["status"] != "completed" and termination in {"finished", "max_steps"}:
+            matches(episode["error"], cleanup["error"], "provider cleanup outcome error")
     if (status, termination) not in valid_outcomes or world.done != (termination == "finished"):
         raise ValueError("status or termination contradicts the replayed world")
     if status == "completed" and (episode["error"] is not None or not history):
