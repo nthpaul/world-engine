@@ -131,7 +131,7 @@ async def test_api_constructor_boundary_returns_safe_400_without_store_or_jobs(m
     app = create_app()
     app.state.manager = SimpleNamespace(submit=make_provider)
     request = Request({"type": "http", "app": app})
-    route = next(route for route in app.routes if route.path == "/api/runs" and "POST" in route.methods)
+    route = next(route for route in app.routes if getattr(route, "path", None) == "/api/runs" and "POST" in route.methods)
     with pytest.raises(HTTPException) as captured:
         await route.endpoint(remote_config(kind), request)
     assert captured.value.status_code == 400
