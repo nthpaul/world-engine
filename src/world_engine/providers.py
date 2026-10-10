@@ -145,8 +145,15 @@ class ScriptedProvider:
 
 def local_endpoint() -> str:
     endpoint = os.environ.get("WORLD_ENGINE_LOCAL_URL", "http://127.0.0.1:11434").rstrip("/")
-    parsed = urlparse(endpoint)
-    host = parsed.hostname
+    if not endpoint or endpoint != endpoint.strip() or any(not character.isprintable() for character in endpoint):
+        raise ProviderError("local provider endpoint must be a plain loopback HTTP URL") from None
+    try:
+        parsed = urlparse(endpoint)
+        host, port = parsed.hostname, parsed.port
+    except ValueError:
+        raise ProviderError("local provider endpoint must be a plain loopback HTTP URL") from None
+    if parsed.netloc.endswith(":") or port is not None and not 1 <= port <= 65535:
+        raise ProviderError("local provider endpoint must have a valid port") from None
     if parsed.scheme not in ("http", "https") or parsed.username or parsed.password or parsed.query or parsed.fragment:
         raise ProviderError("local provider endpoint must be a plain loopback HTTP URL")
     try:
