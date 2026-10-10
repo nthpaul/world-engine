@@ -258,6 +258,36 @@ The [post-change CPU profile](../artifacts/profiling/20261010-v2/independent-val
 
 The [model-admission study](model-concurrency-study-results.md) at source `1d9f2315348cbea192f7ae5c4f1cf0343ba6618a` completed 32 evaluation-only attempts in 441.573 seconds: 29 business passes, twelve clean successes, 233 decisions, 32 denied actions and three timeouts. Admission one passed 16/16; admission two 13/16. Useful rates were 0.072657230 versus 0.059262489 passes per summed batch-wall second, with preparation/cleanup separate. All 32 replay/Harbor and 96 real-exporter exclusions passed; original raw/report bytes total 4,473,315. Eight unique tasks repeat four times, not 32 independent samples. Partial known usage covers 233/236 chat attempts. This is SDK caller-wave admission, not API throughput or an optimal/GPU/cache policy. Never rerun a locked collector merely to improve a result; new collection needs separate authorization, reviewed source and a fresh output. Root's 1,499 tests/six optional skips, Ruff and frontend build describe source `1d9f2315`, not future changes.
 
+## Read-only database checks
+
+Use the SDK runtime's structured `sqlite3` API with a `mode=ro` URI and
+`PRAGMA query_only=ON` for live SQL-data inspection. Close the connection in
+`finally`. For a live backup, use `Connection.backup` into a fresh private
+destination; copying only the main SQLite file can omit committed WAL data.
+Read-only SQL access may still create or manage WAL/SHM sidecar files. It is
+not a promise of zero filesystem activity.
+
+The final audit at documentation source `51bd144` used an online backup of the
+operator history into a temporary directory. All thirteen runs, seventy episodes
+and 37 lifecycle events matched row-for-row; all episode content hashes and
+denormalized fields matched. Two synthetic queued/running jobs were recovered
+to `interrupted` on the copy, a second writer was rejected, and reopening was
+idempotent. The real database's original rows stayed unchanged; all scratch
+resources were removed. Root separately confirmed live integrity `ok` and zero
+active jobs. This does not test abrupt power loss, filesystem flush guarantees
+or hostile-host authenticity.
+
+On this machine, Apple SQLite CLI 3.54.0 returned error 14 for read-only opening
+of a WAL-mode database after its sidecars disappeared. A minimal one-row fixture
+reproduced it independently of World Engine's schema and path. Python SQLite
+3.47.1 read-only opening succeeded, as did the CLI while that connection held
+WAL/SHM sidecars open. A disposable backup converted to DELETE journal mode also
+opened through the read-only CLI. This narrows the observed portability issue;
+it does not establish the internal Apple VFS cause. Do not interpret that CLI
+error alone as corruption, switch the live database to a different journal mode,
+open it read-write for an audit, or use an immutable URI against an active WAL
+database. The audit changed journal mode only on a disposable copy.
+
 ## Current limits
 
 Runtime source `0f51b903cfcc73e55901d11d5828e08c692220aa` hardens remote-provider construction errors against URL disclosure; synthetic regression cases make no real remote/model calls. Root verified all 1,743 tests/no skips, including actual pinned Harbor and approved-existing-image Docker probes, in 46.93 seconds, plus Ruff/build/schema/mock history and both SDK examples. One upstream Starlette warning remains. Native/grader/models sources stay unchanged, and eighteen delivered native episodes still replay; HTTP/recorded-JSON module fingerprints change, so older JSON evidence requires its original checkout. Source54 passed all three CI gates; source50 API/model and source51 UI receipts remain untouched.
