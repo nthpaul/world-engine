@@ -8,6 +8,8 @@ World Engine is a local workflow environment, evaluation, and trace-curation pla
 - Use the standard library and existing dependencies before adding a framework or abstraction. Add a boundary only when it owns a rule or a real external integration.
 - Keep environment transitions, grading, rollout execution, persistence, and HTTP parsing owned by their existing modules.
 - Keep each PR atomic and passing CI. For this rebuild, the user explicitly requested Git and GitHub delivery, overriding the general preference for Graphite. Check current task instructions before changing the Git workflow.
+- Keep market research, external-company comparisons and private strategy documents outside the public repository, including reports, PDFs, PR descriptions and commit messages. Public guides describe implemented contracts and measured evidence. Preserve required licenses, source attribution and functional integration identities.
+- Before publication, run `scripts/check_publication.py` with an operator-owned term list outside Git. Stage intended public files first; the check inspects tracked names, text, gzip records and PDF text/links, not untracked files, image/video pixels or Git/PR history. Review media separately and never commit the private term list.
 - Do not revert changes made by another worker. Use `coordination/BUILD.md` to understand active ownership. Its designated owner updates the board.
 
 ## Environment correctness

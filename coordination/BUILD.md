@@ -4,6 +4,13 @@ Owner: root for this delivery checkpoint. Updated 2026-10-10. Current delivery i
 
 ## Current checkpoint
 
+Public documentation now contains implementation contracts, measured evidence
+and the [engineering guide](../docs/engineering-guide.md). Original research
+reports, PDFs, source ledgers and planning copies are retained in a private local
+archive outside Git. Required attribution and functional integration identities
+remain public. This current-tree separation does not erase historical commits or
+PR diffs; retaining that history was explicitly requested.
+
 Approved phases 1--3 (2026-10-10) are implemented locally: versioned browser contracts, real GitLab instances, detached persisted-state grading, durable journals, Python SDK and Browser Environments/Attempts console. Source `222c9d22b89f92bea43fc7ad7404f750854e8111` was committed and the API restarted before fixed v3 collection; source stayed frozen through terminal reference/model QA. Root released that freeze only after collection and read-only audits completed. Research owned image lifecycle/assets, engine contracts/journal/runner/API, console UI/QA, and root the browser controller, authorization and GitHub delivery. No paid resources, external accounts, new model weights or training were used. [Architecture/SDK](../docs/gitlab-browser.md) and [results/media](../docs/gitlab-browser-results.md) are the current entry points. PRs [57](https://github.com/nthpaul/world-engine/pull/57), [58](https://github.com/nthpaul/world-engine/pull/58) and [59](https://github.com/nthpaul/world-engine/pull/59) passed backend, console and security CI; results publication is a separate dependent change.
 
 The original v1 cohort at `248facd` stopped before the model after a grader false negative. Its actual comment/closure and original zero remain unchanged. Fresh v2 at `878667` qualified both controls; its first model HTTP 200 reply was empty with no tool call, causing a provider error before any action. The old root union tool schema was incompatible with Ollama's parameter type; this is not proof of the empty reply's sole cause. The strict seven-tool repair at `222c9d22` accompanied no model/task/budget tuning. V3 is a new integration qualification, not a replacement v2 sample. All development and qualification failures remain intact.
@@ -22,13 +29,13 @@ A synthetic-only audit reproduced remote-URL leakage in provider-construction er
 
 Documentation publication [PR55](https://github.com/nthpaul/world-engine/pull/55) is committed at `51bd14438a1a207a981d7122b38778b50097b4c7`. Root verified backend, console and security checks for every PR1..55 and the continuous GitHub base/head chain. Its Linux suite passed 1,737 tests/six optional skips; the separate source54 local suite passed all 1,743 tests including those optional dependencies. The checkout is clean, and all runtime/test/console/collector files remain byte-exact source54. All original artifact files remain unchanged from publication53.
 
-Root independently inspected all fourteen final appendix pages and confirmed built-in LaTeX compilation. All 220 local links across the complete guide slice and this handoff note resolve. Two Markdown hard breaks were changed to explicit backslashes before publication; source-only generation produces the exact reviewed TeX/PDF bytes. Foundation and advanced reports remain unchanged. Research's final read-only primary-source spot checks found no material contradiction in the Proximal/MISA-T, FrontierSWE rights, Fleet SDK, OpenAI RFT or vLLM cache distinctions.
+Root independently inspected all fourteen final appendix pages and confirmed built-in LaTeX compilation. At that historical checkpoint, all 220 local links across the complete guide slice and handoff note resolved. Two Markdown hard breaks were changed to explicit backslashes before publication; source-only generation produced the reviewed TeX/PDF bytes. The original report copies and technical-source review notes are now retained privately. Public implementation guides and execution receipts remain available separately.
 
 Engine's read-only online-backup audit exactly reproduced thirteen runs, seventy episodes and 37 lifecycle events in a private temporary database. All episode content hashes and denormalized fields matched. Recovery of two synthetic queued/running jobs, second-writer rejection and idempotent reopening were tested on that disposable copy only; all original rows remained unchanged and scratch resources were removed. Root independently read the live database through the SDK Python driver: integrity `ok`, thirteen runs/seventy episodes/37 events/no active jobs. The source54 server remains operator-owned with paid calls disabled; owned Docker resources are empty. This is logical recovery evidence, not abrupt-power-loss durability or host authenticity. [Read-only inspection caveat](../docs/OPERATIONS.md#read-only-database-checks) records the separately reproduced Apple SQLite CLI/WAL behavior without a product or live-database workaround.
 
 ## Verified evidence
 
-The separate [follow-up appendix](../docs/report/world-engine-follow-up.pdf) now has fourteen pages. Research compiled its final TeX with the built-in compiler, built the exported PDF using cached resources only, and inspected all fourteen final page renders. No clipping, overlap, broken equations, overfull boxes or undefined references were found. Four underfull paragraph warnings were visually checked. All 212 local links across the thirteen owned files resolve; Markdown is ASCII, the README is 870 words, and the build helper passes shell syntax validation. PDF SHA-256 is `15846b70cf1916dfd8a19fdd201f0a5173717cbf767c704613c0e773611b5e4e`, 103,638 bytes. Root's independent artifact review and documentation publication remain separate gates; foundation and advanced PDFs are unchanged.
+The historical follow-up appendix had fourteen pages. Research compiled its final TeX with the built-in compiler, built the exported PDF using cached resources only, and inspected all fourteen page renders. No clipping, overlap, broken equations, overfull boxes or undefined references were found. Four underfull paragraph warnings were visually checked. At that checkpoint, 212 local links across the thirteen owned files resolved and the build helper passed shell syntax validation. PDF SHA-256 was `15846b70cf1916dfd8a19fdd201f0a5173717cbf767c704613c0e773611b5e4e`, 103,638 bytes. Those report bytes are now retained privately; the public [engineering guide](../docs/engineering-guide.md) describes the implementation without research comparisons.
 
 | Collection / delivery | Collection source | Actual denominator and result |
 | --- | --- | --- |
@@ -104,7 +111,7 @@ A local runnable platform for workflow environments, concurrent bounded episodes
 
 ## Phases
 
-1. Freeze concrete lifecycle and API contracts. Verify competitors against primary sources.
+1. Freeze concrete lifecycle and API contracts. Verify them against supported workflows and local evidence.
 2. Build independent workflow state, local policies, bounded jobs, grades, and traces.
 3. Connect the console to actual APIs. Exercise successful, failing, and cancelled runs.
 4. Inspect the delivered code and revise docs to its exact capabilities.
@@ -113,7 +120,7 @@ A local runnable platform for workflow environments, concurrent bounded episodes
 
 ## Evidence and limitations
 
-Research sources will live in `docs/research/SOURCES.md`, with exact URLs and access dates. Runtime evidence belongs in `docs/OPERATIONS.md` and the final verification record.
+Internal research sources are retained outside the public repository. Runtime evidence belongs in `docs/OPERATIONS.md` and the final verification record; public guidance retains required source attribution and supported integration identities.
 
 The root created `codex/world-engine-platform` from clean `master` at `0561db5`. The user authorized an overnight continuation. The native heartbeat `complete-world-engine-overnight` checks useful work hourly for up to eight continuations, approximately eight hours. After the foundation release, it can pursue the ordered follow-up backlog below within the original window. Foundation acceptance is not authorization to claim the backlog delivered. Stop when the bounded window ends, the useful authorized backlog is complete, or a required external decision prevents safe progress. Do not make paid model calls, provision paid cloud resources, create accounts, download model weights, or send external messages. Root owns the automation, task selection, and Git delivery.
 
