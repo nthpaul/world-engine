@@ -406,22 +406,27 @@ def evaluate(policy: str, images: dict, endpoint: str, model: str, protocol: str
     return result
 
 
-def write_report(output: Path, report: dict) -> None:
+def write_report(output: Path, report: dict, *, derived: bool = False) -> None:
     if report.get("evaluation_only") is not True or report.get("training_eligible") is not False:
         raise ValueError("Public benchmark output must remain evaluation-only")
     output.mkdir(parents=True, exist_ok=True)
-    (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
+    mode = "w" if derived else "x"
+    with (output / "report.json").open(mode) as target:
+        target.write(json.dumps(report, indent=2) + "\n")
     rows = ["# Public task evaluation", "", f"Task: `{TASK_ID}`", f"Source revision: `{REVISION}`", "",
             "Evaluation-only. Benchmark task, solutions, grader, and trajectories must never enter training exports.", "",
             "| Policy / protocol | Execution outcome | Official grader | Commands | Model calls | Elapsed seconds |", "| --- | --- | --- | ---: | ---: | ---: |"]
     for episode in report["episodes"]:
         outcome = episode.get('execution_outcome', 'action_protocol_error' if episode['model_calls'] and not episode['trace'] else 'commands_executed')
         rows.append(f"| {episode['policy']} / {episode.get('protocol', 'json-command-v1' if episode['policy'] == 'local' else 'official-shell-control')} | {outcome} | {'pass' if episode['grader']['passed'] else 'fail'} | {len(episode['trace'])} | {len(episode['model_calls'])} | {episode['elapsed_seconds']} |")
-        (output / f"{episode['policy']}-summary.csv").write_text(episode["summary_csv"])
+        if not derived:
+            with (output / f"{episode['policy']}-summary.csv").open("x") as target:
+                target.write(episode["summary_csv"])
     rows.extend(["", "The official solution omits only apt package installation. The verifier runs the unmodified official Python tests with pytest 8.4.1 installed at image build time. These protocol adaptations remove runtime network access.", "",
                  f"Agent image: `{report['images']['agent_image_id']}`", f"Verifier image: `{report['images']['verifier_image_id']}`", f"Official Python base: `{report['images']['base_digest']}`", "",
                  "One adapted task and one bounded local-model attempt do not represent the Terminal-Bench leaderboard protocol or a general agent benchmark score."])
-    (output / "report.md").write_text("\n".join(rows) + "\n")
+    with (output / "report.md").open(mode) as target:
+        target.write("\n".join(rows) + "\n")
 
 
 def main() -> None:
@@ -430,8 +435,9 @@ def main() -> None:
     parser.add_argument("--model", default="qwen3:8b")
     parser.add_argument("--skip-local", action="store_true")
     parser.add_argument("--protocol", choices=["json-command-v1", "native-tools-v2"], default="native-tools-v2")
-    parser.add_argument("--output", type=Path, default=ROOT / "artifacts/public-benchmark")
+    parser.add_argument("--output", type=Path, required=True, help="Fresh evaluation directory; existing paths are refused")
     args = parser.parse_args()
+    args.output.mkdir(parents=True, exist_ok=False, mode=0o700)
     endpoint = local_endpoint(args.ollama_url)
     verify_source()
     images = build_images()
@@ -448,11 +454,14 @@ def main() -> None:
     report["controller_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     report["controller_source"] = controller_source()
     report["file_size_probe"] = verify_file_limit(images["agent_image_id"])
-    attempt_output = args.output / "attempts" / (time.strftime("%Y%m%dT%H%M%S", time.gmtime()) + "-" + uuid.uuid4().hex[:8])
     for policy in ["reference", "zero"] + ([] if args.skip_local else ["local"]):
         print(f"Running {policy} policy", flush=True)
         report["episodes"].append(evaluate(policy, images, endpoint, args.model, args.protocol))
-        write_report(args.output, report)
+        attempt_output = args.output / "attempts" / policy
+        attempt_output.mkdir(parents=True, exist_ok=False, mode=0o700)
+        with (attempt_output / "episode.json").open("x") as target:
+            target.write(json.dumps(report["episodes"][-1], indent=2) + "\n")
+        write_report(args.output, report, derived=True)
         write_report(attempt_output, report)
         print(f"{policy}: grader {'pass' if report['episodes'][-1]['grader']['passed'] else 'fail'}", flush=True)
     reference, zero = report["episodes"][:2]
