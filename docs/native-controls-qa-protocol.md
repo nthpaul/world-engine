@@ -16,6 +16,7 @@ computed from the collector's ordered JSON protocol object. At 1440x960,
   `qwen3:8b`, locks evaluation-only true and exposes no paid consent control.
 - Explicit concurrency 2 survives a switch between native aliases.
 - Legacy local concurrency and evaluation-only remain editable.
+- Start and Cancel buttons fit completely inside the dialog and viewport.
 - Every dialog closes with Cancel, without submitting a run.
 
 One worker is a conservative native default, not a hard cap or a claim that it is

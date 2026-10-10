@@ -954,12 +954,22 @@ dd {
   background: #25362d55;
   backdrop-filter: blur(2px);
 }
+.launch-dialog[open],
+.launch-dialog > form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.launch-dialog > form {
+  overflow: hidden;
+}
 .dialog-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 25px 28px 21px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .dialog-heading h2 {
   font-size: 21px;
@@ -969,6 +979,8 @@ dd {
 }
 .dialog-body {
   padding: 24px 28px;
+  min-height: 0;
+  overflow-y: auto;
 }
 .dialog-body label {
   display: grid;
@@ -1010,6 +1022,7 @@ dd {
   gap: 10px;
   border-top: 1px solid var(--border);
   background: #f7faf7;
+  flex-shrink: 0;
 }
 .dialog-footer > span {
   display: flex;
