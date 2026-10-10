@@ -133,7 +133,7 @@ certificate over every GitLab feature or table.
 
 Each episode has fresh volumes, accounts, networks and browser context. GitLab
 has no default internet route; a constrained relay forwards only to its fixed
-app address. The browser permits only its exact loopback app origin, denies
+app address. Playwright restricts HTTP requests to the exact loopback app origin, denies
 administrative/API document navigation, and exposes only observed visible node
 IDs. Login is outside recording/model input. The verifier remains outside the
 agent interface even if an agent changes its own page content.
@@ -146,6 +146,7 @@ This does not certify universal secret detection across arbitrary applications.
 
 This is a **trusted-operator local Docker pilot**, not gVisor, a microVM fleet,
 or tenant-safe hosted execution. The host browser's isolation is not a guest VM.
+HTTP routing is not an OS-level boundary or a guarantee over every browser transport.
 The current Docker daemon's raw-iptables warning prevents a network-security
 certification. A synchronous browser thread can outlive a cooperative deadline;
 uncertain closure, cleanup or journal finalization blocks further admission.

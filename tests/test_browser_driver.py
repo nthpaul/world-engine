@@ -104,3 +104,21 @@ def test_empty_recording_is_not_certified_as_closed(tmp_path):
     driver.prepared = True
     with pytest.raises(BrowserError, match="did not finalize"):
         driver._close()
+
+
+def test_failed_context_closure_still_attempts_browser_and_playwright_cleanup():
+    from types import SimpleNamespace
+
+    events = []
+
+    def fail():
+        events.append("context")
+        raise RuntimeError("failed context closure")
+
+    driver = object.__new__(BrowserGymDriver)
+    driver.context = SimpleNamespace(close=fail)
+    driver.browser = SimpleNamespace(close=lambda: events.append("browser"))
+    driver.playwright = SimpleNamespace(stop=lambda: events.append("playwright"))
+    with pytest.raises(RuntimeError, match="failed context closure"):
+        driver._close()
+    assert events == ["context", "browser", "playwright"]

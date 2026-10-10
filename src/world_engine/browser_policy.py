@@ -8,7 +8,7 @@ import hashlib
 import json
 import re
 from collections.abc import Callable
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import httpx
 
@@ -192,6 +192,8 @@ class BrowserReferencePolicy:
         self.issue_list_url: str | None = None
         self.issue_cursor = 0
         self.visited: set[str] = set()
+        self.confirmed_target_path: str | None = None
+        self.confirmed_comment = False
         self.recorder: RECORDER = lambda kind, payload: None
         self.evidence_metadata = {"protocol": "public-ax-browser-control-v1", "scripted_control": True,
                                   "capability_measurement": False, "baseline": baseline, "training_eligible": False}
@@ -214,7 +216,10 @@ class BrowserReferencePolicy:
         persisted_comment = any(node["role"] == "StaticText" and node["name"] == self.comment for node in nodes)
         path = urlsplit(observation.url).path
         action = None
-        if path == "/dashboard/projects" or path.startswith("/dashboard/projects/"):
+        full_page = choose("link", "Open in full page", exact=True)
+        if full_page:
+            action = Click(bid=full_page["bid"])
+        elif path == "/dashboard/projects" or path.startswith("/dashboard/projects/"):
             node = choose("link", "Release Operations")
             if node:
                 action = Click(bid=node["bid"])
@@ -223,17 +228,23 @@ class BrowserReferencePolicy:
                 if node:
                     action = Click(bid=node["bid"])
         elif re.search(r"/-/(?:issues|work_items)/[0-9]+", path):
-            if self.marker not in observation.accessibility_text:
+            if self.marker in observation.accessibility_text:
+                self.confirmed_target_path = path
+            is_target = self.confirmed_target_path == path
+            if not is_target and "Deployment reference:" in observation.accessibility_text:
                 if observation.url not in self.visited:
                     self.visited.add(observation.url)
                     self.issue_cursor += 1
                 if self.issue_list_url:
                     action = Navigate(url=self.issue_list_url)
+            elif not is_target:
+                action = Wait(seconds=1.0)
             elif persisted_comment and not choose("button", "Comment", exact=True):
                 # Read-only confirmation of a closed issue may still retain a comment form.
                 action = Finish() if "Closed" in observation.accessibility_text else Scroll(direction="up")
-            elif persisted_comment and any(
+            elif (persisted_comment or self.confirmed_comment) and any(
                     item["action"].get("kind") == "click" for item in history):
+                self.confirmed_comment = True
                 node = choose("button", "Close issue", exact=True) or choose("button", "Close item", exact=True)
                 if node:
                     action = Click(bid=node["bid"])
@@ -252,9 +263,12 @@ class BrowserReferencePolicy:
                     else:
                         action = Fill(bid=textbox["bid"], text=self.comment)
                 else:
-                    action = Scroll(direction="down")
+                    node = choose("button", "Switch to plain text editing", exact=True)
+                    action = Click(bid=node["bid"]) if node else Scroll(direction="down")
         elif re.search(r"/-/(?:issues|work_items)/?$", path):
-            self.issue_list_url = observation.url
+            parsed = urlsplit(observation.url)
+            query = urlencode([(key, value) for key, value in parse_qsl(parsed.query) if key != "show"])
+            self.issue_list_url = urlunsplit(parsed._replace(query=query))
             candidates = [node for node in nodes if node["role"] == "link"
                           and node["bid"]
                           and "release checklist" in node["name"].lower()]

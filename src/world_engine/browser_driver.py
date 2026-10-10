@@ -134,7 +134,7 @@ class BrowserGymDriver:
                                   "playwright_version": importlib.metadata.version("playwright"),
                                   "browser_version": self.browser.version,
                                   "observation_mode": "AX", "image_not_sent_to_model": True,
-                                  "network_scope": "episode application origin only",
+                                  "network_scope": "HTTP requests restricted to episode app origin; host browser not a network sandbox",
                                   "browser_location": "local host browser; development-only isolation"}
         self.evidence_metadata["accessibility_url_properties"] = "omitted to exclude token-bearing link targets"
         if executable:
@@ -194,7 +194,7 @@ class BrowserGymDriver:
             _post_extract(self.page)
         if len(text) > 65_536:
             raise BrowserError("browser accessibility observation exceeds its bound")
-        self._bids = set(re.findall(r"\[([a-zA-Z0-9_-]+)\]", text))
+        self._bids = set(re.findall(r"(?m)^\s*\[([a-zA-Z0-9_-]+)\]\s+\w+", text))
         directory = self.root / "screenshots"
         directory.mkdir(exist_ok=True)
         file = directory / f"{self.index:04d}.png"
@@ -268,10 +268,12 @@ class BrowserGymDriver:
     def _close(self) -> list[BrowserArtifact]:
         try:
             # Playwright flushes recordings when their context closes, before browser shutdown.
-            if hasattr(self, "context"):
-                self.context.close()
-            if hasattr(self, "browser"):
-                self.browser.close()
+            try:
+                if hasattr(self, "context"):
+                    self.context.close()
+            finally:
+                if hasattr(self, "browser"):
+                    self.browser.close()
         finally:
             if hasattr(self, "playwright"):
                 self.playwright.stop()
