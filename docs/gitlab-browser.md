@@ -4,6 +4,8 @@ This is the phases 1--3 local implementation: versioned task/runtime contracts,
 a real GitLab application with detached persisted-state grading, and a browser
 operator console plus Python SDK. Older Python worlds remain available as
 **simulation diagnostics**. They are not evidence of browser fidelity.
+The [dated results and media guide](gitlab-browser-results.md) includes the actual
+successful reference, failed model attempt, timings and desktop/mobile QA.
 
 ## Architecture
 

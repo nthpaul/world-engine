@@ -7,6 +7,9 @@ instance, ordinary-user browser actions, post-login screenshots/video, durable
 traces and a separate persisted-state verifier. Start there for the phases 1--3
 architecture, local prerequisites and SDK. The four Python worlds below remain
 simulation diagnostics; their historical results are unchanged.
+The [GitLab results and media guide](docs/gitlab-browser-results.md) records the
+successful browser reference, the failed local-model rollout, isolated grading,
+screenshots, videos, timings and preserved qualification failures.
 
 ## Run locally
 
