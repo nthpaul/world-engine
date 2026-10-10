@@ -105,6 +105,27 @@ async def test_local_policy_rejects_remote_or_missing_local_model_without_chat()
         await policy.close()
 
 
+async def test_failed_prepare_and_changed_model_cannot_make_inference_calls():
+    policy, events = await policy_with_reply(valid_reply())
+    try:
+        with pytest.raises(BrowserError):
+            await policy.decide(observation(), [])
+        await policy.prepare()
+        policy.model = "alias-with-the-same-digest"
+        with pytest.raises(BrowserError):
+            await policy.decide(observation(), [])
+        policy.model = "missing-model"
+        with pytest.raises(BrowserError):
+            await policy.prepare()
+        assert policy.digest is None
+        assert policy.prepared_model is None
+        with pytest.raises(BrowserError):
+            await policy.decide(observation(), [])
+        assert not any(kind == "inference_intent" for kind, _ in events)
+    finally:
+        await policy.close()
+
+
 async def test_reference_uses_public_discovery_and_does_not_count_textbox_as_persisted_comment():
     policy = BrowserReferencePolicy(PROMPT)
     assert (await policy.decide(observation(), [])).action.bid == "3"
@@ -140,3 +161,24 @@ async def test_reference_discovers_identically_named_distractors_without_hidden_
     wrong = observation("StaticText 'Deployment reference: REL-2026-1043'", url + "/3")
     assert (await policy.decide(wrong, [])).action.url == url
     assert (await policy.decide(listing, [])).action.bid == "10"
+
+
+async def test_reference_discovers_member_projects_when_default_tab_is_empty():
+    policy = BrowserReferencePolicy(PROMPT)
+    assert (await policy.decide(observation("[8] tab 'Contributed 0'\n[9] tab 'Member 1'"), [])).action.bid == "9"
+
+
+async def test_local_policy_preserves_bounded_http_failure_body():
+    policy, events = await policy_with_reply(valid_reply())
+    try:
+        await policy.prepare()
+        await policy.client.aclose()
+        policy.client = httpx.AsyncClient(transport=httpx.MockTransport(
+            lambda request: httpx.Response(500, stream=RawStream({"error": "local daemon rejected schema"}))))
+        with pytest.raises(BrowserError, match="invalid HTTP"):
+            await policy._read("POST", "/api/chat", b"{}")
+        assert events[-1][0] == "inference_transport_failure"
+        assert json.loads(base64.b64decode(events[-1][1]["partial_body_b64"]))["error"]
+        assert events[-1][1]["complete_reply_certified"] is False
+    finally:
+        await policy.close()

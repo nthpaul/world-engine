@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from world_engine.browser_contracts import BrowserError
-from world_engine.browser_driver import allowed_app_url, app_origin, artifact_descriptor
+from world_engine.browser_driver import BrowserGymDriver, allowed_app_url, app_origin, artifact_descriptor
 
 ORIGIN = "http://127.0.0.1:8929"
 
@@ -49,3 +49,33 @@ def test_browser_artifact_cannot_follow_symlink_or_escape_root(tmp_path):
     image.write_bytes(b"known fixture")
     assert artifact_descriptor(root, image, "screenshot", "image/png").id == "real.png"
     assert isinstance(Path(image), Path)
+
+
+def test_close_flushes_context_video_before_browser_shutdown(tmp_path):
+    from types import SimpleNamespace
+
+    events = []
+    directory = tmp_path / "video"
+    directory.mkdir()
+
+    def flush():
+        events.append("context")
+        (directory / "recording.webm").write_bytes(b"finalized recording")
+
+    driver = object.__new__(BrowserGymDriver)
+    driver.root = tmp_path
+    driver.prepared = True
+    driver.context = SimpleNamespace(close=flush)
+    driver.browser = SimpleNamespace(close=lambda: events.append("browser"))
+    driver.playwright = SimpleNamespace(stop=lambda: events.append("playwright"))
+    artifacts = driver._close()
+    assert events == ["context", "browser", "playwright"]
+    assert artifacts[0].size_bytes > 0
+
+
+def test_empty_recording_is_not_certified_as_closed(tmp_path):
+    driver = object.__new__(BrowserGymDriver)
+    driver.root = tmp_path
+    driver.prepared = True
+    with pytest.raises(BrowserError, match="did not finalize"):
+        driver._close()

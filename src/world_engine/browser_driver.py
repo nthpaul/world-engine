@@ -21,6 +21,7 @@ from world_engine.browser_contracts import (
 )
 
 BLOCKED_DOCUMENT_PATHS = ("/admin", "/api/", "/-/metrics", "/-/health", "/-/readiness")
+MAX_MEDIA_BYTES = 96 * 1024 * 1024
 
 
 def app_origin(value: str) -> str:
@@ -193,7 +194,7 @@ class BrowserGymDriver:
     def _check_budget(self) -> None:
         size = sum(file.stat().st_size for directory in ("screenshots", "video")
                    for file in (self.root / directory).glob("*") if file.is_file())
-        if size > MAX_ATTEMPT_BYTES:
+        if size > MAX_MEDIA_BYTES:
             raise BrowserError("browser recording exceeded the episode artifact budget")
 
     async def execute(self, action: BrowserAction) -> dict:
@@ -251,6 +252,9 @@ class BrowserGymDriver:
 
     def _close(self) -> list[BrowserArtifact]:
         try:
+            # Playwright flushes recordings when their context closes, before browser shutdown.
+            if hasattr(self, "context"):
+                self.context.close()
             if hasattr(self, "browser"):
                 self.browser.close()
         finally:
@@ -259,4 +263,6 @@ class BrowserGymDriver:
         self._check_budget()
         files = [(file, "screenshot", "image/png") for file in sorted((self.root / "screenshots").glob("*.png"))]
         files.extend((file, "video", "video/webm") for file in sorted((self.root / "video").glob("*.webm")))
+        if self.prepared and not any(kind == "video" and file.stat().st_size > 0 for file, kind, _ in files):
+            raise BrowserError("browser recording did not finalize")
         return [artifact_descriptor(self.root, file, kind, mime) for file, kind, mime in files]

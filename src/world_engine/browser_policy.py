@@ -51,6 +51,7 @@ class OllamaBrowserPolicy:
         self.recorder: RECORDER = lambda kind, payload: None
         self.evidence_metadata: dict = {}
         self.digest: str | None = None
+        self.prepared_model: str | None = None
 
     def set_recorder(self, recorder: RECORDER) -> None:
         self.recorder = recorder
@@ -60,23 +61,30 @@ class OllamaBrowserPolicy:
         if body is not None:
             headers["Content-Type"] = "application/json"
         data = bytearray()
+        status = None
         try:
             async with self.client.stream(method, self.endpoint + path, content=body, headers=headers) as response:
-                if response.status_code != 200 or response.headers.get("content-encoding", "identity") != "identity":
-                    raise BrowserError("local inference returned an invalid HTTP response")
+                status = response.status_code
                 async for chunk in response.aiter_raw():
                     if len(data) + len(chunk) > RESPONSE_LIMIT:
                         raise BrowserError("local inference response exceeds its bound")
                     data.extend(chunk)
-        except httpx.HTTPError:
-            raise BrowserError("local inference request failed") from None
+                if response.status_code != 200 or response.headers.get("content-encoding", "identity") != "identity":
+                    raise BrowserError("local inference returned an invalid HTTP response")
+        except BaseException as error:
+            if path == "/api/chat":
+                self.recorder("inference_transport_failure", {"status": status, "partial_body_b64": base64.b64encode(data).decode(),
+                    "body_bytes": len(data), "body_sha256": hashlib.sha256(data).hexdigest(), "complete_reply_certified": False})
+            if isinstance(error, httpx.HTTPError):
+                raise BrowserError("local inference request failed") from None
+            raise
         return bytes(data)
 
-    async def _model_identity(self) -> str:
+    async def _model_identity(self, model: str) -> str:
         try:
             tags = json.loads(await self._read("GET", "/api/tags"))
             models = tags["models"]
-            entry = next(item for item in models if item.get("name") == self.model and local_model_entry(item))
+            entry = next(item for item in models if item.get("name") == model and local_model_entry(item))
             if type(entry.get("size")) is not int or entry["size"] <= 0:
                 raise ValueError
             return entry["digest"]
@@ -84,21 +92,26 @@ class OllamaBrowserPolicy:
             raise BrowserError("browser inference requires an existing local model; downloads and cloud models disabled") from None
 
     async def prepare(self) -> None:
-        self.digest = await self._model_identity()
+        self.digest, self.prepared_model, self.evidence_metadata = None, None, {}
+        model = self.model
+        digest = await self._model_identity(model)
         try:
             version = json.loads(await self._read("GET", "/api/version"))["version"]
-            show = json.loads(await self._read("POST", "/api/show", canonical_json({"model": self.model}).encode()))
+            show = json.loads(await self._read("POST", "/api/show", canonical_json({"model": model}).encode()))
             if show.get("remote_host") or show.get("remote_model") or "tools" not in show.get("capabilities", []):
                 raise ValueError
         except (KeyError, TypeError, ValueError):
             raise BrowserError("local browser model must support native tools and remain local") from None
-        self.evidence_metadata = {"protocol": "ollama-browser-tools-v1", "model": self.model,
-                                  "model_digest": self.digest, "ollama_version": version,
+        if self.model != model:
+            raise BrowserError("local model configuration changed during preparation")
+        metadata = {"protocol": "ollama-browser-tools-v1", "model": model,
+                                  "model_digest": digest, "ollama_version": version,
                                   "system_prompt_sha256": hashlib.sha256(SYSTEM_PROMPT.encode()).hexdigest(),
                                   "options": dict(OPTIONS), "paid_calls_enabled": False,
                                   "training_eligible": False, "policy_version_check": "before and after every reply",
                                   "history_limit": 12, "accessibility_char_limit": 32_000}
-        self.recorder("policy_prepared", self.evidence_metadata)
+        self.recorder("policy_prepared", metadata)
+        self.digest, self.prepared_model, self.evidence_metadata = digest, model, metadata
 
     def request_body(self, observation: BrowserObservation, history: list[dict]) -> dict:
         model_view = {"url": observation.url, "title": observation.title,
@@ -106,7 +119,7 @@ class OllamaBrowserPolicy:
                       "accessibility_truncated": len(observation.accessibility_text) > 32_000,
                       "observation_mode": "AX", "image_not_sent_to_model": True}
         public_history = [{"action": item["action"], "result": item["result"]} for item in history[-12:]]
-        return {"model": self.model, "messages": [{"role": "system", "content": SYSTEM_PROMPT},
+        return {"model": self.prepared_model, "messages": [{"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": canonical_json({"task": self.instruction,
                  "observation": model_view, "history": public_history})}],
                 "tools": [{"type": "function", "function": {"name": "browser_action",
@@ -115,7 +128,9 @@ class OllamaBrowserPolicy:
                 "stream": False, "think": False, "options": dict(OPTIONS), "keep_alive": "5m"}
 
     async def decide(self, observation: BrowserObservation, history: list[dict]) -> BrowserDecision:
-        if self.digest is None or await self._model_identity() != self.digest:
+        if (self.digest is None or self.prepared_model is None or self.model != self.prepared_model
+                or await self._model_identity(self.prepared_model) != self.digest
+                or self.model != self.prepared_model):
             raise BrowserError("local model revision changed during the browser attempt")
         body = self.request_body(observation, history)
         encoded = canonical_json(body).encode()
@@ -130,13 +145,13 @@ class OllamaBrowserPolicy:
             raise
         self.recorder("inference_result", {"response_body_b64": base64.b64encode(raw).decode(),
                                            "response_sha256": hashlib.sha256(raw).hexdigest(), "response_bytes": len(raw)})
-        if await self._model_identity() != self.digest:
+        if self.model != self.prepared_model or await self._model_identity(self.prepared_model) != self.digest:
             raise BrowserError("local model revision changed during the browser attempt")
         try:
             data = json.loads(raw)
             if (data.get("done") is not True or data.get("done_reason") == "length"
                     or data.get("remote_host") or data.get("remote_model")
-                    or data.get("model") != self.model or data["message"].get("role") != "assistant"):
+                    or data.get("model") != self.prepared_model or data["message"].get("role") != "assistant"):
                 raise ValueError
             calls = data["message"]["tool_calls"]
             if not isinstance(calls, list) or len(calls) != 1 or calls[0]["function"]["name"] != "browser_action":
@@ -149,6 +164,7 @@ class OllamaBrowserPolicy:
         return BrowserDecision(action=action, evidence={"usage": usage, "model_digest": self.digest})
 
     async def close(self) -> None:
+        self.digest, self.prepared_model = None, None
         await self.client.aclose()
 
 
@@ -200,6 +216,10 @@ class BrowserReferencePolicy:
             node = choose("link", "Release Operations")
             if node:
                 action = Click(bid=node["bid"])
+            else:
+                node = choose("tab", "Member")
+                if node:
+                    action = Click(bid=node["bid"])
         elif re.search(r"/-/issues/[0-9]+", observation.url):
             if self.marker not in observation.accessibility_text:
                 if observation.url not in self.visited:
