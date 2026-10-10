@@ -61,6 +61,8 @@ const defaultModel = (provider: Provider | undefined) =>
   provider?.kind === "local"
     ? (provider.models.find((model) => model === "qwen3:8b") ?? null)
     : (provider?.models[0] ?? null);
+const isNativeProvider = (id: string | undefined) =>
+  id === "local-tools" || id === "local-tools-ledger";
 
 function readRoute(): Route {
   const parts = window.location.hash.slice(1).split("/");
@@ -1045,7 +1047,7 @@ function LaunchDialog({
     concurrency: 4,
     model: defaultModel(enabledProviders[0]),
     allow_paid: false,
-    evaluation_only: false,
+    evaluation_only: isNativeProvider(enabledProviders[0]?.id),
     timeout_seconds: 60,
     label: "",
   });
@@ -1151,6 +1153,8 @@ function LaunchDialog({
                     provider_id: event.target.value,
                     model: defaultModel(next),
                     allow_paid: false,
+                    evaluation_only:
+                      isNativeProvider(event.target.value) || config.evaluation_only,
                   });
                 }}
               >
@@ -1272,6 +1276,7 @@ function LaunchDialog({
             <input
               type="checkbox"
               checked={config.evaluation_only}
+              disabled={isNativeProvider(config.provider_id)}
               onChange={(event) =>
                 setConfig({ ...config, evaluation_only: event.target.checked })
               }

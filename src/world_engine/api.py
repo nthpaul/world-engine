@@ -14,6 +14,7 @@ from world_engine import __version__
 from world_engine.environments import ENVIRONMENTS
 from world_engine.exports import ExportFormat, Quality, export_records, jsonl
 from world_engine.models import RunConfig
+from world_engine.native_config import NativeRunConfig
 from world_engine.providers import ProviderError, provider_metadata
 from world_engine.rollout import RunManager
 from world_engine.store import Store
@@ -109,7 +110,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         return {"runs": manager(request).store.list_runs(limit, offset)}
 
     @app.post("/api/runs", status_code=202)
-    async def start_run(config: RunConfig, request: Request):
+    async def start_run(config: RunConfig | NativeRunConfig, request: Request):
         try:
             return manager(request).submit(config)
         except ProviderError as error:

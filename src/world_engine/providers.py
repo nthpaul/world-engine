@@ -533,6 +533,11 @@ class HTTPProvider:
 def make_provider(config: RunConfig) -> Provider:
     if config.provider_id.startswith("scripted-"):
         return ScriptedProvider(oracle=config.provider_id == "scripted-oracle")
+    if config.provider_id in ("local-tools", "local-tools-ledger"):
+        from world_engine.ollama_tools import LEDGER_PROTOCOL, PROTOCOL, OllamaToolsProvider
+
+        protocol = PROTOCOL if config.provider_id == "local-tools" else LEDGER_PROTOCOL
+        return OllamaToolsProvider(config, protocol=protocol)
     return HTTPProvider(config)
 
 
@@ -550,6 +555,8 @@ async def provider_metadata() -> list[JsonObject]:
         {"id": "scripted-oracle", "name": "Scripted Oracle", "kind": "scripted", "configured": True, "requires_opt_in": False, "models": []},
         {"id": "scripted-baseline", "name": "Naive Baseline", "kind": "scripted", "configured": True, "requires_opt_in": False, "models": []},
         {"id": "local", "name": "Local Ollama", "kind": "local", "configured": bool(local_models), "requires_opt_in": False, "models": local_models},
+        {"id": "local-tools", "name": "Native Tools", "kind": "local", "configured": bool(local_models), "requires_opt_in": False, "models": local_models},
+        {"id": "local-tools-ledger", "name": "Native Ledger", "kind": "local", "configured": bool(local_models), "requires_opt_in": False, "models": local_models},
         {"id": "openai", "name": "OpenAI Compatible", "kind": "remote", "configured": bool(os.environ.get("OPENAI_API_KEY")), "requires_opt_in": True, "models": ["gpt-4.1-mini"]},
         {"id": "anthropic", "name": "Anthropic", "kind": "remote", "configured": bool(os.environ.get("ANTHROPIC_API_KEY")), "requires_opt_in": True, "models": ["claude-sonnet-4-5"]},
     ]
