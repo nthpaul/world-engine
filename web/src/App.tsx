@@ -1453,8 +1453,8 @@ function RunInspector({
         />
         <Metric
           label="Step throughput"
-          value={`${number(run.steps_per_second)} steps/s`}
-          note={`${duration(run.elapsed_seconds)} elapsed`}
+          value={number(run.steps_per_second)}
+          note={`steps/s / ${duration(run.elapsed_seconds)} elapsed`}
         />
       </div>
       <div className="run-config-bar">
