@@ -247,17 +247,22 @@ class RunManager:
     """One process owns admission and a global concurrency budget for all submitted batches."""
 
     def __init__(self, store: Store, *, global_concurrency: int = MAX_GLOBAL_EPISODES):
+        if type(global_concurrency) is not int or not 1 <= global_concurrency <= MAX_GLOBAL_EPISODES:
+            raise ValueError(f"global_concurrency must be an integer from 1 to {MAX_GLOBAL_EPISODES}")
         self.store = store
         self.owner_lock = open(str(store.path) + ".lock", "a+")
         try:
-            fcntl.flock(self.owner_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError as error:
+            try:
+                fcntl.flock(self.owner_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError as error:
+                raise RuntimeError("database already owned by a running scheduler; use its HTTP API or a separate --db") from error
+            self.store.recover()
+            self.global_limit = asyncio.Semaphore(global_concurrency)
+            self.jobs: dict[str, Job] = {}
+            self.closing = False
+        except BaseException:
             self.owner_lock.close()
-            raise RuntimeError("database already owned by a running scheduler; use its HTTP API or a separate --db") from error
-        self.store.recover()
-        self.global_limit = asyncio.Semaphore(global_concurrency)
-        self.jobs: dict[str, Job] = {}
-        self.closing = False
+            raise
 
     def submit(self, config: RunConfig, provider: Provider | None = None) -> JsonObject:
         if self.closing:
