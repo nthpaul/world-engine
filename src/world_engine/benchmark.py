@@ -33,7 +33,7 @@ def wilson(passed: int, total: int) -> list[float]:
 async def benchmark(output: Path, episodes: int = 30, trials: int = 3, *, schema_cache_mode: str = "enabled") -> dict:
     if not 1 <= episodes <= 100 or not 1 <= trials <= 10:
         raise ValueError("benchmark supports 1..100 episodes and 1..10 trials")
-    output.mkdir(parents=True, exist_ok=True)
+    output.mkdir(parents=True, exist_ok=False, mode=0o700)
     manager = RunManager(Store(output / "benchmark.sqlite3"))
     rows = []
     raw = []
@@ -85,7 +85,8 @@ async def benchmark(output: Path, episodes: int = 30, trials: int = 3, *, schema
               "global_concurrency_limit": 8, "measurement": "End-to-end batch scheduling, trusted grading, JSON hashing and SQLite persistence; no model latency.",
               "limitations": "Repeated seeds are paired deterministic cases, not independent task samples; Wilson intervals describe case outcomes, not a new-population guarantee. Concurrency is asyncio scheduling, not CPU parallelism.",
               "rows": rows, "raw_trials": raw}
-    (output / "benchmark.json").write_text(json.dumps(result, indent=2) + "\n")
+    with (output / "benchmark.json").open("x") as handle:
+        handle.write(json.dumps(result, indent=2) + "\n")
     lines = ["# Local Workflow Benchmark", "", f"Measured {result['created_at']} on {result['platform']}, Python {result['runtime']}.", "",
              result["measurement"], "", result["limitations"], "",
              "| World | Policy | Concurrency | Passed | Episodes/s | Steps/s | p50 ms | p95 ms | Invalid | Errors |",
@@ -93,6 +94,7 @@ async def benchmark(output: Path, episodes: int = 30, trials: int = 3, *, schema
     for row in rows:
         lines.append(f"| {row['environment_id']} | {row['provider_id']} | {row['concurrency']} | {row['passed']}/{row['episodes']} | {row['median_episodes_per_second']:.1f} | {row['median_steps_per_second']:.1f} | {row['p50_episode_seconds']*1000:.1f} | {row['p95_episode_seconds']*1000:.1f} | {row['invalid_actions']} | {row['errors']} |")
     lines.extend(["", "Reproduce: `uv run python -m world_engine benchmark --episodes 30 --trials 3`. Raw per-trial durations and matched scenario IDs are in benchmark.json.", ""])
-    (output / "benchmark.md").write_text("\n".join(lines))
+    with (output / "benchmark.md").open("x") as handle:
+        handle.write("\n".join(lines))
     print(json.dumps({"output": str(output.resolve()), "rows": len(rows), "episodes": sum(row["episodes"] for row in rows)}))
     return result

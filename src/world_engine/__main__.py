@@ -4,7 +4,9 @@ import argparse
 import asyncio
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
 import uvicorn
 
@@ -52,7 +54,9 @@ def main() -> None:
     run.add_argument("--label", default="")
     run.add_argument("--evaluation-only", action="store_true", help="Exclude these evaluation episodes from training exports")
     bench = commands.add_parser("benchmark", help="Measure local scripted workflows; no external model calls")
-    bench.add_argument("--output", type=Path, default=Path("examples/benchmark-results"))
+    bench.add_argument("--output", type=Path,
+                       default=Path(".world-engine/benchmarks") / f"{datetime.now(timezone.utc):%Y%m%dT%H%M%S.%fZ}-{uuid4().hex}",
+                       help="Fresh output directory; existing paths are never reused")
     bench.add_argument("--episodes", type=int, default=30)
     bench.add_argument("--trials", type=int, default=3)
     export = commands.add_parser("export", help="Write dataset/operator-interchange JSONL to stdout")
