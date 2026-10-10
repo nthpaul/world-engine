@@ -391,6 +391,38 @@ main {
   align-items: center;
   gap: 10px;
 }
+.history-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+.history-pager > div {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+.history-pager .icon-button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+}
+.history-pager .icon-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.history-error {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #8c3030;
+}
 .table-tools select,
 .export-controls select {
   font-size: 11px;
