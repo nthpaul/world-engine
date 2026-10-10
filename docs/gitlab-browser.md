@@ -9,12 +9,13 @@ operator console plus Python SDK. Older Python worlds remain available as
 
 ```mermaid
 flowchart TB
-    UI[Operator console / Python SDK] --> API[Loopback API and single-attempt admission]
-    API --> TASK[TaskPack: image, fixture, grader, seed, rights]
+    UI[Operator console] --> API[Loopback API and single-attempt admission]
+    SDK[Direct Python SDK] --> RUN
+    API --> TASK[TaskPack: image, fixture, grader, seed]
     API --> RUN[BrowserRunManager]
     RUN --> POLICY[Local Ollama policy / public-AX controls]
     POLICY --> INFER[Already-installed local model]
-    RUN --> JOURNAL[Fsynced hash-chain journal + SQLite index]
+    RUN --> JOURNAL[Fsynced journal + SQLite index / source rights and pins]
     RUN --> DRIVER[Host Playwright worker + BrowserGym AX extraction]
     DRIVER --> RELAY[Loopback fixed-destination relay]
     subgraph Episode[Fresh episode resources]

@@ -37,6 +37,11 @@ def save(path: Path, value: dict) -> None:
         stream.write("\n")
         stream.flush()
         os.fsync(stream.fileno())
+    directory = os.open(path.parent, os.O_RDONLY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
 
 
 def source_identity() -> dict:
@@ -72,6 +77,8 @@ def request(client: httpx.Client, method: str, path: str, *, payload: dict | Non
             index = len(list(evidence.glob("*.json")))
             with (evidence / f"{index:04d}.body").open("xb") as stream:
                 stream.write(raw)
+                stream.flush()
+                os.fsync(stream.fileno())
             save(evidence / f"{index:04d}.json", {"method": method, "path": path, "status": response.status_code,
                                                "bytes": len(raw), "sha256": digest(raw)})
         if response.status_code not in (200, 202) or response.url.host != "127.0.0.1":
