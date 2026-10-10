@@ -81,6 +81,7 @@ def mock_native_transport(monkeypatch, protocol, *, block_chat=None):
 def test_explicit_native_config_defaults_and_strict_evaluation_boundary(alias, protocol):
     config = NativeRunConfig(environment_id="crm-merge", provider_id=alias)
     assert config.evaluation_only is True and config.model is None and config.allow_paid is False
+    assert config.concurrency == 1
     assert config.model_dump()["provider_id"] == alias
     parsed = TypeAdapter(RunConfig | NativeRunConfig).validate_python(config.model_dump())
     assert type(parsed) is NativeRunConfig
@@ -89,6 +90,11 @@ def test_explicit_native_config_defaults_and_strict_evaluation_boundary(alias, p
     for invalid in (False, 1, 0, "true", "false", None):
         with pytest.raises(ValidationError):
             NativeRunConfig(environment_id="crm-merge", provider_id=alias, evaluation_only=invalid)
+    for concurrency in (2, 8):
+        assert NativeRunConfig(environment_id="crm-merge", provider_id=alias, concurrency=concurrency).concurrency == concurrency
+    for invalid in (0, 9, True, 1.0, "2"):
+        with pytest.raises(ValidationError):
+            NativeRunConfig(environment_id="crm-merge", provider_id=alias, concurrency=invalid)
 
 
 @pytest.mark.parametrize("provider_id", ["local", "openai", "anthropic", "scripted-oracle", "unknown", "local-tools-v3"])
@@ -112,6 +118,7 @@ def test_factory_uses_exact_existing_native_class_and_contract_without_contact(a
 def test_legacy_json_factory_and_explicit_native_sdk_are_unchanged():
     config = RunConfig(environment_id="crm-merge", provider_id="local")
     assert config.evaluation_only is False
+    assert config.concurrency == 4
     assert type(make_provider(config)) is HTTPProvider
     assert OllamaToolsProvider(config).provider_protocol == PROTOCOL
     assert OllamaToolsProvider(config, protocol=LEDGER_PROTOCOL).provider_protocol == LEDGER_PROTOCOL
@@ -292,14 +299,25 @@ def test_api_union_admits_native_typed_config_without_execution(alias, protocol)
         response = client.post("/api/runs", json=payload)
         assert response.status_code == 202
         assert type(captured[-1]) is NativeRunConfig and captured[-1].evaluation_only is True
+        assert captured[-1].concurrency == 1
     for value in (False, 1, "true"):
         response = client.post("/api/runs", json={"environment_id": "crm-merge", "provider_id": alias,
                                                   "evaluation_only": value})
         assert response.status_code == 422
     assert len(captured) == 2
+    for concurrency in (2, 8):
+        response = client.post("/api/runs", json={"environment_id": "crm-merge", "provider_id": alias,
+                                                  "concurrency": concurrency})
+        assert response.status_code == 202 and captured[-1].concurrency == concurrency
+    for invalid in (0, 9, True, 1.0, "2"):
+        response = client.post("/api/runs", json={"environment_id": "crm-merge", "provider_id": alias,
+                                                  "concurrency": invalid})
+        assert response.status_code == 422
+    assert len(captured) == 4
     response = client.post("/api/runs", json={"environment_id": "crm-merge", "provider_id": "local"})
     assert response.status_code == 202 and type(captured[-1]) is RunConfig
     assert captured[-1].evaluation_only is False
+    assert captured[-1].concurrency == 4
 
 
 def test_api_union_keeps_unknown_field_errors_redacted():

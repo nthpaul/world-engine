@@ -1044,7 +1044,7 @@ function LaunchDialog({
     episodes: 10,
     seed: 42,
     max_steps: 20,
-    concurrency: 4,
+    concurrency: isNativeProvider(enabledProviders[0]?.id) ? 1 : 4,
     model: defaultModel(enabledProviders[0]),
     allow_paid: false,
     evaluation_only: isNativeProvider(enabledProviders[0]?.id),
@@ -1155,6 +1155,11 @@ function LaunchDialog({
                     allow_paid: false,
                     evaluation_only:
                       isNativeProvider(event.target.value) || config.evaluation_only,
+                    concurrency:
+                      isNativeProvider(event.target.value) &&
+                      !isNativeProvider(config.provider_id)
+                        ? 1
+                        : config.concurrency,
                   });
                 }}
               >
