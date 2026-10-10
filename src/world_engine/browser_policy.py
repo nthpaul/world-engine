@@ -171,10 +171,23 @@ class OllamaBrowserPolicy:
 
 def ax_nodes(text: str) -> list[dict]:
     nodes = []
+    textbox_indent = None
     for line in text.splitlines():
+        indent = len(line) - len(line.lstrip())
+        if textbox_indent is not None and indent <= textbox_indent:
+            textbox_indent = None
         match = re.match(r"\s*(?:\[([a-zA-Z0-9_-]+)\]\s+)?(\w+)\s+('(?:\\.|[^'])*'|\"(?:\\.|[^\"])*\")", line)
         if match:
-            nodes.append({"bid": match[1], "role": match[2], "name": ast.literal_eval(match[3])})
+            node = {"bid": match[1], "role": match[2], "name": ast.literal_eval(match[3])}
+            # AX indentation separates draft text inside an editor from posted activity.
+            if textbox_indent is not None:
+                node["in_textbox"] = True
+            value = re.search(r"\bvalue=('(?:\\.|[^'])*'|\"(?:\\.|[^\"])*\")", line[match.end():])
+            if value:
+                node["value"] = ast.literal_eval(value[1])
+            nodes.append(node)
+            if node["role"] == "textbox":
+                textbox_indent = indent
     return nodes
 
 
@@ -213,7 +226,8 @@ class BrowserReferencePolicy:
             return next((node for node in nodes if node["bid"] and node["role"] == role
                          and (node["name"] == name if exact else name.lower() in node["name"].lower())), None)
 
-        persisted_comment = any(node["role"] == "StaticText" and node["name"] == self.comment for node in nodes)
+        persisted_comment = any(node["role"] == "StaticText" and not node.get("in_textbox")
+                                and node["name"] == self.comment for node in nodes)
         path = urlsplit(observation.url).path
         action = None
         full_page = choose("link", "Open in full page", exact=True)
@@ -258,7 +272,7 @@ class BrowserReferencePolicy:
             else:
                 textbox = choose("textbox", "comment") or choose("textbox", "write") or choose("textbox", "Add a reply", exact=True)
                 if textbox:
-                    filled = bool(history and history[-1]["action"].get("kind") == "fill")
+                    filled = textbox.get("value") == self.comment or bool(history and history[-1]["action"].get("kind") == "fill")
                     if filled:
                         node = choose("button", "Comment", exact=True)
                         if node:
