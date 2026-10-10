@@ -46,10 +46,12 @@ def completed():
             {
                 "id": 1,
                 "project_id": 1,
+                "namespace_id": 4,
                 "state_id": 1,
                 "description": "Deployment reference: REL-2026-1042",
                 "title": "Review",
                 "closed_by_id": None,
+                "updated_by_id": None,
                 "closed_at": None,
                 "updated_at": "2026-10-10T20:00:00Z",
             },
@@ -62,11 +64,14 @@ def completed():
     }
     after = copy.deepcopy(before)
     after["issues"][0].update(
-        state_id=2, closed_by_id=2, closed_at="2026-10-10T20:02:00Z", updated_at="2026-10-10T20:02:00Z"
+        state_id=2,
+        closed_by_id=2,
+        updated_by_id=2,
+        closed_at="2026-10-10T20:02:00Z",
+        updated_at="2026-10-10T20:02:00Z",
     )
     for key, system, body, time in [
         (2, False, "Release checklist verified; ready for closure.", "20:01"),
-        (3, True, "closed", "20:02"),
     ]:
         after["notes"].append(
             {
@@ -84,7 +89,13 @@ def completed():
     after["state_events"] = [
         {
             "state_name": "closed",
-            "attributes": {"id": 1, "issue_id": 1, "user_id": 2, "created_at": "2026-10-10T20:02:00Z"},
+            "attributes": {
+                "id": 1, "issue_id": 1, "user_id": 2, "namespace_id": 4,
+                "created_at": "2026-10-10T20:02:00Z", "state": "closed", "imported_from": "none",
+                "merge_request_id": None, "epic_id": None, "source_commit": None,
+                "source_merge_request_id": None, "close_auto_resolve_prometheus_alert": False,
+                "close_after_error_tracking_resolve": False,
+            },
         }
     ]
     return {
@@ -118,11 +129,71 @@ def test_comment_missing_internal_flag_fails(completed):
     assert verifier.verify(completed)["reward"] == 0.0
 
 
+@pytest.mark.parametrize("updater", [None, True, 2.0, "2", 999])
+def test_updater_must_be_exact_ordinary_actor(completed, updater):
+    completed["final"]["issues"][0]["updated_by_id"] = updater
+    assert not verifier.verify(completed)["passed"]
+
+
+def test_missing_updater_fails(completed):
+    del completed["final"]["issues"][0]["updated_by_id"]
+    assert not verifier.verify(completed)["passed"]
+
+
+def test_missing_requested_comment_fails(completed):
+    completed["final"]["notes"].pop()
+    assert not verifier.verify(completed)["passed"]
+
+
+@pytest.mark.parametrize("field,value", [
+    ("state", "opened"), ("namespace_id", 999), ("namespace_id", True), ("user_id", True),
+    ("issue_id", True), ("source_commit", "forged"), ("source_merge_request_id", 7),
+    ("merge_request_id", 7), ("epic_id", 7), ("imported_from", "github"),
+    ("close_auto_resolve_prometheus_alert", True), ("close_after_error_tracking_resolve", 0),
+    ("created_at", "2026-10-10T20:00:30Z"), ("extra", "unattested"),
+])
+def test_closure_event_contract_and_comment_order(completed, field, value):
+    completed["final"]["state_events"][0]["attributes"][field] = value
+    assert not verifier.verify(completed)["passed"]
+
+
+def test_existing_event_cannot_be_changed(completed):
+    old = copy.deepcopy(completed["final"]["state_events"][0])
+    old["attributes"].update(id=10, state="opened")
+    old["state_name"] = "opened"
+    completed["baseline"]["state_events"].append(copy.deepcopy(old))
+    completed["final"]["state_events"].insert(0, old)
+    assert verifier.verify(completed)["passed"]
+    completed["final"]["state_events"][0]["attributes"]["user_id"] = 999
+    assert not verifier.verify(completed)["passed"]
+
+
+@pytest.mark.parametrize("field", sorted(verifier.STATE_EVENT_FIELDS))
+def test_event_missing_contract_field_fails(completed, field):
+    del completed["final"]["state_events"][0]["attributes"][field]
+    assert not verifier.verify(completed)["passed"]
+
+
+@pytest.mark.parametrize("field,value", [
+    ("description", "different request"), ("namespace_id", 999), ("project_id", 999),
+    ("new_metadata", "unattested"),
+])
+def test_target_immutable_fields_remain_anchored(completed, field, value):
+    completed["final"]["issues"][0][field] = value
+    assert not verifier.verify(completed)["passed"]
+
+
+@pytest.mark.parametrize("time", ["2026-10-10T20:01:30Z", "2026-10-10T20:03:00Z"])
+def test_closure_event_is_between_closure_and_final_update(completed, time):
+    completed["final"]["state_events"][0]["attributes"]["created_at"] = time
+    assert not verifier.verify(completed)["passed"]
+
+
 def test_task_requires_ordinary_comment():
     task = gitlab_task()
     assert "Then close that issue. Use an ordinary comment, not an internal note." in task.instruction
-    assert task.version == "1.0.1"
-    assert task.grader_version == "gitlab-state-v2"
+    assert task.version == "1.0.2"
+    assert task.grader_version == "gitlab-state-v3"
 
 
 def test_early_finish_no_effect_fails(completed):
@@ -150,6 +221,7 @@ def test_unrelated_added_row_fails(completed, table):
         "wrong_issue",
         "wrong_project",
         "wrong_target",
+        "wrong_updater",
         "target_title",
         "outsider_closed",
         "permission",
@@ -167,7 +239,7 @@ def test_corruption_fails(completed, mutation):
         row = dict(state["notes"][1], id=4)
         state["notes"].append(row)
     elif mutation == "duplicate_close":
-        row = dict(state["notes"][2], id=4)
+        row = dict(state["notes"][1], id=4, system=True, note="closed")
         state["notes"].append(row)
     elif mutation == "old_note_changed":
         state["notes"][0]["note"] = "changed"
@@ -183,6 +255,8 @@ def test_corruption_fails(completed, mutation):
         state["notes"][1]["project_id"] = 999
     elif mutation == "wrong_target":
         state["issues"][0]["closed_by_id"] = 999
+    elif mutation == "wrong_updater":
+        state["issues"][0]["updated_by_id"] = 999
     elif mutation == "target_title":
         state["issues"][0]["title"] = "changed"
     elif mutation == "outsider_closed":
@@ -210,7 +284,7 @@ def test_missing_table_fails(completed, table):
     assert not verifier.verify(completed)["passed"]
 
 
-@pytest.mark.parametrize("field", ["state_id", "closed_by_id", "project_id"])
+@pytest.mark.parametrize("field", ["state_id", "closed_by_id", "updated_by_id", "project_id"])
 def test_bool_cannot_forge_numeric_identity(completed, field):
     completed["final"]["issues"][0][field] = True
     assert not verifier.verify(completed)["passed"]

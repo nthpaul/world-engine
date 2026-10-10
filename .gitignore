@@ -12,7 +12,7 @@ __pycache__/
 *.sqlite3.lock
 artifacts/tmp/
 artifacts/gitlab-feasibility/
-artifacts/**/sealed*.json
+artifacts/**/*sealed*.json
 web/node_modules/
 web/dist/
 web/*.tsbuildinfo

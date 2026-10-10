@@ -17,6 +17,11 @@ TABLES = {
     "label_links",
     "state_events",
 }
+STATE_EVENT_FIELDS = {
+    "id", "created_at", "user_id", "issue_id", "merge_request_id", "state", "epic_id", "namespace_id",
+    "close_auto_resolve_prometheus_alert", "close_after_error_tracking_resolve", "source_commit",
+    "source_merge_request_id", "imported_from",
+}
 
 
 def canonical(value):
@@ -157,12 +162,14 @@ def verify(payload):
             ),
             "All unrelated issues remain byte-equivalent in the exported projection.",
         )
-        allowed = {"state_id", "closed_at", "closed_by_id", "updated_at", "lock_version"}
+        allowed = {"state_id", "closed_at", "closed_by_id", "updated_by_id", "updated_at", "lock_version"}
         closed = (
             type(completed.get("state_id")) is int
             and completed["state_id"] == 2
             and type(completed.get("closed_by_id")) is int
             and completed["closed_by_id"] == agent
+            and type(completed.get("updated_by_id")) is int
+            and completed["updated_by_id"] == agent
             and timestamp(completed.get("closed_at"))
             and timestamp(completed.get("updated_at"))
         )
@@ -178,7 +185,6 @@ def verify(payload):
         )
         additions = [row for key, row in new_notes.items() if key not in old_notes]
         comments = [row for row in additions if row.get("system") is False]
-        closures = [row for row in additions if row.get("system") is True]
         scoped = all(
             type(row.get("author_id")) is int
             and row["author_id"] == agent
@@ -197,10 +203,8 @@ def verify(payload):
             and len(comments) == 1
             and comments[0].get("note") == expected["comment"]
             and comments[0].get("internal") is False
-            and len(closures) == 1
-            and closures[0].get("note") == "closed"
-            and len(additions) == 2,
-            "One exact ordinary, non-internal comment and one closure system note; existing notes are preserved.",
+            and len(additions) == 1,
+            "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved.",
         )
         old_events = initial["state_events"]
         events = final["state_events"]
@@ -219,13 +223,25 @@ def verify(payload):
         )
         if event_ok:
             event = delta[0]
+            attributes = event["attributes"]
             event_ok = (
                 event["state_name"] == "closed"
-                and type(event["attributes"].get("issue_id")) is int
-                and event["attributes"].get("issue_id") == target
-                and type(event["attributes"].get("user_id")) is int
-                and event["attributes"].get("user_id") == agent
-                and timestamp(event["attributes"].get("created_at"))
+                and set(attributes) == STATE_EVENT_FIELDS
+                and attributes.get("state") == "closed"
+                and type(attributes.get("issue_id")) is int
+                and attributes["issue_id"] == target
+                and type(attributes.get("user_id")) is int
+                and attributes["user_id"] == agent
+                and type(attributes.get("namespace_id")) is int
+                and type(original.get("namespace_id")) is int
+                and attributes["namespace_id"] == original["namespace_id"]
+                and attributes["imported_from"] == "none"
+                and all(attributes[key] is None for key in (
+                    "merge_request_id", "epic_id", "source_commit", "source_merge_request_id"
+                ))
+                and attributes["close_auto_resolve_prometheus_alert"] is False
+                and attributes["close_after_error_tracking_resolve"] is False
+                and timestamp(attributes.get("created_at"))
             )
         check(
             "closure_certificate",
@@ -233,16 +249,15 @@ def verify(payload):
             "One target closure state event, attributed to the ordinary actor.",
         )
         order_ok = False
-        if closed and len(comments) == len(closures) == len(delta) == 1 and scoped and event_ok:
+        if closed and len(comments) == len(delta) == 1 and scoped and event_ok:
             posted = timestamp(comments[0]["created_at"])
             closed_at = timestamp(completed["closed_at"])
             original_updated = timestamp(original.get("updated_at"))
             order_ok = (
                 original_updated is not None
                 and original_updated <= posted <= closed_at
-                and posted <= timestamp(closures[0]["created_at"])
-                and posted <= timestamp(delta[0]["attributes"]["created_at"])
-                and closed_at <= timestamp(completed["updated_at"])
+                and closed_at <= timestamp(delta[0]["attributes"]["created_at"])
+                <= timestamp(completed["updated_at"])
             )
         check("requested_order", order_ok, "The exact comment precedes authorized closure.")
     except (KeyError, TypeError, ValueError, OverflowError):

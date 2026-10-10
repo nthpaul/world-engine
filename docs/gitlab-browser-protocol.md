@@ -6,6 +6,13 @@ throughput comparison with another provider.
 
 ## Fixed collection
 
+The next collection uses task `1.0.2` and grader `gitlab-state-v3`. Collection
+`20261010-v1`, pinned at `248facd`, remains unchanged: its positive browser control
+posted the requested ordinary comment and closed the target, but the v2 grader
+incorrectly expected a closure system note and rejected GitLab's legitimate
+`updated_by_id` change. The model was never attempted. A fresh collection must
+qualify both controls again; the old outcome is not rewritten or reused.
+
 Run these attempts in the stated order, with no automatic retry. Every attempt
 gets a fresh GitLab instance, database, accounts, network, and browser context.
 
@@ -48,6 +55,11 @@ network-disabled, nonroot verifier container with no app mounts, host socket,
 model credentials, or admin credentials. Record the seal hash and verifier checks.
 Validate the positive control, rejection of the incomplete control, unchanged
 unrelated records and permissions, and cleanup of owned containers/volumes/networks.
+For GitLab 19.4, authorized closure is certified by its persisted state event,
+ordinary actor and updater, not a nonexistent closure system note. Require exactly
+one new ordinary comment, preserve prior notes, and verify that comment predates
+the target closure and state event. Reject extra comments, system notes, events,
+wrong actors, internal notes and unrelated changes.
 
 ## Operator QA
 
