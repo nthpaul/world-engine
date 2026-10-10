@@ -52,29 +52,36 @@ export async function preflightReceipt(file) {
     throw new Error("Receipt must be one bounded regular JSONL file, not a symlink");
   const bytes = await readFile(file);
   if (bytes.length > receiptLimit) throw new Error("Receipt exceeds its byte bound");
-  const canonicalEpisode = python([
+  const parsed = JSON.parse(python([
     "import json,sys",
+    "from uuid import UUID",
     "from world_engine.models import canonical_json",
     "from world_engine.provider_records import usage_summary",
     "from world_engine.rollout import replay",
     "lines=sys.stdin.read().splitlines()",
     "if len(lines)!=1: raise ValueError('one original wrapper required')",
     "wrapper=json.loads(lines[0]); episode=wrapper['episode']; p=episode['provenance']",
-    "if wrapper.get('schema')!='world-engine.evaluation-trace.v1': raise ValueError('wrapper schema')",
     "if wrapper.get('evaluation_only') is not True or wrapper.get('training_eligible') is not False: raise ValueError('wrapper flags')",
-    "if wrapper.get('exact_envelope_preserved') is not True: raise ValueError('exact envelope required')",
     "if p.get('evaluation_only') is not True or p.get('training_eligible') is not False: raise ValueError('episode flags')",
     "if p.get('provider_protocol') not in ('ollama-tools-v1','ollama-tools-ledger-v2'): raise ValueError('protocol')",
-    "slot=wrapper['slot']",
-    "if type(slot.get('index')) is not int or slot['index']<0 or type(slot.get('seed')) is not int: raise ValueError('slot types')",
-    "if slot['protocol']!=p['provider_protocol'] or canonical_json(slot['seed'])!=canonical_json(episode['seed']): raise ValueError('slot identity')",
+    "if 'schema' in wrapper:",
+    " if wrapper['schema']!='world-engine.evaluation-trace.v1' or wrapper.get('exact_envelope_preserved') is not True: raise ValueError('import wrapper')",
+    " slot=wrapper['slot']",
+    " if type(slot.get('index')) is not int or slot['index']<0 or type(slot.get('seed')) is not int: raise ValueError('slot types')",
+    " if slot['protocol']!=p['provider_protocol'] or canonical_json(slot['seed'])!=canonical_json(episode['seed']): raise ValueError('slot identity')",
+    " kind='imported-operator'; run_id=None",
+    "else:",
+    " if set(wrapper)!={'evaluation_only','training_eligible','run_id','episode'}: raise ValueError('API wrapper fields')",
+    " run_id=wrapper['run_id']",
+    " if type(run_id) is not str or str(UUID(run_id))!=run_id: raise ValueError('API run identity')",
+    " kind='native-api'; slot=None",
     "if p.get('provider_class')!='world_engine.ollama_tools.OllamaToolsProvider': raise ValueError('native provider required')",
     "if canonical_json(episode['usage'])!=canonical_json(usage_summary(episode['provider_events'])): raise ValueError('usage mismatch')",
     "if replay(episode).get('verified') is not True: raise ValueError('replay')",
-    "print(canonical_json(episode))",
-  ].join("\n"), bytes).trim();
-  const result = { episode: JSON.parse(canonicalEpisode), slot: JSON.parse(bytes.toString("utf8")).slot,
-    canonical_episode: canonicalEpisode, episode_sha256: sha256(canonicalEpisode), replay_verified: true };
+    "print(canonical_json({'canonical_episode':canonical_json(episode),'receipt_kind':kind,'slot':slot,'receipt_run_id':run_id}))",
+  ].join("\n"), bytes).trim());
+  const result = { ...parsed, episode: JSON.parse(parsed.canonical_episode),
+    episode_sha256: sha256(parsed.canonical_episode), replay_verified: true };
   assert.ok(protocols.includes(result.episode.provenance.provider_protocol));
   return { ...result, receipt_sha256: sha256(bytes), receipt_bytes: bytes.length, raw: bytes };
 }
@@ -82,6 +89,7 @@ export async function preflightReceipt(file) {
 export async function prepare(options) {
   await reserveFreshOutput(options.output);
   const receipt = await preflightReceipt(options.receipt);
+  if (receipt.receipt_kind === "native-api") assert.equal(receipt.receipt_run_id, options.runId);
   const baseURL = localBaseURL(process.env.WORLD_ENGINE_UI_URL ?? "http://127.0.0.1:5173");
   return { receipt, baseURL };
 }
@@ -91,7 +99,20 @@ export function validateApiDetail(receipt, rawDetail, runId) {
     throw new Error("API detail exceeds its bound");
   const detail = JSON.parse(rawDetail);
   assert.equal(detail.id, runId);
-  assert.match(detail.label, /^Imported operator receipt\b/);
+  if (receipt.receipt_kind === "native-api") {
+    assert.equal(receipt.receipt_run_id, runId);
+    assert.equal(detail.label, "native-api-smoke-v1");
+    assert.equal(detail.config.label, "native-api-smoke-v1");
+    assert.equal(detail.config.provider_id, receipt.episode.provenance.provider_protocol === "ollama-tools-v1"
+      ? "local-tools" : "local-tools-ledger");
+    assert.equal(detail.config.concurrency, 1);
+    assert.equal(detail.config.max_steps, 20);
+    assert.equal(detail.config.timeout_seconds, 35);
+    assert.ok(Number.isFinite(detail.elapsed_seconds) && detail.elapsed_seconds >= receipt.episode.elapsed_seconds);
+  } else {
+    assert.match(detail.label, /^Imported operator receipt\b/);
+    assert.equal(detail.elapsed_seconds, receipt.episode.elapsed_seconds);
+  }
   assert.equal(detail.config.evaluation_only, true);
   assert.equal(detail.config.episodes, 1);
   assert.equal(detail.episodes.length, 1);
@@ -100,7 +121,6 @@ export function validateApiDetail(receipt, rawDetail, runId) {
   assert.equal(detail.config.model, receipt.episode.provenance.model);
   assert.equal(detail.config.allow_paid, false);
   assert.equal(detail.status, receipt.episode.status);
-  assert.equal(detail.elapsed_seconds, receipt.episode.elapsed_seconds);
   assert.equal(operatorEpisodeJsonl([rawDetail]).trim(), receipt.canonical_episode);
   return detail;
 }
@@ -214,12 +234,13 @@ async function main(options) {
     assert.ok(detailResponse.ok());
     const rawDetail = await detailResponse.text();
     const detail = validateApiDetail(receipt, rawDetail, options.runId);
-    check("Imported run preserves the complete episode JSON values, numeric types, ID/index and provenance", true);
+    check("Original receipt preserves the complete episode JSON values, numeric types, ID/index and provenance", true);
     await writeFile(path.join(options.output, "original-receipt.jsonl"), receipt.raw, { flag: "wx" });
     await writeFile(path.join(options.output, "api-detail.json"), rawDetail, { flag: "wx" });
     await page.goto(`/#runs/${encodeURIComponent(options.runId)}`);
     await page.getByRole("heading", { name: detail.label, exact: true }).waitFor();
-    check("Run is visibly labelled an imported operator receipt", detail.label.startsWith("Imported operator receipt"));
+    check(receipt.receipt_kind === "native-api" ? "Run retains its original native API smoke label"
+      : "Run is visibly labelled an imported operator receipt", true);
     const metric = page.locator(".detail-metrics .metric").filter({ hasText: "Step throughput" });
     check("Throughput is explicitly labelled steps/s", (await metric.innerText()).includes("steps/s"));
     check("Inspector preserves actual termination", (await page.locator(".episode-strip").innerText())
@@ -299,9 +320,12 @@ async function main(options) {
     const finalSource = await controllerSource();
     assert.deepEqual(finalSource, source);
     const report = { generated_at: new Date().toISOString(), phase: "native-read-only", base_url: baseURL,
-      run_id: options.runId, imported_run_label: detail.label, selection_scope: "declared slot for inspection, not performance selection",
+      run_id: options.runId, run_label: detail.label, receipt_kind: receipt.receipt_kind,
+      imported_run_label: receipt.receipt_kind === "imported-operator" ? detail.label : null,
+      selection_scope: "declared original receipt for inspection, not performance selection",
       receipt: { file: options.receipt, bytes: receipt.receipt_bytes, sha256: receipt.receipt_sha256,
-        episode_sha256: receipt.episode_sha256, slot: receipt.slot, replay_verified: receipt.replay_verified },
+        episode_sha256: receipt.episode_sha256, slot: receipt.slot, receipt_run_id: receipt.receipt_run_id,
+        replay_verified: receipt.replay_verified },
       controller_source: source, episode_provenance: receipt.episode.provenance,
       actual_usage: receipt.episode.usage, termination: receipt.episode.termination,
       checks, downloads, browser_errors: errors, blocked_requests: blocked,
