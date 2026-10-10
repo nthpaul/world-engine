@@ -1,0 +1,280 @@
+{
+  "schema": "world-engine.native-controls-qa.v1",
+  "generated_at": "2026-10-10T11:38:14.987Z",
+  "plan": {
+    "schema": "world-engine.native-controls-plan.v1",
+    "protocol": {
+      "id": "native-controls-read-only-v1",
+      "viewports": [
+        {
+          "width": 1440,
+          "height": 960
+        },
+        {
+          "width": 390,
+          "height": 844
+        },
+        {
+          "width": 360,
+          "height": 844
+        }
+      ],
+      "providers": [
+        "local-tools",
+        "local-tools-ledger"
+      ],
+      "model": "qwen3:8b",
+      "legacy_default_concurrency": 4,
+      "native_default_concurrency": 1,
+      "explicit_native_concurrency": 2,
+      "evaluation_only": true,
+      "health_version": "0.1.0",
+      "allowed_methods": [
+        "GET"
+      ],
+      "allowed_api_paths": [
+        "/api/health",
+        "/api/providers",
+        "/api/environments",
+        "/api/runs"
+      ],
+      "overall_ms": 120000,
+      "finalization_reserve_ms": 15000,
+      "artifact_cap_bytes": 67108864,
+      "report_reserve_bytes": 1048576,
+      "new_rollouts": 0,
+      "downloads": 0,
+      "imports": 0,
+      "inference_requests": 0
+    },
+    "protocol_sha256": "d05f475561417eafb642317e84a1297e001c70eddbf4da6e62bfa1f46753ec77",
+    "status": "plan-only; no source commands, browser, output, API or model contact"
+  },
+  "source": {
+    "revision": "6bdec4f0281e51d502c505bda502ae5fe0c3dd2a",
+    "source_dirty": false,
+    "checkout_dirty": true,
+    "scope": [
+      "src/world_engine",
+      "web/src",
+      "web/package.json",
+      "web/package-lock.json",
+      "web/vite.config.ts",
+      "web/index.html",
+      "pyproject.toml",
+      "uv.lock",
+      "scripts/ui-qa.mjs",
+      "scripts/qa-native-controls.mjs",
+      "tests/test_native_controls_qa.py",
+      "docs/native-controls-qa-protocol.md"
+    ],
+    "files": {
+      "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+      "src/world_engine/__main__.py": "6443b178672d8f66981168d66a4cc41a86b118c871fdbdff8d99df4be1b3951b",
+      "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+      "src/world_engine/api.py": "12d7d71ffda3df3705a100303f1310413c5ed11b4543ea6d4baf25c9fd83c587",
+      "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+      "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+      "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+      "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+      "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+      "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+      "src/world_engine/native_config.py": "77aa30a43bc1b90c1bbfa5d4c84d0836294c0b697e5aa4ef2eb16f794779f51c",
+      "src/world_engine/native_ledger.py": "986b65d8de1916455471cf4f5c3a528c5c653be1d56fb1bcaee073b68b2dfd5e",
+      "src/world_engine/ollama_tools.py": "3936518027cb9f6e4562ce1e1627353dbde41c11d1646757171bce5bdd3af435",
+      "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+      "src/world_engine/providers.py": "e68a7b6093ef45c7b19c69d7f2dff789112445d5c9e91b4c338957420798c26f",
+      "src/world_engine/rollout.py": "e51c3f8168b127574d02871e4a622e15051a3bc152473f678711432350f20f3d",
+      "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+      "web/src/App.tsx": "31dfca64336a86f884be04d61885466b4eac0a8463f9ef7b8457562b44fd61e9",
+      "web/src/api.ts": "d2c0062a9d0f6c05b24016e641213b123c45658af617d7988a6428650e23ce05",
+      "web/src/main.tsx": "bf82136bef7bae65abd3f19b1e348b4d163b24b42610f556be1f708524add794",
+      "web/src/styles.css": "04ff5cfa4f1cb5ad095c22b5a87771693db0416ebff1a210f9144e437c8a3859",
+      "web/package.json": "cdd731e574c39e77a570b98968a2e36a479d6c26ed8131917fdca16bf0191006",
+      "web/package-lock.json": "61cf0d6fe5aea4c445bf6e744dabed4a089dae3ba057485b5740dfa7d8816f94",
+      "web/vite.config.ts": "e33334557d4981f6be7fc699a5f1b9818afdc0c9059ef2884a04ed1a34b9e648",
+      "web/index.html": "c3d0cbe811be1a5fd93e6d323dbec39e5b7fd14dd7c59f1bc3db9a51897ef175",
+      "pyproject.toml": "6c352c613b9a0d428c6b1bf0979c27595b119c22b50b4a26a92210a2e461412e",
+      "uv.lock": "a65eda4a34998fe5978fde9ef84ef99e94ada85d2a8e574e4e6c3e9d70c20034",
+      "scripts/ui-qa.mjs": "0335fd062d3a489f9d90a3d095c39fba5f0eeb137cc96bde7adeee51dc858fc6",
+      "scripts/qa-native-controls.mjs": "1e63bb225c635ab1f000905c9398369f6ed936559dbc618cc49b524d461a50c0",
+      "tests/test_native_controls_qa.py": "6e7e774be0cb7116816425b1fc1ce7112ca9cd56a4b81a15630718d418b930d3",
+      "docs/native-controls-qa-protocol.md": "cc33dda7cc6864a360f89265fbfe1f62bf7e0c5f6a80f756db4ebe15a3f3a59c"
+    }
+  },
+  "api_startup_revision_declared": "6bdec4f0281e51d502c505bda502ae5fe0c3dd2a",
+  "api_source_attestation": "operator-declared startup revision, not proven by health package version or remote attestation",
+  "checks": [
+    "Health package version and available native local catalog match the declared public fixture",
+    "1440: local-tools defaults to one worker with locked evaluation and public local model",
+    "1440: local-tools-ledger defaults to one worker with locked evaluation and public local model",
+    "1440: explicit two workers persist between native protocols",
+    "1440: legacy local controls remain editable",
+    "390: local-tools defaults to one worker with locked evaluation and public local model",
+    "390: local-tools-ledger defaults to one worker with locked evaluation and public local model",
+    "390: explicit two workers persist between native protocols",
+    "390: legacy local controls remain editable",
+    "360: local-tools defaults to one worker with locked evaluation and public local model",
+    "360: local-tools-ledger defaults to one worker with locked evaluation and public local model",
+    "360: explicit two workers persist between native protocols",
+    "360: legacy local controls remain editable",
+    "No mutation, redirect, nonlocal request or browser error during configuration inspection",
+    "Source scope remained pinned through finalization"
+  ],
+  "browser_errors": [],
+  "blocked_requests": [],
+  "requests": {
+    "GET": 24
+  },
+  "get_paths": {
+    "<ui-asset>": 16,
+    "/api/health": 2,
+    "/api/environments": 2,
+    "/api/providers": 2,
+    "/api/runs": 2
+  },
+  "api_mutations": 0,
+  "new_rollouts": 0,
+  "downloads": 0,
+  "imports": 0,
+  "inference_requests": 0,
+  "suppressed_websockets": 2,
+  "scope": "configuration inspection only; not a native rollout, historical receipt inspection, performance result or model execution proof",
+  "video_cap_scope": "published artifact cap; transient Playwright video is size-checked after close, not a hard recording disk quota",
+  "deadline_scope": "cooperative trusted browser operations and finalization; not hard preemption",
+  "native_catalog": [
+    {
+      "id": "local-tools",
+      "configured": true,
+      "kind": "local",
+      "requires_opt_in": false,
+      "has_exact_public_qwen3_8b": true
+    },
+    {
+      "id": "local-tools-ledger",
+      "configured": true,
+      "kind": "local",
+      "requires_opt_in": false,
+      "has_exact_public_qwen3_8b": true
+    }
+  ],
+  "api_health": {
+    "status": "ok",
+    "version": "0.1.0",
+    "active_runs": 0,
+    "paid_calls_enabled": false
+  },
+  "browser_cleanup": "completed",
+  "video": "controls.webm",
+  "source_post": {
+    "revision": "6bdec4f0281e51d502c505bda502ae5fe0c3dd2a",
+    "source_dirty": false,
+    "checkout_dirty": true,
+    "scope": [
+      "src/world_engine",
+      "web/src",
+      "web/package.json",
+      "web/package-lock.json",
+      "web/vite.config.ts",
+      "web/index.html",
+      "pyproject.toml",
+      "uv.lock",
+      "scripts/ui-qa.mjs",
+      "scripts/qa-native-controls.mjs",
+      "tests/test_native_controls_qa.py",
+      "docs/native-controls-qa-protocol.md"
+    ],
+    "files": {
+      "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+      "src/world_engine/__main__.py": "6443b178672d8f66981168d66a4cc41a86b118c871fdbdff8d99df4be1b3951b",
+      "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+      "src/world_engine/api.py": "12d7d71ffda3df3705a100303f1310413c5ed11b4543ea6d4baf25c9fd83c587",
+      "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+      "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+      "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+      "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+      "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+      "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+      "src/world_engine/native_config.py": "77aa30a43bc1b90c1bbfa5d4c84d0836294c0b697e5aa4ef2eb16f794779f51c",
+      "src/world_engine/native_ledger.py": "986b65d8de1916455471cf4f5c3a528c5c653be1d56fb1bcaee073b68b2dfd5e",
+      "src/world_engine/ollama_tools.py": "3936518027cb9f6e4562ce1e1627353dbde41c11d1646757171bce5bdd3af435",
+      "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+      "src/world_engine/providers.py": "e68a7b6093ef45c7b19c69d7f2dff789112445d5c9e91b4c338957420798c26f",
+      "src/world_engine/rollout.py": "e51c3f8168b127574d02871e4a622e15051a3bc152473f678711432350f20f3d",
+      "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+      "web/src/App.tsx": "31dfca64336a86f884be04d61885466b4eac0a8463f9ef7b8457562b44fd61e9",
+      "web/src/api.ts": "d2c0062a9d0f6c05b24016e641213b123c45658af617d7988a6428650e23ce05",
+      "web/src/main.tsx": "bf82136bef7bae65abd3f19b1e348b4d163b24b42610f556be1f708524add794",
+      "web/src/styles.css": "04ff5cfa4f1cb5ad095c22b5a87771693db0416ebff1a210f9144e437c8a3859",
+      "web/package.json": "cdd731e574c39e77a570b98968a2e36a479d6c26ed8131917fdca16bf0191006",
+      "web/package-lock.json": "61cf0d6fe5aea4c445bf6e744dabed4a089dae3ba057485b5740dfa7d8816f94",
+      "web/vite.config.ts": "e33334557d4981f6be7fc699a5f1b9818afdc0c9059ef2884a04ed1a34b9e648",
+      "web/index.html": "c3d0cbe811be1a5fd93e6d323dbec39e5b7fd14dd7c59f1bc3db9a51897ef175",
+      "pyproject.toml": "6c352c613b9a0d428c6b1bf0979c27595b119c22b50b4a26a92210a2e461412e",
+      "uv.lock": "a65eda4a34998fe5978fde9ef84ef99e94ada85d2a8e574e4e6c3e9d70c20034",
+      "scripts/ui-qa.mjs": "0335fd062d3a489f9d90a3d095c39fba5f0eeb137cc96bde7adeee51dc858fc6",
+      "scripts/qa-native-controls.mjs": "1e63bb225c635ab1f000905c9398369f6ed936559dbc618cc49b524d461a50c0",
+      "tests/test_native_controls_qa.py": "6e7e774be0cb7116816425b1fc1ce7112ca9cd56a4b81a15630718d418b930d3",
+      "docs/native-controls-qa-protocol.md": "cc33dda7cc6864a360f89265fbfe1f62bf7e0c5f6a80f756db4ebe15a3f3a59c"
+    }
+  },
+  "artifact_files": {
+    "1440-legacy-editable.png": {
+      "bytes": 198924,
+      "sha256": "dd73a96db2a5631475fc124033efeab08caf82ba098dfd477c156a60404010a1"
+    },
+    "1440-local-tools-defaults.png": {
+      "bytes": 198700,
+      "sha256": "c842d751da900be80aad46b43d9528ba0361eadc75bd6046263a7c336d4d5eb8"
+    },
+    "1440-local-tools-ledger-defaults.png": {
+      "bytes": 198725,
+      "sha256": "693d055ff11bab96b92b0d9b1a0181682d59d30f0dc6d5e88224f3d2200222e3"
+    },
+    "1440-native-explicit-two.png": {
+      "bytes": 198774,
+      "sha256": "ff5328951761f70f19403c9b1e57d20d6b693543677f8699611a6c3f09254df4"
+    },
+    "360-legacy-editable.png": {
+      "bytes": 46168,
+      "sha256": "fb6667a41093c7fd6ba7292d485cf6ee5215dc3346c27a467323f464ea87b80f"
+    },
+    "360-local-tools-defaults.png": {
+      "bytes": 46023,
+      "sha256": "9d2a6be49400d31123a371a2d9fd5353f57b2807e468e3d7f07679380a773ed3"
+    },
+    "360-local-tools-ledger-defaults.png": {
+      "bytes": 46087,
+      "sha256": "5ad29e15f33cda3f0da422b74f6282968786d095b4cff80a6ffb7672068d9264"
+    },
+    "360-native-explicit-two.png": {
+      "bytes": 46124,
+      "sha256": "a922a1692ba352ba25cfb476494ed112a7147ba3c5f9010354c787a6114ec62f"
+    },
+    "390-legacy-editable.png": {
+      "bytes": 46181,
+      "sha256": "81eb0dfb880e5e3997bfaa10ccc8fa5071a16267381b819730e55bb509fcbb20"
+    },
+    "390-local-tools-defaults.png": {
+      "bytes": 46072,
+      "sha256": "16d7728ce67b90a62ec17559a755461c36378666e821eb8c1bd0db11347c92d5"
+    },
+    "390-local-tools-ledger-defaults.png": {
+      "bytes": 46136,
+      "sha256": "ad62c90527918541449f957e85907f517fef9c9bbaf60fada704abe0163ca507"
+    },
+    "390-native-explicit-two.png": {
+      "bytes": 46245,
+      "sha256": "28856699a15d982057d212ef2899cc8337826d83a44113add28c50f32f4b9a6b"
+    },
+    "controls.webm": {
+      "bytes": 606969,
+      "sha256": "37632c423173d0ecf9b865bbc4e0f2960d4ccd4a7e76190c6b7e27d7397d8024"
+    }
+  },
+  "elapsed_seconds": 2.135,
+  "status": "completed",
+  "artifacts_bytes_before_report": 1771128,
+  "report_bytes": 13611,
+  "artifact_total_bytes": 1784739
+}
