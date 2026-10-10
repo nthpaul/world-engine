@@ -1,0 +1,51 @@
+from pathlib import Path
+
+import pytest
+
+from world_engine.browser_contracts import BrowserError
+from world_engine.browser_driver import allowed_app_url, app_origin, artifact_descriptor
+
+ORIGIN = "http://127.0.0.1:8929"
+
+
+@pytest.mark.parametrize("url", [
+    "https://example.com", "http://localhost:8929", "http://127.0.0.1:8000/api/browser/attempts",
+    "file:///etc/passwd", "javascript:alert(1)", "http://user:secret@127.0.0.1:8929/",
+    "http://127.0.0.1:8929/admin", "http://127.0.0.1:8929/api/v4/projects",
+    "http://127.0.0.1:8929/%61dmin/users", "http://127.0.0.1:8929/-/metrics",
+])
+def test_browser_navigation_rejects_other_origins_and_admin_documents(url):
+    assert allowed_app_url(url, ORIGIN, document=True) is False
+
+
+def test_browser_internal_app_requests_are_allowed_but_not_agent_api_navigation():
+    url = ORIGIN + "/api/graphql"
+    assert allowed_app_url(url, ORIGIN) is True
+    assert allowed_app_url(url, ORIGIN, document=True) is False
+    assert allowed_app_url(ORIGIN + "/root/release-operations/-/issues/2", ORIGIN, document=True) is True
+
+
+@pytest.mark.parametrize("value", ["http://localhost:8929", "http://127.0.0.1:8929/", "http://127.0.0.1:8929/path",
+                                     "http://secret@127.0.0.1:8929", "http://127.0.0.1:8929?token=private"])
+def test_operator_origin_requires_exact_literal_loopback(value):
+    with pytest.raises(BrowserError):
+        app_origin(value)
+
+
+def test_browser_artifact_cannot_follow_symlink_or_escape_root(tmp_path):
+    root = tmp_path / "episode"
+    root.mkdir()
+    outside = tmp_path / "secret"
+    outside.write_bytes(b"do not export")
+    link = root / "image.png"
+    link.symlink_to(outside)
+    with pytest.raises(BrowserError):
+        artifact_descriptor(root, link, "screenshot", "image/png")
+    folder = root / "linked"
+    folder.symlink_to(tmp_path, target_is_directory=True)
+    with pytest.raises(BrowserError):
+        artifact_descriptor(root, folder / "secret", "screenshot", "image/png")
+    image = root / "real.png"
+    image.write_bytes(b"known fixture")
+    assert artifact_descriptor(root, image, "screenshot", "image/png").id == "real.png"
+    assert isinstance(Path(image), Path)
