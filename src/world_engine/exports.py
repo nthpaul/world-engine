@@ -33,6 +33,7 @@ def json_training_compatible(episode: JsonObject) -> bool:
     provenance = episode["provenance"]
     return (provenance.get("provider_protocol", "workflow-json-v1") == "workflow-json-v1"
             and provenance.get("provider_class") != "world_engine.ollama_tools.OllamaToolsProvider"
+            and provenance.get("provider_record_calls") is not True
             and provenance.get("training_eligible", True) is not False and not episode.get("provider_events"))
 
 

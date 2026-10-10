@@ -120,7 +120,7 @@ def export_episode(episode: JsonObject, *, run_id: str | None = None) -> JsonObj
         output["extra"]["world_engine"]["recorded_provider_usage"] = copy.deepcopy(episode["usage"])
         output["notes"] = (
             "Text-only normalized actions with export-derived tool IDs; not a native chronological transcript. "
-            "Controller context is separate from bounded exact native request/response evidence in extra. "
+            "Controller context is separate from bounded exact provider request/response evidence in extra. "
             "Completeness flags distinguish full bodies from observed prefixes; times are collector observations. "
             "Reported model names/catalog digests do not attest execution or frozen weights. "
             "Token IDs, action loss masks, behavior logprobs and costs are not available. "

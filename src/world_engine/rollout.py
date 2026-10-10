@@ -15,7 +15,15 @@ from pathlib import Path
 from world_engine import provider_records
 from world_engine.environments import make_environment
 from world_engine.models import JsonObject, RunConfig, digest, utc_now
-from world_engine.providers import SYSTEM_PROMPT, Provider, ProviderError, make_provider, policy_messages
+from world_engine.providers import (
+    JSON_EVIDENCE_PROTOCOL,
+    SYSTEM_PROMPT,
+    Provider,
+    ProviderError,
+    make_provider,
+    policy_messages,
+    reported_decision_usage,
+)
 from world_engine.store import Store
 
 GRADER_VERSION = "1.0.0"
@@ -109,15 +117,23 @@ async def rollout(config: RunConfig, index: int, provider: Provider | None = Non
         provenance["provider_id"] = "custom"
         provenance["model"] = getattr(provider, "model", provider_identity)
     provider_protocol = getattr(provider, "provider_protocol", POLICY_VERSION)
+    if hasattr(provider, "record_calls"):
+        provenance["provider_record_calls"] = provider.record_calls
+    if getattr(provider, "tracks_reported_usage", False):
+        provenance["usage_accounting"] = "reported-http-decisions-v1"
     if provider_protocol != POLICY_VERSION:
         provenance["provider_protocol"] = provider_protocol
         provenance["training_eligible"] = False
         if hasattr(provider, "evidence_metadata"):
             provenance["provider_evidence"] = provider.evidence_metadata()
-    provenance["policy_hash"] = digest({"provider_id": provenance["provider_id"], "provider_class": provider_identity,
-                                        "provider_source_hash": provider_source_hash, "model": provenance["model"],
-                                        "model_digest": provenance["model_digest"], "policy_code_hash": POLICY_CODE_HASH,
-                                        "system_prompt_hash": provenance["system_prompt_hash"], "temperature": 0})
+    policy_configuration = {"provider_id": provenance["provider_id"], "provider_class": provider_identity,
+                            "provider_source_hash": provider_source_hash, "model": provenance["model"],
+                            "model_digest": provenance["model_digest"], "policy_code_hash": POLICY_CODE_HASH,
+                            "system_prompt_hash": provenance["system_prompt_hash"], "temperature": 0}
+    if provider_protocol == JSON_EVIDENCE_PROTOCOL:
+        policy_configuration.update(provider_protocol=provider_protocol, provider_record_calls=True,
+                                    provider_evidence_hash=digest(provenance["provider_evidence"]))
+    provenance["policy_hash"] = digest(policy_configuration)
     trace: list[JsonObject] = []
     provider_events, recorder_token = provider_records.begin_episode()
     started = time.perf_counter()
@@ -169,6 +185,8 @@ async def rollout(config: RunConfig, index: int, provider: Provider | None = Non
         episode["provider_recording"] = {"schema": provider_records.RECORD_SCHEMA,
                                          "durability": "finalized episode only; not process-crash durable"}
         episode["usage"] = provider_records.usage_summary(provider_events)
+    elif getattr(provider, "tracks_reported_usage", False):
+        episode["usage"] = reported_decision_usage(trace, termination)
     return episode
 
 
@@ -298,10 +316,13 @@ def _replay(episode: JsonObject) -> JsonObject:
             raise ValueError(f"{label} differs from the replayed episode")
 
     provenance = episode["provenance"]
+    if "provider_record_calls" in provenance and type(provenance["provider_record_calls"]) is not bool:
+        raise ValueError("provider recording mode must be boolean")
     if (provenance.get("provider_class") == "world_engine.ollama_tools.OllamaToolsProvider"
             and provenance.get("provider_protocol") != "ollama-tools-v1"):
         raise ValueError("native provider is missing its native protocol contract")
-    native_pairs = None
+    provider_pairs = None
+    evidence_label = "native"
     if provenance.get("provider_protocol") == "ollama-tools-v1":
         from world_engine.ollama_tools import PROTOCOL, contract, module_hashes, verify_exchange
         evidence = provenance["provider_evidence"]
@@ -310,7 +331,31 @@ def _replay(episode: JsonObject) -> JsonObject:
         matches(evidence["native_contract"], contract(), "native contract")
         matches(evidence["native_contract_hash"], digest(contract()), "native contract hash")
         matches(provenance["training_eligible"], False, "native training eligibility")
-        native_pairs = provider_records.validate_pairs(episode["provider_events"], PROTOCOL)
+        provider_pairs = provider_records.validate_pairs(episode["provider_events"], PROTOCOL)
+    elif provenance.get("provider_protocol") == JSON_EVIDENCE_PROTOCOL:
+        from world_engine.providers import (
+            HTTPProvider,
+            json_evidence_contract,
+            json_evidence_module_hashes,
+            verify_json_exchange,
+        )
+        evidence_label = "JSON"
+        evidence = provenance["provider_evidence"]
+        for key, value in json_evidence_module_hashes().items():
+            matches(evidence[key], value, f"JSON {key}")
+        matches(evidence["json_contract"], json_evidence_contract(), "JSON contract")
+        matches(evidence["json_contract_hash"], digest(json_evidence_contract()), "JSON contract hash")
+        matches(provenance["provider_record_calls"], True, "JSON recording mode")
+        matches(provenance["provider_id"], "local", "JSON provider kind")
+        matches(provenance["provider_class"], "world_engine.providers.HTTPProvider", "JSON provider class")
+        matches(provenance["provider_source_hash"], source_fingerprint(HTTPProvider), "JSON provider source")
+        matches(provenance["policy_code_hash"], POLICY_CODE_HASH, "JSON policy source")
+        matches(provenance["training_eligible"], False, "JSON training eligibility")
+        provider_pairs = provider_records.validate_pairs(episode["provider_events"], JSON_EVIDENCE_PROTOCOL)
+        verify_exchange = verify_json_exchange
+    elif (provenance.get("provider_record_calls") is True
+          or any(event.get("protocol") == JSON_EVIDENCE_PROTOCOL for event in episode.get("provider_events", []))):
+        raise ValueError("recorded JSON provider is missing its protocol contract")
     if type(episode["seed"]) is not int or not 0 <= episode["seed"] < 2 ** 31:
         raise ValueError("episode seed is invalid")
     if not isinstance(episode["trace"], list) or len(episode["trace"]) > 100:
@@ -338,10 +383,14 @@ def _replay(episode: JsonObject) -> JsonObject:
                           "lineage_id": lineage_id, "scenario_id": scenario_id,
                           "split": scenario_split(lineage_id)}.items():
         matches(episode[key], expected, key)
-    policy_hash = digest({"provider_id": provenance["provider_id"], "provider_class": provenance["provider_class"],
-                          "provider_source_hash": provenance["provider_source_hash"], "model": provenance["model"],
-                          "model_digest": provenance["model_digest"], "policy_code_hash": provenance["policy_code_hash"],
-                          "system_prompt_hash": provenance["system_prompt_hash"], "temperature": 0})
+    policy_configuration = {"provider_id": provenance["provider_id"], "provider_class": provenance["provider_class"],
+                            "provider_source_hash": provenance["provider_source_hash"], "model": provenance["model"],
+                            "model_digest": provenance["model_digest"], "policy_code_hash": provenance["policy_code_hash"],
+                            "system_prompt_hash": provenance["system_prompt_hash"], "temperature": 0}
+    if provenance.get("provider_protocol") == JSON_EVIDENCE_PROTOCOL:
+        policy_configuration.update(provider_protocol=JSON_EVIDENCE_PROTOCOL, provider_record_calls=True,
+                                    provider_evidence_hash=digest(provenance["provider_evidence"]))
+    policy_hash = digest(policy_configuration)
     matches(provenance["policy_hash"], policy_hash, "policy configuration hash")
     history = []
     for index, step in enumerate(episode["trace"]):
@@ -349,25 +398,27 @@ def _replay(episode: JsonObject) -> JsonObject:
             raise ValueError("episode trace continues after the world finished")
         matches(step["index"], index, "step index")
         matches(step["policy_input"], policy_messages(world.observe(), history), f"policy input at step {index}")
-        if native_pairs is not None:
-            if index >= len(native_pairs):
-                raise ValueError("native executed action has no recorded request")
-            start, end = native_pairs[index]
+        if provider_pairs is not None:
+            if index >= len(provider_pairs):
+                raise ValueError(f"{evidence_label} executed action has no recorded request")
+            start, end = provider_pairs[index]
             verify_exchange(start, end, provenance["model"], world.observe(), history, step["action"])
-            matches(step["usage"], end["usage"], f"native usage at step {index}")
+            matches(step["usage"], end["usage"], f"{evidence_label} usage at step {index}")
         transition = world.step(step["action"])
         for key in ("state_hash", "result", "observation"):
             matches(step[key], transition[key], f"replay diverged: {key} at step {index}")
         history.append(step)
-    if native_pairs is not None:
-        if not len(history) <= len(native_pairs) <= len(history) + 1:
-            raise ValueError("native request count differs from executed decisions")
-        if len(native_pairs) > len(history):
+    if provider_pairs is not None:
+        if not len(history) <= len(provider_pairs) <= len(history) + 1:
+            raise ValueError(f"{evidence_label} request count differs from executed decisions")
+        if len(provider_pairs) > len(history):
             if episode["status"] == "completed":
-                raise ValueError("completed native episode has an unexecuted request")
-            start, end = native_pairs[-1]
+                raise ValueError(f"completed {evidence_label} episode has an unexecuted request")
+            start, end = provider_pairs[-1]
             verify_exchange(start, end, provenance["model"], world.observe(), history, None)
-        matches(episode["usage"], provider_records.usage_summary(episode["provider_events"]), "native aggregate usage")
+        matches(episode["usage"], provider_records.usage_summary(episode["provider_events"]), f"{evidence_label} aggregate usage")
+    elif provenance.get("usage_accounting") == "reported-http-decisions-v1":
+        matches(episode["usage"], reported_decision_usage(history, episode["termination"]), "HTTP aggregate usage")
     evaluation = world.evaluate().model_dump()
     for key, expected in {"final_state_hash": world.state_hash(), "grader": evaluation,
                           "final_snapshot": world.snapshot(), "final_observation": world.observe(),

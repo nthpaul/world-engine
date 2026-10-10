@@ -97,7 +97,7 @@ const episodeSchema = z.object({
     "internal_error",
   ]),
   invalid_actions: z.number(),
-  usage: z.record(z.number()),
+  usage: jsonObject,
 });
 const environmentSchema = z.object({
   id: z.string(),
