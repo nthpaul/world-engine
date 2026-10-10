@@ -181,7 +181,8 @@ async function runAtifQA() {
   );
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const download = await downloadPromise;
-  const target = path.join(output, download.suggestedFilename());
+  const allFilename = `${created.id}-atif-all.jsonl`;
+  const target = path.join(output, allFilename);
   await download.saveAs(target);
   const content = await readFile(target, "utf8");
   const trajectories = content
@@ -254,18 +255,24 @@ async function runAtifQA() {
     format: "atif",
     quality: "all",
     rows: trajectories.length,
-    filename: download.suggestedFilename(),
+    filename: allFilename,
+    suggested_filename: download.suggestedFilename(),
     sha256: createHash("sha256").update(content).digest("hex"),
   });
   await page.getByLabel("Export quality").selectOption("passed");
   const emptyPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const empty = await emptyPromise;
-  const emptyTarget = path.join(output, empty.suggestedFilename());
+  const passedFilename = `${created.id}-atif-passed.jsonl`;
+  const emptyTarget = path.join(output, passedFilename);
   await empty.saveAs(emptyTarget);
   check(
     "Passed-only ATIF excludes both unsuccessful episodes",
     (await readFile(emptyTarget, "utf8")).trim() === "",
+  );
+  check(
+    "Quality-specific download paths preserve the full ATIF artifact",
+    target !== emptyTarget && (await readFile(target, "utf8")) === content,
   );
   await page
     .getByText(
@@ -277,7 +284,8 @@ async function runAtifQA() {
     format: "atif",
     quality: "passed",
     rows: 0,
-    filename: empty.suggestedFilename(),
+    filename: passedFilename,
+    suggested_filename: empty.suggestedFilename(),
   });
   await page.getByLabel("Export quality").selectOption("all");
   await page.getByRole("tab", { name: "Provenance", exact: true }).click();
