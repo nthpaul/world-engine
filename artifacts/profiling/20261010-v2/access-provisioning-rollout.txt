@@ -1,0 +1,58 @@
+         6649552 function calls (5395769 primitive calls) in 0.842 seconds
+
+   Ordered by: cumulative time
+   List reduced from 208 to 50 due to restriction <50>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      320    0.001    0.000    0.839    0.003 base_events.py:1962(_run_once)
+      344    0.000    0.000    0.834    0.002 rollout.py:103(rollout)
+      344    0.003    0.000    0.833    0.002 rollout.py:132(_rollout)
+      320    0.000    0.000    0.832    0.003 events.py:87(_run)
+      320    0.000    0.000    0.832    0.003 {method 'run' of '_contextvars.Context' objects}
+      320    0.000    0.000    0.831    0.003 profile_scripted.py:210(collect)
+1136636/12668    0.373    0.000    0.762    0.000 copy.py:119(deepcopy)
+118563/12252    0.115    0.000    0.751    0.000 copy.py:218(_deepcopy_dict)
+47516/24012    0.025    0.000    0.520    0.000 copy.py:192(_deepcopy_list)
+      320    0.001    0.000    0.479    0.001 environments.py:127(step)
+      736    0.003    0.000    0.441    0.001 access_provisioning.py:166(observe)
+     8832    0.003    0.000    0.191    0.000 environments.py:77(metadata)
+      392    0.000    0.000    0.160    0.000 environments.py:118(snapshot)
+      344    0.001    0.000    0.156    0.000 environments.py:124(state_hash)
+  2261292    0.115    0.000    0.115    0.000 {method 'get' of 'dict' objects}
+  1481102    0.052    0.000    0.052    0.000 {built-in method builtins.id}
+       24    0.002    0.000    0.051    0.002 access_provisioning.py:326(evaluate)
+   166079    0.031    0.000    0.046    0.000 copy.py:232(_keep_alive)
+       48    0.000    0.000    0.045    0.001 environments.py:93(reset)
+     1640    0.000    0.000    0.034    0.000 models.py:16(canonical_json)
+     1640    0.002    0.000    0.034    0.000 __init__.py:183(dumps)
+     1640    0.001    0.000    0.032    0.000 encoder.py:183(encode)
+     1616    0.030    0.000    0.030    0.000 encoder.py:205(iterencode)
+   970557    0.030    0.000    0.030    0.000 copy.py:173(_deepcopy_atomic)
+       24    0.000    0.000    0.023    0.001 environments.py:694(make_environment)
+     1296    0.001    0.000    0.022    0.000 models.py:20(digest)
+      344    0.000    0.000    0.015    0.000 providers.py:44(policy_messages)
+   266621    0.015    0.000    0.015    0.000 {method 'append' of 'list' objects}
+      296    0.001    0.000    0.014    0.000 access_provisioning.py:232(apply)
+   118563    0.007    0.000    0.007    0.000 {method 'items' of 'dict' objects}
+       24    0.000    0.000    0.006    0.000 rollout.py:59(world_fingerprints)
+      320    0.000    0.000    0.005    0.000 selectors.py:540(select)
+      320    0.005    0.000    0.005    0.000 {method 'control' of 'select.kqueue' objects}
+      640    0.001    0.000    0.004    0.000 providers.py:53(decide)
+       24    0.000    0.000    0.004    0.000 _abc.py:621(read_bytes)
+       24    0.000    0.000    0.004    0.000 _local.py:529(open)
+       24    0.003    0.000    0.003    0.000 {built-in method _io.open}
+      320    0.002    0.000    0.003    0.000 access_provisioning.py:479(reference_action)
+       48    0.001    0.000    0.002    0.000 access_provisioning.py:100(build)
+      125    0.000    0.000    0.002    0.000 access_provisioning.py:181(_page)
+      125    0.000    0.000    0.002    0.000 access_provisioning.py:351(page)
+     1320    0.002    0.000    0.002    0.000 {built-in method _hashlib.openssl_sha256}
+     1056    0.002    0.000    0.002    0.000 {method 'validate_python' of 'pydantic_core._pydantic_core.SchemaValidator' objects}
+       63    0.000    0.000    0.002    0.000 access_provisioning.py:211(_scope)
+       93    0.000    0.000    0.001    0.000 access_provisioning.py:64(_contract)
+     3438    0.001    0.000    0.001    0.000 access_provisioning.py:53(_email)
+      960    0.000    0.000    0.001    0.000 main.py:472(model_dump)
+     1163    0.001    0.000    0.001    0.000 {built-in method builtins.sorted}
+      616    0.000    0.000    0.001    0.000 main.py:746(model_validate)
+       48    0.000    0.000    0.001    0.000 random.py:363(sample)
+
+
