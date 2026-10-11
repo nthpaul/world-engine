@@ -15,8 +15,18 @@ reference data, not model success. The separately reviewed
 local trainer at `c2df2579c9211aaf4fb687cc457117c16c962aaf` passed 2,246 tests
 with eight optional skips and green CI. Its fixed one-update local MPS smoke saved
 a finite LoRA adapter; independent source/data/file and adapter-byte checks passed.
-Useful learning requires the separately authorized held-out pilot, not checkpoint
-existence. Existing
+The fixed 32-update V1 pilot stopped after two finite loss records with no final
+adapter. All eight base tasks failed; all eight final-model slots were unattempted.
+An independent partial file, replay and token audit passed while complete-checkpoint
+verification correctly rejected the prefix. Its cause remains unknown. Separately
+committed trainer V2 at `fec6f09bdaa9660ba86e4d2428f06bf1b97ada4c` adds fixed,
+redacted diagnostics and post-backward cache maintenance without changing learning
+settings or limits. It passed 2,452 local tests with eight optional skips and green
+CI. Its fresh one-update smoke completed and independent source/data/finite-byte
+and maintenance audit passed. Its fixed final pilot then stopped after four
+optimizer-step records with a runtime error during training, no final adapter
+and all eight final-model slots unattempted. Source/data postconditions passed;
+the specific cause remains unestablished. No learning gain is established. Existing
 native, browser and recorded-HTTP evidence stays training-ineligible; no normal
 runtime training dependency was added.
 
@@ -33,14 +43,24 @@ console QA passed 57 checks with desktop video playback. A singular sidebar
 heading and duplicate inline text exposed reference parsing defects; prior label
 display-reference changes exposed a narrow verifier compatibility issue. Pack
 1.0.1, grader v2 and the separately declared V2 protocol address these findings;
-they remain unqualified until fresh real controls pass. Original grades are not
-replaced. The prior close receipts retain their original source;
+actual V2 at `adda44a21151ed4d973415d875cbb07dbfa0becd` also stopped after two
+zero-grade controls. Its reference opened the assignee picker, misread an unselected
+option as committed assignment, then made 21 rejected background clicks at the
+30-action limit. The later three slots, including the model, were unattempted;
+both cleanups completed. Independent source/journal/seal/media review reproduced
+the original zero grades and verified all 605 original files unchanged. GET-only
+console QA passed 57 checks with eleven screenshots and actual desktop playback;
+mobile playback remains unqualified. The separately declared V3 source repair
+uses explicit scoped picker state and fails the reference after uncertain effects.
+Task1.0.1/grader v2/fixtures remain unchanged and require fresh real controls.
+Original grades are not replaced. The prior close receipts retain their original source;
 registered close release 1.0.3 changes recipe ownership, not prior grades.
 
-Root owns Git, publication, fixed-source collection and this board. Engine owns
-private final-trainer artifact audit. Console owns the narrow triage AX policy
-repair and its tests. Research owns prior label-reference verifier repair and
-its tests. Root owns versions, collector/protocol and integration. The API and
+PR62 through PR66 are merged with existing history retained. Root owns Git,
+publication, fixed-source collection and this board. Engine owns private V2
+trainer artifact audit. Console owns the V3 scoped picker reference repair and
+its tests; research owns independent source/evidence review. Root owns collector
+schema, integration and authorization. The API and
 trainer still use separate immutable pinned checkouts. Worker
 code is not a measured real-application or learning result. Only committed,
 reviewed protocols may produce fresh evidence;

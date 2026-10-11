@@ -44,17 +44,25 @@ def sidebar(*, heading="Assignee", assigned=False, classified=False, assignee_bi
     )
 
 
+def assignee_picker(*, option_bid="12", selected=False, apply_bid="15"):
+    picker = (f"\t[{apply_bid}] button 'Apply'\n\t[10] combobox 'Search'\n"
+              "\t[11] listbox 'Select assignee'\n"
+              "\t\t[13] option 'Casey On-call Backup @casey-backup', selected=False\n"
+              f"\t\t[{option_bid}] option 'Casey On-call @casey-oncall', selected={selected}\n")
+    return sidebar().replace("\t[1144] button 'Edit'\n\tStaticText 'None'\n", picker)
+
+
 @pytest.mark.parametrize("heading", ["Assignee", "Assignees"])
 async def test_actual_heading_and_generic_edit_are_scoped(heading):
     decision = await control().decide(observation(sidebar(heading=heading)), [])
     assert decision.action.kind == "click" and decision.action.bid == "1144"
-    assert decision.evidence["protocol"] == "public-ax-triage-control-v2"
+    assert decision.evidence["protocol"] == "public-ax-triage-control-v3"
 
 
 async def test_uses_current_observed_bid_not_previous_observation():
     policy = control()
     first = await policy.decide(observation(sidebar()), [])
-    second = await policy.decide(observation(sidebar(assignee_bid="2004")), [])
+    second = await policy.decide(observation(assignee_picker(option_bid="2004")), [])
     assert first.action.bid == "1144" and second.action.bid == "2004"
 
 
@@ -134,20 +142,22 @@ async def test_following_peer_region_cannot_supply_missing_edit():
         await control().decide(observation(text), [])
 
 
-async def test_existing_picker_excludes_backup_and_closes_after_selection():
+async def test_scoped_picker_excludes_backup_and_requires_selection_before_apply():
     policy = control()
-    text = ("[10] textbox 'Search users' value='casey-oncall'\n"
-            "[11] checkbox 'Casey On-call Backup @casey-backup'\n"
-            "[12] checkbox 'Casey On-call @casey-oncall'")
+    text = assignee_picker()
     assert (await policy.decide(observation(text), [])).action.bid == "12"
-    closed = await policy.decide(observation("[20] textbox 'Search users' value='casey-oncall'"), [])
-    assert closed.action.kind == "press" and closed.action.bid == "20" and closed.action.key == "Escape"
+    applied = await policy.decide(observation(assignee_picker(selected=True, apply_bid="20")), [])
+    assert applied.action.kind == "click" and applied.action.bid == "20"
 
 
-async def test_existing_label_picker_requires_exact_option():
-    text = ("[10] textbox 'Search labels' value='severity::2'\n"
-            "[11] checkbox 'severity::20'\n[12] checkbox 'severity::2'")
-    assert (await control().decide(observation(text), [])).action.bid == "12"
+async def test_conservative_scoped_label_picker_requires_exact_option():
+    # Mock-only: the actual labels picker remains unqualified.
+    picker = ("\t[10] button 'Apply'\n\t[11] combobox 'Search'\n"
+              "\t[12] listbox 'Select labels'\n"
+              "\t\t[13] option 'severity::20', selected=False\n"
+              "\t\t[14] option 'severity::2', selected=False\n")
+    text = sidebar(assigned=True).replace("\t[1151] button 'Edit'\n\tStaticText 'incident'\n", picker)
+    assert (await control().decide(observation(text), [])).action.bid == "14"
 
 
 async def test_close_control_identity_unchanged():

@@ -8,6 +8,8 @@ import hashlib
 import json
 import re
 from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Literal
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import httpx
@@ -194,6 +196,9 @@ class OllamaBrowserPolicy:
         await self.client.aclose()
 
 
+_AX_NODE = re.compile(r"\s*(?:\[([a-zA-Z0-9_-]+)\]\s+)?(\w+)\s+('(?:\\.|[^'])*'|\"(?:\\.|[^\"])*\")")
+
+
 def ax_nodes(text: str) -> list[dict]:
     nodes = []
     textbox_indent = None
@@ -201,7 +206,7 @@ def ax_nodes(text: str) -> list[dict]:
         indent = len(line) - len(line.lstrip())
         if textbox_indent is not None and indent <= textbox_indent:
             textbox_indent = None
-        match = re.match(r"\s*(?:\[([a-zA-Z0-9_-]+)\]\s+)?(\w+)\s+('(?:\\.|[^'])*'|\"(?:\\.|[^\"])*\")", line)
+        match = _AX_NODE.match(line)
         if match:
             node = {"bid": match[1], "role": match[2], "name": ast.literal_eval(match[3])}
             # AX indentation separates draft text inside an editor from posted activity.
@@ -216,6 +221,12 @@ def ax_nodes(text: str) -> list[dict]:
     return nodes
 
 
+@dataclass(frozen=True)
+class _TriageEdit:
+    field: Literal["assignee", "labels"]
+    phase: Literal["opening", "searching", "selecting", "applying"]
+
+
 class BrowserReferencePolicy:
     """A task-specific feasibility control using only ordinary browser observations."""
 
@@ -228,7 +239,7 @@ class BrowserReferencePolicy:
         self.marker = marker[0]
         self.comment = comment[1].strip() if comment else None
         self.project_name = "Incident Operations" if triage else "Release Operations"
-        self.selection_pending: str | None = None
+        self.triage_edit: _TriageEdit | None = None
         self.baseline = baseline
         self.issue_list_url: str | None = None
         self.issue_cursor = 0
@@ -237,7 +248,7 @@ class BrowserReferencePolicy:
         self.confirmed_comment = False
         self.comment_requested = False
         self.recorder: RECORDER = lambda kind, payload: None
-        self.evidence_metadata = {"protocol": "public-ax-triage-control-v2" if triage else "public-ax-browser-control-v1", "scripted_control": True,
+        self.evidence_metadata = {"protocol": "public-ax-triage-control-v3" if triage else "public-ax-browser-control-v1", "scripted_control": True,
                                   "capability_measurement": False, "baseline": baseline, "training_eligible": False}
 
     def set_recorder(self, recorder: RECORDER) -> None:
@@ -249,6 +260,8 @@ class BrowserReferencePolicy:
     async def decide(self, observation: BrowserObservation, history: list[dict]) -> BrowserDecision:
         if self.baseline:
             return BrowserDecision(Finish())
+        if self.triage and any(item.get("result", {}).get("uncertain_effect") is True for item in history):
+            raise BrowserError("reference control stopped after an uncertain browser effect")
         nodes = ax_nodes(observation.accessibility_text)
 
         def choose(role: str, name: str, *, exact: bool = False):
@@ -286,7 +299,7 @@ class BrowserReferencePolicy:
             elif not is_target:
                 action = Wait(seconds=1.0)
             elif self.triage:
-                action = self._triage_action(nodes, choose, observation.accessibility_text)
+                action = self._triage_action(observation.accessibility_text)
             elif self.comment_requested and not persisted_comment and not self.confirmed_comment:
                 action = Wait(seconds=1.0)
             elif persisted_comment and not choose("button", "Comment", exact=True):
@@ -331,45 +344,33 @@ class BrowserReferencePolicy:
             action = Wait(seconds=1.0)
         return BrowserDecision(action=action, evidence=self.evidence_metadata)
 
-    def _triage_action(self, nodes, choose, accessibility_text):
+    def _triage_action(self, accessibility_text):
         """Candidate feasibility control. Every target is from the current AX tree."""
-        textbox = choose("textbox", "Search users") or choose("textbox", "Search labels")
-        if self.selection_pending:
-            button = choose("button", "Apply", exact=True) or choose("button", "Update", exact=True)
-            if button:
-                self.selection_pending = None
-                return Click(bid=button["bid"])
-            if textbox:
-                self.selection_pending = None
-                return Press(bid=textbox["bid"], key="Escape")
-            self.selection_pending = None
-            return Wait(seconds=1)
-        if textbox:
-            wanted = "casey-oncall" if "users" in textbox["name"].lower() else "severity::2"
-            if textbox.get("value") != wanted:
-                return Fill(bid=textbox["bid"], text=wanted)
-            candidates = [node for node in nodes if node["bid"] and node["role"] in ("checkbox", "option", "button")
-                          and (node["name"] == wanted if wanted == "severity::2" else
-                               re.search(r"(?:^|\s)@?casey-oncall(?:\s|$)", node["name"]) and "backup" not in node["name"].lower())]
-            if candidates:
-                self.selection_pending = wanted
-                return Click(bid=candidates[0]["bid"])
-            return Wait(seconds=1)
-
         # Background work items remain in AX while the target detail is open.
-        lines = accessibility_text.splitlines()
-        regions = []
-        for index, line in enumerate(lines):
+        nodes = []
+        for line in accessibility_text.splitlines():
             parsed = ax_nodes(line)
-            if parsed and parsed[0]["role"] == "region" and parsed[0]["name"] == "Sidebar":
-                regions.append(index)
+            if not parsed:
+                continue
+            node = parsed[0]
+            node["indent"] = len(line) - len(line.lstrip())
+            attributes = line[_AX_NODE.match(line).end():]
+            for name in ("selected", "checked"):
+                match = re.search(rf"(?:^|,)\s*{name}=(True|False)\s*$", attributes)
+                if match:
+                    node[name] = match[1] == "True"
+            nodes.append(node)
+
+        def subtree(items, start):
+            end = next((index for index in range(start + 1, len(items))
+                        if items[index]["indent"] <= items[start]["indent"]), len(items))
+            return items[start + 1:end]
+
+        regions = [index for index, node in enumerate(nodes)
+                   if node["role"] == "region" and node["name"] == "Sidebar"]
         if len(regions) != 1:
             raise BrowserError("reference control requires one observed Sidebar region")
-        start = regions[0]
-        indent = len(lines[start]) - len(lines[start].lstrip())
-        end = next((index for index in range(start + 1, len(lines))
-                    if lines[index].strip() and len(lines[index]) - len(lines[index].lstrip()) <= indent), len(lines))
-        nodes = ax_nodes("\n".join(lines[start + 1:end]))
+        nodes = subtree(nodes, regions[0])
 
         def field_nodes(names):
             starts = [index for index, node in enumerate(nodes)
@@ -381,17 +382,94 @@ class BrowserReferencePolicy:
                         if nodes[index]["role"] == "heading"), len(nodes))
             return nodes[start + 1:end]
 
-        assignees, labels = field_nodes(("Assignee", "Assignees")), field_nodes(("Labels",))
-        assigned = any(re.search(r"(?:^|\s)@?casey-oncall(?:\s|$)", node["name"])
-                       and "backup" not in node["name"].lower() for node in assignees)
-        classified = any(node["name"] == "severity::2" for node in labels)
+        fields = {"assignee": field_nodes(("Assignee", "Assignees")), "labels": field_nodes(("Labels",))}
+
+        def wanted(node, field):
+            return (node["name"] == "severity::2" if field == "labels" else
+                    bool(re.search(r"(?:^|[^\w-])@casey-oncall(?:$|[^\w-])", node["name"]))
+                    and "backup" not in node["name"].lower())
+
+        opened = [field for field, items in fields.items()
+                  if any(node["role"] in ("listbox", "combobox", "textbox") for node in items)]
+        if len(opened) > 1 or (opened and self.triage_edit and opened[0] != self.triage_edit.field):
+            raise BrowserError("reference control requires one scoped active picker")
+        if opened:
+            field = opened[0]
+            items = fields[field]
+            if self.triage_edit and self.triage_edit.phase == "applying":
+                return Wait(seconds=1)
+            pickers = [index for index, node in enumerate(items) if node["role"] == "listbox"]
+            if not pickers:
+                return Wait(seconds=1)
+            expected = "Select assignee" if field == "assignee" else "Select labels"
+            if len(pickers) != 1 or items[pickers[0]]["name"] != expected:
+                raise BrowserError("reference control requires one named field picker")
+            searches = [node for node in items if node["role"] in ("combobox", "textbox")
+                        and node["name"] == "Search"]
+            if len(searches) != 1:
+                raise BrowserError("reference control requires one scoped picker search")
+            options = [node for node in subtree(items, pickers[0]) if node["role"] in ("option", "checkbox")]
+            candidates = [node for node in options if wanted(node, field)]
+            if len(candidates) > 1:
+                raise BrowserError("reference control requires one exact picker option")
+            if not candidates:
+                if not searches[0]["bid"] or (self.triage_edit and self.triage_edit.phase in ("searching", "selecting")):
+                    return Wait(seconds=1)
+                self.triage_edit = _TriageEdit(field, "searching")
+                return Fill(bid=searches[0]["bid"], text="casey-oncall" if field == "assignee" else "severity::2")
+            candidate = candidates[0]
+            selected = candidate.get("selected" if candidate["role"] == "option" else "checked")
+            if type(selected) is not bool:
+                raise BrowserError("reference control requires observed picker selection state")
+            if not candidate["bid"]:
+                return Wait(seconds=1)
+            if not selected:
+                if self.triage_edit and self.triage_edit.phase == "selecting":
+                    return Wait(seconds=1)
+                self.triage_edit = _TriageEdit(field, "selecting")
+                return Click(bid=candidate["bid"])
+            if field == "assignee" and any(
+                    node.get("selected" if node["role"] == "option" else "checked") is True and not wanted(node, field)
+                    for node in options):
+                raise BrowserError("reference control found another selected assignee")
+            buttons = [node for node in items if node["role"] == "button" and node["name"] == "Apply"]
+            if len(buttons) != 1:
+                raise BrowserError("reference control requires one scoped Apply button")
+            if not buttons[0]["bid"]:
+                return Wait(seconds=1)
+            self.triage_edit = _TriageEdit(field, "applying")
+            return Click(bid=buttons[0]["bid"])
+
+        def committed(field):
+            items = fields[field]
+            # Exclude every descendant of transient picker/editor nodes.
+            blocked_indent = None
+            for node in items:
+                if blocked_indent is not None and node["indent"] > blocked_indent:
+                    continue
+                blocked_indent = None
+                if node["role"] in ("option", "checkbox", "combobox", "textbox", "listbox"):
+                    blocked_indent = node["indent"]
+                elif wanted(node, field):
+                    return True
+            return False
+
+        if self.triage_edit:
+            edit = self.triage_edit
+            if edit.phase == "opening":
+                return Wait(seconds=1)
+            if edit.phase != "applying" or not committed(edit.field):
+                raise BrowserError("reference control could not confirm the applied field")
+            self.triage_edit = None
+        assigned, classified = committed("assignee"), committed("labels")
         if assigned and classified:
             return Finish()
-        field = labels if assigned else assignees
-        buttons = [node for node in field if node["bid"] and node["role"] == "button"
+        field = "labels" if assigned else "assignee"
+        buttons = [node for node in fields[field] if node["bid"] and node["role"] == "button"
                    and node["name"] == "Edit"]
         if len(buttons) != 1:
             raise BrowserError("reference control requires one observed sidebar edit button")
+        self.triage_edit = _TriageEdit(field, "opening")
         return Click(bid=buttons[0]["bid"])
 
     async def close(self) -> None:
