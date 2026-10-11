@@ -4,22 +4,36 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 
 ## Active increments
 
-Current source-only work is the separately versioned labels-group reference.
-Console owns browser_policy.py and its policy/AX tests; root owns collector,
-protocol, taskpack identity assertion and documentation; research reviews the
-complete diff and engine checks unchanged task/grader fingerprints. No physical
-V5 cohort is authorized. The task1.0.2/grader v3/fixtures and local-model protocol
-stay unchanged; source tests do not establish successful real triage. The owned
-API continues loading immutable V4 source, and every original record stays intact.
-Candidate V5 passes 2,683 root local tests with six optional skips, Ruff and
-the tracked publication scan. Its 494-case focused suite includes grouped-label
-preservation, malformed flags, finite waits and unchanged cross-family dispatch.
-Offline replay matches all twelve V4 actions before selecting the current target;
-that is correspondence proof, not a real label write or model result.
+V5 labels-group source is committed at `7033af7`, PR71, after independent
+whole-diff and task/grader fingerprint reviews. Root passed 2,683 local tests
+with six optional skips, Ruff and tracked publication checks; independent
+focused suites passed 494 and 620 cases. Source and merged-master CI passed
+before/after delivery. The owned API loads that immutable reviewed source.
+Task1.0.2/grader v3/fixtures and the local-model protocol are unchanged.
+
+Its separately authorized fixed fresh cohort stopped after two controls.
+Incomplete earned the expected zero with one valid action. Reference
+`03f20219-f9df-466b-9556-b33d8b3ce824` failed after thirteen valid actions,
+zero invalid actions and reward zero. Exact assignment and its certificate
+passed, but the selected severity draft was not Applied or persisted. Selected
+still showed only the prior label while All marked the new target selected;
+the controller rejected this observed divergence. Both cleanups completed.
+Already-correct, closure compatibility and model remain unattempted with zero
+inference. No retry, source tuning or original-grade replacement occurred.
+
+Independent audits reproduced both original grades and thirteen reference
+actions, preserving 442 files, 42 pinned source blobs, 108 journal records and
+18 registered media artifacts. V1--V4 originals and eight old operator seals
+remain unchanged. GET-only console QA passed 40 checks with eleven screenshots,
+desktop playback and both full video decodes; mobile playback is unqualified.
+Root verified idle admission, empty owned Docker inventories and all seventeen
+prior browser rows/279 evidence files unchanged. Full triage remains unqualified;
+future changes require independently reviewed source and a fresh fixed protocol.
+Root owns this two-file measured-results increment and future authorization.
 
 The V4 source at `a3aaa0f` passed independent review, 2,618 local tests with six
 optional skips, Ruff, Ruby syntax and CI before the fixed fresh cohort. PR69 is
-merged; the owned loopback API still loads that immutable qualification source.
+merged; its cohort loaded that immutable qualification source.
 The incomplete control retained zero reward. The reference persisted the exact
 assignment and passed its separate certificate, then failed after twelve valid
 actions at the labels picker before selecting severity. Both cleanups completed;
@@ -105,8 +119,8 @@ any repair needs a separately committed source and fixed fresh protocol.
 Original grades are not replaced. The prior close receipts retain their original source;
 registered close release 1.0.3 changes recipe ownership, not prior grades.
 
-PR62 through PR69 are merged with existing history retained. Merged master
-`e661fa6` passed backend and console CI. Root owns Git,
+PR62 through PR71 are merged with existing history retained. Merged master
+`c60a15c` passed backend and console CI38171587747. Root owns Git,
 publication, fixed-source collection and this board. Engine's private V2
 trainer artifact audit is complete. Console's V3 reference repair and terminal
 QA and research's independent source/evidence review are complete. Root owns collector
