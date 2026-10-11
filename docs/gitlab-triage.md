@@ -107,8 +107,9 @@ Prior records, permissions, defaults, counts and immutable fields still require
 preservation. Historical schemas remain interpreted at their pinned source,
 not silently accepted as the new contract.
 
-**A complete positive triage outcome remains unqualified against a real reference
-execution.** The partial assignment certificate is demonstrated below.
+**At the V4/V5 checkpoints, a complete positive triage outcome remained
+unqualified against a real reference execution.** The partial assignment
+certificate is demonstrated below; the V6 result is recorded separately.
 Its candidate exact note/metadata defaults fail closed. A legitimate GitLab
 rendering/default mismatch stops qualification and preserves the rejected result;
 any repair requires a new committed source/protocol and fresh collection. Mock
@@ -210,6 +211,59 @@ application persistence. V6 requires a new reviewed committed protocol, green CI
 exact API startup pin and separately authorized fresh fixed controls. All earlier
 grades and failure evidence remain unchanged; no new real outcome is claimed
 by this source contract alone.
+
+## Actual V6 Qualification
+
+The separately authorized fixed cohort at
+`0990c549ba090adc78d6a3ccea1d1f534cd185ff` stopped after three controls in
+563.3984533750918 seconds. Source review and green CI preceded collection;
+the owned API restarted at that exact revision and source stayed frozen.
+No retry, source tuning or original-grade replacement occurred.
+
+| Slot | Attempt | Termination | Valid/invalid actions | Attempt reward | Isolated business grade |
+| --- | --- | --- | --- | --- | --- |
+| Incomplete | `d325c56d-34ed-4a38-ab38-aa5d97031d12` | finished | 1/0 | 0 | 0 |
+| Changes required | `2f53be4d-073b-4d3e-a34f-0d73fa596813` | finished | 15/0 | 1 | 1; all seven checks pass |
+| Already correct | `b108a24a-e71a-4563-a0b1-0cda1e09dd34` | provider_error | 13/0 | 0 | 1; all seven checks pass |
+| Close compatibility | unattempted | unattempted | none | none | none |
+| Local model | unattempted | unattempted | none | none | none |
+
+The changes-required reference accepted one current severity selection and
+one Apply, then confirmed the exact closed labels and finished. The sealed
+state independently verifies the requested assignment and label, their exact
+certificates and preservation of prior history, permissions and unrelated
+records. This is the first qualified full changes-required reference for this
+literal task, not qualification of the complete four-control gate.
+
+The already-correct reference opened the assignee picker for nonmutating
+username corroboration. The correct option explicitly had `selected=True`,
+while two other visible options omitted that attribute. The unchanged assignee
+guard required a strict boolean on every option and raised before its existing
+Escape dismissal. No assignee selection, Apply, label edit or Finish occurred.
+Independent public-observation replay reproduces that failure, without executing
+application actions or altering the original outcome.
+
+Its preserved business state passes all seven isolated checks, but the failed
+attempt retains `passed=false` and reward zero. Business-state correctness and
+successful controller completion are separate recorded facts. The protocol
+requires finished controls, so close compatibility and the model were correctly
+not admitted. There are zero inference events. This is not a model result.
+
+All three cleanups completed, with no pending reconciliation. Independent audits
+verified 685 original files, 42 source blobs, 321 raw API response pairs, 202
+journal records, 35 registered media artifacts and all 29 recorded actions.
+All V1--V5 cohort bytes and historical grades remain unchanged. Root confirmed
+idle admission, empty owned Docker inventories and preservation of all 19 prior
+browser rows and 303 evidence files plus the legacy run store.
+
+GET-only console QA passed 42 checks for changes-required and 40 for already-
+correct, with 22 desktop/mobile screenshots, advancing desktop playback and
+four full video decodes. Mobile playback remains unqualified; unresolved GitLab
+avatars remain visible in original media. Reference footage is not model footage.
+The evidence stays evaluation-only and nontrainable. Selected-table checks and
+this trusted local controller do not certify full GitLab fidelity, multi-tenant
+isolation, useful learning or population capability. A controller correction
+requires a separately reviewed source, protocol and fresh cohort.
 
 ## Close-Task Compatibility
 
