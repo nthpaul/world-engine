@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-10-10T05:03:19.698Z",
+  "base_url": "http://127.0.0.1:5173",
+  "run_id": "6e28f56a-cf5c-498a-af12-995f3014f7f2",
+  "baseline_run_id": "2183fdb9-54bc-49f4-aa19-64a94db0593d",
+  "checks": [
+    "API health responds through the Vite proxy",
+    "Real environment registry contains workflow worlds",
+    "Rollout dialog receives keyboard focus",
+    "Episode lower bound rejects zero",
+    "Episode upper bound rejects 101",
+    "Concurrency upper bound rejects 9",
+    "New rollout: sampled small labels meet 4.5:1 text contrast",
+    "UI submits the actual run configuration",
+    "Created run records real episode traces",
+    "Episode has hidden grading and state provenance",
+    "Desktop inspector: document has no horizontal overflow",
+    "Run inspector: sampled small labels meet 4.5:1 text contrast",
+    "Timeline changes the selected action",
+    "Copy action writes actual JSON",
+    "Raw trace export contains recorded episodes",
+    "DPO export contains real matched alternatives",
+    "GRPO export contains real matched alternatives",
+    "All four export formats download valid JSONL",
+    "Provenance displays episode seeds and final hashes",
+    "Frozen provenance preserves implementation hashes and lineage",
+    "Episode termination and usage are retained",
+    "Run search has a working empty state",
+    "World library exposes real action schemas",
+    "Comparison uses selected real runs",
+    "Runtime does not expose credential inputs",
+    "Remote provider rejects calls without explicit paid consent",
+    "Live local job cancels through the UI",
+    "Mobile runs: document has no horizontal overflow",
+    "Mobile worlds: document has no horizontal overflow",
+    "Mobile benchmarks: document has no horizontal overflow",
+    "Mobile runtime: document has no horizontal overflow",
+    "Mobile inspector: document has no horizontal overflow",
+    "Mobile new rollout: document has no horizontal overflow",
+    "Escape closes the accessible rollout dialog",
+    "No browser runtime errors"
+  ],
+  "downloads": [
+    {
+      "format": "traces",
+      "rows": 8,
+      "filename": "6e28f56a-cf5c-498a-af12-995f3014f7f2-traces-all.jsonl"
+    },
+    {
+      "format": "sft",
+      "rows": 48,
+      "filename": "6e28f56a-cf5c-498a-af12-995f3014f7f2-sft-all.jsonl"
+    },
+    {
+      "format": "dpo",
+      "rows": 8,
+      "filename": "6e28f56a-cf5c-498a-af12-995f3014f7f2-dpo-all.jsonl"
+    },
+    {
+      "format": "grpo",
+      "rows": 8,
+      "filename": "6e28f56a-cf5c-498a-af12-995f3014f7f2-grpo-all.jsonl"
+    }
+  ],
+  "text_contrast": [
+    {
+      "view": "New rollout",
+      "samples": 44,
+      "minimum_ratio": 4.942749048579621
+    },
+    {
+      "view": "Run inspector",
+      "samples": 30,
+      "minimum_ratio": 4.756291932193622
+    }
+  ],
+  "browser_errors": [],
+  "real_episode_count": 8,
+  "real_trace_steps": 48,
+  "video": "/Users/ple/projects/world-engine/artifacts/qa/video/page@133b8e75a44b597d440e98f3924d1413.webm"
+}

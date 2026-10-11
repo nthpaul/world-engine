@@ -1,0 +1,78 @@
+{
+  "schema": "world-engine.matched-study-independent-validation.v1",
+  "generated_at": "2026-10-10T07:25:55+00:00",
+  "collection_revision": "622c5b18ee38d0e581d04832e555801febc37dc3",
+  "protocol_sha256": "6abb1350ea008d962624bc2561bb486b461ffd426a01cbd1bfcd51c33ff391bc",
+  "validation_completed_before_runtime_source_changes": true,
+  "source_files_rechecked_against_collection_manifest": true,
+  "report_rows_exactly_match_raw_identity_and_episode_outcomes": true,
+  "ordered_finalized_slots": 128,
+  "unattempted_slots": 0,
+  "replayed_episodes": 128,
+  "inconclusive_episodes": 0,
+  "actual_upstream_validated_documents": 128,
+  "upstream_harbor_revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+  "harbor_distribution_version": "0.24.0",
+  "harbor_schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c",
+  "pydantic_version": "2.14.0",
+  "training_format_exclusions": {
+    "sft": 128,
+    "dpo": 128,
+    "grpo": 128
+  },
+  "candidate_pool_queries_from_excluded_episodes": 0,
+  "independent_raw_analysis_matches_reported_rates_intervals_and_pairs": true,
+  "unique_tasks": 32,
+  "complete_pairs": 32,
+  "incomplete_pairs": 0,
+  "pair_outcomes": {
+    "both": 7,
+    "native_only": 17,
+    "json_only": 0,
+    "neither": 8
+  },
+  "model_episode_slots": 64,
+  "model_transport_requests": 775,
+  "native": {
+    "attempted_tasks": 32,
+    "business_passes": 24,
+    "clean_successes": 6,
+    "transport_requests": 259,
+    "accepted_responses": 253,
+    "multiple_tool_call_rejections": 5,
+    "cancelled_timeout_requests": 1,
+    "known_usage_attempts": 258,
+    "episodes_with_complete_reported_usage": 31
+  },
+  "json": {
+    "attempted_tasks": 32,
+    "business_passes": 7,
+    "clean_successes": 0,
+    "transport_requests": 516,
+    "accepted_responses": 493,
+    "cancelled_timeout_requests": 23,
+    "known_usage_attempts": 493,
+    "episodes_with_complete_reported_usage": 9
+  },
+  "known_reported_usage_partial_sums": {
+    "input_tokens": 979980,
+    "output_tokens": 18638,
+    "complete_across_all_attempts": false,
+    "requests_without_usage": 24
+  },
+  "original_collection_files": {
+    "evaluation-episodes.jsonl": {
+      "bytes": 17566947,
+      "sha256": "ae70f57de632a135d2856c6a46d3befe9cc1bb6e1f3ae7b64847a310f4032e16"
+    },
+    "report.json": {
+      "bytes": 162216,
+      "sha256": "a9d8cb7d7a267afb40358a4bcd8c035db5761f0f21a31547358ccf2c21263bda"
+    }
+  },
+  "original_collection_bytes": 17729163,
+  "original_collection_byte_accounting_rechecked": true,
+  "publication_sidecar_excluded_from_original_collection_byte_accounting": true,
+  "model_requests_from_validation": 0,
+  "limitations": "Finalized synthetic evaluation evidence, not authenticated collection, frozen-weight attestation, a population benchmark, production transfer or training consent. Native/JSON compares complete adapter contracts under fixed budgets. Usage sums are incomplete. Later runtime fixes require the original source checkout for historical native replay."
+}

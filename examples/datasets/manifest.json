@@ -1,0 +1,168 @@
+{
+  "training_split": "train",
+  "worlds": [
+    {
+      "environment_id": "crm-merge",
+      "runs": {
+        "scripted-oracle": "dc6298be-2aff-494f-857c-f28724e97ef3",
+        "scripted-baseline": "8e873bb5-979a-4e13-9517-6f66f7570b3a"
+      },
+      "exports": {
+        "sft": {
+          "format": "sft",
+          "quality": "passed",
+          "records": 24,
+          "source_episodes": 6,
+          "skipped": 2,
+          "excluded": {
+            "heldout_split": 2,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "dpo": {
+          "format": "dpo",
+          "quality": "passed",
+          "records": 4,
+          "source_episodes": 6,
+          "skipped": 2,
+          "excluded": {
+            "heldout_split": 2,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "grpo": {
+          "format": "grpo",
+          "quality": "passed",
+          "records": 4,
+          "source_episodes": 6,
+          "skipped": 2,
+          "excluded": {
+            "heldout_split": 2,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        }
+      }
+    },
+    {
+      "environment_id": "refund-ops",
+      "runs": {
+        "scripted-oracle": "eaf64a77-2070-4485-ad25-62ee59935e2a",
+        "scripted-baseline": "fd3b74e3-269d-4409-8bda-537770b475f2"
+      },
+      "exports": {
+        "sft": {
+          "format": "sft",
+          "quality": "passed",
+          "records": 16,
+          "source_episodes": 6,
+          "skipped": 1,
+          "excluded": {
+            "heldout_split": 1,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "dpo": {
+          "format": "dpo",
+          "quality": "passed",
+          "records": 5,
+          "source_episodes": 6,
+          "skipped": 1,
+          "excluded": {
+            "heldout_split": 1,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "grpo": {
+          "format": "grpo",
+          "quality": "passed",
+          "records": 5,
+          "source_episodes": 6,
+          "skipped": 1,
+          "excluded": {
+            "heldout_split": 1,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        }
+      }
+    },
+    {
+      "environment_id": "incident-control",
+      "runs": {
+        "scripted-oracle": "21a591c1-6807-4ef6-9725-9bcac4dde1b4",
+        "scripted-baseline": "46282b33-bd56-48b6-b4d1-06c9cdc99431"
+      },
+      "exports": {
+        "sft": {
+          "format": "sft",
+          "quality": "passed",
+          "records": 40,
+          "source_episodes": 6,
+          "skipped": 1,
+          "excluded": {
+            "heldout_split": 1,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "dpo": {
+          "format": "dpo",
+          "quality": "passed",
+          "records": 5,
+          "source_episodes": 6,
+          "skipped": 1,
+          "excluded": {
+            "heldout_split": 1,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "grpo": {
+          "format": "grpo",
+          "quality": "passed",
+          "records": 5,
+          "source_episodes": 6,
+          "skipped": 1,
+          "excluded": {
+            "heldout_split": 1,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        }
+      }
+    }
+  ],
+  "note": "GRPO files contain raw grouped candidates, trainable=false. DPO trajectory messages require a trainer adapter."
+}

@@ -1,149 +1,77 @@
 # World Engine
 
-Open infrastructure that turns **production agent failures** into **validated, guarded improvements**.
+Local workflow environments, bounded agent rollouts, trusted grading and trace curation. The Python SDK and operator console work with scripted policies without model credentials. Optional providers use an already-installed Ollama model or explicitly enabled remote inference.
 
-This repository is in a **planning-only** phase (see [ARCHITECTURE.md](ARCHITECTURE.md), [ROADMAP.md](ROADMAP.md), [RESEARCH.md](RESEARCH.md)). No product runtime is claimed yet. Coordination audit surface: [`SWARM.md`](SWARM.md), [`coordination/`](coordination/).
+The new [real GitLab browser path](docs/gitlab-browser.md) uses a pinned GitLab CE
+instance, ordinary-user browser actions, post-login screenshots/video, durable
+traces and a separate persisted-state verifier. Start there for the phases 1--3
+architecture, local prerequisites and SDK. The four Python worlds below remain
+simulation diagnostics; their historical results are unchanged.
+The [GitLab results and media guide](docs/gitlab-browser-results.md) records the
+successful browser reference, the failed local-model rollout, isolated grading,
+screenshots, videos, timings and preserved qualification failures.
 
----
+## Run locally
 
-## Mission
+Use Python 3.11 or newer, `uv`, and Node.js 22 or newer. Start the API:
 
-Give builders and reliability operators a closed path from *what broke in production* to *a change that earned the right to ship*—or an explicit, auditable refuse.
-
-Improvement is a **control problem**, not a dataset bake-off. The scarce asset is contracts, validators, and gate discipline—not a proprietary weight dump.
-
----
-
-## Precise problem
-
-Deployed agents fail in ways offline evals miss. Operators see incidents, regressions, and silent drift, but the path from evidence to a safe update is broken in four places:
-
-1. Evidence stays thin or untyped—logs do not become causal explanations.
-2. Diagnosis does not yield replayable counterfactual tasks.
-3. Rewards and updates go unvalidated—patches can optimize the wrong signal or memorize the incident.
-4. Deployment lacks a held-out and canary gate—changes ship without adversarial checks or evidence re-entry.
-
-**One sentence:** Build a model- and harness-agnostic closed loop that turns production failures into causally grounded counterfactual tasks, adversarially validated rewards, and guarded updates—then proves those updates improve held-out behavior before they touch live traffic.
-
----
-
-## Users
-
-| Persona | Role |
-|---------|------|
-| **Agent builder** (primary) | Ships tools, harness, prompts, memory, optional post-training. Needs reproducible failures and measurable lifts with low lock-in. |
-| **Reliability / eval operator** (primary) | Owns quality gates, incidents, release criteria. Needs typed evidence, pass/fail gates, rollback. |
-| **Research contributor** (secondary) | Extends environments, diagnosers, probes, update adapters behind stable contracts. |
-| **Platform integrator** (secondary) | Connects an existing harness, telemetry store, and deploy path via thin adapters. |
-
-End consumers of the agent’s output are beneficiaries, not direct users of this system.
-
----
-
-## Full closed loop
-
-```
-production evidence
-        ↓
-causal diagnosis
-        ↓
-counterfactual environments & tasks
-        ↓
-adversarial reward validation
-        ↓
-update (choose + apply intervention)
-        ↓
-held-out simulation evaluation
-        ↓
-guarded deployment
-        ↓
-new production evidence ──┘
+```sh
+uv sync --extra dev
+uv run python -m world_engine serve
 ```
 
-Each stage’s output must be a valid input to the next under distribution shift and Goodhart pressure. Skipping a stage requires a ledgered break-glass exception and taints the promote path.
+In another terminal, start the console:
 
-**Reject, abstain, and rollback are successful outcomes** when warranted. Silent hope is not.
+```sh
+cd web
+npm ci
+npm run dev
+```
 
----
+Open [the console](http://127.0.0.1:5173). It uses the API at [127.0.0.1:8000](http://127.0.0.1:8000/api/health); the default local SQLite history persists across restarts. Start with Scripted Oracle and Scripted Baseline to inspect successful and incomplete workflows. A new clone does not require the development team's experiment database.
 
-## Differentiating principles
+## Four workflows
 
-1. **Evidence before update** — no shippable change without evidence → diagnosis → counterfactual lineage.
-2. **Counterfactuals over anecdotes** — incidents become environments/tasks that can fail again under variation.
-3. **Causal honesty** — constructed elicitation ≠ independent recovery; claim grades rise only with identification plans (primary + placebo + rivals).
-4. **Reward is guilty until validated** — every promote path carries a reward-validation artifact (`certified` or explicit `not_applicable`).
-5. **Held-out is sacred** — sealed access classes and taint closure are architectural invariants, not honor systems.
-6. **Least risk that works** — prefer reversible structure-only interventions; every applied change has a rollback spec.
-7. **Guarded by default** — canary, kill criteria, evidence re-entry; docs-only deploy templates are not loop proof.
-8. **Local / sovereign by default** — data stays on the operator’s machine; portable, digest-addressed artifacts for export.
-9. **Agnostic at the seams** — models, harnesses, and vendors plug in behind contracts; core never hard-depends on one stack.
-10. **Falsifiability** — the thesis states how it dies; anti-metrics catch self-deception.
+| World / version | Trusted outcome |
+| --- | --- |
+| `crm-merge` / `1.1.1` | Canonical customer, resource ownership, invoice conservation and merge audit |
+| `refund-ops` / `1.1.2` | Eligibility, exact payment, finance review, idempotency and ticket resolution |
+| `incident-control` / `1.0.1` | Acknowledgement, preflight checks, approval, healthy rollback and preserved service data |
+| `access-provisioning` / `1.0.0` | Discovered identity/manager, least privilege, service reviews and exact grant or justified denial |
 
----
+Access exposes bounded paged discovery rather than its private directory/catalog. Its outcome reward is binary; legacy worlds retain diagnostic shaping, which can be positive without a business pass. [Workflow variants](docs/workflow-variants.md), [grader integrity](docs/workflow-grader-integrity.md) and [access design](docs/access-provisioning.md) explain the rules and adversarial checks.
 
-## First open-source wedge
+## Providers and SDK
 
-**Name:** Failure-class canary loop (one harness, one class, one reversible update).
+`scripted-oracle` and `scripted-baseline` require no credentials. `local` uses structured JSON with an installed Ollama model. Native aliases `local-tools` (v1) and `local-tools-ledger` (v2) work in the API, console and CLI, with mandatory evaluation-only operation; the CLI disables paid calls for them. Native default concurrency is one, explicitly editable within one through eight. Legacy providers retain default four. Remote OpenAI/Anthropic calls require both a server-wide paid-call gate and explicit per-run opt-in.
 
-Prove **loop closure**, not artifact volume:
+The native SDK configuration is imported separately from `world_engine.native_config.NativeRunConfig`; legacy `RunConfig` and shared grader fingerprints remain unchanged. Native v2 regenerates replay requests from trusted reset observations and verified transitions. [Operations](docs/OPERATIONS.md) includes provider ownership and cleanup; [SDK world](examples/sdk_world.py) and [custom provider](examples/custom_provider.py) are executable extensions. The [architecture guide](docs/architecture.md) describes lifecycle, admission, storage and trust boundaries.
 
-1. Ingest recorded/redacted evidence for one recurring failure class from **one reference harness**.
-2. Emit a human-legible diagnosis with cited spans.
-3. Compile a runnable counterfactual family with **deterministic replay**, contrast set (causal flip + placebo + rivals when claiming ID), and **pre-update fail attestation**.
-4. Attach adversarial reward validation (planted-bug catch required when claiming adversarial completeness; `structure_only` may emit `not_applicable`).
-5. Apply one **reversible non-weight** update (`structure_only`: prompt / tool policy / diagnosis-justified memory).
-6. Run **sealed held-out** evaluation (target class + adjacent regress).
-7. Reach a **guarded deployment decision** (ship *or* rollback) and close H7: post-canary episodes CAS-put as redacted `EvidenceBundle`s under the same failure class, with `EvidenceReentryPlan` outcome recorded.
+The separate [local Docker executor](docs/docker-executor.md) runs constrained terminal/file sessions with detached artifact grading. It is not the isolation mechanism for ordinary Python worlds or a cloud execution service.
 
-**Not in the wedge:** multi-tenant control plane, weight training, pack marketplaces, N≥50 vanity suites, second harness, hosted SKUs.
+## Data contracts
 
-**Claim split (marketing forbid):**
+SQLite retains append-only episode/tool records, trusted grades, scenario splits and source fingerprints. Replay recomputes transitions and outcomes; old receipts require their recorded source checkout. Historical grader gaps, failed attempts and original grades remain preserved rather than relabeled.
 
-| Claim | Allowed when |
-|-------|----------------|
-| Harness smoke | Offline pack runs; artifacts emit |
-| Canary-affidavit provisional | Partner/local canary with kill criteria + public or shared **hash list**, but post-canary bodies not yet CAS-ingested |
-| Full loop proven | Deploy decision **and** post-canary episodes ingested as redacted `EvidenceBundle` digests in a permitted local or tenant-private CAS **and** `EvidenceReentryPlan` outcome recorded (partner canary OK; YAML-only / hash-list-only **not**). Public disclosure of sensitive content is not required. |
-| Safe to optimize (`reward_dependent`) | Live unexpired `certified` certificate — **not** implied by wedge success or by E6 lab GO |
+Exports provide exact-context SFT candidates, strictly comparable DPO pairs, traces and raw grouped trajectories. Heldout/evaluation records and unsupported native/recorded-JSON protocols are excluded from training formats, including alternative candidate pools. Groups remain `trainable: false`: sampled tokens, masks, behavior probabilities and a fixed checkpoint are not supplied. [ATIF](docs/atif.md) is pinned Harbor-schema operator interchange, not a trainer batch. The [scripted candidate corpus](docs/scripted-candidate-results.md) contains 128 verified episodes and train-only exports of 397 SFT decisions, 51 DPO pairs and 51 nontrainable groups; no model was trained.
 
----
+## Evidence and teaching
 
-## North-star and anti-metrics
+- [Environment engineering guide](docs/engineering-guide.md): workflow fidelity, lifecycle ownership, reward integrity, durable traces, useful throughput and training eligibility.
+- [Matched adapter results](docs/workflow-model-study-results.md), [access context results](docs/access-ledger-study-results.md) and [admission results](docs/model-concurrency-study-results.md): separate locked experiments, not pooled capability scores.
+- [Public benchmark](docs/public-benchmark.md), [console proof](docs/ui.md), [roadmap](docs/ROADMAP.md) and [build board](coordination/BUILD.md): reproducibility, rights and remaining gates.
+- [Historical prototype](prototypes/failure-to-intervention/README.md): preserved earlier failure-to-intervention work, separate from the current SDK.
 
-### North-star
+At source `0f51b903` on October 10, 2026, verification passed all 1,743 tests, including optional actual Harbor and approved-existing-image Docker checks, with Ruff and the frontend build. The five-phase console receipt at `b4501029` passed 129 checks, with 34 new scripted episodes and two unchanged model imports; it is not new native API inference. The CPU profile saved 192 episodes and measured 728 redundant observation reads removed in profiled trials. The separate SDK admission study at `1d9f2315` observed sixteen business passes at admission one versus thirteen at two on eight repeated tasks; client overlap did not improve useful throughput in that run. Detailed denominators, partial usage and independent validations live in the linked evidence, not a production-performance claim. The later [native API smoke](artifacts/native-api-smoke/20261010-v1/report.json) verified two clean admissions on the same refund task, not a capability comparison. The preserved first controls attempt failed 360px visual acceptance; corrected controls/readonly receipt QA passed 65 checks without new inference.
 
-**TTVI — time-to-validated-improvement:** median wall time from first detection of a production failure class to a held-out-gated update that shows meaningful lift on that class (and no material regress on the sealed suite) under guarded deploy—**or** an explicit lineage-complete reject.
+Run `uv run pytest` and `uv run ruff check src tests`. Build the console with `npm run build` in `web`; [browser QA](docs/ui.md) requires a fresh output directory and makes no model calls by default.
 
-Supporting: failure-class coverage, gate precision (held-out pass ↔ canary move), loop completion rate (deploy-or-reject, no silent abandonment).
+## Scope
 
-### Anti-metrics (drive these down)
-
-| Anti-metric | Why toxic |
-|-------------|-----------|
-| Offline-only win rate | Lift on tasks derived from the same incidents used to fit |
-| Vacuous adversarial pass | “Search found none” without planted-bug catch |
-| Suite contamination | Held-out leakage into fit data |
-| Silent patch rate | Changes without evidence chain |
-| Canary revert without lineage | Gates are theater |
-| Vendor-coupled core PRs | Agnostic seams eroding |
-| Task-count vanity | Volume without reproduction attestation |
-
----
-
-## Prototypes
-
-- [`prototypes/failure-to-intervention/`](prototypes/failure-to-intervention/) — first executable slice of the loop: a synthetic duplicate-customer ops incident reconstructed as deterministic SQLite state, scored by business invariants, varied across three counterfactuals, and used to separate an overfit fix from a robust one. Run `pnpm demo` inside the directory for the result matrix.
-
----
-
-## Current phase
-
-| Item | Status |
-|------|--------|
-| Phase | **Planning only** — no product code |
-| Doctrine | Synthesized from specialist proposals (see `coordination/DECISIONS.md`) |
-| Next | Freeze contracts → thin vertical slice per [ROADMAP.md](ROADMAP.md) |
-| Research kill chain | [RESEARCH.md](RESEARCH.md) |
-| Architecture | [ARCHITECTURE.md](ARCHITECTURE.md) |
-
-**Thesis falsifiers (kill or narrow):** systematic failures too rare; diagnosis not operationalizable; rewards unvalidatable; held-out never transfers to canary; agnostic seams impossible; TTVI no better (and no safer) than baseline ops; guarded deploy unavailable. Details in RESEARCH.md and `coordination/DECISIONS.md`.
+The four original worlds are synthetic trusted-Python tool workflows. The new
+browser path runs real GitLab but covers one original workflow and a selected
+persisted-state projection, not complete production parity. Both use a loopback,
+single-process operator service without authentication or tenant isolation. No
+trained checkpoint, cloud orchestration, production transfer, tokenizer-context
+guarantee or competitor advantage is claimed. Scripted passes establish
+implementation behavior; model results require their fixed tasks and failures.

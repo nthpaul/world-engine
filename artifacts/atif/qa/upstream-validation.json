@@ -1,0 +1,12 @@
+{
+  "upstream_model": "harbor.models.trajectories.trajectory.Trajectory",
+  "harbor_revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+  "schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c",
+  "file": "artifacts/atif/qa/c7484180-72d0-459c-b311-b08b52695588-atif-all.jsonl",
+  "file_sha256": "5a95c3570573470d21b7feb9d1c37346c3396be3ccd36f6c1eb27cb2f49bba83",
+  "validated_trajectories": 2,
+  "controller_revision": "993895462766e232b4f920a03fb5a2860756fe47",
+  "source_dirty": false,
+  "model_calls": 0,
+  "training_eligible": false
+}
