@@ -22,8 +22,8 @@ def test_default_plan_no_contacts(monkeypatch, capsys):
     monkeypatch.setattr(COLLECTOR, "collect", lambda *args: pytest.fail("default plan collected"))
     COLLECTOR.main()
     plan = json.loads(capsys.readouterr().out)
-    assert plan["schema"] == "world-engine.triage-qualification.v2"
-    assert plan["reference_protocol"] == "public-ax-triage-control-v2"
+    assert plan["schema"] == "world-engine.triage-qualification.v3"
+    assert plan["reference_protocol"] == "public-ax-triage-control-v3"
     assert [slot["seed"] for slot in plan["slots"]] == [42, 42, 43, 42, 42]
     assert plan["training_eligible"] is False and plan["automatic_retries"] == 0
 
@@ -161,7 +161,7 @@ def test_fixed_fake_cohort_and_failure_stop(tmp_path, monkeypatch, include_model
                     "journal": [{"event": "policy_prepared", "data":
                         {"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.PROTOCOL,
                          "options": COLLECTOR.OPTIONS} if index == 4 else
-                        {"protocol": "public-ax-triage-control-v2" if index < 3 else "public-ax-browser-control-v1",
+                        {"protocol": "public-ax-triage-control-v3" if index < 3 else "public-ax-browser-control-v1",
                          "scripted_control": True, "capability_measurement": False,
                          "baseline": index == 0, "training_eligible": False}}]}
 
@@ -186,7 +186,7 @@ def test_prepared_policy_identity_rejects_drift(index, corruption):
     spec = COLLECTOR.SLOTS[index]
     metadata = ({"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.PROTOCOL,
                  "options": COLLECTOR.OPTIONS} if index == 4 else
-                {"protocol": "public-ax-triage-control-v2" if index < 3 else "public-ax-browser-control-v1",
+                {"protocol": "public-ax-triage-control-v3" if index < 3 else "public-ax-browser-control-v1",
                  "scripted_control": True, "capability_measurement": False,
                  "baseline": index == 0, "training_eligible": False})
     attempt = {"journal": [{"event": "policy_prepared", "data": metadata}]}
@@ -196,7 +196,7 @@ def test_prepared_policy_identity_rejects_drift(index, corruption):
     elif corruption == "duplicate":
         attempt["journal"] *= 2
     elif corruption == "protocol":
-        metadata["protocol"] = "public-ax-triage-control-v1"
+        metadata["protocol"] = "public-ax-triage-control-v2"
     elif index == 4:
         metadata["model_digest"] = "forged"
     else:

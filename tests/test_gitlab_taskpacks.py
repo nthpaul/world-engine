@@ -115,20 +115,27 @@ async def test_public_reference_discovers_project_and_target_before_edit():
         "StaticText 'Incident reference: INC-2026-0217'\n[5] region 'Sidebar'\n\t[6] heading 'Assignee'\n"
         "\t[7] button 'Edit'\n\t[8] heading 'Labels'\n\t[9] button 'Edit'"), [])
     assert decision.action.bid == "7"
-    assert decision.evidence["protocol"] == "public-ax-triage-control-v2"
+    assert decision.evidence["protocol"] == "public-ax-triage-control-v3"
 
 
-async def test_reference_corroborates_username_and_current_bid_then_closes_picker():
+async def test_reference_corroborates_username_and_current_bid_then_applies_picker():
     control = policy()
     marker = "StaticText 'Incident reference: INC-2026-0217'\n"
-    first = marker + "[10] textbox 'Search users' value=''"
+    first = (marker + "[5] region 'Sidebar'\n\t[6] heading 'Assignee'\n"
+             "\t[40] button 'Apply'\n\t[10] combobox 'Search'\n"
+             "\t[7] listbox 'Select assignee'\n"
+             "\t\t[12] option 'Casey On-call Backup @casey-backup', selected=False\n"
+             "\t[8] heading 'Labels'\n\t[9] button 'Edit'\n")
     decision = await control.decide(observation(first), [])
     assert decision.action.kind == "fill" and decision.action.text == "casey-oncall"
-    picker = marker + "[11] textbox 'Search users' value='casey-oncall'\n[12] checkbox 'Casey On-call Backup @casey-backup'\n[13] checkbox 'Casey On-call @casey-oncall'"
+    picker = first.replace("[10] combobox", "[11] combobox").replace(
+        "\t[8] heading", "\t\t[13] option 'Casey On-call @casey-oncall', selected=False\n\t[8] heading")
     decision = await control.decide(observation(picker), [])
     assert decision.action.bid == "13"
-    decision = await control.decide(observation(marker + "[15] textbox 'Search users' value='casey-oncall'"), [])
-    assert decision.action.kind == "press" and decision.action.bid == "15" and decision.action.key == "Escape"
+    selected = picker.replace("@casey-oncall', selected=False", "@casey-oncall', selected=True").replace(
+        "[40] button", "[41] button")
+    decision = await control.decide(observation(selected), [])
+    assert decision.action.kind == "click" and decision.action.bid == "41"
 
 
 async def test_reference_noop_and_only_missing_label():
@@ -138,14 +145,18 @@ async def test_reference_noop_and_only_missing_label():
             "\tStaticText 'incident'\n\t[11] button 'Edit'\n\t[12] heading 'Due date'")
     decision = await control.decide(observation(text), [])
     assert decision.action.bid == "11"
-    decision = await control.decide(observation(text.replace("StaticText 'incident'", "StaticText 'severity::2'")), [])
+    decision = await policy().decide(observation(text.replace("StaticText 'incident'", "StaticText 'severity::2'")), [])
     assert decision.action.kind == "finish"
 
 
 async def test_reference_requires_exact_severity_option_not_prefix_match():
     control = policy()
-    text = ("StaticText 'Incident reference: INC-2026-0217'\n[1] textbox 'Search labels' value='severity::2'\n"
-            "[2] checkbox 'severity::20'\n[3] checkbox 'severity::2'")
+    # Conservative mock-only label picker; no real labels qualification claim.
+    text = ("StaticText 'Incident reference: INC-2026-0217'\n[5] region 'Sidebar'\n"
+            "\t[6] heading 'Assignee'\n\tStaticText '@casey-oncall'\n\t[7] button 'Edit'\n"
+            "\t[8] heading 'Labels'\n\t[9] button 'Apply'\n\t[1] combobox 'Search'\n"
+            "\t[10] listbox 'Select labels'\n"
+            "\t\t[2] option 'severity::20', selected=False\n\t\t[3] option 'severity::2', selected=False")
     decision = await control.decide(observation(text), [])
     assert decision.action.bid == "3"
 

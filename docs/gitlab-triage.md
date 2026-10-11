@@ -40,8 +40,20 @@ recognizes actual singular/plural sidebar headings and ignores duplicate inline
 heading text. The verifier permits a prior label event's null display reference
 to populate with exactly `~` followed by that same immutable label ID, while
 preserving every other attribute and row order. V1's original grades remain
-unchanged. Both fixes require the separately committed V2 qualification;
-they are not evidence that the task or candidate verifier now succeeds.
+unchanged. Actual V2 qualification also stopped: the reference opened the
+assignee picker, mistook an unselected offered option for persisted assignment,
+then made 21 rejected background clicks within its 30-action limit. Both control
+grades remained zero, cleanup completed and the model slot was unattempted.
+Independent sealed-state review reproduced those original grades without
+replacement. Neither stopped cohort is a model capability result.
+
+The separately declared V3 reference protocol distinguishes an open picker,
+observed selection and closed-field committed membership. It accepts only
+current observed node IDs and stops after an uncertain-effect action instead of
+repeating it. Labels-picker behavior is still unqualified. Task release,
+fixture and grader are unchanged; a new committed protocol and fresh real
+controls are required before model admission. No positive qualification follows
+from these source repairs or mock tests.
 
 The new verifier is **not yet qualified against a real reference execution**.
 Its candidate exact note/metadata defaults fail closed. A legitimate GitLab

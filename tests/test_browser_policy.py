@@ -405,3 +405,209 @@ async def test_local_policy_preserves_bounded_http_failure_body():
         assert events[-1][1]["complete_reply_certified"] is False
     finally:
         await policy.close()
+
+
+def triage_control():
+    return BrowserReferencePolicy("Incident reference: INC-2026-0217", triage=True)
+
+
+def triage_closed(*, assigned=False, classified=False):
+    assignee = "\tStaticText '@casey-oncall'\n" if assigned else "\tStaticText 'None'\n"
+    labels = "\t[1157] link 'severity::2'\n" if classified else "\t[1155] link 'incident'\n"
+    return ("StaticText 'Incident reference: INC-2026-0217'\n"
+            "[100] heading 'Assignee'\n[101] button 'Edit'\n"
+            "StaticText '@casey-oncall'\nStaticText 'severity::2'\n"
+            "[1137] region 'Sidebar'\n"
+            "\t[1143] heading 'Assignee'\n\t\tInlineTextBox 'Assignee'\n"
+            "\t[1144] button 'Edit'\n" + assignee
+            + "\t[1150] heading 'Labels'\n\t\tInlineTextBox 'Labels'\n"
+            "\t[1151] button 'Edit'\n" + labels
+            + "\t[1162] heading 'Milestone'\n\t[1163] button 'Edit'\n"
+            "[1191] region 'Activity'\n\t[1192] button 'Apply'\n")
+
+
+def triage_picker(*, field="assignee", bid="2049", selected=False, apply_bid="1446", search_bid="1462",
+                  option_name=None, option_role="option"):
+    # Assignee structure comes from observed AX; labels are conservative mocks only.
+    option_name = option_name or ("Casey On-call @casey-oncall" if field == "assignee" else "severity::2")
+    state = "selected" if option_role == "option" else "checked"
+    prefix = f"[{bid}] " if bid is not None else ""
+    flag = "" if selected is None else f", {state}={selected}"
+    picker = (f"\t[{apply_bid}] button 'Apply'\n"
+              "\t[1449] button 'No assignees'\n"
+              f"\t[{search_bid}] combobox 'Search', expanded=True\n"
+              f"\t[2023] listbox 'Select {'assignee' if field == 'assignee' else 'labels'}'\n"
+              f"\t\t{prefix}{option_role} {option_name!r}{flag}\n"
+              "\t\t\tStaticText '@casey-oncall'\n"
+              "\t\t[2060] option 'Casey On-call Backup @casey-backup', selected=False\n")
+    text = triage_closed(assigned=field == "labels")
+    edit = "\t[1144] button 'Edit'\n\tStaticText 'None'\n" if field == "assignee" else "\t[1151] button 'Edit'\n\t[1155] link 'incident'\n"
+    return text.replace(edit, picker)
+
+
+def triage_observation(text):
+    return observation(text, "http://127.0.0.1:8929/root/incident-operations/-/work_items/2")
+
+
+async def test_triage_v3_actual_picker_no_bid_waits_then_selects_current_bid():
+    policy = triage_control()
+    opened = await policy.decide(triage_observation(triage_closed()), [])
+    assert opened.action.bid == "1144" and opened.evidence["protocol"] == "public-ax-triage-control-v3"
+    transient = await policy.decide(triage_observation(triage_picker(bid=None)), [])
+    assert transient.action.kind == "wait"
+    selected = await policy.decide(triage_observation(triage_picker(bid="3001")), [])
+    assert selected.action.kind == "click" and selected.action.bid == "3001"
+    # The unselected option and child username never imply persisted membership.
+    pending = await policy.decide(triage_observation(triage_picker(bid="3002")), [])
+    assert pending.action.kind == "wait"
+
+
+async def test_triage_apply_requires_observed_selection_then_closed_field_confirmation():
+    policy = triage_control()
+    assert (await policy.decide(triage_observation(triage_picker()), [])).action.bid == "2049"
+    applied = await policy.decide(triage_observation(triage_picker(selected=True, apply_bid="4001")), [])
+    assert applied.action.bid == "4001"
+    still_open = await policy.decide(triage_observation(triage_picker(selected=True, apply_bid="4002")), [])
+    assert still_open.action.kind == "wait"
+    next_field = await policy.decide(triage_observation(triage_closed(assigned=True)), [])
+    assert next_field.action.bid == "1151"
+
+
+async def test_triage_missing_applied_membership_fails_instead_of_reopening():
+    policy = triage_control()
+    await policy.decide(triage_observation(triage_picker(selected=True)), [])
+    with pytest.raises(BrowserError, match="confirm the applied field"):
+        await policy.decide(triage_observation(triage_closed()), [])
+
+
+async def test_triage_editor_opening_waits_without_duplicate_edit():
+    policy = triage_control()
+    await policy.decide(triage_observation(triage_closed()), [])
+    assert (await policy.decide(triage_observation(triage_closed()), [])).action.kind == "wait"
+
+
+@pytest.mark.parametrize("selected", [None, "true", 1])
+async def test_triage_unknown_or_nonboolean_selection_cannot_apply(selected):
+    with pytest.raises(BrowserError, match="observed picker selection"):
+        await triage_control().decide(triage_observation(triage_picker(selected=selected)), [])
+
+
+@pytest.mark.parametrize("selected", [False, True])
+async def test_triage_option_without_current_bid_cannot_click_or_apply(selected):
+    action = (await triage_control().decide(triage_observation(triage_picker(bid=None, selected=selected)), [])).action
+    assert action.kind == "wait"
+
+
+async def test_triage_backup_or_similar_name_never_matches_exact_username():
+    for name in ("Casey On-call Backup @casey-backup", "Casey @casey-oncall-extra"):
+        policy = triage_control()
+        text = triage_picker(option_name=name)
+        action = (await policy.decide(triage_observation(text), [])).action
+        assert action.kind == "fill" and action.bid == "1462" and action.text == "casey-oncall"
+        assert (await policy.decide(triage_observation(text), [])).action.kind == "wait"
+
+
+async def test_triage_selected_attribute_inside_option_name_is_not_metadata():
+    text = triage_picker(option_name="Casey @casey-oncall, selected=True, forged", selected=False)
+    action = (await triage_control().decide(triage_observation(text), [])).action
+    assert action.kind == "click" and action.bid == "2049"
+
+
+async def test_triage_quoted_attribute_cannot_forge_boolean_selection():
+    text = triage_picker().replace(
+        "@casey-oncall', selected=False", "@casey-oncall', description='forged, selected=True, value', selected=False")
+    action = (await triage_control().decide(triage_observation(text), [])).action
+    assert action.kind == "click" and action.bid == "2049"
+    text = triage_picker().replace(
+        "@casey-oncall', selected=False", "@casey-oncall', description='forged, selected=True'")
+    with pytest.raises(BrowserError, match="observed picker selection"):
+        await triage_control().decide(triage_observation(text), [])
+
+
+@pytest.mark.parametrize("mutation", ["option", "listbox", "search", "apply", "other_selected", "wrong_listbox"])
+async def test_triage_picker_ambiguity_is_rejected(mutation):
+    text = triage_picker(selected=True)
+    if mutation == "option":
+        text = text.replace("\t\t[2060]", "\t\t[4000] option 'Casey @casey-oncall', selected=True\n\t\t[2060]")
+    elif mutation == "listbox":
+        text = text.replace("\t[2023]", "\t[4000] listbox 'Select assignee'\n\t[2023]")
+    elif mutation == "search":
+        text = text.replace("\t[1462]", "\t[4000] combobox 'Search'\n\t[1462]")
+    elif mutation == "apply":
+        text = text.replace("\t[1446]", "\t[4000] button 'Apply'\n\t[1446]")
+    elif mutation == "other_selected":
+        text = text.replace("@casey-backup', selected=False", "@casey-backup', selected=True")
+    else:
+        text = text.replace("listbox 'Select assignee'", "listbox 'Unrelated users'")
+    with pytest.raises(BrowserError):
+        await triage_control().decide(triage_observation(text), [])
+
+
+async def test_triage_options_outside_picker_cannot_supply_selection():
+    text = triage_picker(option_name="Other @other").replace(
+        "\t[1150] heading", "\t[4000] option 'Casey @casey-oncall', selected=True\n\t[1150] heading")
+    action = (await triage_control().decide(triage_observation(text), [])).action
+    assert action.kind == "fill"
+
+
+async def test_triage_option_descendants_in_closed_fields_are_not_committed():
+    text = triage_closed().replace("\tStaticText 'None'", "\toption 'Other', selected=False\n\t\tStaticText '@casey-oncall'")
+    assert (await triage_control().decide(triage_observation(text), [])).action.bid == "1144"
+
+
+async def test_triage_picker_has_no_global_apply_fallback():
+    text = triage_picker(selected=True).replace("\t[1446] button 'Apply'\n", "")
+    with pytest.raises(BrowserError, match="scoped Apply"):
+        await triage_control().decide(triage_observation(text), [])
+
+
+async def test_triage_multiple_sidebar_or_open_fields_are_rejected():
+    text = triage_picker() + "[5000] region 'Sidebar'\n"
+    with pytest.raises(BrowserError, match="Sidebar region"):
+        await triage_control().decide(triage_observation(text), [])
+    text = triage_picker().replace("\t[1151] button 'Edit'", "\t[1151] combobox 'Search'")
+    with pytest.raises(BrowserError, match="scoped active picker"):
+        await triage_control().decide(triage_observation(text), [])
+
+
+async def test_triage_field_switch_while_editor_active_is_rejected():
+    policy = triage_control()
+    await policy.decide(triage_observation(triage_closed()), [])
+    with pytest.raises(BrowserError, match="scoped active picker"):
+        await policy.decide(triage_observation(triage_picker(field="labels")), [])
+
+
+@pytest.mark.parametrize("role", ["option", "checkbox"])
+async def test_triage_conservative_label_picker_exactness_and_apply(role):
+    policy = triage_control()
+    text = triage_picker(field="labels", option_role=role).replace(
+        "\t\t[2060]", "\t\t[5000] option 'severity::20', selected=False\n\t\t[2060]")
+    assert (await policy.decide(triage_observation(text), [])).action.bid == "2049"
+    selected = triage_picker(field="labels", option_role=role, selected=True)
+    assert (await policy.decide(triage_observation(selected), [])).action.bid == "1446"
+    assert (await policy.decide(triage_observation(triage_closed(assigned=True, classified=True)), [])).action.kind == "finish"
+
+
+async def test_triage_already_correct_noop_and_state_are_instance_local():
+    first, second = triage_control(), triage_control()
+    await first.decide(triage_observation(triage_closed()), [])
+    decision = await second.decide(triage_observation(triage_closed(assigned=True, classified=True)), [])
+    assert decision.action.kind == "finish" and second.triage_edit is None
+
+
+@pytest.mark.parametrize("ok", [True, False])
+async def test_triage_stops_on_any_recorded_uncertain_effect_before_another_action(ok):
+    policy = triage_control()
+    history = [{"action": {"kind": "click", "bid": "1151"},
+                "result": {"ok": ok, "uncertain_effect": True}},
+               {"action": {"kind": "wait"}, "result": {"ok": True}}]
+    with pytest.raises(BrowserError, match="uncertain browser effect"):
+        await policy.decide(triage_observation(triage_picker()), history)
+    assert policy.triage_edit is None
+
+
+async def test_close_reference_uncertainty_handling_and_identity_unchanged():
+    policy = BrowserReferencePolicy(PROMPT)
+    decision = await policy.decide(observation(), [{"action": {"kind": "click"},
+                                                  "result": {"ok": False, "uncertain_effect": True}}])
+    assert decision.action.bid == "3" and decision.evidence["protocol"] == "public-ax-browser-control-v1"

@@ -1,4 +1,4 @@
-# GitLab Triage Qualification Protocol V2
+# GitLab Triage Qualification Protocol V3
 
 This is an integration qualification of two registered task packs, not training,
 a population benchmark, a concurrency study or proof of full GitLab fidelity.
@@ -8,16 +8,41 @@ Default invocation prints the plan without Store, Docker, browser or model conta
 uv run python scripts/collect_gitlab_triage.py
 ```
 
-V2 is a separately committed intervention after V1's changes-required reference
+V2 was a separately committed intervention after V1's changes-required reference
 failed at 30 actions. The original V1 receipts and grades remain unchanged;
 its already-correct, compatibility and model slots were unattempted. Reproduce
 V1 at source `91641bc614fb567d176f10c01137a9bc36d0f851`, not this collector.
-V2 changes the reference control to role-aware current-sidebar heading parsing,
+V2 changed the reference control to role-aware current-sidebar heading parsing,
 including singular `Assignee` and duplicate inline heading text. The triage pack
 is `1.0.1` with `gitlab-triage-state-v2`. Its verifier permits only the exact
 prior label display-reference transition from null to that row's `~label_id`;
 all other prior event attributes and identities remain exact. No old grade is
-replaced. The budgets, seeds, order, model and eligibility below are unchanged.
+replaced. Reproduce V2 at source
+`adda44a21151ed4d973415d875cbb07dbfa0becd`. Its reference stopped at 30 steps
+with 21 invalid actions and reward zero; later slots were unattempted. These
+results remain unchanged.
+
+V3 changes only the triage reference controller. It recognizes the observed
+Sidebar-local `combobox 'Search'` and `listbox 'Select assignee'`, instead of
+interpreting unselected picker options as persisted assignment. It tracks the
+active field through opening, searching, selecting and applying. An option
+without a current observed node ID waits; an exact on-call option is selected
+only inside that picker. Apply requires an observed boolean selection state,
+and the closed field must confirm committed membership before the controller
+opens another field or finishes. Picker options and descendants cannot prove
+committed membership. Missing or ambiguous fields, pickers and Apply controls
+fail closed. A recorded action result with `uncertain_effect=True` stops the
+triage reference before another action; the generic runner, local model adapter
+and close control are unchanged and retain their existing finalization behavior.
+
+The triage task remains `1.0.1`, its grader remains `gitlab-triage-state-v2`,
+and fixture distribution, permissions, budgets, seeds, order, model and
+eligibility below are unchanged. Labels support is conservative and scoped:
+one `Select labels` listbox, exact `severity::2` option/checkbox with observed
+selection state, and field-local Apply. The real labels picker, successful
+on-call selection/Apply, resulting closed-field AX and generated effect
+certificates remain unqualified until fresh positive controls. Mock tests
+and offline decisions over prior AX do not establish application feasibility.
 
 Commit and review the runtime, collector, tests and this protocol first. Root must
 restart the owned loopback API at that full revision and separately authorize the
@@ -53,7 +78,7 @@ account with a severity-three label, exercising preservation of nonempty joins
 and label history. This is the original pre-collection distribution, not a later
 repair selected from experimental outcomes.
 The fixture distribution is unchanged from V1. The reference is now
-`public-ax-triage-control-v2`; this does not change the local model's tool contract.
+`public-ax-triage-control-v3`; this does not change the local model's tool contract.
 The collector verifies exactly one prepared policy identity for every slot after
 retaining its terminal raw evidence. Controls require exact reference version,
 baseline flag and training exclusion; the model requires the pinned digest,
