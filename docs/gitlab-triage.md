@@ -151,9 +151,37 @@ observations and premature closure fail closed. Missing flags are accepted only
 for All options absent from the observed Selected group, not globally treated
 as false. Task, fixture, grader and local-model contracts stay unchanged.
 This is a bounded public-observation control, not authoritative grading or proof
-of a complete hidden/virtualized inventory. V5 requires its own reviewed source,
-fixed protocol and fresh actual control cohort; source tests alone do not
-establish successful triage or admit a model run.
+of a complete hidden/virtualized inventory. Source tests alone do not establish
+successful triage or admit a model run.
+
+Actual V5 at `7033af7424bdd88eb6453efa17920aee1f3d3003` stopped after
+374.0544615840772 seconds and two controls. Incomplete
+`52254b64-f3c9-486d-ba21-d7362db0334f` finished with one valid action,
+zero invalid actions, reward zero and completed cleanup. Reference
+`03f20219-f9df-466b-9556-b33d8b3ce824` failed with `provider_error` after
+13 valid actions, zero invalid actions, reward zero and completed cleanup.
+Assignment, its exact certificate and preservation checks passed. Severity and
+its certificate failed. Already-correct, closure compatibility and the model
+remain unattempted with zero inference; no retries occurred.
+
+The last action selected the current `severity::2` All option. The next public
+observation marks that option `selected=True` and the dropdown title includes
+both labels, but Selected still contains only the prior `incident` label.
+V5 requires matching Selected/All positive memberships and rejects that draft
+before Apply. The sealed state confirms no severity effect persisted, so the
+original zero remains correct. This observation does not prove why Selected
+differs, that waiting would refresh it, or that Apply would commit correctly.
+It is a controller adaptation failure, not a model result or a grader defect.
+
+Independent audits reproduced both original grades and all thirteen reference
+actions, preserving 442 original files, 42 pinned source blobs, 108 journal
+records and 18 registered media artifacts. All V1--V4 cohort bytes and eight
+old operator seals remain unchanged. GET-only console QA passed 40 checks with
+eleven desktop/mobile screenshots, advancing desktop playback and full decoding
+of both videos. Mobile playback remains unqualified. Root verified idle
+admission, empty owned Docker inventories and all seventeen prior browser rows
+and 279 evidence files unchanged. Any correction requires a separately reviewed
+source, protocol and fresh cohort; no original evidence or grade is replaced.
 
 ## Close-Task Compatibility
 
