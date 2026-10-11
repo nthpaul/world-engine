@@ -15,6 +15,7 @@ from world_engine.gitlab_runtime import (
     GitLabRuntimeError,
     gitlab_task,
 )
+from world_engine.gitlab_taskpacks import resolve_gitlab_pack
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location(
@@ -192,7 +193,7 @@ def test_closure_event_is_between_closure_and_final_update(completed, time):
 def test_task_requires_ordinary_comment():
     task = gitlab_task()
     assert "Then close that issue. Use an ordinary comment, not an internal note." in task.instruction
-    assert task.version == "1.0.2"
+    assert task.version == "1.0.3"
     assert task.grader_version == "gitlab-state-v3"
 
 
@@ -363,6 +364,8 @@ def owned_runtime(tmp_path):
         "volumes": ["data"],
         "networks": ["internal", "front"],
         "sealed": False,
+        "definition": resolve_gitlab_pack("gitlab-issue-close"),
+        "verifier_image": "sha256:" + "a" * 64,
     }
     return runtime, handle
 
