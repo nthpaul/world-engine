@@ -1,0 +1,31 @@
+{
+  "schema": "world-engine.workflow-variants-independent-validation.v1",
+  "validated_at": "2026-10-10T08:28:50+00:00",
+  "collection_revision": "ee26d7b9e29397e3dcccfc09c664f08dcf3b004c",
+  "protocol_sha256": "7876220a33f91c34e58fa8b9853bec1b0ab6bd19c604585eccdb71e3a453d9e0",
+  "collector_and_protocol_fingerprints_rechecked": true,
+  "raw_report_rows_match": 128,
+  "independently_recomputed_summary_cells": 24,
+  "distinct_world_seed_tasks": 64,
+  "replayed_episodes": 128,
+  "actual_upstream_validated_documents": 128,
+  "harbor_distribution_version": "0.24.0",
+  "upstream_harbor_revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+  "harbor_schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c",
+  "pydantic_version": "2.14.0",
+  "training_format_exclusions": {"sft": 128, "dpo": 128, "grpo": 128},
+  "candidate_pool_queries_from_excluded_episodes": 0,
+  "oracle": {"episodes": 64, "business_passes": 64},
+  "baseline": {"episodes": 64, "business_passes": 0},
+  "steps": 415,
+  "invalid_actions": 64,
+  "episode_splits": {"train": 104, "validation": 14, "test": 10},
+  "original_collection_files": {
+    "traces.jsonl": {"bytes": 5133736, "sha256": "46b54472171c37578dc9671e2effdf12853beafe6ba29b44ae01a85bd345a155"},
+    "report.json": {"bytes": 331338, "sha256": "5fbab3095ecf3d37a6a59d54c4df1a1d0e1e4b4ef3af21a07648052708da20ed"},
+    "report.md": {"bytes": 2674, "sha256": "2668bd64bdb16a9ed058216b8cad6c267d55b642f959689532f804ef438eba4c"}
+  },
+  "publication_sidecar_excluded_from_original_collection_byte_accounting": true,
+  "model_calls": 0,
+  "limitations": "Evaluation-only deterministic scripted controls on fixed public synthetic variants. Seed splits are not new-family holdouts. Historical variant receipts remain unchanged and use their own world/grader source revisions."
+}

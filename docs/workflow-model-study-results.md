@@ -1,6 +1,6 @@
 # Matched adapter study: observed results
 
-Collected October 10, 2026, 06:48:30 to 07:15:20 UTC. Root independently validated the finalized evidence without new inference. This evidence release includes the original journal/report and independent-validation sidecar. The [locked protocol](workflow-model-study.md) remains immutable source history. The [foundation report](report/world-engine-report.md) and historical six-case native receipts are unchanged.
+Collected October 10, 2026, 06:48:30 to 07:15:20 UTC. Root independently validated the finalized evidence without new inference. This evidence release includes the original journal/report and independent-validation sidecar. The [locked protocol](workflow-model-study.md) remains immutable source history, and historical six-case native receipts are unchanged. The original research report is retained privately; public interpretation guidance is in the [engineering guide](engineering-guide.md).
 
 ## Source and execution
 
