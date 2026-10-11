@@ -53,13 +53,28 @@ console QA passed 57 checks with eleven screenshots and actual desktop playback;
 mobile playback remains unqualified. The separately declared V3 source repair
 uses explicit scoped picker state and fails the reference after uncertain effects.
 Task1.0.1/grader v2/fixtures remain unchanged and require fresh real controls.
+Actual V3 at `62df4a994b1d5a3ded207ce957e594b927e05b94` stopped after two
+controls. The reference persisted the exact on-call assignment, then failed after
+11 valid actions because the real picker committed and closed without Apply;
+the closed field exposed a display name rather than the expected username.
+Severity was never added, so reward zero remains correct. Its generated assignment
+note's null namespace and later timestamps also contradict candidate certificate
+defaults. Already-correct, close-compatibility and model slots were unattempted;
+both cleanups completed. Independent audit verified all 434 original files,
+42 source blobs, 98 journal records and 16 registered media artifacts, reproducing
+both original zero grades. GET-only console QA passed 38 checks with eleven
+screenshots and desktop playback; both videos fully decoded, while mobile
+playback remains unqualified. Root verified idle admission, empty owned resources
+and unchanged prior operator rows/browser evidence. Full triage remains unqualified;
+any repair needs a separately committed source and fixed fresh protocol.
 Original grades are not replaced. The prior close receipts retain their original source;
 registered close release 1.0.3 changes recipe ownership, not prior grades.
 
-PR62 through PR66 are merged with existing history retained. Root owns Git,
-publication, fixed-source collection and this board. Engine owns private V2
-trainer artifact audit. Console owns the V3 scoped picker reference repair and
-its tests; research owns independent source/evidence review. Root owns collector
+PR62 through PR67 are merged with existing history retained. Merged master
+`8f9b6a2` passed backend and console CI. Root owns Git,
+publication, fixed-source collection and this board. Engine's private V2
+trainer artifact audit is complete. Console's V3 reference repair and terminal
+QA and research's independent source/evidence review are complete. Root owns collector
 schema, integration and authorization. The API and
 trainer still use separate immutable pinned checkouts. Worker
 code is not a measured real-application or learning result. Only committed,
