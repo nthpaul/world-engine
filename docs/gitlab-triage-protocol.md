@@ -1,4 +1,4 @@
-# GitLab Triage Qualification Protocol V4
+# GitLab Triage Qualification Protocol V5
 
 This is an integration qualification of two registered task packs, not training,
 a population benchmark, a concurrency study or proof of full GitLab fidelity.
@@ -67,9 +67,47 @@ rows, old history, permissions and unrelated records retain their exact checks.
 Older schemas are rejected rather than silently reinterpreted. Mock tests and
 offline decisions over prior AX do not establish application qualification.
 
+Actual V4 at `a3aaa0f3f5f1412bd6989d35c61ba12c62c2d69c` stopped after two
+controls. The reference made twelve valid actions and no invalid actions;
+assignment and its isolated certificate passed, but severity was not added.
+The labels picker contains Selected and All groups. The incident label appears
+in both with `selected=True`; the offered `severity::2` omits that property.
+V4 stopped before clicking it. Both rewards remain zero and the later three
+slots, including the model, remain unattempted with no inference. These records
+are immutable; V5 does not reinterpret their grades or retry within V4.
+
+V5 changes only the triage reference and qualification identity to
+`public-ax-triage-control-v5` and `world-engine.triage-qualification.v5`.
+Task `1.0.2`, grader v3, state/seal v2, fixtures, permissions, close behavior and
+the local-model tool contract remain unchanged. The reference parses unique
+direct Selected and All groups inside the named labels listbox. Copies across
+groups are legitimate only with consistent exact names and positive flags;
+duplicates inside one group, misplaced/nested options, malformed flags and
+contradictory state fail closed. Only All options absent from Selected may omit
+the selected attribute; this is not a global missing-property-to-false rule.
+
+Before opening Labels, retain every unambiguous field-local closed label name.
+The first Selected inventory must agree with that set. After one target click,
+the exact prior labels plus severity must be observed before a unique scoped
+Apply; afterward the exact closed links must confirm preservation. A valid
+unchanged inventory can wait within the existing five one-second wait bound;
+removals, extras, premature closure and uncertain effects cannot qualify.
+No repeated selection or Apply mutation is used to recover an unknown effect.
+Assignee immediate-commit, explicit Apply and read-only identity paths remain
+unchanged. Labels do not inherit assignee's immediate-commit completion path.
+
+The driver emits visibility-filtered AX, not an authoritative DOM inventory,
+and rejects over-bound text rather than silently truncating it for this control.
+Observed nonempty Search and pending/loading/filter contradictions fail closed;
+no filtered labels-search fallback establishes negative membership. An absent
+Search value does not prove global completeness. This bounded candidate contract
+uses named observed groups and prior closed-label agreement; hidden/virtualized
+renderings and actual post-selection behavior remain qualification risks.
+Offline regressions demonstrate this contract, not successful real triage.
+
 Fixture distribution, permissions, seeds, order, budgets, model, generation
 options and eligibility below remain unchanged. This is a new integration
-qualification, not a matched capability comparison or retry within V3.
+qualification, not a matched capability comparison or retry within V4.
 
 Commit and review the runtime, collector, tests and this protocol first. Root must
 restart the owned loopback API at that full revision and separately authorize the
@@ -105,7 +143,7 @@ account with a severity-three label, exercising preservation of nonempty joins
 and label history. This is the original pre-collection distribution, not a later
 repair selected from experimental outcomes.
 The fixture distribution is unchanged from V1. The reference is now
-`public-ax-triage-control-v4`; this does not change the local model's tool contract.
+`public-ax-triage-control-v5`; this does not change the local model's tool contract.
 The collector verifies exactly one prepared policy identity for every slot after
 retaining its terminal raw evidence. Controls require exact reference version,
 baseline flag and training exclusion; the model requires the pinned digest,

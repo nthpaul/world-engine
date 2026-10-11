@@ -4,6 +4,19 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 
 ## Active increments
 
+Current source-only work is the separately versioned labels-group reference.
+Console owns browser_policy.py and its policy/AX tests; root owns collector,
+protocol, taskpack identity assertion and documentation; research reviews the
+complete diff and engine checks unchanged task/grader fingerprints. No physical
+V5 cohort is authorized. The task1.0.2/grader v3/fixtures and local-model protocol
+stay unchanged; source tests do not establish successful real triage. The owned
+API continues loading immutable V4 source, and every original record stays intact.
+Candidate V5 passes 2,683 root local tests with six optional skips, Ruff and
+the tracked publication scan. Its 494-case focused suite includes grouped-label
+preservation, malformed flags, finite waits and unchanged cross-family dispatch.
+Offline replay matches all twelve V4 actions before selecting the current target;
+that is correspondence proof, not a real label write or model result.
+
 The V4 source at `a3aaa0f` passed independent review, 2,618 local tests with six
 optional skips, Ruff, Ruby syntax and CI before the fixed fresh cohort. PR69 is
 merged; the owned loopback API still loads that immutable qualification source.

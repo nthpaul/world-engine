@@ -34,7 +34,7 @@ def sidebar(*, heading="Assignee", assigned=False, classified=False, assignee_bi
         + "\t[1150] heading 'Labels'\n"
         "\t\tInlineTextBox 'Labels'\n"
         f"\t[{label_bid}] button 'Edit'\n"
-        "\tStaticText 'incident'\n"
+        "\t[1149] link 'incident'\n"
         + ("\t[1157] link 'severity::2'\n" if classified else "")
         + "\t[1162] heading 'Milestone'\n"
         "\t\tInlineTextBox 'Milestone'\n"
@@ -56,7 +56,7 @@ def assignee_picker(*, option_bid="12", selected=False, apply_bid="15"):
 async def test_actual_heading_and_generic_edit_are_scoped(heading):
     decision = await control().decide(observation(sidebar(heading=heading)), [])
     assert decision.action.kind == "click" and decision.action.bid == "1144"
-    assert decision.evidence["protocol"] == "public-ax-triage-control-v4"
+    assert decision.evidence["protocol"] == "public-ax-triage-control-v5"
 
 
 async def test_uses_current_observed_bid_not_previous_observation():
@@ -152,13 +152,19 @@ async def test_scoped_picker_excludes_backup_and_requires_selection_before_apply
 
 
 async def test_conservative_scoped_label_picker_requires_exact_option():
-    # Mock-only: the actual labels picker remains unqualified.
+    # Initial group structure follows observed public AX; post-selection remains mock-only.
     picker = ("\t[10] button 'Apply'\n\t[11] combobox 'Search'\n"
-              "\t[12] listbox 'Select labels'\n"
-              "\t\t[13] option 'severity::20', selected=False\n"
-              "\t\t[14] option 'severity::2', selected=False\n")
-    text = sidebar(assigned=True).replace("\t[1151] button 'Edit'\n\tStaticText 'incident'\n", picker)
-    assert (await control().decide(observation(text), [])).action.bid == "14"
+              "\t[12] listbox 'Select labels', multiselectable=True\n"
+              "\t\t[2155] group 'Selected'\n"
+              "\t\t\t[2157] option 'incident', selected=True\n"
+              "\t\t[2163] group 'All'\n"
+              "\t\t\t[2165] option 'incident', selected=True\n"
+              "\t\t\t[13] option 'severity::20', selected=False\n"
+              "\t\t\t[14] option 'severity::2'\n")
+    policy = control()
+    await policy.decide(observation(sidebar(assigned=True)), [])
+    text = sidebar(assigned=True).replace("\t[1151] button 'Edit'\n\t[1149] link 'incident'\n", picker)
+    assert (await policy.decide(observation(text), [])).action.bid == "14"
 
 
 async def test_close_control_identity_unchanged():
@@ -194,3 +200,34 @@ async def test_current_picker_bid_can_select_but_cannot_certify_closed_commit():
     closed = sidebar(assigned=True).replace("link 'Casey On-call @casey-oncall'", "link 'Casey On-call'")
     text = closed + "[5000] link '@casey-oncall'\nStaticText 'assigned to'\n"
     assert (await policy.decide(observation(text), [])).action.kind == "wait"
+
+
+async def test_v4_public_closed_labels_then_actual_grouped_picker_selects_only_current_all_bid():
+    policy = control()
+    await policy.decide(observation(assignee_picker(option_bid="2058")), [])
+    # Minimal public observation 11: committed display name plus ordinary target Activity.
+    closed = sidebar(assigned=True, label_bid="1145").replace(
+        "link 'Casey On-call @casey-oncall'", "link 'Casey On-call'")
+    activity = ("[1500] heading 'Activity'\n\t[1557] list ''\n\t\t[2114] listitem ''\n"
+                "\t\t\t[2120] link 'Workflow Agent'\n\t\t\tStaticText 'assigned to'\n"
+                "\t\t\t[2125] link '@casey-oncall'\n\t\t\t[2127] link 'Sunday, October 11, 2026 at 2:55:01 PM EDT'\n")
+    assert (await policy.decide(observation(closed + activity), [])).action.bid == "1145"
+    # Observation 12 has no selected flag on severity::2, while incident appears in both groups.
+    picker = ("\t[2132] button 'Apply', visible\n"
+              "\t[2135] button 'incident', visible, hasPopup='listbox', expanded=True\n"
+              "\tStaticText 'Select labels'\n\t[2145] button 'Clear', visible\n"
+              "\t[2150] combobox 'Search', visible, focused, hasPopup='listbox', expanded=True\n"
+              "\t[2151] listbox 'Select labels', visible, multiselectable=True, orientation='vertical'\n"
+              "\t\t[2155] group 'Selected', visible\n\t\t\tInlineTextBox 'Selected'\n"
+              "\t\t\t[2157] option 'incident', visible, selected=True\n"
+              "\t\t\t\tStaticText 'incident'\n\t\t\t\t\tInlineTextBox 'incident'\n"
+              "\t\t[2163] group 'All', visible\n\t\t\tInlineTextBox 'All'\n"
+              "\t\t\t[2165] option 'incident', visible, selected=True\n"
+              "\t\t\t\tStaticText 'incident'\n\t\t\t\t\tInlineTextBox 'incident'\n"
+              "\t\t\t[2171] option 'severity::2', visible\n"
+              "\t\t\t\tStaticText 'severity::2'\n\t\t\t\t\tInlineTextBox 'severity::2'\n"
+              "\t\t\tInlineTextBox 'severity::3'\n\tInlineTextBox '4 results'\n"
+              "\t[2188] button 'Create project label'\n\t[2190] link 'Manage project labels'\n")
+    opened = closed.replace("\t[1145] button 'Edit'\n\t[1149] link 'incident'\n", picker)
+    action = (await policy.decide(observation(opened + activity), [])).action
+    assert action.kind == "click" and action.bid == "2171"

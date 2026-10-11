@@ -143,6 +143,18 @@ preservation of all fifteen prior browser rows and 256 browser evidence files.
 Any repair requires a separately committed protocol and fresh control cohort;
 no original grade or evidence is replaced.
 
+The separately versioned V5 reference uses named Selected/All group membership
+for the labels picker. It preserves prior closed label names, permits consistent
+copies across groups and requires the exact expected selected inventory before
+Apply and exact closed links afterward. Malformed flags, filtered or ambiguous
+observations and premature closure fail closed. Missing flags are accepted only
+for All options absent from the observed Selected group, not globally treated
+as false. Task, fixture, grader and local-model contracts stay unchanged.
+This is a bounded public-observation control, not authoritative grading or proof
+of a complete hidden/virtualized inventory. V5 requires its own reviewed source,
+fixed protocol and fresh actual control cohort; source tests alone do not
+establish successful triage or admit a model run.
+
 ## Close-Task Compatibility
 
 The close task is now release `1.0.3`: its fixture recipe moved into

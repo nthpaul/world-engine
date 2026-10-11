@@ -228,6 +228,7 @@ class _TriageEdit:
     identity: str | None = None
     prior_activity: frozenset[tuple] = frozenset()
     waits: int = 0
+    prior_labels: frozenset[str] = frozenset()
 
 
 class BrowserReferencePolicy:
@@ -252,7 +253,7 @@ class BrowserReferencePolicy:
         self.confirmed_comment = False
         self.comment_requested = False
         self.recorder: RECORDER = lambda kind, payload: None
-        self.evidence_metadata = {"protocol": "public-ax-triage-control-v4" if triage else "public-ax-browser-control-v1", "scripted_control": True,
+        self.evidence_metadata = {"protocol": "public-ax-triage-control-v5" if triage else "public-ax-browser-control-v1", "scripted_control": True,
                                   "capability_measurement": False, "baseline": baseline, "training_eligible": False}
 
     def set_recorder(self, recorder: RECORDER) -> None:
@@ -359,6 +360,7 @@ class BrowserReferencePolicy:
             node = parsed[0]
             node["indent"] = len(line) - len(line.lstrip())
             attributes = line[_AX_NODE.match(line).end():]
+            node["attributes"] = attributes
             for name in ("selected", "checked"):
                 match = re.search(rf"(?:^|,)\s*{name}=(True|False)\s*$", attributes)
                 if match:
@@ -418,6 +420,125 @@ class BrowserReferencePolicy:
 
         fields = {"assignee": field_nodes(("Assignee", "Assignees")), "labels": field_nodes(("Labels",))}
 
+        def label_attributes(node):
+            # Commas inside quoted names/descriptions are not property boundaries.
+            parts = re.findall(r"(?:'(?:\\.|[^'])*'|\"(?:\\.|[^\"])*\"|[^,'\"])+", node["attributes"])
+            properties = {}
+            for part in parts:
+                key, separator, value = part.strip().partition("=")
+                key, value = key.strip(), value.strip()
+                if re.match(r"selected(?:\s|:)", key):
+                    raise BrowserError("reference control found malformed label selection properties")
+                if key not in ("selected", "multiselectable", "busy", "disabled", "value"):
+                    continue
+                if key in properties or not separator:
+                    raise BrowserError("reference control found ambiguous label properties")
+                if key == "value":
+                    try:
+                        parsed = ast.literal_eval(value)
+                    except (ValueError, SyntaxError):
+                        raise BrowserError("reference control found malformed label search") from None
+                    if type(parsed) is not str:
+                        raise BrowserError("reference control found malformed label search")
+                else:
+                    if value not in ("True", "False"):
+                        raise BrowserError("reference control found malformed label selection properties")
+                    parsed = value == "True"
+                properties[key] = parsed
+            return properties
+
+        def closed_labels():
+            items = fields["labels"]
+            names = []
+            field_indent = nodes[next(index for index, node in enumerate(nodes)
+                                      if node["role"] == "heading" and node["name"] == "Labels")]["indent"]
+            for node in items:
+                if node["role"] == "link":
+                    if node["indent"] != field_indent or not node["name"] or node["name"] in names:
+                        raise BrowserError("reference control found ambiguous closed label membership")
+                    names.append(node["name"])
+            return frozenset(names)
+
+        def label_inventory(items, picker_index, search):
+            properties = [label_attributes(node) for node in items]
+            if (any(value.get("busy") is True for value in properties)
+                    or any(node["role"] in ("status", "progressbar") or
+                           node["name"].strip().lower() in ("loading", "loading...", "loading labels", "no results")
+                           for node in items)
+                    or label_attributes(search).get("value", "") != ""):
+                raise BrowserError("reference control requires an unfiltered settled label picker")
+            picker = items[picker_index]
+            if (label_attributes(picker).get("multiselectable") is not True
+                    or search["indent"] != picker["indent"]):
+                raise BrowserError("reference control requires a multiselect label picker")
+            children = subtree(items, picker_index)
+            groups = [node for node in children if node["role"] == "group"]
+            if (len(groups) != 2 or {node["name"] for node in groups} != {"Selected", "All"}
+                    or any(node["indent"] != picker["indent"] + 1 for node in groups)):
+                raise BrowserError("reference control requires unique direct Selected and All label groups")
+            inventories = {}
+            recognized = set()
+            for group in groups:
+                group_index = next(index for index, node in enumerate(children) if node is group)
+                options = {}
+                for node in subtree(children, group_index):
+                    if node["role"] not in ("option", "checkbox", "listbox"):
+                        continue
+                    if (node["role"] != "option" or node["indent"] != group["indent"] + 1
+                            or not node["name"] or node["name"] in options):
+                        raise BrowserError("reference control found ambiguous grouped label options")
+                    options[node["name"]] = node
+                    recognized.add(id(node))
+                inventories[group["name"]] = options
+            if any(node["role"] in ("option", "checkbox", "listbox") and id(node) not in recognized
+                   for node in items if node is not picker):
+                raise BrowserError("reference control found label options outside their groups")
+            selected, all_options = inventories["Selected"], inventories["All"]
+            if (any(label_attributes(node).get("selected") is not True for node in selected.values())
+                    or not selected.keys() <= all_options.keys()):
+                raise BrowserError("reference control found inconsistent label membership")
+            for name, node in all_options.items():
+                flag = label_attributes(node).get("selected")
+                if (name in selected and flag is not True) or (name not in selected and flag is True):
+                    raise BrowserError("reference control found inconsistent label membership")
+            bids = [node["bid"] for group in inventories.values() for node in group.values() if node["bid"]]
+            if len(bids) != len(set(bids)):
+                raise BrowserError("reference control found ambiguous grouped label node IDs")
+            return frozenset(selected), all_options
+
+        def labels_action(items, picker_index, search):
+            edit = self.triage_edit
+            if not edit or edit.field != "labels" or edit.phase not in ("opening", "selecting", "applying"):
+                raise BrowserError("reference control lacks prior closed label membership")
+            selected, options = label_inventory(items, picker_index, search)
+            expected = edit.prior_labels | {"severity::2"}
+            if edit.phase == "opening":
+                if selected != edit.prior_labels:
+                    raise BrowserError("reference control found changed initial label membership")
+                target = options.get("severity::2")
+                if not target or not target["bid"]:
+                    return waiting("labels")
+                if label_attributes(target).get("disabled") is True:
+                    raise BrowserError("reference control found a disabled label option")
+                self.triage_edit = replace(edit, phase="selecting", waits=0)
+                return Click(bid=target["bid"])
+            if selected == edit.prior_labels and edit.phase == "selecting":
+                return waiting("labels")
+            if selected != expected:
+                raise BrowserError("reference control found changed pending label membership")
+            if edit.phase == "applying":
+                return waiting("labels")
+            buttons = [node for node in items if node["role"] == "button" and node["name"] == "Apply"
+                       and node["indent"] == items[picker_index]["indent"]]
+            if len(buttons) != 1:
+                raise BrowserError("reference control requires one scoped Apply button")
+            if label_attributes(buttons[0]).get("disabled") is True:
+                raise BrowserError("reference control found a disabled label Apply button")
+            if not buttons[0]["bid"]:
+                return waiting("labels")
+            self.triage_edit = replace(edit, phase="applying", waits=0)
+            return Click(bid=buttons[0]["bid"])
+
         def wanted(node, field):
             return (node["name"] == "severity::2" if field == "labels" else
                     bool(re.search(r"(?:^|[^\w-])@casey-oncall(?:$|[^\w-])", node["name"]))
@@ -430,7 +551,7 @@ class BrowserReferencePolicy:
         if opened:
             field = opened[0]
             items = fields[field]
-            if self.triage_edit and self.triage_edit.phase in ("applying", "dismissing"):
+            if field == "assignee" and self.triage_edit and self.triage_edit.phase in ("applying", "dismissing"):
                 return waiting(field)
             pickers = [index for index, node in enumerate(items) if node["role"] == "listbox"]
             if not pickers:
@@ -442,6 +563,8 @@ class BrowserReferencePolicy:
                         and node["name"] == "Search"]
             if len(searches) != 1:
                 raise BrowserError("reference control requires one scoped picker search")
+            if field == "labels":
+                return labels_action(items, pickers[0], searches[0])
             options = [node for node in subtree(items, pickers[0]) if node["role"] in ("option", "checkbox")]
             candidates = [node for node in options if wanted(node, field)]
             if len(candidates) > 1:
@@ -450,7 +573,7 @@ class BrowserReferencePolicy:
                 if not searches[0]["bid"] or (self.triage_edit and self.triage_edit.phase in ("searching", "selecting")):
                     return waiting(field)
                 self.triage_edit = _TriageEdit(field, "searching")
-                return Fill(bid=searches[0]["bid"], text="casey-oncall" if field == "assignee" else "severity::2")
+                return Fill(bid=searches[0]["bid"], text="casey-oncall")
             candidate = candidates[0]
             selected = candidate.get("selected" if candidate["role"] == "option" else "checked")
             if type(selected) is not bool:
@@ -506,19 +629,29 @@ class BrowserReferencePolicy:
 
         if self.triage_edit:
             edit = self.triage_edit
-            if edit.phase == "opening":
-                return waiting(edit.field)
-            member = committed(edit.field)
-            if edit.phase not in ("selecting", "applying", "dismissing") or not member:
-                return waiting(edit.field)
-            if edit.field == "assignee":
+            if edit.field == "labels":
+                if edit.phase == "opening":
+                    if closed_labels() != edit.prior_labels:
+                        raise BrowserError("reference control found changed opening label membership")
+                    return waiting("labels")
+                if edit.phase != "applying":
+                    raise BrowserError("reference control requires observed selection and Apply before label closure")
+                if closed_labels() != edit.prior_labels | {"severity::2"}:
+                    raise BrowserError("reference control found changed closed label membership")
+                self.triage_edit = None
+            else:
+                if edit.phase == "opening":
+                    return waiting(edit.field)
+                member = committed(edit.field)
+                if edit.phase not in ("selecting", "applying", "dismissing") or not member:
+                    return waiting(edit.field)
                 if edit.identity != "Casey On-call @casey-oncall":
                     raise BrowserError("reference control lacks corroborated account identity")
                 if edit.phase != "dismissing" and not (activity - edit.prior_activity):
                     return waiting(edit.field)
                 self.triage_confirmed_assignee = True
-            self.triage_edit = None
-        assigned, classified = committed("assignee"), committed("labels")
+                self.triage_edit = None
+        assigned, classified = committed("assignee"), "severity::2" in closed_labels()
         if assigned and assigned["name"] == "Casey On-call" and not self.triage_confirmed_assignee:
             assigned = None
         if assigned and classified:
@@ -528,7 +661,7 @@ class BrowserReferencePolicy:
                    and node["name"] == "Edit"]
         if len(buttons) != 1:
             raise BrowserError("reference control requires one observed sidebar edit button")
-        self.triage_edit = _TriageEdit(field, "opening")
+        self.triage_edit = _TriageEdit(field, "opening", prior_labels=closed_labels() if field == "labels" else frozenset())
         return Click(bid=buttons[0]["bid"])
 
     async def close(self) -> None:

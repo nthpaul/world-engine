@@ -118,7 +118,7 @@ async def test_public_reference_discovers_project_and_target_before_edit():
         "StaticText 'Incident reference: INC-2026-0217'\n[5] region 'Sidebar'\n\t[6] heading 'Assignee'\n"
         "\t[7] button 'Edit'\n\t[8] heading 'Labels'\n\t[9] button 'Edit'"), [])
     assert decision.action.bid == "7"
-    assert decision.evidence["protocol"] == "public-ax-triage-control-v4"
+    assert decision.evidence["protocol"] == "public-ax-triage-control-v5"
 
 
 async def test_reference_corroborates_username_and_current_bid_then_applies_picker():
@@ -145,21 +145,27 @@ async def test_reference_noop_and_only_missing_label():
     control = policy()
     text = ("StaticText 'Incident reference: INC-2026-0217'\n[7] region 'Sidebar'\n\t[8] heading 'Assignees'\n"
             "\t[13] link 'Casey On-call @casey-oncall'\n\t[10] button 'Edit'\n\t[9] heading 'Labels'\n"
-            "\tStaticText 'incident'\n\t[11] button 'Edit'\n\t[12] heading 'Due date'")
+            "\t[15] link 'incident'\n\t[11] button 'Edit'\n\t[12] heading 'Due date'")
     decision = await control.decide(observation(text), [])
     assert decision.action.bid == "11"
-    decision = await policy().decide(observation(text.replace("StaticText 'incident'", "[14] link 'severity::2'")), [])
+    decision = await policy().decide(observation(text.replace("[15] link 'incident'", "[14] link 'severity::2'")), [])
     assert decision.action.kind == "finish"
 
 
 async def test_reference_requires_exact_severity_option_not_prefix_match():
     control = policy()
-    # Conservative mock-only label picker; no real labels qualification claim.
+    # Grouped mock-only contract; no real labels qualification claim.
+    closed = ("StaticText 'Incident reference: INC-2026-0217'\n[5] region 'Sidebar'\n"
+              "\t[6] heading 'Assignee'\n\t[13] link '@casey-oncall'\n\t[7] button 'Edit'\n"
+              "\t[8] heading 'Labels'\n\t[9] button 'Edit'\n\t[14] link 'incident'")
+    assert (await control.decide(observation(closed), [])).action.bid == "9"
     text = ("StaticText 'Incident reference: INC-2026-0217'\n[5] region 'Sidebar'\n"
             "\t[6] heading 'Assignee'\n\t[13] link '@casey-oncall'\n\t[7] button 'Edit'\n"
             "\t[8] heading 'Labels'\n\t[9] button 'Apply'\n\t[1] combobox 'Search'\n"
-            "\t[10] listbox 'Select labels'\n"
-            "\t\t[2] option 'severity::20', selected=False\n\t\t[3] option 'severity::2', selected=False")
+            "\t[10] listbox 'Select labels', multiselectable=True\n"
+            "\t\t[15] group 'Selected'\n\t\t\t[16] option 'incident', selected=True\n"
+            "\t\t[17] group 'All'\n\t\t\t[18] option 'incident', selected=True\n"
+            "\t\t\t[2] option 'severity::20', selected=False\n\t\t\t[3] option 'severity::2'")
     decision = await control.decide(observation(text), [])
     assert decision.action.bid == "3"
 
