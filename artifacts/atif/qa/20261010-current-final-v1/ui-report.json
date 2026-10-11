@@ -1,0 +1,98 @@
+{
+  "generated_at": "2026-10-10T10:23:06.617Z",
+  "phase": "atif",
+  "base_url": "http://127.0.0.1:5173",
+  "run_id": "97700398-b43e-4780-a75a-5414441410b8",
+  "checks": [
+    "Committed API responds through Vite",
+    "UI creates an evaluation-only scripted batch without model calls",
+    "Real failed episodes retain max-step termination",
+    "Harbor ATIF selection remains active",
+    "Desktop ATIF inspector: document has no horizontal overflow",
+    "ATIF inspector: sampled small labels meet 4.5:1 text contrast",
+    "ATIF download contains both evaluation-only episodes",
+    "Native ATIF fields preserve actions, observations, controller context, outcome and evaluation exclusion",
+    "Scripted ATIF decisions do not fabricate model metrics or timestamps",
+    "Passed-only ATIF excludes both unsuccessful episodes",
+    "Quality-specific download paths preserve the full ATIF artifact",
+    "Mobile ATIF inspector: document has no horizontal overflow",
+    "ATIF phase has no browser errors"
+  ],
+  "downloads": [
+    {
+      "format": "atif",
+      "quality": "all",
+      "rows": 2,
+      "filename": "97700398-b43e-4780-a75a-5414441410b8-atif-all.jsonl",
+      "suggested_filename": "97700398-b43e-4780-a75a-5414441410b8-atif-all.jsonl",
+      "sha256": "9baef2e1246977173139451026105aeee520159bd19d0de844dd0c1b9a4dde84"
+    },
+    {
+      "format": "atif",
+      "quality": "passed",
+      "rows": 0,
+      "filename": "97700398-b43e-4780-a75a-5414441410b8-atif-passed.jsonl",
+      "suggested_filename": "97700398-b43e-4780-a75a-5414441410b8-atif-passed.jsonl"
+    }
+  ],
+  "text_contrast": [
+    {
+      "view": "ATIF inspector",
+      "samples": 19,
+      "minimum_ratio": 4.756291932193622
+    }
+  ],
+  "browser_errors": [],
+  "controller_source": {
+    "revision": "b4501029a332d7675a12fbf84b00358230d3d154",
+    "files": {
+      "web/src/api.ts": "d2c0062a9d0f6c05b24016e641213b123c45658af617d7988a6428650e23ce05",
+      "web/src/App.tsx": "c5e7d9c9cf8a8e2d836d0d163c3082eaf54fe7e5330e916a2a7de57d42ce90e7",
+      "scripts/ui-qa.mjs": "0335fd062d3a489f9d90a3d095c39fba5f0eeb137cc96bde7adeee51dc858fc6"
+    },
+    "source_dirty": false,
+    "source_dirty_scope": [
+      "web/src/api.ts",
+      "web/src/App.tsx",
+      "scripts/ui-qa.mjs"
+    ]
+  },
+  "api_episode_provenance": {
+    "environment_code_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+    "environment_id": "crm-merge",
+    "environment_version": "1.1.1",
+    "evaluation_only": true,
+    "git_dirty": true,
+    "git_dirty_scope": "entire checkout including docs and generated artifacts",
+    "git_revision": "b4501029a332d7675a12fbf84b00358230d3d154",
+    "grader_code_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+    "grader_version": "1.0.0",
+    "implementation_dirty": false,
+    "implementation_dirty_scope": [
+      "src/world_engine",
+      "pyproject.toml",
+      "uv.lock"
+    ],
+    "initial_state_hash": "a86a21cf157b254987c84522a05e93bcd5c40993e528275c21f659e6f7a4e357",
+    "lineage_id": "5987627801030f59acde9ad8858313dff36bd5893472947783d7c4734f822584",
+    "model": "scripted-baseline",
+    "model_digest": null,
+    "policy_code_hash": "e68a7b6093ef45c7b19c69d7f2dff789112445d5c9e91b4c338957420798c26f",
+    "policy_hash": "c0295ad82d6369bc23668990d77efc8785c5ff7aae61a89470964da54f33e04c",
+    "policy_identity": "configuration-only; weights unverified",
+    "policy_version": "workflow-json-v1",
+    "prompt_hash": "627044c1e59f7b96c55776150fde463177965820b377461a78882ba0d9655fff",
+    "provider_class": "world_engine.providers.ScriptedProvider",
+    "provider_id": "scripted-baseline",
+    "provider_source_hash": "3a459c9582d0a43fa6bbaebc1e7ce79d48470485e4d366c7b28431571817603b",
+    "runtime": "3.13.5",
+    "scenario_id": "9bb6df4b22eda0c16c262b0fc35da4560677dbe41b9157f9f9c0e5c900495ea8",
+    "schema_version": "1.0.0",
+    "seed": 730,
+    "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+    "task_hash": "c0433fb12a1fd7b3c2a0fb2e9524ba9fed4c5053683bed92d7c4b599a78eaa5d"
+  },
+  "provider_calls": 0,
+  "paid_calls": 0,
+  "video": "/Users/ple/projects/world-engine/artifacts/atif/qa/20261010-current-final-v1/video/page@f2f35e892178de101ce69b0553b04210.webm"
+}

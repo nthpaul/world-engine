@@ -179,6 +179,9 @@ async def _rollout(config: RunConfig, index: int, provider: Provider) -> JsonObj
     if provider_protocol == JSON_EVIDENCE_PROTOCOL:
         policy_configuration.update(provider_protocol=provider_protocol, provider_record_calls=True,
                                     provider_evidence_hash=digest(provenance["provider_evidence"]))
+    elif provider_protocol == "ollama-tools-ledger-v2":
+        policy_configuration.update(provider_protocol=provider_protocol,
+                                    provider_evidence_hash=digest(provenance["provider_evidence"]))
     provenance["policy_hash"] = digest(policy_configuration)
     trace: list[JsonObject] = []
     provider_events, recorder_token = provider_records.begin_episode()
@@ -188,8 +191,9 @@ async def _rollout(config: RunConfig, index: int, provider: Provider) -> JsonObj
         async with asyncio.timeout(config.timeout_seconds):
             for step_index in range(config.max_steps):
                 step_started = time.perf_counter()
-                context = policy_messages(world.observe(), trace)
-                decision = await provider.decide(world.observe(), trace)
+                observation = world.observe()
+                context = policy_messages(observation, trace)
+                decision = await provider.decide(observation, trace)
                 transition = world.step(decision.action)
                 trace.append({"index": step_index, "action": decision.action.model_dump(),
                               "observation": transition["observation"], "result": transition["result"],
@@ -247,17 +251,22 @@ class RunManager:
     """One process owns admission and a global concurrency budget for all submitted batches."""
 
     def __init__(self, store: Store, *, global_concurrency: int = MAX_GLOBAL_EPISODES):
+        if type(global_concurrency) is not int or not 1 <= global_concurrency <= MAX_GLOBAL_EPISODES:
+            raise ValueError(f"global_concurrency must be an integer from 1 to {MAX_GLOBAL_EPISODES}")
         self.store = store
         self.owner_lock = open(str(store.path) + ".lock", "a+")
         try:
-            fcntl.flock(self.owner_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError as error:
+            try:
+                fcntl.flock(self.owner_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError as error:
+                raise RuntimeError("database already owned by a running scheduler; use its HTTP API or a separate --db") from error
+            self.store.recover()
+            self.global_limit = asyncio.Semaphore(global_concurrency)
+            self.jobs: dict[str, Job] = {}
+            self.closing = False
+        except BaseException:
             self.owner_lock.close()
-            raise RuntimeError("database already owned by a running scheduler; use its HTTP API or a separate --db") from error
-        self.store.recover()
-        self.global_limit = asyncio.Semaphore(global_concurrency)
-        self.jobs: dict[str, Job] = {}
-        self.closing = False
+            raise
 
     def submit(self, config: RunConfig, provider: Provider | None = None) -> JsonObject:
         if self.closing:
@@ -378,22 +387,26 @@ def _replay(episode: JsonObject) -> JsonObject:
             raise ValueError(f"{label} differs from the replayed episode")
 
     provenance = episode["provenance"]
+    from world_engine.ollama_tools import NATIVE_PROTOCOLS, OllamaToolsProvider
+    native_protocol = provenance.get("provider_protocol")
     if "provider_record_calls" in provenance and type(provenance["provider_record_calls"]) is not bool:
         raise ValueError("provider recording mode must be boolean")
     if (provenance.get("provider_class") == "world_engine.ollama_tools.OllamaToolsProvider"
-            and provenance.get("provider_protocol") != "ollama-tools-v1"):
+            and native_protocol not in NATIVE_PROTOCOLS):
         raise ValueError("native provider is missing its native protocol contract")
     provider_pairs = None
     evidence_label = "native"
-    if provenance.get("provider_protocol") == "ollama-tools-v1":
-        from world_engine.ollama_tools import PROTOCOL, contract, module_hashes, verify_exchange
+    if native_protocol in NATIVE_PROTOCOLS:
+        from world_engine.ollama_tools import contract, module_hashes, verify_exchange
         evidence = provenance["provider_evidence"]
-        for key, value in module_hashes().items():
+        matches(provenance["provider_class"], "world_engine.ollama_tools.OllamaToolsProvider", "native provider class")
+        matches(provenance["provider_source_hash"], source_fingerprint(OllamaToolsProvider), "native provider source")
+        for key, value in module_hashes(native_protocol).items():
             matches(evidence[key], value, f"native {key}")
-        matches(evidence["native_contract"], contract(), "native contract")
-        matches(evidence["native_contract_hash"], digest(contract()), "native contract hash")
+        matches(evidence["native_contract"], contract(native_protocol), "native contract")
+        matches(evidence["native_contract_hash"], digest(contract(native_protocol)), "native contract hash")
         matches(provenance["training_eligible"], False, "native training eligibility")
-        provider_pairs = provider_records.validate_pairs(episode["provider_events"], PROTOCOL)
+        provider_pairs = provider_records.validate_pairs(episode["provider_events"], native_protocol)
     elif provenance.get("provider_protocol") == JSON_EVIDENCE_PROTOCOL:
         from world_engine.providers import (
             HTTPProvider,
@@ -418,6 +431,8 @@ def _replay(episode: JsonObject) -> JsonObject:
     elif (provenance.get("provider_record_calls") is True
           or any(event.get("protocol") == JSON_EVIDENCE_PROTOCOL for event in episode.get("provider_events", []))):
         raise ValueError("recorded JSON provider is missing its protocol contract")
+    elif any(event.get("protocol") in NATIVE_PROTOCOLS for event in episode.get("provider_events", [])):
+        raise ValueError("recorded native provider is missing its protocol contract")
     if type(episode["seed"]) is not int or not 0 <= episode["seed"] < 2 ** 31:
         raise ValueError("episode seed is invalid")
     if not isinstance(episode["trace"], list) or len(episode["trace"]) > 100:
@@ -430,6 +445,8 @@ def _replay(episode: JsonObject) -> JsonObject:
         raise ValueError("environment or grader implementation fingerprint differs from the recorded episode")
     initial_snapshot = world.snapshot()
     initial_observation = world.observe()
+    exchange_options = ({"protocol": native_protocol, "initial_observation": initial_observation}
+                        if native_protocol in NATIVE_PROTOCOLS else {})
     initial_state_hash = digest(initial_snapshot)
     task_hash = digest({"task": initial_observation["task"], "tools": initial_observation["tools"]})
     lineage_id = digest({"environment_family": world.id, "seed": episode["seed"]})
@@ -452,6 +469,9 @@ def _replay(episode: JsonObject) -> JsonObject:
     if provenance.get("provider_protocol") == JSON_EVIDENCE_PROTOCOL:
         policy_configuration.update(provider_protocol=JSON_EVIDENCE_PROTOCOL, provider_record_calls=True,
                                     provider_evidence_hash=digest(provenance["provider_evidence"]))
+    elif native_protocol == "ollama-tools-ledger-v2":
+        policy_configuration.update(provider_protocol=native_protocol,
+                                    provider_evidence_hash=digest(provenance["provider_evidence"]))
     policy_hash = digest(policy_configuration)
     matches(provenance["policy_hash"], policy_hash, "policy configuration hash")
     history = []
@@ -464,7 +484,7 @@ def _replay(episode: JsonObject) -> JsonObject:
             if index >= len(provider_pairs):
                 raise ValueError(f"{evidence_label} executed action has no recorded request")
             start, end = provider_pairs[index]
-            verify_exchange(start, end, provenance["model"], world.observe(), history, step["action"])
+            verify_exchange(start, end, provenance["model"], world.observe(), history, step["action"], **exchange_options)
             matches(step["usage"], end["usage"], f"{evidence_label} usage at step {index}")
         transition = world.step(step["action"])
         for key in ("state_hash", "result", "observation"):
@@ -477,7 +497,7 @@ def _replay(episode: JsonObject) -> JsonObject:
             if episode["status"] == "completed":
                 raise ValueError(f"completed {evidence_label} episode has an unexecuted request")
             start, end = provider_pairs[-1]
-            verify_exchange(start, end, provenance["model"], world.observe(), history, None)
+            verify_exchange(start, end, provenance["model"], world.observe(), history, None, **exchange_options)
         matches(episode["usage"], provider_records.usage_summary(episode["provider_events"]), f"{evidence_label} aggregate usage")
     elif provenance.get("usage_accounting") == "reported-http-decisions-v1":
         matches(episode["usage"], reported_decision_usage(history, episode["termination"]), "HTTP aggregate usage")

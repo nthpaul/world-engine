@@ -1,0 +1,66 @@
+{
+  "cleanup": {
+    "error_code": null,
+    "status": "completed"
+  },
+  "elapsed_seconds": 193.31609662505798,
+  "id": "65290263-20e0-4895-97eb-19ac5c2a418b",
+  "invalid_actions": 0,
+  "outcome": {
+    "checks": [
+      {
+        "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+        "name": "fixed_records",
+        "passed": true
+      },
+      {
+        "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+        "name": "project_preservation",
+        "passed": true
+      },
+      {
+        "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+        "name": "issue_preservation",
+        "passed": true
+      },
+      {
+        "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+        "name": "authorized_closure",
+        "passed": true
+      },
+      {
+        "detail": "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved.",
+        "name": "exact_comment_and_history",
+        "passed": true
+      },
+      {
+        "detail": "One target closure state event, attributed to the ordinary actor.",
+        "name": "closure_certificate",
+        "passed": true
+      },
+      {
+        "detail": "The exact comment precedes authorized closure.",
+        "name": "requested_order",
+        "passed": true
+      }
+    ],
+    "grader_version": "gitlab-state-v3",
+    "passed": true,
+    "reward": 1.0,
+    "sealed_state_sha256": "aba6c9d669c058be5b3a2cce0a54e34d0d7b9867064b77861d90a8a59fc3e0a4"
+  },
+  "passed": true,
+  "phase_seconds": {
+    "browser_close": 0.15222645900212228,
+    "cleanup": 0.8795844169799238,
+    "grade": 0.1945970410015434,
+    "provider_prepare": 0.000614666030742228,
+    "rollout": 12.023959415964782,
+    "seal": 27.131379875005223,
+    "startup": 152.9171823329525
+  },
+  "reward": 1.0,
+  "status": "completed",
+  "steps": 14,
+  "termination": "finished"
+}

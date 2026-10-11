@@ -173,7 +173,16 @@ export const api = {
     ),
   providers: () =>
     request("/providers", z.object({ providers: z.array(providerSchema) })),
-  runs: () => request("/runs", z.object({ runs: z.array(runSchema) })),
+  runs: ({ limit = 50, offset = 0, signal }: {
+    limit?: number;
+    offset?: number;
+    signal?: AbortSignal;
+  } = {}) =>
+    request(
+      `/runs?limit=${limit}&offset=${offset}`,
+      z.object({ runs: z.array(runSchema) }),
+      { signal },
+    ),
   run: (id: string) => request(`/runs/${encodeURIComponent(id)}`, detailSchema),
   create: (config: RunConfig) =>
     request("/runs", runSchema, {
