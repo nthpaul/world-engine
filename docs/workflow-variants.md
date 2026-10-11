@@ -4,7 +4,7 @@ CRM and refund worlds now exercise additional branches of their existing documen
 
 ## Deterministic cases
 
-The environment IDs remain `crm-merge` and `refund-ops`. CRM is version `1.1.0`; refund is `1.1.1`, including approval-history grader hardening after the initial `1.1.0` receipt. Each case is selected deterministically from the nonnegative integer seed; the same seed still generates reproducible IDs and amounts. Labels below are operator receipt metadata, not extra fields in the policy observation and not hidden expected outcomes.
+The environment IDs remain `crm-merge` and `refund-ops`. Current source is CRM `1.1.1` and refund `1.1.2`, including [complete-state/audit certificate correction](workflow-grader-integrity.md). The published `hardened` receipt used CRM `1.1.0` and refund `1.1.1`; it remains historical. Each case is selected deterministically from the nonnegative integer seed; the same seed still generates reproducible IDs and amounts. Labels below are operator receipt metadata, not extra fields in the policy observation and not hidden expected outcomes.
 
 | CRM `seed % 4` | Case | Required decision |
 |---:|---|---|
@@ -59,13 +59,13 @@ The collector refuses an existing output directory and uncommitted implementatio
 ```sh
 uv run pytest -q tests/test_workflow_variants.py tests/test_environments.py
 uv run ruff check src/world_engine/environments.py src/world_engine/providers.py tests/test_workflow_variants.py examples/workflow_variant_benchmark.py
-uv run python examples/workflow_variant_benchmark.py --output artifacts/workflow-variants/hardened
-uv run python -m world_engine replay --file artifacts/workflow-variants/hardened/traces.jsonl
+uv run python examples/workflow_variant_benchmark.py --output artifacts/workflow-variants/certificates-v3
+uv run python -m world_engine replay --file artifacts/workflow-variants/certificates-v3/traces.jsonl
 ```
 
 The receipt records the protocol hash, collector hash, Git revision and dirty scopes, exact source fingerprints, per-case and split counts, both outcomes, and full replay-checked operator traces. Reference success is expected implementation coverage, not evidence of learned-model quality. Incomplete-policy failure is a negative control, not a competitive agent score. Timing is diagnostic under uncontrolled background load.
 
-The immutable initial [1.1.0 receipt](../artifacts/workflow-variants/final/report.md) collected 128 valid attempts at source `6cc84237384f04b5a205b04a127ce99ba9ff00d9`. Its normal executions are preserved, but it predates the forged-approval grader correction. The [integrity sidecar](../artifacts/workflow-variants/final/INTEGRITY-NOTE.md) records that gap. The new collector uses a separate `hardened` directory only after committed source is frozen; no corrected receipt is claimed before collection. Neither historical traces nor measured outcomes are overwritten or relabeled.
+The immutable initial [1.1.0 receipt](../artifacts/workflow-variants/final/report.md) collected 128 valid attempts at source `6cc84237384f04b5a205b04a127ce99ba9ff00d9`. Its [integrity sidecar](../artifacts/workflow-variants/final/INTEGRITY-NOTE.md) records later gaps. The separate [hardened receipt](../artifacts/workflow-variants/hardened/report.md) collected 128 attempts at `4bc73fe6`, before complete-state/audit correction; its [sidecar](../artifacts/workflow-variants/hardened/INTEGRITY-NOTE.md) preserves that distinction. Protocol v3 now locks CRM `1.1.1`/refund `1.1.2`. The `certificates-v3` path above is proposed, not a delivered receipt; wait for committed source and root collection authorization. Historical traces and outcomes are never overwritten or relabeled.
 
 ## Lineage and source boundaries
 
@@ -73,4 +73,4 @@ Lineage remains a hash of environment family and seed, independent of source ver
 
 Seed holdout does not establish case holdout or family generalization: all eight refund cases can occur across train, validation, and test. A family-transfer or withheld-rule experiment needs a separate committed protocol and actual excluded cases. Paired policies and counterfactual fixtures are correlated observations, not additional independent task samples.
 
-The complete environment module is fingerprinted. Editing CRM/refund therefore also changes the recorded module fingerprint used for incident replay, even though incident semantics and version are unchanged. Old receipts must be replayed with their pinned source, not relabeled or regenerated under the new rules. The immutable [foundation report](report/world-engine-report.md), learning labs, and model receipts describe the foundation release; [operations](OPERATIONS.md#export-candidate-data-and-replay) gives a pinned checkout command. Imported dependencies are not recursively attested by module/class hashes.
+The complete environment module is fingerprinted. Editing CRM/refund therefore also changes the recorded module fingerprint used for incident replay, even though incident semantics and version are unchanged. Old receipts must be replayed with their pinned source, not relabeled or regenerated under the new rules. Original research reports and learning labs are retained privately; model receipts remain unchanged at their recorded source. The [engineering guide](engineering-guide.md) explains these boundaries, and [operations](OPERATIONS.md#export-candidate-data-and-replay) gives a pinned checkout command. Imported dependencies are not recursively attested by module/class hashes.

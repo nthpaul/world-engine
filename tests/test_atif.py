@@ -1,5 +1,6 @@
 import copy
 import hashlib
+import json
 import os
 
 import httpx
@@ -9,6 +10,14 @@ from world_engine.atif import ATIF_VERSION, HARBOR_SCHEMA_SHA256, export_episode
 from world_engine.models import RunConfig, canonical_json
 from world_engine.providers import HTTPProvider, ProviderError
 from world_engine.rollout import rollout
+
+
+class RawBody(httpx.AsyncByteStream):
+    def __init__(self, data):
+        self.body = json.dumps(data).encode()
+
+    async def __aiter__(self):
+        yield self.body
 
 
 async def test_scripted_export_preserves_data_without_claiming_llm_tokens():
@@ -41,9 +50,13 @@ async def test_scripted_export_preserves_data_without_claiming_llm_tokens():
 async def test_observed_http_tokens_and_model_identity_are_preserved():
     async def respond(request):
         if request.url.path == "/api/tags":
-            return httpx.Response(200, json={"models": [{"name": "qwen3:8b", "digest": "fixture-model-digest"}]})
-        return httpx.Response(200, json={"message": {"content": '{"tool":"finish","args":{}}'},
-                                         "prompt_eval_count": 123, "eval_count": 5, "model": "reported-resolved-model"})
+            return httpx.Response(200, stream=RawBody({"models": [{"name": "qwen3:8b", "digest": "a" * 64}]}))
+        if request.url.path == "/api/show":
+            return httpx.Response(200, stream=RawBody({"capabilities": ["completion"]}))
+        if request.url.path == "/api/version":
+            return httpx.Response(200, stream=RawBody({"version": "fixture"}))
+        return httpx.Response(200, stream=RawBody({"done": True, "done_reason": "stop", "message": {"role": "assistant", "content": '{"tool":"finish","args":{}}'},
+                                                  "prompt_eval_count": 123, "eval_count": 5, "model": "reported-resolved-model"}))
     config = RunConfig(environment_id="refund-ops", provider_id="local", evaluation_only=True)
     provider = HTTPProvider(config)
     provider.client = httpx.AsyncClient(transport=httpx.MockTransport(respond))
@@ -59,7 +72,7 @@ async def test_observed_http_tokens_and_model_identity_are_preserved():
     assert step["extra"]["configured_model_name"] == "qwen3:8b"
     assert document["agent"]["model_name"] == "qwen3:8b"
     assert step["metrics"] == {"prompt_tokens": 123, "completion_tokens": 5}
-    assert document["agent"]["extra"]["model_digest"] == "fixture-model-digest"
+    assert document["agent"]["extra"]["model_digest"] == "a" * 64
     assert document["final_metrics"]["total_prompt_tokens"] == 123
     assert "logprobs" not in step["metrics"] and "prompt_token_ids" not in step["metrics"]
 

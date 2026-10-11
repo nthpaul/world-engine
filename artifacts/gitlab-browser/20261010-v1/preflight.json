@@ -1,0 +1,58 @@
+{
+  "browser_status": {
+    "active_attempts": 0,
+    "available": true,
+    "max_active_attempts": 1,
+    "paid_calls_enabled": false,
+    "providers": [
+      {
+        "configured": true,
+        "id": "local-browser",
+        "model": "qwen3:8b",
+        "name": "Local Browser",
+        "readiness": "checked during attempt preparation"
+      },
+      {
+        "configured": true,
+        "id": "browser-reference",
+        "model": null,
+        "name": "Browser Reference Control",
+        "readiness": "checked during attempt preparation"
+      },
+      {
+        "configured": true,
+        "id": "browser-baseline",
+        "model": null,
+        "name": "Browser Incomplete Control",
+        "readiness": "checked during attempt preparation"
+      }
+    ],
+    "reason": null
+  },
+  "health": {
+    "active_runs": 0,
+    "execution": "in-process",
+    "max_global_concurrency": 8,
+    "paid_calls_enabled": false,
+    "status": "ok",
+    "version": "0.1.0"
+  },
+  "tasks": {
+    "tasks": [
+      {
+        "application": "GitLab CE",
+        "application_version": "19.4.1",
+        "evaluation_only": true,
+        "fixture_hash": "261a0941f8a69efeac5632d9a81ffcbce27c8bbd1f7726aac6b438db3f17c956",
+        "grader_version": "gitlab-state-v2",
+        "id": "gitlab-issue-close",
+        "image_digest": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+        "instruction": "In Release Operations, find the open issue whose description says Deployment reference: REL-2026-1042. Add exactly this comment: Release checklist verified; ready for closure. Then close that issue. Use an ordinary comment, not an internal note. Leave other issues, existing comments and project access unchanged.",
+        "name": "GitLab release issue closure",
+        "observation_mode": "AX",
+        "seed": 42,
+        "version": "1.0.1"
+      }
+    ]
+  }
+}

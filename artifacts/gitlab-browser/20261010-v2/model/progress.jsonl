@@ -1,0 +1,5 @@
+{"id": "1b5d2dbd-cd1a-4645-8c81-f63f636bb786", "status": "starting", "steps": 0, "termination": null, "updated_at": "2026-10-10T20:57:36.074087+00:00"}
+{"id": "1b5d2dbd-cd1a-4645-8c81-f63f636bb786", "status": "running", "steps": 0, "termination": null, "updated_at": "2026-10-10T21:00:16.112945+00:00"}
+{"id": "1b5d2dbd-cd1a-4645-8c81-f63f636bb786", "status": "sealing", "steps": 0, "termination": null, "updated_at": "2026-10-10T21:00:29.141980+00:00"}
+{"id": "1b5d2dbd-cd1a-4645-8c81-f63f636bb786", "status": "grading", "steps": 0, "termination": null, "updated_at": "2026-10-10T21:00:57.322571+00:00"}
+{"id": "1b5d2dbd-cd1a-4645-8c81-f63f636bb786", "status": "failed", "steps": 0, "termination": "provider_error", "updated_at": "2026-10-10T21:00:58.510592+00:00"}
