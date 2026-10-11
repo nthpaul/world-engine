@@ -9,17 +9,23 @@ This is evaluation-only. Neither the public task nor its solution, grader, or ag
 Docker must be running. For the model attempt, Ollama must serve an already installed `qwen3:8b` model on loopback. No model downloads, external model APIs, or paid calls are performed.
 
 ```sh
-python3 scripts/public-benchmark.py
+python3 scripts/public-benchmark.py --output artifacts/public-benchmark/NEW_MODEL_RUN
 python3 -m unittest discover -s tests -p test_public_benchmark.py
 ```
 
 To verify only the official solution and negative control:
 
 ```sh
-python3 scripts/public-benchmark.py --skip-local
+python3 scripts/public-benchmark.py --skip-local --output artifacts/public-benchmark/NEW_CONTROL_RUN
 ```
 
-The runner resolves the official `python:3.13-slim-bookworm` image to its digest, generates the original logs at build time, and creates a separate verifier image with `pytest==8.4.1`. Build steps require Docker Hub and PyPI access; episodes and grading run without container networking. Reports record the resolved base digest and actual agent/verifier image IDs. Subsequent runs can use Docker's build cache, though the base tag is resolved again.
+Replace each `NEW_*_RUN` directory with a fresh name. Existing directories, files and symlinks are refused before any Docker or model activity.
+
+Before any image pull or build, the runner resolves Docker's configured endpoint using only local context configuration. It rejects TCP, SSH and remote named pipes, and pins every Docker command, including cleanup, to that verified local Unix socket or local named pipe. Subprocesses receive only `HOME`, `PATH` and `DOCKER_CONFIG`, not environment overrides that can redirect Docker. Docker Desktop's Unix socket may reach its local VM; this is not remote infrastructure or a microVM security claim.
+
+Unless `--skip-local` is set, bounded identity-encoded `/api/tags`, `/api/show` and `/api/version` requests validate the exact installed model name, SHA-256 digest, absence of cloud/remote metadata, and the selected protocol's capability (`tools` for native tools, `completion` for JSON commands). These checks run before image activity. `--skip-local` makes no model metadata requests. This standalone stdlib implementation does not import the SDK guards. Historical runner receipts predate these preflight guards; they remain historical evidence, not proof that those checks ran.
+
+After preflight, the runner resolves the official `python:3.13-slim-bookworm` image to its digest, generates the original logs at build time, and creates a separate verifier image with `pytest==8.4.1`. Build steps require Docker Hub and PyPI access; episodes and grading run without container networking. Reports record the resolved base digest and actual agent/verifier image IDs. Subsequent runs can use Docker's build cache, though the base tag is resolved again. Installed local model identity is checked before collection, not locked against an operator replacing the model or daemon during a run.
 
 ## Isolation and bounds
 

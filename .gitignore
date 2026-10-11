@@ -11,6 +11,8 @@ __pycache__/
 *.sqlite3-shm
 *.sqlite3.lock
 artifacts/tmp/
+artifacts/gitlab-feasibility/
+artifacts/**/*sealed*.json
 web/node_modules/
 web/dist/
 web/*.tsbuildinfo
@@ -20,6 +22,8 @@ docs/report/*.log
 docs/report/*-text.txt
 docs/report/*-metadata.txt
 docs/report/*-links.txt
+/docs/report/
+/docs/research/
 .env
 .env.*
 !.env.example
