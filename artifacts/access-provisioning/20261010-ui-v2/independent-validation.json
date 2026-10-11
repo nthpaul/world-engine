@@ -1,0 +1,31 @@
+{
+  "schema": "world-engine.ui-independent-validation.v1",
+  "validated_at": "2026-10-10T08:28:50+00:00",
+  "collection_revision": "e1550290b6bb954df86d2d8dd0e52dd7d6428967",
+  "matched_controller_source_file_hashes": 25,
+  "replayed_episodes": 16,
+  "downloaded_actual_upstream_validated_documents": 16,
+  "harbor_distribution_version": "0.24.0",
+  "upstream_harbor_revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+  "harbor_schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c",
+  "pydantic_version": "2.14.0",
+  "byte_exact_downloads_reproduced_by_actual_exporter": 10,
+  "training_format_exclusions": {"sft": 16, "dpo": 16, "grpo": 16},
+  "candidate_pool_queries_from_excluded_episodes": 0,
+  "connected_checks": 31,
+  "oracle": {"episodes": 8, "business_passes": 8},
+  "baseline": {"episodes": 8, "business_passes": 0},
+  "steps": 121,
+  "screenshots_inspected": 13,
+  "viewports": [{"width": 1440, "height": 960}, {"width": 390, "height": 844}, {"width": 360, "height": 844}],
+  "browser_runtime_errors": 0,
+  "video": {"filename": "video/page@e370438cf9bd9eb6599daad7af33f726.webm", "codec": "vp9", "width": 1440, "height": 960, "duration_seconds": 5.48, "bytes": 1343191, "sha256": "fdb0666271ce9bbdf8af9fe2ac97f0abea4456f29f54255de00d3afbd112127f", "full_decode_exit_code": 0, "sampled_frames_inspected": 3},
+  "original_collection_files": {
+    "access-evaluation-episodes.jsonl": {"bytes": 2380262, "sha256": "6b76095500d1002351e6a930e2ed74639c6441720858379cf1b4aa1974430d52"},
+    "ui-report.json": {"bytes": 14481, "sha256": "5226a32f79b0ed0fe8c2dc662b04ebafa6d8fae53ff1027781b284b3211bef6e"}
+  },
+  "publication_sidecar_excluded_from_original_collection_byte_accounting": true,
+  "model_calls": 0,
+  "paid_calls": 0,
+  "limitations": "Connected local scripted outcome controls, not a model-navigation benchmark. Provenance tables intentionally scroll horizontally on narrow screens. The fixed video canvas letterboxes after viewport resize. Earlier failed UI-v1 evidence remains preserved and is not relabeled as successful."
+}

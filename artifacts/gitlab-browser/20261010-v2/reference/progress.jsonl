@@ -1,0 +1,9 @@
+{"id": "c566b7a1-de22-4269-a97d-e588210935c8", "status": "starting", "steps": 0, "termination": null, "updated_at": "2026-10-10T20:54:16.655950+00:00"}
+{"id": "c566b7a1-de22-4269-a97d-e588210935c8", "status": "running", "steps": 2, "termination": null, "updated_at": "2026-10-10T20:56:55.328822+00:00"}
+{"id": "c566b7a1-de22-4269-a97d-e588210935c8", "status": "running", "steps": 4, "termination": null, "updated_at": "2026-10-10T20:56:57.623126+00:00"}
+{"id": "c566b7a1-de22-4269-a97d-e588210935c8", "status": "running", "steps": 6, "termination": null, "updated_at": "2026-10-10T20:56:59.333524+00:00"}
+{"id": "c566b7a1-de22-4269-a97d-e588210935c8", "status": "running", "steps": 8, "termination": null, "updated_at": "2026-10-10T20:57:01.516118+00:00"}
+{"id": "c566b7a1-de22-4269-a97d-e588210935c8", "status": "running", "steps": 9, "termination": null, "updated_at": "2026-10-10T20:57:03.147966+00:00"}
+{"id": "c566b7a1-de22-4269-a97d-e588210935c8", "status": "running", "steps": 12, "termination": null, "updated_at": "2026-10-10T20:57:05.133780+00:00"}
+{"id": "c566b7a1-de22-4269-a97d-e588210935c8", "status": "sealing", "steps": 15, "termination": null, "updated_at": "2026-10-10T20:57:06.905513+00:00"}
+{"id": "c566b7a1-de22-4269-a97d-e588210935c8", "status": "completed", "steps": 15, "termination": "finished", "updated_at": "2026-10-10T20:57:35.675693+00:00"}
