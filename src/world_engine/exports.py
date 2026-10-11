@@ -29,6 +29,16 @@ def clean_success(episode: JsonObject) -> bool:
     return episode["passed"] and episode["status"] == "completed" and episode["invalid_actions"] == 0
 
 
+def json_training_compatible(episode: JsonObject) -> bool:
+    provenance = episode["provenance"]
+    cleanup = episode.get("provider_cleanup")
+    return (provenance.get("provider_protocol", "workflow-json-v1") == "workflow-json-v1"
+            and provenance.get("provider_class") != "world_engine.ollama_tools.OllamaToolsProvider"
+            and provenance.get("provider_record_calls") is not True
+            and (cleanup is None or isinstance(cleanup, dict) and cleanup.get("status") == "completed")
+            and provenance.get("training_eligible", True) is not False and not episode.get("provider_events"))
+
+
 def comparable(left: JsonObject, right: JsonObject) -> bool:
     fields = ("environment_id", "environment_version", "grader_version", "environment_code_hash", "grader_code_hash", "task_hash", "prompt_hash", "initial_state_hash")
     return (left["scenario_id"] == right["scenario_id"] and left["split"] == right["split"]
@@ -46,7 +56,8 @@ def export_records(store: Store, run_id: str, format: ExportFormat = "sft", qual
     records: list[JsonObject] = []
     seen: set[str] = set()
     skipped = 0
-    excluded = {"heldout_split": 0, "evaluation_only": 0, "quality": 0, "replay_mismatch": 0, "insufficient_alternatives": 0}
+    excluded = {"heldout_split": 0, "evaluation_only": 0, "quality": 0, "replay_mismatch": 0,
+                "insufficient_alternatives": 0, "unsupported_provider_protocol": 0}
     for episode in episodes:
         if format == "atif":
             try:
@@ -60,6 +71,10 @@ def export_records(store: Store, run_id: str, format: ExportFormat = "sft", qual
                 excluded["quality"] += 1
                 continue
             records.append(record)
+            continue
+        if format != "traces" and not json_training_compatible(episode):
+            skipped += 1
+            excluded["unsupported_provider_protocol"] += 1
             continue
         if format != "traces" and episode["provenance"].get("evaluation_only"):
             skipped += 1
@@ -93,17 +108,27 @@ def export_records(store: Store, run_id: str, format: ExportFormat = "sft", qual
                                     "reward": episode["reward"], "passed": episode["passed"], "training_unit": "single-tool-decision"})
             else:
                 # Operator detail exposes check descriptions; dataset exports do not copy the grader rubric.
-                records.append({"schema": "world-engine.trace.v1", "provenance": provenance,
+                record = {"schema": "world-engine.trace.v1", "provenance": provenance,
                                 "initial_observation": episode["initial_observation"], "trace": episode["trace"],
                                 "final_state_hash": episode["final_state_hash"], "reward": episode["reward"],
-                                "passed": episode["passed"], "termination": episode["termination"]})
+                                "passed": episode["passed"], "termination": episode["termination"]}
+                if "provider_events" in episode:
+                    record["provider_events"] = episode["provider_events"]
+                    record["provider_recording"] = episode["provider_recording"]
+                    record["usage"] = episode["usage"]
+                    record["training_eligible"] = False
+                if "provider_cleanup" in episode:
+                    record["provider_cleanup"] = episode["provider_cleanup"]
+                    if episode["provider_cleanup"]["status"] != "completed":
+                        record["training_eligible"] = False
+                records.append(record)
             continue
         if episode["scenario_id"] in seen:
             continue
         seen.add(episode["scenario_id"])
         candidates = [candidate for candidate in store.candidates(episode["scenario_id"])
                       if comparable(episode, candidate) and candidate["trace"] and candidate["status"] == "completed"
-                      and not candidate["provenance"].get("evaluation_only")]
+                      and not candidate["provenance"].get("evaluation_only") and json_training_compatible(candidate)]
         unique: dict[str, JsonObject] = {}
         for candidate in candidates:
             try:
