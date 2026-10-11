@@ -15,7 +15,17 @@ from world_engine import make_environment, provider_records
 from world_engine.atif import HARBOR_SCHEMA_SHA256, export_episode
 from world_engine.exports import export_records
 from world_engine.models import RunConfig, canonical_json, digest
-from world_engine.ollama_tools import PROTOCOL, OllamaToolsProvider, request_body
+from world_engine.native_ledger import reconstruct
+from world_engine.ollama_tools import (
+    LEDGER_PROTOCOL,
+    NATIVE_PROTOCOLS,
+    PROTOCOL,
+    OllamaToolsProvider,
+    contract,
+    module_hashes,
+    request_body,
+    verify_exchange,
+)
 from world_engine.providers import ProviderError, ScriptedProvider
 from world_engine.rollout import replay, rollout
 from world_engine.store import Store
@@ -37,17 +47,18 @@ def response(tool="finish", args=None, **extra):
                 {"id": "reported-call-id", "function": {"index": 0, "name": tool, "arguments": args or {}}}]}, **extra}
 
 
-async def prepared(config, reply, *, tags=None, shown=None, version="fixture-ollama"):
+async def prepared(config, reply, *, tags=None, shown=None, version="fixture-ollama", protocol=PROTOCOL):
     requests = []
 
     async def respond(request):
         requests.append(request)
         if request.url.path == "/api/tags":
-            return httpx.Response(200, json=tags or {"models": [{"name": "qwen3:8b", "digest": FIXTURE_DIGEST}]})
+            body = tags or {"models": [{"name": "qwen3:8b", "digest": FIXTURE_DIGEST}]}
+            return httpx.Response(200, stream=RawBody(json.dumps(body).encode()))
         if request.url.path == "/api/show":
-            return httpx.Response(200, json=shown or {"capabilities": ["tools", "completion"]})
+            return httpx.Response(200, stream=RawBody(json.dumps(shown or {"capabilities": ["tools", "completion"]}).encode()))
         if request.url.path == "/api/version":
-            return httpx.Response(200, json={"version": version})
+            return httpx.Response(200, stream=RawBody(json.dumps({"version": version}).encode()))
         if callable(reply):
             result = await reply(request)
         else:
@@ -56,7 +67,7 @@ async def prepared(config, reply, *, tags=None, shown=None, version="fixture-oll
             result = httpx.Response(result.status_code, headers=result.headers, stream=RawBody(result.content))
         return result
 
-    provider = OllamaToolsProvider(config)
+    provider = OllamaToolsProvider(config, protocol=protocol)
     provider.client = httpx.AsyncClient(transport=httpx.MockTransport(respond))
     try:
         await provider.prepare()
@@ -66,9 +77,9 @@ async def prepared(config, reply, *, tags=None, shown=None, version="fixture-oll
     return provider, requests
 
 
-async def native_episode(reply=None, **config_fields):
+async def native_episode(reply=None, *, protocol=PROTOCOL, **config_fields):
     config = RunConfig(environment_id="crm-merge", seed=730, provider_id="local", **config_fields)
-    provider, requests = await prepared(config, reply if reply is not None else response())
+    provider, requests = await prepared(config, reply if reply is not None else response(), protocol=protocol)
     try:
         episode = await rollout(config, 0, provider)
     finally:
@@ -98,6 +109,199 @@ async def test_exact_request_response_ids_and_reported_usage():
     assert body == request_body("qwen3:8b", episode["initial_observation"], [])
     assert "initial_snapshot" not in start["request_body"] and "grader" not in start["request_body"]
     assert len(body["tools"]) == len(episode["initial_observation"]["tools"])
+
+
+def test_default_v1_contract_and_request_configuration_are_unchanged():
+    assert digest(contract()) == "0e57c609b4ef58ab4e28551997d9839f0bdd532bd80f6bd3c9fc3bbf4d3a688b"
+    assert contract() == contract(PROTOCOL)
+    assert "ledger_module_sha256" not in module_hashes()
+    config = RunConfig(environment_id="crm-merge", provider_id="local")
+    provider = OllamaToolsProvider(config)
+    assert provider.provider_protocol == PROTOCOL
+    observation = make_environment("crm-merge", 730).observe()
+    implicit = request_body("qwen3:8b", observation, [])
+    explicit = request_body("qwen3:8b", observation, [], protocol=PROTOCOL)
+    assert implicit == explicit
+    assert json.loads(implicit["messages"][1]["content"]) == {"observation": observation, "history": []}
+    with pytest.raises(AttributeError):
+        provider.provider_protocol = LEDGER_PROTOCOL
+
+
+@pytest.mark.parametrize("protocol", [None, True, "", "unknown", "ollama-tools-v3", [PROTOCOL]])
+def test_unknown_protocol_is_rejected_before_provider_setup(protocol, monkeypatch):
+    def no_endpoint():
+        pytest.fail("unknown protocol reached endpoint setup")
+
+    monkeypatch.setattr("world_engine.ollama_tools.local_endpoint", no_endpoint)
+    with pytest.raises(ProviderError, match="unknown native context protocol"):
+        OllamaToolsProvider(RunConfig(environment_id="crm-merge"), protocol=protocol)
+
+
+@pytest.mark.parametrize("environment_id", ["crm-merge", "refund-ops", "incident-control", "access-provisioning"])
+@pytest.mark.parametrize("seed", range(8))
+async def test_ledger_native_mock_reference_rollout_replays_all_worlds(environment_id, seed):
+    oracle = ScriptedProvider()
+    bodies = []
+
+    async def reply(request):
+        body = json.loads(request.content)
+        public = reconstruct(body)
+        bodies.append(body)
+        decision = await oracle.decide(public["observation"], public["history"])
+        return httpx.Response(200, json=response(decision.action.tool, decision.action.args, prompt_eval_count=0, eval_count=2))
+
+    config = RunConfig(environment_id=environment_id, seed=seed, provider_id="local", max_steps=20, evaluation_only=True)
+    provider, requests = await prepared(config, reply, protocol=LEDGER_PROTOCOL)
+    try:
+        episode = await rollout(config, 0, provider)
+    finally:
+        await provider.close()
+    assert episode["passed"] and replay(episode)["verified"]
+    provenance = episode["provenance"]
+    assert provenance["provider_protocol"] == LEDGER_PROTOCOL and provenance["training_eligible"] is False
+    assert provenance["provider_evidence"]["native_contract"] == contract(LEDGER_PROTOCOL)
+    assert provenance["provider_evidence"]["ledger_module_sha256"] == module_hashes(LEDGER_PROTOCOL)["ledger_module_sha256"]
+    assert all(event["protocol"] == LEDGER_PROTOCOL for event in episode["provider_events"])
+    assert len(bodies) == episode["steps"] == len([request for request in requests if request.url.path == "/api/chat"])
+    for index, body in enumerate(bodies):
+        current = episode["trace"][index - 1]["observation"] if index else episode["initial_observation"]
+        assert body == request_body(provenance["model"], current, episode["trace"][:index],
+                                    protocol=LEDGER_PROTOCOL, initial_observation=episode["initial_observation"])
+        if index:
+            assert body["messages"][1]["content"].startswith(bodies[index - 1]["messages"][1]["content"] + "\n")
+
+
+@pytest.mark.parametrize("reply_kind", ["rejected-action", "invalid-reply", "cancelled"])
+async def test_ledger_failed_and_unexecuted_mock_requests_replay(reply_kind):
+    async def reply(request):
+        if reply_kind == "cancelled":
+            raise asyncio.CancelledError()
+        data = response("unavailable_tool") if reply_kind == "rejected-action" else {"done": True, "message": {"role": "assistant"}}
+        return httpx.Response(200, json=data)
+
+    episode, _ = await native_episode(reply, protocol=LEDGER_PROTOCOL, max_steps=1)
+    assert replay(episode)["verified"] and not episode["passed"] and episode["reward"] == 0
+    assert len(episode["provider_events"]) == 2
+    if reply_kind == "rejected-action":
+        assert episode["steps"] == episode["invalid_actions"] == 1
+    else:
+        assert episode["steps"] == 0
+
+
+@pytest.mark.parametrize("protocol", NATIVE_PROTOCOLS)
+async def test_native_policy_configuration_preserves_v1_and_pins_v2(protocol):
+    episode, _ = await native_episode(protocol=protocol)
+    provenance = episode["provenance"]
+    configuration = {key: provenance[key] for key in ("provider_id", "provider_class", "provider_source_hash", "model",
+                                                      "model_digest", "policy_code_hash", "system_prompt_hash")}
+    configuration["temperature"] = 0
+    if protocol == LEDGER_PROTOCOL:
+        configuration.update(provider_protocol=protocol, provider_evidence_hash=digest(provenance["provider_evidence"]))
+    assert provenance["policy_hash"] == digest(configuration)
+    assert replay(episode)["verified"]
+
+
+@pytest.mark.parametrize("mutation", ["unknown", "missing", "downgrade", "native-class", "native-source", "ledger-source",
+                                    "contract", "contract-hash", "pair-protocol", "eligibility", "policy-hash", "hidden-native-label"])
+async def test_ledger_replay_rejects_protocol_and_evidence_mutations(mutation):
+    episode, _ = await native_episode(protocol=LEDGER_PROTOCOL)
+    provenance = episode["provenance"]
+    if mutation == "unknown":
+        provenance["provider_protocol"] = "unknown"
+    elif mutation == "missing":
+        del provenance["provider_protocol"]
+    elif mutation == "downgrade":
+        provenance["provider_protocol"] = PROTOCOL
+    elif mutation == "native-class":
+        provenance["provider_class"] = "fixture.UnknownProvider"
+    elif mutation == "native-source":
+        provenance["provider_source_hash"] = "0" * 64
+    elif mutation == "ledger-source":
+        provenance["provider_evidence"]["ledger_module_sha256"] = "0" * 64
+    elif mutation == "contract":
+        provenance["provider_evidence"]["native_contract"] = contract()
+    elif mutation == "contract-hash":
+        provenance["provider_evidence"]["native_contract_hash"] = "0" * 64
+    elif mutation == "pair-protocol":
+        for event in episode["provider_events"]:
+            event["protocol"] = PROTOCOL
+    elif mutation == "eligibility":
+        provenance["training_eligible"] = True
+    elif mutation == "policy-hash":
+        provenance["policy_hash"] = "0" * 64
+    else:
+        provenance["provider_protocol"] = "unknown"
+        provenance["provider_class"] = "fixture.UnknownProvider"
+    with pytest.raises(ValueError):
+        replay(episode)
+
+
+async def test_ledger_replay_uses_trusted_reset_initial_not_recorded_context():
+    episode, _ = await native_episode(protocol=LEDGER_PROTOCOL)
+    start, end = episode["provider_events"]
+    with pytest.raises(ValueError, match="trusted initial"):
+        verify_exchange(start, end, "qwen3:8b", episode["initial_observation"], [],
+                        episode["trace"][0]["action"], protocol=LEDGER_PROTOCOL)
+    body = json.loads(start["request_body"])
+    first = json.loads(body["messages"][1]["content"])
+    first["initial_observation"]["state"]["role"] = "invented"
+    body["messages"][1]["content"] = canonical_json(first)
+    start["request_body"] = canonical_json(body)
+    start["request_bytes"] = len(start["request_body"].encode())
+    start["request_sha256"] = provider_records.byte_hash(start["request_body"].encode())
+    with pytest.raises(ValueError, match="native request differs"):
+        replay(episode)
+
+
+async def test_ledger_invalid_context_emits_no_attempt_and_redacts_input():
+    config = RunConfig(environment_id="crm-merge", provider_id="local")
+    provider, requests = await prepared(config, response(), protocol=LEDGER_PROTOCOL)
+    observation = make_environment("crm-merge", 730).observe()
+    observation["private_snapshot"] = "PRIVATE_SENTINEL"
+    events, token = provider_records.begin_episode()
+    try:
+        with pytest.raises(ProviderError, match="no request sent") as caught:
+            await provider.decide(observation, [])
+        assert "PRIVATE_SENTINEL" not in str(caught.value) and caught.value.__suppress_context__
+        assert events == [] and all(request.url.path != "/api/chat" for request in requests)
+    finally:
+        provider_records.end_episode(token)
+        await provider.close()
+
+
+async def test_shared_ledger_provider_does_not_retain_cross_episode_initial_state():
+    oracle = ScriptedProvider()
+
+    async def reply(request):
+        public = reconstruct(json.loads(request.content))
+        decision = await oracle.decide(public["observation"], public["history"])
+        return httpx.Response(200, json=response(decision.action.tool, decision.action.args))
+
+    config = RunConfig(environment_id="access-provisioning", provider_id="local", seed=0, max_steps=20)
+    provider, requests = await prepared(config, reply, protocol=LEDGER_PROTOCOL)
+    try:
+        episodes = await asyncio.gather(*(rollout(config, index, provider) for index in range(8)))
+    finally:
+        await provider.close()
+    assert all(episode["passed"] and replay(episode)["verified"] for episode in episodes)
+    call_ids = [event["call_id"] for episode in episodes for event in episode["provider_events"] if event["event"] == "request_started"]
+    assert len(call_ids) == len(set(call_ids)) == len([request for request in requests if request.url.path == "/api/chat"])
+    assert not hasattr(provider, "initial_observation")
+
+
+async def test_downgraded_ledger_labels_and_contract_cannot_hide_v2_wire():
+    episode, _ = await native_episode(protocol=LEDGER_PROTOCOL)
+    provenance = episode["provenance"]
+    provenance["provider_protocol"] = PROTOCOL
+    provenance["provider_evidence"]["native_contract"] = contract()
+    provenance["provider_evidence"]["native_contract_hash"] = digest(contract())
+    for event in episode["provider_events"]:
+        event["protocol"] = PROTOCOL
+    configuration = {key: provenance[key] for key in ("provider_id", "provider_class", "provider_source_hash", "model",
+                                                      "model_digest", "policy_code_hash", "system_prompt_hash")}
+    provenance["policy_hash"] = digest({**configuration, "temperature": 0})
+    with pytest.raises(ValueError, match="native request differs"):
+        replay(episode)
 
 
 async def test_missing_id_and_unknown_usage_are_not_invented():
@@ -420,16 +624,18 @@ async def test_replay_rejects_native_record_and_eligibility_mutations():
         replay(episode)
 
 
-async def test_native_training_exclusion_and_operator_exports(tmp_path):
+@pytest.mark.parametrize("protocol", NATIVE_PROTOCOLS)
+async def test_native_training_exclusion_and_operator_exports(tmp_path, protocol):
     oracle = ScriptedProvider()
 
     async def reply(request):
-        payload = json.loads(json.loads(request.content)["messages"][1]["content"])
+        body = json.loads(request.content)
+        payload = reconstruct(body) if protocol == LEDGER_PROTOCOL else json.loads(body["messages"][1]["content"])
         decision = await oracle.decide(payload["observation"], payload["history"])
         return httpx.Response(200, json=response(decision.action.tool, decision.action.args))
 
-    native_success, _ = await native_episode(reply)
-    native_failure, _ = await native_episode(response())
+    native_success, _ = await native_episode(reply, protocol=protocol)
+    native_failure, _ = await native_episode(response(), protocol=protocol)
     assert native_success["passed"] and native_success["split"] == "train"
     assert not native_failure["passed"]
     store = Store(tmp_path / "test.db")

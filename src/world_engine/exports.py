@@ -31,8 +31,11 @@ def clean_success(episode: JsonObject) -> bool:
 
 def json_training_compatible(episode: JsonObject) -> bool:
     provenance = episode["provenance"]
+    cleanup = episode.get("provider_cleanup")
     return (provenance.get("provider_protocol", "workflow-json-v1") == "workflow-json-v1"
             and provenance.get("provider_class") != "world_engine.ollama_tools.OllamaToolsProvider"
+            and provenance.get("provider_record_calls") is not True
+            and (cleanup is None or isinstance(cleanup, dict) and cleanup.get("status") == "completed")
             and provenance.get("training_eligible", True) is not False and not episode.get("provider_events"))
 
 
@@ -114,6 +117,10 @@ def export_records(store: Store, run_id: str, format: ExportFormat = "sft", qual
                     record["provider_recording"] = episode["provider_recording"]
                     record["usage"] = episode["usage"]
                     record["training_eligible"] = False
+                if "provider_cleanup" in episode:
+                    record["provider_cleanup"] = episode["provider_cleanup"]
+                    if episode["provider_cleanup"]["status"] != "completed":
+                        record["training_eligible"] = False
                 records.append(record)
             continue
         if episode["scenario_id"] in seen:

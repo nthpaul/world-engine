@@ -57,7 +57,7 @@ async def test_variant_oracle_and_baseline_are_replayable(environment_id, seed):
 @pytest.mark.parametrize("seed", range(12))
 def test_crm_seed_mapping_exercises_original_survivor_rules(seed):
     world = make_environment("crm-merge", seed)
-    assert world.version == "1.1.0"
+    assert world.version == "1.1.1"
     canonical, duplicate = world.cluster()
     copies = world.state["invoices"][:2]
     survivor = min(copies, key=lambda row: (row["customer_id"] != canonical["id"], row["issued_at"], row["id"]))
@@ -123,7 +123,7 @@ def test_crm_wrong_survivor_and_unrelated_mutations_cannot_earn_reward(seed):
 @pytest.mark.parametrize("seed", range(8))
 def test_refund_case_fields_and_exact_operational_outcome(seed):
     world = make_environment("refund-ops", seed)
-    assert world.version == "1.1.1"
+    assert world.version == "1.1.2"
     ticket, order = world.target()
     expected_eligible = seed in (0, 1, 2, 3)
     assert world.eligible() is expected_eligible
