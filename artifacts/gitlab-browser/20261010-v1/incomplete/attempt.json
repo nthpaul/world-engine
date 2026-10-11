@@ -1,0 +1,1098 @@
+{
+  "artifacts": [
+    {
+      "id": "screenshots/0000.png",
+      "kind": "screenshot",
+      "mime_type": "image/png",
+      "sha256": "bee07054186e4aba147bcc8efe95a6d47c95af3fcfafba55942e2c53707dccf3",
+      "size_bytes": 84047,
+      "url": "/api/browser/attempts/ec3f65e0-9833-4269-bf9b-98b40ce55097/artifacts/screenshots/0000.png"
+    },
+    {
+      "id": "screenshots/0001.png",
+      "kind": "screenshot",
+      "mime_type": "image/png",
+      "sha256": "bee07054186e4aba147bcc8efe95a6d47c95af3fcfafba55942e2c53707dccf3",
+      "size_bytes": 84047,
+      "url": "/api/browser/attempts/ec3f65e0-9833-4269-bf9b-98b40ce55097/artifacts/screenshots/0001.png"
+    },
+    {
+      "id": "video/89dedd20bc9a4a7bdfdf38a81dcc56a4.webm",
+      "kind": "video",
+      "mime_type": "video/webm",
+      "sha256": "3481186eee1b0a51d74de61612abb71a87c281aeac827064fd20d9387f4d008a",
+      "size_bytes": 89973,
+      "url": "/api/browser/attempts/ec3f65e0-9833-4269-bf9b-98b40ce55097/artifacts/video/89dedd20bc9a4a7bdfdf38a81dcc56a4.webm"
+    }
+  ],
+  "cleanup": {
+    "error_code": null,
+    "status": "completed"
+  },
+  "config": {
+    "max_steps": 1,
+    "model": "qwen3:8b",
+    "provider_id": "browser-baseline",
+    "seed": 42,
+    "task_id": "gitlab-issue-close",
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-10-10T20:38:51.748761+00:00",
+  "elapsed_seconds": 185.37203854101244,
+  "error": null,
+  "id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+  "invalid_actions": 0,
+  "journal": [
+    {
+      "at": "2026-10-10T20:38:51.748821+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "68c967a55b239bca4d23c347cf9e70c5a579866715bd46f328eea7954fe53fa0",
+      "data": {
+        "summary": {
+          "cleanup": null,
+          "config": {
+            "max_steps": 1,
+            "model": "qwen3:8b",
+            "provider_id": "browser-baseline",
+            "seed": 42,
+            "task_id": "gitlab-issue-close",
+            "timeout_seconds": 30
+          },
+          "created_at": "2026-10-10T20:38:51.748761+00:00",
+          "elapsed_seconds": 0.0,
+          "error": null,
+          "id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+          "invalid_actions": 0,
+          "outcome": null,
+          "passed": false,
+          "phase_seconds": {},
+          "provenance": {
+            "agent_interface": "browser-only",
+            "controller_modules": {
+              "browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+              "browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+              "browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+              "browser_policy.py": "bcaad4e6372e840f93bb1db736f0cfd9799b657c71a453cd621b028f4473f213",
+              "browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+              "browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+              "gitlab_runtime.py": "dea5c86fcd66dc0882f8c61e3779c63656d2ec970006ff7b58d9ea6bfb723db4"
+            },
+            "evaluation_only": true,
+            "isolation": "local Docker trusted operator pilot; not multi-tenant security",
+            "source_dirty": false,
+            "source_git_revision": "248facd248c79121e16037756393db6c862931dd",
+            "source_rights": {
+              "application_license": "GitLab CE MIT; dependency/image licenses separate",
+              "application_source_url": "https://gitlab.com/gitlab-org/gitlab-foss",
+              "benchmark_imported": false,
+              "permitted_use": "evaluation-only",
+              "task_origin": "original local fixture",
+              "training_eligible": false
+            },
+            "source_scope": [
+              "src/world_engine",
+              "environments/gitlab",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "training_eligible": false
+          },
+          "reward": 0.0,
+          "schema": "world-engine.browser.v1",
+          "status": "queued",
+          "steps": 0,
+          "task": {
+            "application": "GitLab CE",
+            "application_version": "19.4.1",
+            "evaluation_only": true,
+            "fixture_hash": "261a0941f8a69efeac5632d9a81ffcbce27c8bbd1f7726aac6b438db3f17c956",
+            "grader_version": "gitlab-state-v2",
+            "id": "gitlab-issue-close",
+            "image_digest": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+            "instruction": "In Release Operations, find the open issue whose description says Deployment reference: REL-2026-1042. Add exactly this comment: Release checklist verified; ready for closure. Then close that issue. Use an ordinary comment, not an internal note. Leave other issues, existing comments and project access unchanged.",
+            "name": "GitLab release issue closure",
+            "observation_mode": "AX",
+            "seed": 42,
+            "version": "1.0.1"
+          },
+          "termination": null,
+          "updated_at": "2026-10-10T20:38:51.748761+00:00"
+        }
+      },
+      "event": "created",
+      "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "schema": "world-engine.browser.v1",
+      "sequence": 0
+    },
+    {
+      "at": "2026-10-10T20:38:51.751517+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "6cdecbb7a8aedcf719cdc684b814ce40610b767c8ddf9fc48f5b8eeb2f978ba3",
+      "data": {
+        "summary": {
+          "cleanup": null,
+          "config": {
+            "max_steps": 1,
+            "model": "qwen3:8b",
+            "provider_id": "browser-baseline",
+            "seed": 42,
+            "task_id": "gitlab-issue-close",
+            "timeout_seconds": 30
+          },
+          "created_at": "2026-10-10T20:38:51.748761+00:00",
+          "elapsed_seconds": 0.0,
+          "error": null,
+          "id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+          "invalid_actions": 0,
+          "outcome": null,
+          "passed": false,
+          "phase_seconds": {},
+          "provenance": {
+            "agent_interface": "browser-only",
+            "controller_modules": {
+              "browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+              "browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+              "browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+              "browser_policy.py": "bcaad4e6372e840f93bb1db736f0cfd9799b657c71a453cd621b028f4473f213",
+              "browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+              "browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+              "gitlab_runtime.py": "dea5c86fcd66dc0882f8c61e3779c63656d2ec970006ff7b58d9ea6bfb723db4"
+            },
+            "evaluation_only": true,
+            "isolation": "local Docker trusted operator pilot; not multi-tenant security",
+            "source_dirty": false,
+            "source_git_revision": "248facd248c79121e16037756393db6c862931dd",
+            "source_rights": {
+              "application_license": "GitLab CE MIT; dependency/image licenses separate",
+              "application_source_url": "https://gitlab.com/gitlab-org/gitlab-foss",
+              "benchmark_imported": false,
+              "permitted_use": "evaluation-only",
+              "task_origin": "original local fixture",
+              "training_eligible": false
+            },
+            "source_scope": [
+              "src/world_engine",
+              "environments/gitlab",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "training_eligible": false
+          },
+          "reward": 0.0,
+          "schema": "world-engine.browser.v1",
+          "status": "starting",
+          "steps": 0,
+          "task": {
+            "application": "GitLab CE",
+            "application_version": "19.4.1",
+            "evaluation_only": true,
+            "fixture_hash": "261a0941f8a69efeac5632d9a81ffcbce27c8bbd1f7726aac6b438db3f17c956",
+            "grader_version": "gitlab-state-v2",
+            "id": "gitlab-issue-close",
+            "image_digest": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+            "instruction": "In Release Operations, find the open issue whose description says Deployment reference: REL-2026-1042. Add exactly this comment: Release checklist verified; ready for closure. Then close that issue. Use an ordinary comment, not an internal note. Leave other issues, existing comments and project access unchanged.",
+            "name": "GitLab release issue closure",
+            "observation_mode": "AX",
+            "seed": 42,
+            "version": "1.0.1"
+          },
+          "termination": null,
+          "updated_at": "2026-10-10T20:38:51.751370+00:00"
+        }
+      },
+      "event": "lifecycle",
+      "previous_hash": "68c967a55b239bca4d23c347cf9e70c5a579866715bd46f328eea7954fe53fa0",
+      "schema": "world-engine.browser.v1",
+      "sequence": 1
+    },
+    {
+      "at": "2026-10-10T20:38:51.753171+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "67364b8d7f8ce89f8cee6b9958b3da4933b6ff45c4bd7c14170ae4e74aa48695",
+      "data": {
+        "baseline": true,
+        "capability_measurement": false,
+        "protocol": "public-ax-browser-control-v1",
+        "scripted_control": true,
+        "training_eligible": false
+      },
+      "event": "policy_prepared",
+      "previous_hash": "6cdecbb7a8aedcf719cdc684b814ce40610b767c8ddf9fc48f5b8eeb2f978ba3",
+      "schema": "world-engine.browser.v1",
+      "sequence": 2
+    },
+    {
+      "at": "2026-10-10T20:38:51.753694+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "bd7519f57d66fbc76f3165735dcaecb06b4ef725813821c4e88840b5b62c41a2",
+      "data": {
+        "seed": 42,
+        "task_id": "gitlab-issue-close"
+      },
+      "event": "runtime_start_intent",
+      "previous_hash": "67364b8d7f8ce89f8cee6b9958b3da4933b6ff45c4bd7c14170ae4e74aa48695",
+      "schema": "world-engine.browser.v1",
+      "sequence": 3
+    },
+    {
+      "at": "2026-10-10T20:41:25.082405+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "02ac526d13d67e56f7c5453c4fc324c891643a95ba171a6e5666db85234c7fed",
+      "data": {
+        "instance_id": "world-engine-gitlab-d45329a7bb11354988c67872",
+        "metadata": {
+          "application_version": "19.4.1",
+          "baseline_sha256": "413ed5308b46f551bef0ef5df7c7dd5bbca1967649812aba037243a5d519bc87",
+          "config_sha256": "9245908d907a710d56a9da80c22403a7c1855f4fabd7c3909feb1b3417e3ce9a",
+          "export_sha256": "2bd681f605fe01e8c761556de2fa9881ffd54e42396ad3bef063ade97571521c",
+          "fixture_sha256": "261a0941f8a69efeac5632d9a81ffcbce27c8bbd1f7726aac6b438db3f17c956",
+          "grader_build_sha256": "46963a441a805c198a8c877d471d85ce18ad5eb76c121642293cf82d52424860",
+          "grader_image_id": "sha256:f1c0efa5d83dda62146c4332b244784542f7a1fb01c7feeb591defc5de7e2958",
+          "grader_sha256": "c6e680b35d5bff976145532ca0d6050d673a7e192b59458c38a5c466d536a6d8",
+          "image_digest": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+          "image_id": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+          "isolation": "local Docker development only; privileged host trusted",
+          "relay_image_id": "sha256:0aee145b54a7329e5e5fa8548d00a154aa852f288368f10b233435f2821f833b",
+          "relay_sha256": "c42765f077e72442f6b8156f3fcb3664099047cecc4528782351f8d8ea50e23d"
+        },
+        "origin": "http://127.0.0.1:63111"
+      },
+      "event": "runtime_started",
+      "previous_hash": "bd7519f57d66fbc76f3165735dcaecb06b4ef725813821c4e88840b5b62c41a2",
+      "schema": "world-engine.browser.v1",
+      "sequence": 4
+    },
+    {
+      "at": "2026-10-10T20:41:25.083679+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "3fdcf38f0b4140d19414a385c05562ea6a603a28ba521ff390ba4d8acdd27412",
+      "data": {},
+      "event": "browser_prepare_intent",
+      "previous_hash": "02ac526d13d67e56f7c5453c4fc324c891643a95ba171a6e5666db85234c7fed",
+      "schema": "world-engine.browser.v1",
+      "sequence": 5
+    },
+    {
+      "at": "2026-10-10T20:41:28.095122+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "2a2c61548fcd70e2bbc759b86894e38ff00f10f90cd46cc862eaf5cac4b4ca03",
+      "data": {
+        "metadata": {
+          "accessibility_url_properties": "omitted to exclude token-bearing link targets",
+          "browser_executable_sha256": "c8509aee32abd6977968e9999769980b7a420dea05402d90042d9e5b41db15ef",
+          "browser_location": "local host browser; development-only isolation",
+          "browser_version": "156.0.8078.4",
+          "browsergym_version": "0.14.3",
+          "image_not_sent_to_model": true,
+          "network_scope": "HTTP requests restricted to episode app origin; host browser not a network sandbox",
+          "observation_mode": "AX",
+          "playwright_version": "1.44.0"
+        }
+      },
+      "event": "browser_prepared",
+      "previous_hash": "3fdcf38f0b4140d19414a385c05562ea6a603a28ba521ff390ba4d8acdd27412",
+      "schema": "world-engine.browser.v1",
+      "sequence": 6
+    },
+    {
+      "at": "2026-10-10T20:41:28.097961+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "be0169c97d1e75e2b563bb1972cd6a9a3d106bfba1dd5e73b3aa256563aa9c4a",
+      "data": {
+        "summary": {
+          "cleanup": null,
+          "config": {
+            "max_steps": 1,
+            "model": "qwen3:8b",
+            "provider_id": "browser-baseline",
+            "seed": 42,
+            "task_id": "gitlab-issue-close",
+            "timeout_seconds": 30
+          },
+          "created_at": "2026-10-10T20:38:51.748761+00:00",
+          "elapsed_seconds": 0.0,
+          "error": null,
+          "id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+          "invalid_actions": 0,
+          "outcome": null,
+          "passed": false,
+          "phase_seconds": {
+            "provider_prepare": 0.0006805420853197575,
+            "startup": 156.34246575005818
+          },
+          "provenance": {
+            "agent_interface": "browser-only",
+            "controller_modules": {
+              "browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+              "browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+              "browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+              "browser_policy.py": "bcaad4e6372e840f93bb1db736f0cfd9799b657c71a453cd621b028f4473f213",
+              "browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+              "browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+              "gitlab_runtime.py": "dea5c86fcd66dc0882f8c61e3779c63656d2ec970006ff7b58d9ea6bfb723db4"
+            },
+            "evaluation_only": true,
+            "isolation": "local Docker trusted operator pilot; not multi-tenant security",
+            "source_dirty": false,
+            "source_git_revision": "248facd248c79121e16037756393db6c862931dd",
+            "source_rights": {
+              "application_license": "GitLab CE MIT; dependency/image licenses separate",
+              "application_source_url": "https://gitlab.com/gitlab-org/gitlab-foss",
+              "benchmark_imported": false,
+              "permitted_use": "evaluation-only",
+              "task_origin": "original local fixture",
+              "training_eligible": false
+            },
+            "source_scope": [
+              "src/world_engine",
+              "environments/gitlab",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "training_eligible": false
+          },
+          "reward": 0.0,
+          "schema": "world-engine.browser.v1",
+          "status": "running",
+          "steps": 0,
+          "task": {
+            "application": "GitLab CE",
+            "application_version": "19.4.1",
+            "evaluation_only": true,
+            "fixture_hash": "261a0941f8a69efeac5632d9a81ffcbce27c8bbd1f7726aac6b438db3f17c956",
+            "grader_version": "gitlab-state-v2",
+            "id": "gitlab-issue-close",
+            "image_digest": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+            "instruction": "In Release Operations, find the open issue whose description says Deployment reference: REL-2026-1042. Add exactly this comment: Release checklist verified; ready for closure. Then close that issue. Use an ordinary comment, not an internal note. Leave other issues, existing comments and project access unchanged.",
+            "name": "GitLab release issue closure",
+            "observation_mode": "AX",
+            "seed": 42,
+            "version": "1.0.1"
+          },
+          "termination": null,
+          "updated_at": "2026-10-10T20:41:28.097670+00:00"
+        }
+      },
+      "event": "lifecycle",
+      "previous_hash": "2a2c61548fcd70e2bbc759b86894e38ff00f10f90cd46cc862eaf5cac4b4ca03",
+      "schema": "world-engine.browser.v1",
+      "sequence": 7
+    },
+    {
+      "at": "2026-10-10T20:41:28.447685+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "1e2739622fd48b157dc382783448f58ae2d3be5e38ae918aee06e46919dce8f4",
+      "data": {
+        "id": "screenshots/0000.png",
+        "kind": "screenshot",
+        "mime_type": "image/png",
+        "sha256": "bee07054186e4aba147bcc8efe95a6d47c95af3fcfafba55942e2c53707dccf3",
+        "size_bytes": 84047
+      },
+      "event": "artifact",
+      "previous_hash": "be0169c97d1e75e2b563bb1972cd6a9a3d106bfba1dd5e73b3aa256563aa9c4a",
+      "schema": "world-engine.browser.v1",
+      "sequence": 8
+    },
+    {
+      "at": "2026-10-10T20:41:28.448785+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "c7db8bde278fb0dae7a32cb1c6a45488f1aabb82a9bb43758984180e0b5145b3",
+      "data": {
+        "observation": {
+          "accessibility_text": "RootWebArea 'Projects \u00b7 GitLab', focused\n\t[96] banner '', visible, focused\n\t\tInlineTextBox 'Skip to main content'\n\t\tInlineTextBox 'S'\n\t\tInlineTextBox '\u2026'\n\t\t[100] link 'Homepage', visible\n\t\t\tInlineTextBox 'Homepage'\n\t\t[106] button 'Search or go to\u2026 /', visible\n\t\t\tStaticText 'Search or go to\u2026'\n\t\t\t\tInlineTextBox 'Search or go to\u2026'\n\t\t\tStaticText '/'\n\t\t\t\tInlineTextBox '/'\n\t\t[115] button 'Create new\u2026', visible, expanded=False\n\t\t\tInlineTextBox 'Create new\u2026'\n\t\t\tInlineTextBox 'C'\n\t\t\tInlineTextBox '\u2026'\n\t\t[137] link '0 Assigned work items', visible\n\t\t\tStaticText '0'\n\t\t\t\tInlineTextBox '0'\n\t\t[142] link '0 Merge requests', visible\n\t\t\tStaticText '0'\n\t\t\t\tInlineTextBox '0'\n\t\t[146] link '0 To-do items', visible\n\t\t\tStaticText '0'\n\t\t\t\tInlineTextBox '0'\n\t\t[153] link 'Workflow Agent user\u2019s menu', visible\n\t\t\tInlineTextBox 'Workflow Agent user\u2019s menu'\n\t[214] navigation 'Primary navigation', visible\n\t\tInlineTextBox 'Primary navigation'\n\t\tStaticText 'Your work'\n\t\t\tInlineTextBox 'Your work'\n\t\t[223] list 'Your work', visible\n\t\t\t[224] listitem '', visible\n\t\t\t\t[225] link 'Home', visible\n\t\t\t\t\tStaticText 'Home'\n\t\t\t\t\t\tInlineTextBox 'Home'\n\t\t\t[231] listitem '', visible\n\t\t\t\t[232] link 'Projects', visible\n\t\t\t\t\tStaticText 'Projects'\n\t\t\t\t\t\tInlineTextBox 'Projects'\n\t\t\t[238] listitem '', visible\n\t\t\t\t[239] link 'Groups', visible\n\t\t\t\t\tStaticText 'Groups'\n\t\t\t\t\t\tInlineTextBox 'Groups'\n\t\t\t[245] listitem '', visible\n\t\t\t\t[246] link 'Work items', visible\n\t\t\t\t\tStaticText 'Work items'\n\t\t\t\t\t\tInlineTextBox 'Work items'\n\t\t\t[252] listitem '', visible\n\t\t\t\t[253] link 'Merge requests', visible\n\t\t\t\t\tStaticText 'Merge requests'\n\t\t\t\t\t\tInlineTextBox 'Merge requests'\n\t\t\t[259] listitem '', visible\n\t\t\t\t[260] link 'To-Do List', visible\n\t\t\t\t\tStaticText 'To-Do List'\n\t\t\t\t\t\tInlineTextBox 'To-Do List'\n\t\t\t[266] listitem '', visible\n\t\t\t\t[267] link 'Milestones', visible\n\t\t\t\t\tStaticText 'Milestones'\n\t\t\t\t\t\tInlineTextBox 'Milestones'\n\t\t\t[273] listitem '', visible\n\t\t\t\t[274] link 'Snippets', visible\n\t\t\t\t\tStaticText 'Snippets'\n\t\t\t\t\t\tInlineTextBox 'Snippets'\n\t\t\t[280] listitem '', visible\n\t\t\t\t[281] link 'Activity', visible\n\t\t\t\t\tStaticText 'Activity'\n\t\t\t\t\t\tInlineTextBox 'Activity'\n\t\t[294] button 'Help', visible\n\t\t\tStaticText 'Help'\n\t\t\t\tInlineTextBox 'Help'\n\t\t[346] button 'Collapse sidebar', visible\n\t\t\tStaticText 'Collapse sidebar'\n\t\t\t\tInlineTextBox 'Collapse sidebar'\n\t[363] navigation 'Breadcrumb', visible\n\t\t[364] list '', visible\n\t\t\t[365] listitem '', visible\n\t\t\t\t[366] link 'Your work', visible\n\t\t\t\t\tStaticText 'Your work'\n\t\t\t\t\t\tInlineTextBox 'Your work'\n\t\t\t\tStaticText '/'\n\t\t\t\t\tInlineTextBox '/'\n\t\t\t[368] listitem '', visible\n\t\t\t\t[369] link 'Projects', visible\n\t\t\t\t\tStaticText 'Projects'\n\t\t\t\t\t\tInlineTextBox 'Projects'\n\t[379] main '', visible\n\t\t[383] sectionheader '', visible\n\t\t\t[385] heading 'Projects', visible\n\t\t\t\tInlineTextBox 'Projects'\n\t\t\t[387] link 'Explore projects', visible\n\t\t\t\tStaticText 'Explore projects'\n\t\t\t\t\tInlineTextBox 'Explore projects'\n\t\t\t[389] link 'New project', visible\n\t\t\t\tStaticText 'New project'\n\t\t\t\t\tInlineTextBox 'New project'\n\t\t[394] tablist '', visible, multiselectable=False, orientation='horizontal'\n\t\t\t[396] tab 'Contributed 0', visible, selected=True, controls='__BVID__228'\n\t\t\t\tStaticText 'Contributed'\n\t\t\t\t\tInlineTextBox 'Contributed'\n\t\t\t\tStaticText '0'\n\t\t\t\t\tInlineTextBox '0'\n\t\t\t[402] tab 'Starred 0', visible, selected=False\n\t\t\t\tStaticText 'Starred'\n\t\t\t\t\tInlineTextBox 'Starred'\n\t\t\t\tStaticText '0'\n\t\t\t\t\tInlineTextBox '0'\n\t\t\t[408] tab 'Personal 0', visible, selected=False\n\t\t\t\tStaticText 'Personal'\n\t\t\t\t\tInlineTextBox 'Personal'\n\t\t\t\tStaticText '0'\n\t\t\t\t\tInlineTextBox '0'\n\t\t\t[414] tab 'Member 1', visible, selected=False\n\t\t\t\tStaticText 'Member'\n\t\t\t\t\tInlineTextBox 'Member'\n\t\t\t\tStaticText '1'\n\t\t\t\t\tInlineTextBox '1'\n\t\t\t[420] tab 'Inactive 0', visible, selected=False\n\t\t\t\tStaticText 'Inactive'\n\t\t\t\t\tInlineTextBox 'Inactive'\n\t\t\t\tStaticText '0'\n\t\t\t\t\tInlineTextBox '0'\n\t\t[430] group '', visible\n\t\t\t[433] button 'Toggle search history', visible, expanded=False\n\t\t\t\tInlineTextBox 'Toggle search history'\n\t\t\t\tInlineTextBox 'T'\n\t\t\t\tInlineTextBox '\u2026'\n\t\t\t[449] textbox 'Search', visible\n\t\t\t[451] button 'Search', visible\n\t\t[454] group '', visible\n\t\t\t[456] combobox 'Sort by: Name' value='Name', visible, hasPopup='listbox', expanded=False\n\t\t\t\tStaticText 'Name'\n\t\t\t\t\tInlineTextBox 'Name'\n\t\t\tInlineTextBox 'Sort by:'\n\t\t\t[488] button 'Sort direction: Ascending', visible\n\t\t[491] tabpanel 'Contributed 0', visible\n\t\t\t[494] image '', visible\n\t\t\t[496] heading \"You haven't contributed to any projects yet.\", visible\n\t\t\t\tInlineTextBox \"You haven't contributed to any projects yet.\"\n\t\t\t[497] paragraph '', visible\n\t\t\t\tStaticText 'Projects where you contribute code, create issues or epics, or participate in discussions will appear here.'\n\t\t\t\t\tInlineTextBox 'Projects where you contribute code, create issues or epics, or participate in'\n\t\t\t\t\tInlineTextBox 'discussions will appear here.'",
+          "image_not_sent_to_model": true,
+          "observation_mode": "AX",
+          "screenshot_artifact_id": "screenshots/0000.png",
+          "title": "Projects \u00b7 GitLab",
+          "url": "http://127.0.0.1:63111/dashboard/projects"
+        },
+        "step": 0
+      },
+      "event": "observation",
+      "previous_hash": "1e2739622fd48b157dc382783448f58ae2d3be5e38ae918aee06e46919dce8f4",
+      "schema": "world-engine.browser.v1",
+      "sequence": 9
+    },
+    {
+      "at": "2026-10-10T20:41:28.450538+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "b42a1b962f7586a2845b84917dd27423fc5ec73a57cd76dfe5cb4adea999a1ce",
+      "data": {
+        "action": {
+          "kind": "finish"
+        },
+        "evidence": {},
+        "step": 0
+      },
+      "event": "action_intent",
+      "previous_hash": "c7db8bde278fb0dae7a32cb1c6a45488f1aabb82a9bb43758984180e0b5145b3",
+      "schema": "world-engine.browser.v1",
+      "sequence": 10
+    },
+    {
+      "at": "2026-10-10T20:41:28.451888+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "89e5e8e917c454c2b5281aa5122451bd23b5ea0272e170e2dcb961d6884ccec9",
+      "data": {
+        "action": {
+          "kind": "finish"
+        },
+        "elapsed_ms": 0.004041008651256561,
+        "result": {
+          "message": "agent requested finish",
+          "ok": true
+        },
+        "step": 0
+      },
+      "event": "action_result",
+      "previous_hash": "b42a1b962f7586a2845b84917dd27423fc5ec73a57cd76dfe5cb4adea999a1ce",
+      "schema": "world-engine.browser.v1",
+      "sequence": 11
+    },
+    {
+      "at": "2026-10-10T20:41:28.579854+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "3e4fc4ac5965ef83eb3d626f88db65df9a5fab1851acf34a483ad50aa1b630b9",
+      "data": {
+        "id": "screenshots/0001.png",
+        "kind": "screenshot",
+        "mime_type": "image/png",
+        "sha256": "bee07054186e4aba147bcc8efe95a6d47c95af3fcfafba55942e2c53707dccf3",
+        "size_bytes": 84047
+      },
+      "event": "artifact",
+      "previous_hash": "89e5e8e917c454c2b5281aa5122451bd23b5ea0272e170e2dcb961d6884ccec9",
+      "schema": "world-engine.browser.v1",
+      "sequence": 12
+    },
+    {
+      "at": "2026-10-10T20:41:28.581112+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "9f9beae7ed2f83094955c6094b3fa9ee253ffcc98254d0a7afa0d7fa9a6c7e76",
+      "data": {
+        "observation": {
+          "accessibility_text": "RootWebArea 'Projects \u00b7 GitLab', focused\n\t[96] banner '', visible, focused\n\t\tInlineTextBox 'Skip to main content'\n\t\tInlineTextBox 'S'\n\t\tInlineTextBox '\u2026'\n\t\t[100] link 'Homepage', visible\n\t\t\tInlineTextBox 'Homepage'\n\t\t[106] button 'Search or go to\u2026 /', visible\n\t\t\tStaticText 'Search or go to\u2026'\n\t\t\t\tInlineTextBox 'Search or go to\u2026'\n\t\t\tStaticText '/'\n\t\t\t\tInlineTextBox '/'\n\t\t[115] button 'Create new\u2026', visible, expanded=False\n\t\t\tInlineTextBox 'Create new\u2026'\n\t\t\tInlineTextBox 'C'\n\t\t\tInlineTextBox '\u2026'\n\t\t[137] link '0 Assigned work items', visible\n\t\t\tStaticText '0'\n\t\t\t\tInlineTextBox '0'\n\t\t[142] link '0 Merge requests', visible\n\t\t\tStaticText '0'\n\t\t\t\tInlineTextBox '0'\n\t\t[146] link '0 To-do items', visible\n\t\t\tStaticText '0'\n\t\t\t\tInlineTextBox '0'\n\t\t[153] link 'Workflow Agent user\u2019s menu', visible\n\t\t\tInlineTextBox 'Workflow Agent user\u2019s menu'\n\t[214] navigation 'Primary navigation', visible\n\t\tInlineTextBox 'Primary navigation'\n\t\tStaticText 'Your work'\n\t\t\tInlineTextBox 'Your work'\n\t\t[223] list 'Your work', visible\n\t\t\t[224] listitem '', visible\n\t\t\t\t[225] link 'Home', visible\n\t\t\t\t\tStaticText 'Home'\n\t\t\t\t\t\tInlineTextBox 'Home'\n\t\t\t[231] listitem '', visible\n\t\t\t\t[232] link 'Projects', visible\n\t\t\t\t\tStaticText 'Projects'\n\t\t\t\t\t\tInlineTextBox 'Projects'\n\t\t\t[238] listitem '', visible\n\t\t\t\t[239] link 'Groups', visible\n\t\t\t\t\tStaticText 'Groups'\n\t\t\t\t\t\tInlineTextBox 'Groups'\n\t\t\t[245] listitem '', visible\n\t\t\t\t[246] link 'Work items', visible\n\t\t\t\t\tStaticText 'Work items'\n\t\t\t\t\t\tInlineTextBox 'Work items'\n\t\t\t[252] listitem '', visible\n\t\t\t\t[253] link 'Merge requests', visible\n\t\t\t\t\tStaticText 'Merge requests'\n\t\t\t\t\t\tInlineTextBox 'Merge requests'\n\t\t\t[259] listitem '', visible\n\t\t\t\t[260] link 'To-Do List', visible\n\t\t\t\t\tStaticText 'To-Do List'\n\t\t\t\t\t\tInlineTextBox 'To-Do List'\n\t\t\t[266] listitem '', visible\n\t\t\t\t[267] link 'Milestones', visible\n\t\t\t\t\tStaticText 'Milestones'\n\t\t\t\t\t\tInlineTextBox 'Milestones'\n\t\t\t[273] listitem '', visible\n\t\t\t\t[274] link 'Snippets', visible\n\t\t\t\t\tStaticText 'Snippets'\n\t\t\t\t\t\tInlineTextBox 'Snippets'\n\t\t\t[280] listitem '', visible\n\t\t\t\t[281] link 'Activity', visible\n\t\t\t\t\tStaticText 'Activity'\n\t\t\t\t\t\tInlineTextBox 'Activity'\n\t\t[294] button 'Help', visible\n\t\t\tStaticText 'Help'\n\t\t\t\tInlineTextBox 'Help'\n\t\t[346] button 'Collapse sidebar', visible\n\t\t\tStaticText 'Collapse sidebar'\n\t\t\t\tInlineTextBox 'Collapse sidebar'\n\t[363] navigation 'Breadcrumb', visible\n\t\t[364] list '', visible\n\t\t\t[365] listitem '', visible\n\t\t\t\t[366] link 'Your work', visible\n\t\t\t\t\tStaticText 'Your work'\n\t\t\t\t\t\tInlineTextBox 'Your work'\n\t\t\t\tStaticText '/'\n\t\t\t\t\tInlineTextBox '/'\n\t\t\t[368] listitem '', visible\n\t\t\t\t[369] link 'Projects', visible\n\t\t\t\t\tStaticText 'Projects'\n\t\t\t\t\t\tInlineTextBox 'Projects'\n\t[379] main '', visible\n\t\t[383] sectionheader '', visible\n\t\t\t[385] heading 'Projects', visible\n\t\t\t\tInlineTextBox 'Projects'\n\t\t\t[387] link 'Explore projects', visible\n\t\t\t\tStaticText 'Explore projects'\n\t\t\t\t\tInlineTextBox 'Explore projects'\n\t\t\t[389] link 'New project', visible\n\t\t\t\tStaticText 'New project'\n\t\t\t\t\tInlineTextBox 'New project'\n\t\t[394] tablist '', visible, multiselectable=False, orientation='horizontal'\n\t\t\t[396] tab 'Contributed 0', visible, selected=True, controls='__BVID__228'\n\t\t\t\tStaticText 'Contributed'\n\t\t\t\t\tInlineTextBox 'Contributed'\n\t\t\t\tStaticText '0'\n\t\t\t\t\tInlineTextBox '0'\n\t\t\t[402] tab 'Starred 0', visible, selected=False\n\t\t\t\tStaticText 'Starred'\n\t\t\t\t\tInlineTextBox 'Starred'\n\t\t\t\tStaticText '0'\n\t\t\t\t\tInlineTextBox '0'\n\t\t\t[408] tab 'Personal 0', visible, selected=False\n\t\t\t\tStaticText 'Personal'\n\t\t\t\t\tInlineTextBox 'Personal'\n\t\t\t\tStaticText '0'\n\t\t\t\t\tInlineTextBox '0'\n\t\t\t[414] tab 'Member 1', visible, selected=False\n\t\t\t\tStaticText 'Member'\n\t\t\t\t\tInlineTextBox 'Member'\n\t\t\t\tStaticText '1'\n\t\t\t\t\tInlineTextBox '1'\n\t\t\t[420] tab 'Inactive 0', visible, selected=False\n\t\t\t\tStaticText 'Inactive'\n\t\t\t\t\tInlineTextBox 'Inactive'\n\t\t\t\tStaticText '0'\n\t\t\t\t\tInlineTextBox '0'\n\t\t[430] group '', visible\n\t\t\t[433] button 'Toggle search history', visible, expanded=False\n\t\t\t\tInlineTextBox 'Toggle search history'\n\t\t\t\tInlineTextBox 'T'\n\t\t\t\tInlineTextBox '\u2026'\n\t\t\t[449] textbox 'Search', visible\n\t\t\t[451] button 'Search', visible\n\t\t[454] group '', visible\n\t\t\t[456] combobox 'Sort by: Name' value='Name', visible, hasPopup='listbox', expanded=False\n\t\t\t\tStaticText 'Name'\n\t\t\t\t\tInlineTextBox 'Name'\n\t\t\tInlineTextBox 'Sort by:'\n\t\t\t[488] button 'Sort direction: Ascending', visible\n\t\t[491] tabpanel 'Contributed 0', visible\n\t\t\t[494] image '', visible\n\t\t\t[496] heading \"You haven't contributed to any projects yet.\", visible\n\t\t\t\tInlineTextBox \"You haven't contributed to any projects yet.\"\n\t\t\t[497] paragraph '', visible\n\t\t\t\tStaticText 'Projects where you contribute code, create issues or epics, or participate in discussions will appear here.'\n\t\t\t\t\tInlineTextBox 'Projects where you contribute code, create issues or epics, or participate in'\n\t\t\t\t\tInlineTextBox 'discussions will appear here.'",
+          "image_not_sent_to_model": true,
+          "observation_mode": "AX",
+          "screenshot_artifact_id": "screenshots/0001.png",
+          "title": "Projects \u00b7 GitLab",
+          "url": "http://127.0.0.1:63111/dashboard/projects"
+        },
+        "step": 1
+      },
+      "event": "observation",
+      "previous_hash": "3e4fc4ac5965ef83eb3d626f88db65df9a5fab1851acf34a483ad50aa1b630b9",
+      "schema": "world-engine.browser.v1",
+      "sequence": 13
+    },
+    {
+      "at": "2026-10-10T20:41:28.583377+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "fd579f2f810675836186ee6804d5512c9b294d746b6a49fb8a755b55411c54f7",
+      "data": {
+        "summary": {
+          "cleanup": null,
+          "config": {
+            "max_steps": 1,
+            "model": "qwen3:8b",
+            "provider_id": "browser-baseline",
+            "seed": 42,
+            "task_id": "gitlab-issue-close",
+            "timeout_seconds": 30
+          },
+          "created_at": "2026-10-10T20:38:51.748761+00:00",
+          "elapsed_seconds": 156.83088391600177,
+          "error": null,
+          "id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+          "invalid_actions": 0,
+          "outcome": null,
+          "passed": false,
+          "phase_seconds": {
+            "provider_prepare": 0.0006805420853197575,
+            "startup": 156.34246575005818
+          },
+          "provenance": {
+            "agent_interface": "browser-only",
+            "controller_modules": {
+              "browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+              "browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+              "browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+              "browser_policy.py": "bcaad4e6372e840f93bb1db736f0cfd9799b657c71a453cd621b028f4473f213",
+              "browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+              "browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+              "gitlab_runtime.py": "dea5c86fcd66dc0882f8c61e3779c63656d2ec970006ff7b58d9ea6bfb723db4"
+            },
+            "evaluation_only": true,
+            "isolation": "local Docker trusted operator pilot; not multi-tenant security",
+            "source_dirty": false,
+            "source_git_revision": "248facd248c79121e16037756393db6c862931dd",
+            "source_rights": {
+              "application_license": "GitLab CE MIT; dependency/image licenses separate",
+              "application_source_url": "https://gitlab.com/gitlab-org/gitlab-foss",
+              "benchmark_imported": false,
+              "permitted_use": "evaluation-only",
+              "task_origin": "original local fixture",
+              "training_eligible": false
+            },
+            "source_scope": [
+              "src/world_engine",
+              "environments/gitlab",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "training_eligible": false
+          },
+          "reward": 0.0,
+          "schema": "world-engine.browser.v1",
+          "status": "running",
+          "steps": 1,
+          "task": {
+            "application": "GitLab CE",
+            "application_version": "19.4.1",
+            "evaluation_only": true,
+            "fixture_hash": "261a0941f8a69efeac5632d9a81ffcbce27c8bbd1f7726aac6b438db3f17c956",
+            "grader_version": "gitlab-state-v2",
+            "id": "gitlab-issue-close",
+            "image_digest": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+            "instruction": "In Release Operations, find the open issue whose description says Deployment reference: REL-2026-1042. Add exactly this comment: Release checklist verified; ready for closure. Then close that issue. Use an ordinary comment, not an internal note. Leave other issues, existing comments and project access unchanged.",
+            "name": "GitLab release issue closure",
+            "observation_mode": "AX",
+            "seed": 42,
+            "version": "1.0.1"
+          },
+          "termination": null,
+          "updated_at": "2026-10-10T20:41:28.582994+00:00"
+        }
+      },
+      "event": "lifecycle",
+      "previous_hash": "9f9beae7ed2f83094955c6094b3fa9ee253ffcc98254d0a7afa0d7fa9a6c7e76",
+      "schema": "world-engine.browser.v1",
+      "sequence": 14
+    },
+    {
+      "at": "2026-10-10T20:41:28.920102+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "7be8d831a10e79be7af539bebfe5df6db1d16e8a33fbbd6a391a42c4235d75b7",
+      "data": {
+        "id": "video/89dedd20bc9a4a7bdfdf38a81dcc56a4.webm",
+        "kind": "video",
+        "mime_type": "video/webm",
+        "sha256": "3481186eee1b0a51d74de61612abb71a87c281aeac827064fd20d9387f4d008a",
+        "size_bytes": 89973
+      },
+      "event": "artifact",
+      "previous_hash": "fd579f2f810675836186ee6804d5512c9b294d746b6a49fb8a755b55411c54f7",
+      "schema": "world-engine.browser.v1",
+      "sequence": 15
+    },
+    {
+      "at": "2026-10-10T20:41:28.921120+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "e3a5635b10b9cbf87ff3d7cca57433f191c156def38d6403e2fc2d7d41a75435",
+      "data": {},
+      "event": "browser_closed",
+      "previous_hash": "7be8d831a10e79be7af539bebfe5df6db1d16e8a33fbbd6a391a42c4235d75b7",
+      "schema": "world-engine.browser.v1",
+      "sequence": 16
+    },
+    {
+      "at": "2026-10-10T20:41:28.922827+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "23c74933d443dde2bcb9c5ffc6511b21492c308225d6047655c7c76a59de4aeb",
+      "data": {
+        "summary": {
+          "cleanup": null,
+          "config": {
+            "max_steps": 1,
+            "model": "qwen3:8b",
+            "provider_id": "browser-baseline",
+            "seed": 42,
+            "task_id": "gitlab-issue-close",
+            "timeout_seconds": 30
+          },
+          "created_at": "2026-10-10T20:38:51.748761+00:00",
+          "elapsed_seconds": 156.83088391600177,
+          "error": null,
+          "id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+          "invalid_actions": 0,
+          "outcome": null,
+          "passed": false,
+          "phase_seconds": {
+            "provider_prepare": 0.0006805420853197575,
+            "startup": 156.34246575005818
+          },
+          "provenance": {
+            "agent_interface": "browser-only",
+            "controller_modules": {
+              "browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+              "browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+              "browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+              "browser_policy.py": "bcaad4e6372e840f93bb1db736f0cfd9799b657c71a453cd621b028f4473f213",
+              "browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+              "browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+              "gitlab_runtime.py": "dea5c86fcd66dc0882f8c61e3779c63656d2ec970006ff7b58d9ea6bfb723db4"
+            },
+            "evaluation_only": true,
+            "isolation": "local Docker trusted operator pilot; not multi-tenant security",
+            "source_dirty": false,
+            "source_git_revision": "248facd248c79121e16037756393db6c862931dd",
+            "source_rights": {
+              "application_license": "GitLab CE MIT; dependency/image licenses separate",
+              "application_source_url": "https://gitlab.com/gitlab-org/gitlab-foss",
+              "benchmark_imported": false,
+              "permitted_use": "evaluation-only",
+              "task_origin": "original local fixture",
+              "training_eligible": false
+            },
+            "source_scope": [
+              "src/world_engine",
+              "environments/gitlab",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "training_eligible": false
+          },
+          "reward": 0.0,
+          "schema": "world-engine.browser.v1",
+          "status": "sealing",
+          "steps": 1,
+          "task": {
+            "application": "GitLab CE",
+            "application_version": "19.4.1",
+            "evaluation_only": true,
+            "fixture_hash": "261a0941f8a69efeac5632d9a81ffcbce27c8bbd1f7726aac6b438db3f17c956",
+            "grader_version": "gitlab-state-v2",
+            "id": "gitlab-issue-close",
+            "image_digest": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+            "instruction": "In Release Operations, find the open issue whose description says Deployment reference: REL-2026-1042. Add exactly this comment: Release checklist verified; ready for closure. Then close that issue. Use an ordinary comment, not an internal note. Leave other issues, existing comments and project access unchanged.",
+            "name": "GitLab release issue closure",
+            "observation_mode": "AX",
+            "seed": 42,
+            "version": "1.0.1"
+          },
+          "termination": null,
+          "updated_at": "2026-10-10T20:41:28.922494+00:00"
+        }
+      },
+      "event": "lifecycle",
+      "previous_hash": "e3a5635b10b9cbf87ff3d7cca57433f191c156def38d6403e2fc2d7d41a75435",
+      "schema": "world-engine.browser.v1",
+      "sequence": 17
+    },
+    {
+      "at": "2026-10-10T20:41:28.924743+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "f76f48758feb323537586f382b5ad9a23be01d1de01d50edca744a3ac543264e",
+      "data": {},
+      "event": "state_seal_intent",
+      "previous_hash": "23c74933d443dde2bcb9c5ffc6511b21492c308225d6047655c7c76a59de4aeb",
+      "schema": "world-engine.browser.v1",
+      "sequence": 18
+    },
+    {
+      "at": "2026-10-10T20:41:56.004233+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "523b43e4d9530756310f6a1b7873a082043e16252cb6f9901d2d666013c2003f",
+      "data": {
+        "sha256": "60bfbedc114ab79dd23f356b091a62da53ba1643b4b3a07f386dec61e0981f79",
+        "size_bytes": 38918
+      },
+      "event": "state_sealed",
+      "previous_hash": "f76f48758feb323537586f382b5ad9a23be01d1de01d50edca744a3ac543264e",
+      "schema": "world-engine.browser.v1",
+      "sequence": 19
+    },
+    {
+      "at": "2026-10-10T20:41:56.006457+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "6ed1c4d6a8eea2fd280028e0b388f16cf57e13603eaef59b4d765d9c8485e8dc",
+      "data": {
+        "summary": {
+          "cleanup": null,
+          "config": {
+            "max_steps": 1,
+            "model": "qwen3:8b",
+            "provider_id": "browser-baseline",
+            "seed": 42,
+            "task_id": "gitlab-issue-close",
+            "timeout_seconds": 30
+          },
+          "created_at": "2026-10-10T20:38:51.748761+00:00",
+          "elapsed_seconds": 156.83088391600177,
+          "error": null,
+          "id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+          "invalid_actions": 0,
+          "outcome": null,
+          "passed": false,
+          "phase_seconds": {
+            "provider_prepare": 0.0006805420853197575,
+            "startup": 156.34246575005818
+          },
+          "provenance": {
+            "agent_interface": "browser-only",
+            "controller_modules": {
+              "browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+              "browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+              "browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+              "browser_policy.py": "bcaad4e6372e840f93bb1db736f0cfd9799b657c71a453cd621b028f4473f213",
+              "browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+              "browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+              "gitlab_runtime.py": "dea5c86fcd66dc0882f8c61e3779c63656d2ec970006ff7b58d9ea6bfb723db4"
+            },
+            "evaluation_only": true,
+            "isolation": "local Docker trusted operator pilot; not multi-tenant security",
+            "source_dirty": false,
+            "source_git_revision": "248facd248c79121e16037756393db6c862931dd",
+            "source_rights": {
+              "application_license": "GitLab CE MIT; dependency/image licenses separate",
+              "application_source_url": "https://gitlab.com/gitlab-org/gitlab-foss",
+              "benchmark_imported": false,
+              "permitted_use": "evaluation-only",
+              "task_origin": "original local fixture",
+              "training_eligible": false
+            },
+            "source_scope": [
+              "src/world_engine",
+              "environments/gitlab",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "training_eligible": false
+          },
+          "reward": 0.0,
+          "schema": "world-engine.browser.v1",
+          "status": "grading",
+          "steps": 1,
+          "task": {
+            "application": "GitLab CE",
+            "application_version": "19.4.1",
+            "evaluation_only": true,
+            "fixture_hash": "261a0941f8a69efeac5632d9a81ffcbce27c8bbd1f7726aac6b438db3f17c956",
+            "grader_version": "gitlab-state-v2",
+            "id": "gitlab-issue-close",
+            "image_digest": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+            "instruction": "In Release Operations, find the open issue whose description says Deployment reference: REL-2026-1042. Add exactly this comment: Release checklist verified; ready for closure. Then close that issue. Use an ordinary comment, not an internal note. Leave other issues, existing comments and project access unchanged.",
+            "name": "GitLab release issue closure",
+            "observation_mode": "AX",
+            "seed": 42,
+            "version": "1.0.1"
+          },
+          "termination": null,
+          "updated_at": "2026-10-10T20:41:56.006004+00:00"
+        }
+      },
+      "event": "lifecycle",
+      "previous_hash": "523b43e4d9530756310f6a1b7873a082043e16252cb6f9901d2d666013c2003f",
+      "schema": "world-engine.browser.v1",
+      "sequence": 20
+    },
+    {
+      "at": "2026-10-10T20:41:56.218356+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "b9c62067a1cae009b64aa8686a23c93f50c3de180c0c4dd94a7c2536656713be",
+      "data": {
+        "outcome": {
+          "checks": [
+            {
+              "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+              "name": "fixed_records",
+              "passed": true
+            },
+            {
+              "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+              "name": "project_preservation",
+              "passed": true
+            },
+            {
+              "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+              "name": "issue_preservation",
+              "passed": true
+            },
+            {
+              "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+              "name": "authorized_closure",
+              "passed": false
+            },
+            {
+              "detail": "One exact ordinary, non-internal comment and one closure system note; existing notes are preserved.",
+              "name": "exact_comment_and_history",
+              "passed": false
+            },
+            {
+              "detail": "One target closure state event, attributed to the ordinary actor.",
+              "name": "closure_certificate",
+              "passed": false
+            },
+            {
+              "detail": "The exact comment precedes authorized closure.",
+              "name": "requested_order",
+              "passed": false
+            }
+          ],
+          "grader_version": "gitlab-state-v2",
+          "passed": false,
+          "reward": 0.0,
+          "sealed_state_sha256": "60bfbedc114ab79dd23f356b091a62da53ba1643b4b3a07f386dec61e0981f79"
+        }
+      },
+      "event": "graded",
+      "previous_hash": "6ed1c4d6a8eea2fd280028e0b388f16cf57e13603eaef59b4d765d9c8485e8dc",
+      "schema": "world-engine.browser.v1",
+      "sequence": 21
+    },
+    {
+      "at": "2026-10-10T20:41:57.122360+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "2daacb98c8a7fb77dde46b2ecf59ef80a15b070b1f7bc75e759e153b37942bbc",
+      "data": {
+        "error_code": null,
+        "status": "completed"
+      },
+      "event": "cleanup",
+      "previous_hash": "b9c62067a1cae009b64aa8686a23c93f50c3de180c0c4dd94a7c2536656713be",
+      "schema": "world-engine.browser.v1",
+      "sequence": 22
+    },
+    {
+      "at": "2026-10-10T20:41:57.124600+00:00",
+      "attempt_id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+      "content_hash": "a3be99f05bba9a2ee9cc03dcb68358eb3710166c04ce651fa85bf7809c68e746",
+      "data": {
+        "summary": {
+          "cleanup": {
+            "error_code": null,
+            "status": "completed"
+          },
+          "config": {
+            "max_steps": 1,
+            "model": "qwen3:8b",
+            "provider_id": "browser-baseline",
+            "seed": 42,
+            "task_id": "gitlab-issue-close",
+            "timeout_seconds": 30
+          },
+          "created_at": "2026-10-10T20:38:51.748761+00:00",
+          "elapsed_seconds": 185.37203854101244,
+          "error": null,
+          "id": "ec3f65e0-9833-4269-bf9b-98b40ce55097",
+          "invalid_actions": 0,
+          "outcome": {
+            "checks": [
+              {
+                "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+                "name": "fixed_records",
+                "passed": true
+              },
+              {
+                "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+                "name": "project_preservation",
+                "passed": true
+              },
+              {
+                "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+                "name": "issue_preservation",
+                "passed": true
+              },
+              {
+                "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+                "name": "authorized_closure",
+                "passed": false
+              },
+              {
+                "detail": "One exact ordinary, non-internal comment and one closure system note; existing notes are preserved.",
+                "name": "exact_comment_and_history",
+                "passed": false
+              },
+              {
+                "detail": "One target closure state event, attributed to the ordinary actor.",
+                "name": "closure_certificate",
+                "passed": false
+              },
+              {
+                "detail": "The exact comment precedes authorized closure.",
+                "name": "requested_order",
+                "passed": false
+              }
+            ],
+            "grader_version": "gitlab-state-v2",
+            "passed": false,
+            "reward": 0.0,
+            "sealed_state_sha256": "60bfbedc114ab79dd23f356b091a62da53ba1643b4b3a07f386dec61e0981f79"
+          },
+          "passed": false,
+          "phase_seconds": {
+            "browser_close": 0.33611612499225885,
+            "cleanup": 0.9021462500095367,
+            "grade": 0.21106883301399648,
+            "provider_prepare": 0.0006805420853197575,
+            "rollout": 0.48917370894923806,
+            "seal": 27.080638125073165,
+            "startup": 156.34246575005818
+          },
+          "provenance": {
+            "agent_interface": "browser-only",
+            "controller_modules": {
+              "browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+              "browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+              "browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+              "browser_policy.py": "bcaad4e6372e840f93bb1db736f0cfd9799b657c71a453cd621b028f4473f213",
+              "browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+              "browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+              "gitlab_runtime.py": "dea5c86fcd66dc0882f8c61e3779c63656d2ec970006ff7b58d9ea6bfb723db4"
+            },
+            "evaluation_only": true,
+            "isolation": "local Docker trusted operator pilot; not multi-tenant security",
+            "source_dirty": false,
+            "source_git_revision": "248facd248c79121e16037756393db6c862931dd",
+            "source_rights": {
+              "application_license": "GitLab CE MIT; dependency/image licenses separate",
+              "application_source_url": "https://gitlab.com/gitlab-org/gitlab-foss",
+              "benchmark_imported": false,
+              "permitted_use": "evaluation-only",
+              "task_origin": "original local fixture",
+              "training_eligible": false
+            },
+            "source_scope": [
+              "src/world_engine",
+              "environments/gitlab",
+              "pyproject.toml",
+              "uv.lock"
+            ],
+            "training_eligible": false
+          },
+          "reconciliation_required": false,
+          "reward": 0.0,
+          "schema": "world-engine.browser.v1",
+          "status": "completed",
+          "steps": 1,
+          "task": {
+            "application": "GitLab CE",
+            "application_version": "19.4.1",
+            "evaluation_only": true,
+            "fixture_hash": "261a0941f8a69efeac5632d9a81ffcbce27c8bbd1f7726aac6b438db3f17c956",
+            "grader_version": "gitlab-state-v2",
+            "id": "gitlab-issue-close",
+            "image_digest": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+            "instruction": "In Release Operations, find the open issue whose description says Deployment reference: REL-2026-1042. Add exactly this comment: Release checklist verified; ready for closure. Then close that issue. Use an ordinary comment, not an internal note. Leave other issues, existing comments and project access unchanged.",
+            "name": "GitLab release issue closure",
+            "observation_mode": "AX",
+            "seed": 42,
+            "version": "1.0.1"
+          },
+          "termination": "finished",
+          "updated_at": "2026-10-10T20:41:57.124207+00:00"
+        }
+      },
+      "event": "lifecycle",
+      "previous_hash": "2daacb98c8a7fb77dde46b2ecf59ef80a15b070b1f7bc75e759e153b37942bbc",
+      "schema": "world-engine.browser.v1",
+      "sequence": 23
+    }
+  ],
+  "outcome": {
+    "checks": [
+      {
+        "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+        "name": "fixed_records",
+        "passed": true
+      },
+      {
+        "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+        "name": "project_preservation",
+        "passed": true
+      },
+      {
+        "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+        "name": "issue_preservation",
+        "passed": true
+      },
+      {
+        "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+        "name": "authorized_closure",
+        "passed": false
+      },
+      {
+        "detail": "One exact ordinary, non-internal comment and one closure system note; existing notes are preserved.",
+        "name": "exact_comment_and_history",
+        "passed": false
+      },
+      {
+        "detail": "One target closure state event, attributed to the ordinary actor.",
+        "name": "closure_certificate",
+        "passed": false
+      },
+      {
+        "detail": "The exact comment precedes authorized closure.",
+        "name": "requested_order",
+        "passed": false
+      }
+    ],
+    "grader_version": "gitlab-state-v2",
+    "passed": false,
+    "reward": 0.0,
+    "sealed_state_sha256": "60bfbedc114ab79dd23f356b091a62da53ba1643b4b3a07f386dec61e0981f79"
+  },
+  "passed": false,
+  "phase_seconds": {
+    "browser_close": 0.33611612499225885,
+    "cleanup": 0.9021462500095367,
+    "grade": 0.21106883301399648,
+    "provider_prepare": 0.0006805420853197575,
+    "rollout": 0.48917370894923806,
+    "seal": 27.080638125073165,
+    "startup": 156.34246575005818
+  },
+  "provenance": {
+    "agent_interface": "browser-only",
+    "controller_modules": {
+      "browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+      "browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+      "browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+      "browser_policy.py": "bcaad4e6372e840f93bb1db736f0cfd9799b657c71a453cd621b028f4473f213",
+      "browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+      "browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+      "gitlab_runtime.py": "dea5c86fcd66dc0882f8c61e3779c63656d2ec970006ff7b58d9ea6bfb723db4"
+    },
+    "evaluation_only": true,
+    "isolation": "local Docker trusted operator pilot; not multi-tenant security",
+    "source_dirty": false,
+    "source_git_revision": "248facd248c79121e16037756393db6c862931dd",
+    "source_rights": {
+      "application_license": "GitLab CE MIT; dependency/image licenses separate",
+      "application_source_url": "https://gitlab.com/gitlab-org/gitlab-foss",
+      "benchmark_imported": false,
+      "permitted_use": "evaluation-only",
+      "task_origin": "original local fixture",
+      "training_eligible": false
+    },
+    "source_scope": [
+      "src/world_engine",
+      "environments/gitlab",
+      "pyproject.toml",
+      "uv.lock"
+    ],
+    "training_eligible": false
+  },
+  "reconciliation_required": false,
+  "reward": 0.0,
+  "schema": "world-engine.browser.v1",
+  "status": "completed",
+  "steps": 1,
+  "task": {
+    "application": "GitLab CE",
+    "application_version": "19.4.1",
+    "evaluation_only": true,
+    "fixture_hash": "261a0941f8a69efeac5632d9a81ffcbce27c8bbd1f7726aac6b438db3f17c956",
+    "grader_version": "gitlab-state-v2",
+    "id": "gitlab-issue-close",
+    "image_digest": "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24",
+    "instruction": "In Release Operations, find the open issue whose description says Deployment reference: REL-2026-1042. Add exactly this comment: Release checklist verified; ready for closure. Then close that issue. Use an ordinary comment, not an internal note. Leave other issues, existing comments and project access unchanged.",
+    "name": "GitLab release issue closure",
+    "observation_mode": "AX",
+    "seed": 42,
+    "version": "1.0.1"
+  },
+  "termination": "finished",
+  "updated_at": "2026-10-10T20:41:57.124207+00:00"
+}
