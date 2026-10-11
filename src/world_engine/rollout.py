@@ -191,8 +191,9 @@ async def _rollout(config: RunConfig, index: int, provider: Provider) -> JsonObj
         async with asyncio.timeout(config.timeout_seconds):
             for step_index in range(config.max_steps):
                 step_started = time.perf_counter()
-                context = policy_messages(world.observe(), trace)
-                decision = await provider.decide(world.observe(), trace)
+                observation = world.observe()
+                context = policy_messages(observation, trace)
+                decision = await provider.decide(observation, trace)
                 transition = world.step(decision.action)
                 trace.append({"index": step_index, "action": decision.action.model_dump(),
                               "observation": transition["observation"], "result": transition["result"],
