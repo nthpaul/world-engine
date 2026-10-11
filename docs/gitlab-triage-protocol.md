@@ -1,4 +1,4 @@
-# GitLab Triage Qualification Protocol V3
+# GitLab Triage Qualification Protocol V4
 
 This is an integration qualification of two registered task packs, not training,
 a population benchmark, a concurrency study or proof of full GitLab fidelity.
@@ -35,14 +35,41 @@ fail closed. A recorded action result with `uncertain_effect=True` stops the
 triage reference before another action; the generic runner, local model adapter
 and close control are unchanged and retain their existing finalization behavior.
 
-The triage task remains `1.0.1`, its grader remains `gitlab-triage-state-v2`,
-and fixture distribution, permissions, budgets, seeds, order, model and
-eligibility below are unchanged. Labels support is conservative and scoped:
-one `Select labels` listbox, exact `severity::2` option/checkbox with observed
-selection state, and field-local Apply. The real labels picker, successful
-on-call selection/Apply, resulting closed-field AX and generated effect
-certificates remain unqualified until fresh positive controls. Mock tests
-and offline decisions over prior AX do not establish application feasibility.
+Actual V3 at `62df4a994b1d5a3ded207ce957e594b927e05b94` stopped after its
+incomplete control and an eleven-action reference. The exact on-call assignment
+persisted, but the picker closed without Apply and the closed field exposed a
+display name. The reference failed before adding severity, so its original zero
+grade remains correct. The already-correct, compatibility and model slots were
+unattempted. The generated assignment note had 28 attributes, not the candidate
+30, a null namespace and note/metadata timestamps after issue.updated_at.
+Retain those original records; this collector does not replace their decisions.
+
+V4 declares task `1.0.2`, grader `gitlab-triage-state-v3`, state and seal v2,
+and reference `public-ax-triage-control-v4`. The controller handles observed
+immediate commit and separately observed explicit Apply. Exact current picker
+identity, closed target membership and target activity corroborate a new
+assignment; display name alone and transient options are not completion proof.
+Already-correct identity is inspected without toggling it. Pending transitions
+allow at most five one-second waits, without repeating mutation clicks. Ambiguous
+or uncertain effects stop the reference. Close and local-model protocols remain
+unchanged. Real labels-picker behavior and successful full triage remain
+unqualified until the fresh controls below pass.
+
+The owned exporter records database CURRENT_TIMESTAMP inside each read-only,
+repeatable-read snapshot transaction. Final capture follows browser closure and
+writer shutdown. The baseline/final interval bounds new effects and changed
+timestamps, not the issue's last update or a guessed tolerance. New assignment
+notes require the exact 28-field project-note schema and null namespace; linked
+metadata, joins and label effects retain exact trusted namespace/actor/target
+identities. Within-row chronology and note-to-metadata ordering remain required;
+assignment and label operations can occur in either order. Counts, immutable
+rows, old history, permissions and unrelated records retain their exact checks.
+Older schemas are rejected rather than silently reinterpreted. Mock tests and
+offline decisions over prior AX do not establish application qualification.
+
+Fixture distribution, permissions, seeds, order, budgets, model, generation
+options and eligibility below remain unchanged. This is a new integration
+qualification, not a matched capability comparison or retry within V3.
 
 Commit and review the runtime, collector, tests and this protocol first. Root must
 restart the owned loopback API at that full revision and separately authorize the
@@ -62,11 +89,11 @@ retry, tune, replace a failed receipt, relabel an old close receipt or skip a ga
 
 | Slot | Task/version | Provider | Seed | Actions | Interaction timeout |
 | --- | --- | --- | --- | --- | --- |
-| Incomplete | Triage 1.0.1 | browser-baseline | 42 | 1 | 30s |
-| Changes required | Triage 1.0.1 | browser-reference | 42 | 30 | 180s |
-| Already correct | Triage 1.0.1 | browser-reference | 43 | 30 | 180s |
+| Incomplete | Triage 1.0.2 | browser-baseline | 42 | 1 | 30s |
+| Changes required | Triage 1.0.2 | browser-reference | 42 | 30 | 180s |
+| Already correct | Triage 1.0.2 | browser-reference | 43 | 30 | 180s |
 | Dispatch compatibility | Close 1.0.3 | browser-reference | 42 | 30 | 180s |
-| Optional model | Triage 1.0.1 | local-browser | 42 | 30 | 600s |
+| Optional model | Triage 1.0.2 | local-browser | 42 | 30 | 600s |
 
 Controls must finish, have zero invalid actions, complete cleanup and no pending
 resource reconciliation. The incomplete control must fail the business outcome
@@ -78,7 +105,7 @@ account with a severity-three label, exercising preservation of nonempty joins
 and label history. This is the original pre-collection distribution, not a later
 repair selected from experimental outcomes.
 The fixture distribution is unchanged from V1. The reference is now
-`public-ax-triage-control-v3`; this does not change the local model's tool contract.
+`public-ax-triage-control-v4`; this does not change the local model's tool contract.
 The collector verifies exactly one prepared policy identity for every slot after
 retaining its terminal raw evidence. Controls require exact reference version,
 baseline flag and training exclusion; the model requires the pinned digest,

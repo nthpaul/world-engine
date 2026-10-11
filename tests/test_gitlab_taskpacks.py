@@ -25,6 +25,9 @@ def test_catalog_versions_and_stable_case_lineage():
     assert catalog["gitlab-issue-close"].version == "1.0.3"
     assert catalog["gitlab-issue-close"].grader_version == "gitlab-state-v3"
     triage = resolve_gitlab_pack("gitlab-incident-triage")
+    assert triage.version == catalog["gitlab-incident-triage"].version == "1.0.2"
+    assert catalog["gitlab-incident-triage"].grader_version == "gitlab-triage-state-v3"
+    assert triage.sealed_schema == "world-engine-gitlab-triage-sealed-v2"
     for seed, case in ((42, "changes-required"), (43, "already-correct")):
         provenance = triage.provenance(seed)
         assert provenance["lineage_id"] == hashlib.sha256(f"incident-triage:{case}:{seed}".encode()).hexdigest()
@@ -115,7 +118,7 @@ async def test_public_reference_discovers_project_and_target_before_edit():
         "StaticText 'Incident reference: INC-2026-0217'\n[5] region 'Sidebar'\n\t[6] heading 'Assignee'\n"
         "\t[7] button 'Edit'\n\t[8] heading 'Labels'\n\t[9] button 'Edit'"), [])
     assert decision.action.bid == "7"
-    assert decision.evidence["protocol"] == "public-ax-triage-control-v3"
+    assert decision.evidence["protocol"] == "public-ax-triage-control-v4"
 
 
 async def test_reference_corroborates_username_and_current_bid_then_applies_picker():
@@ -141,11 +144,11 @@ async def test_reference_corroborates_username_and_current_bid_then_applies_pick
 async def test_reference_noop_and_only_missing_label():
     control = policy()
     text = ("StaticText 'Incident reference: INC-2026-0217'\n[7] region 'Sidebar'\n\t[8] heading 'Assignees'\n"
-            "\tStaticText 'Casey On-call @casey-oncall'\n\t[10] button 'Edit'\n\t[9] heading 'Labels'\n"
+            "\t[13] link 'Casey On-call @casey-oncall'\n\t[10] button 'Edit'\n\t[9] heading 'Labels'\n"
             "\tStaticText 'incident'\n\t[11] button 'Edit'\n\t[12] heading 'Due date'")
     decision = await control.decide(observation(text), [])
     assert decision.action.bid == "11"
-    decision = await policy().decide(observation(text.replace("StaticText 'incident'", "StaticText 'severity::2'")), [])
+    decision = await policy().decide(observation(text.replace("StaticText 'incident'", "[14] link 'severity::2'")), [])
     assert decision.action.kind == "finish"
 
 
@@ -153,7 +156,7 @@ async def test_reference_requires_exact_severity_option_not_prefix_match():
     control = policy()
     # Conservative mock-only label picker; no real labels qualification claim.
     text = ("StaticText 'Incident reference: INC-2026-0217'\n[5] region 'Sidebar'\n"
-            "\t[6] heading 'Assignee'\n\tStaticText '@casey-oncall'\n\t[7] button 'Edit'\n"
+            "\t[6] heading 'Assignee'\n\t[13] link '@casey-oncall'\n\t[7] button 'Edit'\n"
             "\t[8] heading 'Labels'\n\t[9] button 'Apply'\n\t[1] combobox 'Search'\n"
             "\t[10] listbox 'Select labels'\n"
             "\t\t[2] option 'severity::20', selected=False\n\t\t[3] option 'severity::2', selected=False")

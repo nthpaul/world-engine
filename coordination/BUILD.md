@@ -4,6 +4,23 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 
 ## Active increments
 
+Current source work is a separately versioned triage immediate-commit and
+audit-certificate repair. Console owns the public-AX controller and policy tests;
+engine owns the triage fixture/export/verifier, registration and grader tests;
+research independently reviews the complete diff. Root owns collector/protocol,
+documentation, this board, GitHub and physical-run authorization. No new live
+qualification has begun. Existing V3 evidence and zero grades remain unchanged;
+the loopback API still loads its immutable `62df4a` source. Source tests will not
+establish positive full-task application qualification.
+
+The candidate V4 source passes 2,618 local tests with six optional skips, Ruff
+and Ruby syntax. Its changes-required reference handles observed immediate
+commit or explicit Apply; an already-correct display-only identity is inspected
+and dismissed without mutation. Task1.0.2/grader v3 uses exact project-note
+attributes and database transaction capture bounds for new effects. Close
+semantics remain unchanged. These are offline source results; real labels,
+no-op dismissal and full grading still require the frozen fresh control cohort.
+
 The [private-local SFT data adapter](../docs/local-sft.md) and
 [fixed data protocol](../docs/local-sft-protocol.md) prepare original refund/access
 reference decisions with current replay, train-only eligibility and exact
@@ -70,8 +87,8 @@ any repair needs a separately committed source and fixed fresh protocol.
 Original grades are not replaced. The prior close receipts retain their original source;
 registered close release 1.0.3 changes recipe ownership, not prior grades.
 
-PR62 through PR67 are merged with existing history retained. Merged master
-`8f9b6a2` passed backend and console CI. Root owns Git,
+PR62 through PR68 are merged with existing history retained. Merged master
+`146c0e9` passed backend and console CI. Root owns Git,
 publication, fixed-source collection and this board. Engine's private V2
 trainer artifact audit is complete. Console's V3 reference repair and terminal
 QA and research's independent source/evidence review are complete. Root owns collector

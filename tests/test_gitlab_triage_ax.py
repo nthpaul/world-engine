@@ -30,7 +30,7 @@ def sidebar(*, heading="Assignee", assigned=False, classified=False, assignee_bi
         f"\t[1143] heading '{heading}'\n"
         f"\t\tInlineTextBox '{heading}'\n"
         f"\t[{assignee_bid}] button 'Edit'\n"
-        + ("\tStaticText 'Casey On-call @casey-oncall'\n" if assigned else "\tStaticText 'None'\n")
+        + ("\t[2107] link 'Casey On-call @casey-oncall'\n" if assigned else "\tStaticText 'None'\n")
         + "\t[1150] heading 'Labels'\n"
         "\t\tInlineTextBox 'Labels'\n"
         f"\t[{label_bid}] button 'Edit'\n"
@@ -56,7 +56,7 @@ def assignee_picker(*, option_bid="12", selected=False, apply_bid="15"):
 async def test_actual_heading_and_generic_edit_are_scoped(heading):
     decision = await control().decide(observation(sidebar(heading=heading)), [])
     assert decision.action.kind == "click" and decision.action.bid == "1144"
-    assert decision.evidence["protocol"] == "public-ax-triage-control-v3"
+    assert decision.evidence["protocol"] == "public-ax-triage-control-v4"
 
 
 async def test_uses_current_observed_bid_not_previous_observation():
@@ -78,8 +78,9 @@ async def test_already_correct_target_finishes_without_edit():
 
 @pytest.mark.parametrize("name", ["Casey On-call Backup @casey-backup", "@casey-oncall-extra"])
 async def test_similar_sidebar_user_is_not_exact_oncall(name):
-    text = sidebar(assigned=True).replace("StaticText 'Casey On-call @casey-oncall'", f"StaticText '{name}'")
-    assert (await control().decide(observation(text), [])).action.bid == "1144"
+    text = sidebar(assigned=True).replace("link 'Casey On-call @casey-oncall'", f"link '{name}'")
+    with pytest.raises(BrowserError, match="ambiguous closed assignee"):
+        await control().decide(observation(text), [])
 
 
 @pytest.mark.parametrize("mutation", ["missing", "static", "duplicate", "alias_duplicate"])
@@ -163,3 +164,33 @@ async def test_conservative_scoped_label_picker_requires_exact_option():
 async def test_close_control_identity_unchanged():
     policy = BrowserReferencePolicy("Deployment reference: REL-2026-0217. Add exactly: ready Then close")
     assert policy.evidence_metadata["protocol"] == "public-ax-browser-control-v1"
+
+
+async def test_actual_display_only_commit_and_ordinary_activity_corroborate_identity():
+    policy = control()
+    await policy.decide(observation(sidebar()), [])
+    await policy.decide(observation(assignee_picker(option_bid="2058")), [])
+    closed = sidebar(assigned=True).replace("link 'Casey On-call @casey-oncall'", "link 'Casey On-call'")
+    activity = ("[1500] heading 'Activity'\n\t[1557] list ''\n\t\t[2114] listitem ''\n"
+                "\t\t\t[2120] link 'Workflow Agent'\n\t\t\tStaticText 'assigned to'\n"
+                "\t\t\t[2125] link '@casey-oncall'\n\t\t\t[2127] link 'Sunday, October 11, 2026 at 2:55:01 PM EDT'\n")
+    decision = await policy.decide(observation(closed + activity), [])
+    assert decision.action.kind == "click" and decision.action.bid == "1151"
+
+
+async def test_display_only_existing_assignee_is_not_trusted_without_picker_inspection():
+    policy = control()
+    closed = sidebar(assigned=True, classified=True).replace(
+        "link 'Casey On-call @casey-oncall'", "link 'Casey On-call'")
+    assert (await policy.decide(observation(closed), [])).action.bid == "1144"
+    action = (await policy.decide(observation(assignee_picker(selected=True)), [])).action
+    assert action.kind == "press" and action.key == "Escape" and action.bid == "10"
+    assert (await policy.decide(observation(closed), [])).action.kind == "finish"
+
+
+async def test_current_picker_bid_can_select_but_cannot_certify_closed_commit():
+    policy = control()
+    await policy.decide(observation(assignee_picker(option_bid="2058")), [])
+    closed = sidebar(assigned=True).replace("link 'Casey On-call @casey-oncall'", "link 'Casey On-call'")
+    text = closed + "[5000] link '@casey-oncall'\nStaticText 'assigned to'\n"
+    assert (await policy.decide(observation(text), [])).action.kind == "wait"

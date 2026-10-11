@@ -13,8 +13,8 @@ LABEL_EVENT_FIELDS = {"id", "action", "issue_id", "merge_request_id", "epic_id",
                       "created_at", "reference", "imported_from", "namespace_id"}
 NOTE_FIELDS = {"id", "note", "noteable_type", "author_id", "created_at", "updated_at", "project_id",
                "line_code", "commit_id", "noteable_id", "system", "st_diff", "updated_by_id", "type",
-               "position", "original_position", "resolved_at", "resolved_by_id", "discussion_id", "note_html",
-               "cached_markdown_version", "change_position", "resolved_by_push", "review_id", "confidential",
+               "position", "original_position", "resolved_at", "resolved_by_id", "discussion_id",
+               "change_position", "resolved_by_push", "review_id", "confidential",
                "last_edited_at", "internal", "namespace_id", "imported_from", "organization_id"}
 NOTE_METADATA_FIELDS = {"id", "note_id", "action", "created_at", "updated_at", "commit_count",
                         "description_version_id", "namespace_id"}
@@ -116,14 +116,24 @@ def verify(payload):
     try:
         if not isinstance(payload, dict) or set(payload) != {"schema", "baseline", "final", "expected", "provenance"}:
             raise ValueError("sealed envelope schema differs")
-        if payload["schema"] != "world-engine-gitlab-triage-sealed-v1":
+        if payload["schema"] != "world-engine-gitlab-triage-sealed-v2":
             raise ValueError("wrong sealed schema")
         initial, final, expected = payload["baseline"], payload["final"], payload["expected"]
         for state in (initial, final):
-            if not isinstance(state, dict) or set(state) != TABLES | {"schema", "gitlab_version"}:
+            if not isinstance(state, dict) or set(state) != TABLES | {"schema", "gitlab_version", "captured_at"}:
                 raise ValueError("snapshot schema differs")
-            if state["schema"] != "world-engine-gitlab-triage-state-v1" or state["gitlab_version"] != "19.4.1":
+            if state["schema"] != "world-engine-gitlab-triage-state-v2" or state["gitlab_version"] != "19.4.1":
                 raise ValueError("unsupported snapshot version")
+            if not isinstance(state["captured_at"], str) or not re.fullmatch(
+                r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z", state["captured_at"]
+            ):
+                raise ValueError("invalid database capture timestamp")
+        captured_before, captured_after = timestamp(initial["captured_at"]), timestamp(final["captured_at"])
+        if captured_before > captured_after:
+            raise ValueError("capture interval reversed")
+
+        def during_attempt(value):
+            return captured_before <= timestamp(value) <= captured_after
         if not isinstance(expected, dict) or set(expected) != {"project_id", "target_issue_id", "agent_id", "oncall_id", "severity_label_id"}:
             raise ValueError("invalid fixture facts")
         if not all(identity(value) for value in expected.values()):
@@ -138,6 +148,8 @@ def verify(payload):
         namespace = original["namespace_id"]
         if not identity(namespace) or type(original.get("project_id")) is not int or original["project_id"] != project or original.get("state_id") != 1 or type(original["state_id"]) is not int:
             raise ValueError("invalid initial issue")
+        if timestamp(original["updated_at"]) > captured_before:
+            raise ValueError("initial issue postdates baseline capture")
         candidates = [row["id"] for row in before["issues"].values()
                       if "Incident reference: INC-2026-0217" in str(row.get("description", ""))]
         if candidates != [target] or before["projects"][(project,)].get("name") != "Incident Operations":
@@ -161,6 +173,8 @@ def verify(payload):
             for key, row in before["projects"].items())
         for field in ("updated_at", "last_activity_at"):
             project_ok = project_ok and timestamp(after["projects"][(project,)][field]) >= timestamp(before["projects"][(project,)][field])
+            if canonical(after["projects"][(project,)][field]) != canonical(before["projects"][(project,)][field]):
+                project_ok = project_ok and during_attempt(after["projects"][(project,)][field])
         check("project_preservation", project_ok, "Only valid nondecreasing activity timestamps may change on the assigned project.")
         initial_assignees = [row for row in before["issue_assignees"].values() if row["issue_id"] == target]
         if initial_assignees and (len(initial_assignees) != 1 or initial_assignees[0]["user_id"] != oncall):
@@ -185,8 +199,8 @@ def verify(payload):
         for row in link_delta:
             link_ok = link_ok and set(row) == LINK_FIELDS and all(type(row[key]) is int and row[key] == value
                 for key, value in (("label_id", label), ("target_id", target), ("namespace_id", namespace))) and row["target_type"] == "Issue"
-            link_ok = link_ok and timestamp(original["updated_at"]) <= timestamp(row["created_at"]) <= timestamp(completed["updated_at"])
-            link_ok = link_ok and timestamp(row["created_at"]) <= timestamp(row["updated_at"]) <= timestamp(completed["updated_at"])
+            link_ok = link_ok and timestamp(original["updated_at"]) <= timestamp(row["created_at"]) and during_attempt(row["created_at"])
+            link_ok = link_ok and timestamp(row["created_at"]) <= timestamp(row["updated_at"]) and during_attempt(row["updated_at"])
         check("exact_severity", link_ok, "Exactly the requested severity label is added; all prior links remain intact.")
         changed = need_assignment or need_label
         issue_ok = before["issues"].keys() == after["issues"].keys()
@@ -196,6 +210,7 @@ def verify(payload):
         if changed:
             issue_ok = issue_ok and type(completed.get("updated_by_id")) is int and completed["updated_by_id"] == agent
             issue_ok = issue_ok and timestamp(completed["updated_at"]) >= timestamp(original["updated_at"])
+            issue_ok = issue_ok and during_attempt(completed["updated_at"])
             if "lock_version" in original:
                 issue_ok = issue_ok and type(completed["lock_version"]) is int and completed["lock_version"] >= original["lock_version"]
         check("issue_preservation", issue_ok, "Status, due date, descriptions, unrelated issues and immutable fields stay intact.")
@@ -207,21 +222,22 @@ def verify(payload):
             note_ok = note_ok and set(row) == NOTE_FIELDS and row.get("note") == "assigned to @casey-oncall"
             note_ok = note_ok and row.get("system") is True and row.get("internal") is False and row.get("noteable_type") == "Issue"
             note_ok = note_ok and all(type(row.get(key)) is int and row[key] == value for key, value in
-                (("author_id", agent), ("project_id", project), ("noteable_id", target), ("namespace_id", namespace)))
-            # These candidate defaults fail closed until qualified against a real reference receipt.
+                (("author_id", agent), ("project_id", project), ("noteable_id", target)))
+            # Project-backed Notes use project_id as their sharding key, not namespace_id.
+            note_ok = note_ok and row.get("namespace_id") is None
             nullable = NOTE_FIELDS - {"id", "note", "noteable_type", "author_id", "created_at", "updated_at", "project_id",
                                       "noteable_id", "system", "discussion_id", "internal", "namespace_id", "imported_from"}
             note_ok = note_ok and all(row[key] is None for key in nullable)
             note_ok = note_ok and row["imported_from"] == "none" and isinstance(row["discussion_id"], str) and bool(re.fullmatch(r"[0-9a-f]{40}", row["discussion_id"]))
-            note_ok = note_ok and timestamp(original["updated_at"]) <= timestamp(row["created_at"]) <= timestamp(completed["updated_at"])
-            note_ok = note_ok and timestamp(row["created_at"]) <= timestamp(row["updated_at"]) <= timestamp(completed["updated_at"])
+            note_ok = note_ok and timestamp(original["updated_at"]) <= timestamp(row["created_at"]) and during_attempt(row["created_at"])
+            note_ok = note_ok and timestamp(row["created_at"]) <= timestamp(row["updated_at"]) and during_attempt(row["updated_at"])
         for row in metadata_delta:
             note_ok = note_ok and set(row) == NOTE_METADATA_FIELDS and row.get("action") == "assignee"
             note_ok = note_ok and len(note_delta) == 1 and type(row.get("note_id")) is int and row["note_id"] == note_delta[0]["id"]
             note_ok = note_ok and type(row.get("namespace_id")) is int and row["namespace_id"] == namespace
             note_ok = note_ok and row.get("commit_count") is None and row.get("description_version_id") is None
-            note_ok = note_ok and len(note_delta) == 1 and timestamp(note_delta[0]["created_at"]) <= timestamp(row["created_at"]) <= timestamp(completed["updated_at"])
-            note_ok = note_ok and timestamp(row["created_at"]) <= timestamp(row["updated_at"]) <= timestamp(completed["updated_at"])
+            note_ok = note_ok and len(note_delta) == 1 and timestamp(note_delta[0]["created_at"]) <= timestamp(row["created_at"]) and during_attempt(row["created_at"])
+            note_ok = note_ok and timestamp(row["created_at"]) <= timestamp(row["updated_at"]) and during_attempt(row["updated_at"])
         check("assignment_certificate", note_ok, "One exact system assignment certificate, no ordinary comments or unrelated history changes.")
         old_events, new_events = events(initial["label_events"]), events(final["label_events"])
         event_delta = label_event_additions(old_events, new_events)
@@ -233,7 +249,7 @@ def verify(payload):
                 (("issue_id", target), ("label_id", label), ("user_id", agent), ("namespace_id", namespace)))
             event_ok = event_ok and attrs.get("merge_request_id") is None and attrs.get("epic_id") is None and attrs.get("imported_from") == "none"
             event_ok = event_ok and attrs.get("reference") in (None, f"~{label}")
-            event_ok = event_ok and timestamp(original["updated_at"]) <= timestamp(attrs["created_at"]) <= timestamp(completed["updated_at"])
+            event_ok = event_ok and timestamp(original["updated_at"]) <= timestamp(attrs["created_at"]) and during_attempt(attrs["created_at"])
         check("label_certificate", event_ok, "Exactly one actor-scoped label-add event when needed; existing label history is preserved.")
     except (KeyError, TypeError, ValueError, OverflowError):
         check("sealed_state_integrity", False, "Unsupported or inconsistent sealed fixture/state/certificate schema.")
