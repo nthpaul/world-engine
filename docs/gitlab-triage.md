@@ -107,13 +107,41 @@ Prior records, permissions, defaults, counts and immutable fields still require
 preservation. Historical schemas remain interpreted at their pinned source,
 not silently accepted as the new contract.
 
-This verifier is **not yet qualified against a real reference execution**.
+**A complete positive triage outcome remains unqualified against a real reference
+execution.** The partial assignment certificate is demonstrated below.
 Its candidate exact note/metadata defaults fail closed. A legitimate GitLab
 rendering/default mismatch stops qualification and preserves the rejected result;
 any repair requires a new committed source/protocol and fresh collection. Mock
 tests demonstrate the stated candidate contract, not actual application fidelity.
 The selected tables do not certify every GitLab feature or side effect. The host
 browser and operator-owned Docker setup are not a multi-tenant security sandbox.
+
+Actual V4 at `a3aaa0f3f5f1412bd6989d35c61ba12c62c2d69c` stopped after
+two controls. The incomplete control finished with reward zero. The reference
+made 12 valid actions and zero invalid actions, then failed with `provider_error`
+at the labels picker. Exact assignment and its isolated certificate passed;
+severity was not added, so the original overall zero remains correct. Both
+cleanups completed. Already-correct, close compatibility and the local-model
+slot remain unattempted, with zero inference events.
+
+The actual labels listbox has named Selected and All groups. Its selected
+`incident` label appears in both with `selected=True`; the offered `severity::2`
+option omits that attribute. The reference required an explicit boolean and
+stopped before clicking it. This is a controller adaptation failure, not a model
+capability result or permission to broadly reinterpret missing selection flags.
+
+Independent read-only audits reproduced both original grades and all twelve
+reference actions, verifying 439 original files, 42 source blobs, 103 journal
+records and 17 registered media artifacts unchanged. The actual six-digit
+database capture interval encloses the assignment note and linked metadata;
+the project-backed note has the exact 28-field schema and null namespace.
+That proves this partial certificate, not a successful full triage task.
+GET-only console QA passed 39 checks with eleven desktop/mobile screenshots,
+desktop playback and full decoding of both videos. Mobile playback remains
+unqualified. Root verified idle admission, empty owned Docker inventories and
+preservation of all fifteen prior browser rows and 256 browser evidence files.
+Any repair requires a separately committed protocol and fresh control cohort;
+no original grade or evidence is replaced.
 
 ## Close-Task Compatibility
 
