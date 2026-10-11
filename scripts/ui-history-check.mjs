@@ -34,6 +34,9 @@ try {
   let delayNewest = false;
   let slowNewest = false;
   let created;
+  let expectedProvider = "scripted-oracle";
+  let expectedModel = null;
+  let expectedConcurrency = 4;
   page.on("pageerror", (error) => errors.push(error.message));
   await page.route("**/api/**", async (route) => {
     const request = route.request();
@@ -46,7 +49,11 @@ try {
         version: "1", tools: [], tags: [] }] };
     } else if (target.pathname === "/api/providers") {
       response = { providers: [{ id: "scripted-oracle", name: "Reference", kind: "scripted",
-        configured: true, requires_opt_in: false, models: [] }] };
+        configured: true, requires_opt_in: false, models: [] },
+        ...["local", "local-tools", "local-tools-ledger"].map((id) => ({
+          id, name: id, kind: "local", configured: true, requires_opt_in: false,
+          models: ["operator-model:custom", "qwen3:8b"],
+        }))] };
     } else if (target.pathname === "/api/runs" && request.method() === "GET") {
       const limit = Number(target.searchParams.get("limit"));
       const offset = Number(target.searchParams.get("offset"));
@@ -69,8 +76,12 @@ try {
       response = { runs: offset === 50 && emptyOlder ? [] : runs.slice(offset, offset + limit) };
     } else if (target.pathname === "/api/runs" && request.method() === "POST") {
       const submitted = request.postDataJSON();
-      assert.equal(submitted.provider_id, "scripted-oracle");
+      assert.equal(submitted.provider_id, expectedProvider);
       assert.equal(submitted.allow_paid, false);
+      assert.equal(submitted.model, expectedModel);
+      assert.equal(submitted.concurrency, expectedConcurrency);
+      if (expectedProvider === "local-tools" || expectedProvider === "local-tools-ledger")
+        assert.equal(submitted.evaluation_only, true);
       created = { ...runs[0], id: "created-run", label: "Created mock run", status: "queued", config: submitted };
       runs.unshift(created);
       response = created;
@@ -165,8 +176,55 @@ try {
   await waitPage(1, 50);
   assert.ok(created && requests.includes(50));
   await page.getByRole("link", { name: "Created mock run", exact: true }).waitFor();
+  for (const native of ["local-tools", "local-tools-ledger"]) {
+    await page.getByRole("button", { name: "New rollout", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "New rollout", exact: true });
+    const evaluation = dialog.getByRole("checkbox", { name: "Evaluation-only batch (excluded from training exports)", exact: true });
+    const concurrency = dialog.getByLabel("Concurrency", { exact: true });
+    assert.equal(await concurrency.inputValue(), "4", "legacy rollout default remains four workers");
+    assert.equal(await evaluation.isChecked(), false);
+    assert.equal(await evaluation.isEnabled(), true);
+    await dialog.getByLabel("Provider", { exact: true }).selectOption(native);
+    assert.equal(await evaluation.isChecked(), true);
+    assert.equal(await evaluation.isDisabled(), true);
+    assert.equal(await concurrency.inputValue(), "1", "entering native mode defaults to one worker");
+    assert.equal(await dialog.getByLabel("Model", { exact: true }).inputValue(), "qwen3:8b");
+    assert.equal(await dialog.locator(".paid-consent").count(), 0);
+    await dialog.getByLabel("Provider", { exact: true }).selectOption("local");
+    assert.equal(await evaluation.isEnabled(), true);
+    assert.equal(await concurrency.isEnabled(), true);
+    await evaluation.uncheck();
+    await dialog.getByLabel("Provider", { exact: true }).selectOption(native);
+    assert.equal(await evaluation.isChecked(), true);
+    assert.equal(await evaluation.isDisabled(), true);
+    expectedProvider = native;
+    expectedConcurrency = 1;
+    expectedModel = native === "local-tools" ? "qwen3:8b" : "operator-model:custom";
+    await dialog.getByLabel("Model", { exact: true }).selectOption(expectedModel);
+    await dialog.getByRole("button", { name: "Start rollout", exact: true }).click();
+    await page.getByRole("heading", { name: "Created mock run", exact: true }).waitFor();
+    assert.equal(created.config.provider_id, native);
+    assert.equal(created.config.evaluation_only, true);
+    assert.equal(created.config.model, expectedModel);
+    assert.equal(created.config.allow_paid, false);
+    await page.getByRole("link", { name: "Run history", exact: true }).click();
+    await waitPage(1, 50);
+  }
+  await page.getByRole("button", { name: "New rollout", exact: true }).click();
+  const nativeDialog = page.getByRole("dialog", { name: "New rollout", exact: true });
+  await nativeDialog.getByLabel("Provider", { exact: true }).selectOption("local-tools");
+  await nativeDialog.getByLabel("Concurrency", { exact: true }).fill("2");
+  await nativeDialog.getByLabel("Provider", { exact: true }).selectOption("local-tools-ledger");
+  assert.equal(await nativeDialog.getByLabel("Concurrency", { exact: true }).inputValue(), "2",
+    "switching native protocols preserves an explicit worker count");
+  expectedProvider = "local-tools-ledger";
+  expectedModel = "qwen3:8b";
+  expectedConcurrency = 2;
+  await nativeDialog.getByRole("button", { name: "Start rollout", exact: true }).click();
+  await page.getByRole("heading", { name: "Created mock run", exact: true }).waitFor();
+  assert.equal(created.config.concurrency, 2);
   assert.deepEqual(errors, []);
-  console.log("Run history: bounded pagination, honest metrics, failure/retry, selection, polling, stale responses, creation and mobile layout passed against mocked API only.");
+  console.log("Run history and native provider selection: bounded pagination, honest metrics, failure/retry, polling, creation, mobile layout and evaluation-only native requests passed against mocked API only.");
 } finally {
   await browser?.close();
   await server.close();

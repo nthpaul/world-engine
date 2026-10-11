@@ -14,6 +14,7 @@ import {
   FlaskConical,
   GitBranch,
   Layers3,
+  Monitor,
   LoaderCircle,
   Play,
   Plus,
@@ -36,10 +37,13 @@ import {
   type RunConfig,
   type RunDetail,
 } from "./api";
+import BrowserConsole from "./BrowserConsole";
 
-type View = "runs" | "worlds" | "benchmarks" | "runtime";
+type View = "browser-environments" | "attempts" | "runs" | "worlds" | "benchmarks" | "runtime";
 type Route = { view: View; runId: string | null };
 const navigation = [
+  { id: "browser-environments", label: "Browser Environments", icon: Monitor },
+  { id: "attempts", label: "Attempts", icon: Play },
   { id: "runs", label: "Rollout runs", icon: Activity },
   { id: "worlds", label: "World library", icon: Box },
   { id: "benchmarks", label: "Benchmarks", icon: FlaskConical },
@@ -61,13 +65,15 @@ const defaultModel = (provider: Provider | undefined) =>
   provider?.kind === "local"
     ? (provider.models.find((model) => model === "qwen3:8b") ?? null)
     : (provider?.models[0] ?? null);
+const isNativeProvider = (id: string | undefined) =>
+  id === "local-tools" || id === "local-tools-ledger";
 
 function readRoute(): Route {
   const parts = window.location.hash.slice(1).split("/");
   const view = navigation.find((item) => item.id === parts[0])?.id ?? "runs";
   return {
     view,
-    runId: view === "runs" && parts[1] ? decodeURIComponent(parts[1]) : null,
+    runId: (view === "runs" || view === "attempts") && parts[1] ? decodeURIComponent(parts[1]) : null,
   };
 }
 function go(view: View, runId?: string) {
@@ -227,6 +233,7 @@ export default function App() {
             <a
               key={id}
               href={`#${id}`}
+              title={label}
               className={route.view === id ? "nav-item active" : "nav-item"}
               aria-current={route.view === id ? "page" : undefined}
             >
@@ -301,7 +308,9 @@ export default function App() {
               </button>
             </div>
           )}
-          {route.view === "runs" && route.runId ? (
+          {route.view === "browser-environments" || route.view === "attempts" ? (
+            <BrowserConsole view={route.view} attemptId={route.runId} notify={setNotice} />
+          ) : route.view === "runs" && route.runId ? (
             <RunInspector
               id={route.runId}
               environments={environments}
@@ -314,9 +323,9 @@ export default function App() {
                 <div>
                   <div className="eyebrow">
                     {route.view === "runs"
-                      ? "EXECUTION"
+                      ? "SIMULATION DIAGNOSTICS"
                       : route.view === "worlds"
-                        ? "ENVIRONMENTS"
+                        ? "SYNTHETIC SIMULATIONS"
                         : route.view === "benchmarks"
                           ? "EVALUATION"
                           : "CONFIGURATION"}
@@ -324,9 +333,9 @@ export default function App() {
                   <h1>{title}</h1>
                   <p>
                     {route.view === "runs"
-                      ? "Episode batches, outcomes, and reproducible agent traces."
+                      ? "Synthetic simulation batches, outcomes, and reproducible agent traces."
                       : route.view === "worlds"
-                        ? "Stateful workflow environments and their tool contracts."
+                        ? "Synthetic workflow simulations and their tool contracts."
                         : route.view === "benchmarks"
                           ? "Compare observed outcomes across runs and model providers."
                           : "Provider configuration and local execution readiness."}
@@ -1042,10 +1051,10 @@ function LaunchDialog({
     episodes: 10,
     seed: 42,
     max_steps: 20,
-    concurrency: 4,
+    concurrency: isNativeProvider(enabledProviders[0]?.id) ? 1 : 4,
     model: defaultModel(enabledProviders[0]),
     allow_paid: false,
-    evaluation_only: false,
+    evaluation_only: isNativeProvider(enabledProviders[0]?.id),
     timeout_seconds: 60,
     label: "",
   });
@@ -1151,6 +1160,13 @@ function LaunchDialog({
                     provider_id: event.target.value,
                     model: defaultModel(next),
                     allow_paid: false,
+                    evaluation_only:
+                      isNativeProvider(event.target.value) || config.evaluation_only,
+                    concurrency:
+                      isNativeProvider(event.target.value) &&
+                      !isNativeProvider(config.provider_id)
+                        ? 1
+                        : config.concurrency,
                   });
                 }}
               >
@@ -1272,6 +1288,7 @@ function LaunchDialog({
             <input
               type="checkbox"
               checked={config.evaluation_only}
+              disabled={isNativeProvider(config.provider_id)}
               onChange={(event) =>
                 setConfig({ ...config, evaluation_only: event.target.checked })
               }
@@ -1452,9 +1469,9 @@ function RunInspector({
           note="Across completed episodes"
         />
         <Metric
-          label="Throughput"
-          value={`${number(run.steps_per_second)} / s`}
-          note={`${duration(run.elapsed_seconds)} elapsed`}
+          label="Step throughput"
+          value={number(run.steps_per_second)}
+          note={`steps/s / ${duration(run.elapsed_seconds)} elapsed`}
         />
       </div>
       <div className="run-config-bar">
