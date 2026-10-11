@@ -168,6 +168,83 @@ def test_assignment_join_order_matches_exporter_and_preserves_crossed_pairs():
     assert not VERIFIER.verify(data)["passed"]
 
 
+def prior_label_events_payload(*, assignment=True, label=True, reference=None):
+    data = payload(assignment=assignment, label=label)
+    template = payload()["final"]["label_events"][0]
+    prior = []
+    for identifier in (1, 2):
+        event = copy.deepcopy(template)
+        event["attributes"].update(id=identifier, label_id=1, issue_id=identifier,
+                                   created_at=BEFORE, reference=reference)
+        prior.append(event)
+    data["baseline"]["label_events"] = copy.deepcopy(prior)
+    for event in data["final"]["label_events"]:
+        event["attributes"]["id"] += len(prior)
+    data["final"]["label_events"] = copy.deepcopy(prior) + data["final"]["label_events"]
+    return data
+
+
+@pytest.mark.parametrize("assignment,label", [(True, True), (False, False), (True, False), (False, True)])
+@pytest.mark.parametrize("reference", [None, "~1"])
+def test_prior_label_event_reference_unchanged_or_exact_display_population(assignment, label, reference):
+    data = prior_label_events_payload(assignment=assignment, label=label, reference=reference)
+    for event in data["final"]["label_events"][:2]:
+        event["attributes"]["reference"] = "~1"
+    original = copy.deepcopy(data)
+    result = VERIFIER.verify(data)
+    assert result["passed"] and result["reward"] == 1.0
+    assert data == original
+    assert VERIFIER.verify(prior_label_events_payload(assignment=assignment, label=label,
+                                                     reference=reference))["passed"]
+
+
+@pytest.mark.parametrize("field,value", [
+    ("reference", "~2"), ("reference", 1), ("reference", True),
+    ("reference", "1"), ("reference", "~01"), ("reference", "~1 "),
+    ("id", 9), ("label_id", 2), ("label_id", True), ("label_id", 1.0),
+    ("user_id", 3), ("user_id", True), ("issue_id", 2), ("issue_id", 1.0),
+    ("namespace_id", 11), ("action", "remove"), ("created_at", AFTER),
+    ("merge_request_id", 99), ("imported_from", "github"),
+])
+def test_prior_label_event_display_population_does_not_authorize_history_mutation(field, value):
+    data = prior_label_events_payload()
+    data["final"]["label_events"][0]["attributes"].update(reference="~1")
+    data["final"]["label_events"][0]["attributes"][field] = value
+    assert not VERIFIER.verify(data)["passed"]
+
+
+@pytest.mark.parametrize("value", [None, "~2", True, 1, "~01"])
+def test_populated_prior_label_reference_cannot_revert_or_change(value):
+    data = prior_label_events_payload(reference="~1")
+    data["final"]["label_events"][0]["attributes"]["reference"] = value
+    assert not VERIFIER.verify(data)["passed"]
+
+
+@pytest.mark.parametrize("mutation", ["delete", "duplicate", "reorder", "wrapper_action", "extra_wrapper",
+                                       "drop_reference", "drop_attribute", "extra_attribute"])
+def test_prior_label_history_shape_and_order_stay_exact(mutation):
+    data = prior_label_events_payload()
+    history = data["final"]["label_events"]
+    history[0]["attributes"]["reference"] = "~1"
+    if mutation == "delete":
+        del history[0]
+    elif mutation == "duplicate":
+        history.insert(1, copy.deepcopy(history[0]))
+    elif mutation == "reorder":
+        history[0], history[1] = history[1], history[0]
+    elif mutation == "wrapper_action":
+        history[0]["action_name"] = "remove"
+    elif mutation == "extra_wrapper":
+        history[0]["claimed_authorized"] = True
+    elif mutation == "drop_reference":
+        del history[0]["attributes"]["reference"]
+    elif mutation == "drop_attribute":
+        del history[0]["attributes"]["user_id"]
+    else:
+        history[0]["attributes"]["claimed_authorized"] = True
+    assert not VERIFIER.verify(data)["passed"]
+
+
 @pytest.mark.parametrize("value", [None, [], {"schema": "wrong"}, float("nan")])
 def test_malformed_envelope_fails_redacted(value):
     result = VERIFIER.verify(value)

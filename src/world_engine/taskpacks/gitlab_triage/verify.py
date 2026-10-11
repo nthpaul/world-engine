@@ -88,6 +88,25 @@ def same_except(before, after, allowed):
                                                  for key, value in before.items() if key not in allowed)
 
 
+def label_event_additions(before, after):
+    for key, previous in before.items():
+        if key not in after:
+            raise ValueError("prior label event deleted")
+        current = after[key]
+        old, new = previous["attributes"], current["attributes"]
+        unchanged = canonical(previous) == canonical(current)
+        display_only = (
+            canonical(previous["action_name"]) == canonical(current["action_name"])
+            and same_except(old, new, {"reference"})
+            and old["reference"] is None
+            and identity(old["label_id"])
+            and new["reference"] == f"~{old['label_id']}"
+        )
+        if not (unchanged or display_only):
+            raise ValueError("prior label event changed")
+    return [row for key, row in after.items() if key not in before]
+
+
 def verify(payload):
     checks = []
 
@@ -205,7 +224,7 @@ def verify(payload):
             note_ok = note_ok and timestamp(row["created_at"]) <= timestamp(row["updated_at"]) <= timestamp(completed["updated_at"])
         check("assignment_certificate", note_ok, "One exact system assignment certificate, no ordinary comments or unrelated history changes.")
         old_events, new_events = events(initial["label_events"]), events(final["label_events"])
-        event_delta = additions(old_events, new_events)
+        event_delta = label_event_additions(old_events, new_events)
         event_ok = len(event_delta) == int(need_label) and fresh_ids(old_events, [row["attributes"] for row in event_delta])
         for row in event_delta:
             attrs = row["attributes"]

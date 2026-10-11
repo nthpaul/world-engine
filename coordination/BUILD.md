@@ -1,6 +1,6 @@
 # World Engine build board
 
-Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery is a bounded local platform, not a production-app replica, cloud execution service or multi-tenant deployment. No trained checkpoint is established yet. Dated foundation/history below retains its original counts and failures.
+Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery is a bounded local platform, not a production-app replica, cloud execution service or multi-tenant deployment. A local one-update checkpoint is established, but no learning improvement is established. Dated foundation/history below retains its original counts and failures.
 
 ## Active increments
 
@@ -11,8 +11,12 @@ assistant-token masks. Source `a8b95a4df7a39d6e2884048fbf39c49095487bde`
 passed 2,185 tests with eight optional skips. Private-local collection retained
 128 reference episodes, 815 train decision masks and 26 held-out episodes;
 independent replay and token-mask verification passed. These are scripted
-reference data, not model success or a trained checkpoint. An actual
-optimizer/checkpoint remains a separate gate. Existing
+reference data, not model success. The separately reviewed
+local trainer at `c2df2579c9211aaf4fb687cc457117c16c962aaf` passed 2,246 tests
+with eight optional skips and green CI. Its fixed one-update local MPS smoke saved
+a finite LoRA adapter; independent source/data/file and adapter-byte checks passed.
+Useful learning requires the separately authorized held-out pilot, not checkpoint
+existence. Existing
 native, browser and recorded-HTTP evidence stays training-ineligible; no normal
 runtime training dependency was added.
 
@@ -21,12 +25,23 @@ severity work, an already-correct case and nonempty unrelated assignment state.
 Its frozen source passed independent review and 350 focused mock tests, Ruff and
 Ruby syntax checks. The [fixed qualification protocol](../docs/gitlab-triage-protocol.md)
 requires real controls before the candidate verifier is qualified or the optional
-local model runs. The prior close receipts retain their original source;
+local model runs. V1 at `91641bc614fb567d176f10c01137a9bc36d0f851` stopped
+after the incomplete control and a failed 30-action reference; both retained zero
+reward and completed cleanup. The remaining three slots, including the model,
+were unattempted. Independent journal/source/seal/media audit passed, and actual
+console QA passed 57 checks with desktop video playback. A singular sidebar
+heading and duplicate inline text exposed reference parsing defects; prior label
+display-reference changes exposed a narrow verifier compatibility issue. Pack
+1.0.1, grader v2 and the separately declared V2 protocol address these findings;
+they remain unqualified until fresh real controls pass. Original grades are not
+replaced. The prior close receipts retain their original source;
 registered close release 1.0.3 changes recipe ownership, not prior grades.
 
 Root owns Git, publication, fixed-source collection and this board. Engine owns
-the separately reviewed local trainer increment. Console's task-pack source is
-frozen for qualification. Research reviews the new evidence boundaries. Worker
+private final-trainer artifact audit. Console owns the narrow triage AX policy
+repair and its tests. Research owns prior label-reference verifier repair and
+its tests. Root owns versions, collector/protocol and integration. The API and
+trainer still use separate immutable pinned checkouts. Worker
 code is not a measured real-application or learning result. Only committed,
 reviewed protocols may produce fresh evidence;
 separate pinned checkouts prevent concurrent source edits during collection.

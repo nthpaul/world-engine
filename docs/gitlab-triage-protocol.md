@@ -1,4 +1,4 @@
-# GitLab Triage Qualification Protocol
+# GitLab Triage Qualification Protocol V2
 
 This is an integration qualification of two registered task packs, not training,
 a population benchmark, a concurrency study or proof of full GitLab fidelity.
@@ -7,6 +7,17 @@ Default invocation prints the plan without Store, Docker, browser or model conta
 ```sh
 uv run python scripts/collect_gitlab_triage.py
 ```
+
+V2 is a separately committed intervention after V1's changes-required reference
+failed at 30 actions. The original V1 receipts and grades remain unchanged;
+its already-correct, compatibility and model slots were unattempted. Reproduce
+V1 at source `91641bc614fb567d176f10c01137a9bc36d0f851`, not this collector.
+V2 changes the reference control to role-aware current-sidebar heading parsing,
+including singular `Assignee` and duplicate inline heading text. The triage pack
+is `1.0.1` with `gitlab-triage-state-v2`. Its verifier permits only the exact
+prior label display-reference transition from null to that row's `~label_id`;
+all other prior event attributes and identities remain exact. No old grade is
+replaced. The budgets, seeds, order, model and eligibility below are unchanged.
 
 Commit and review the runtime, collector, tests and this protocol first. Root must
 restart the owned loopback API at that full revision and separately authorize the
@@ -26,11 +37,11 @@ retry, tune, replace a failed receipt, relabel an old close receipt or skip a ga
 
 | Slot | Task/version | Provider | Seed | Actions | Interaction timeout |
 | --- | --- | --- | --- | --- | --- |
-| Incomplete | Triage 1.0.0 | browser-baseline | 42 | 1 | 30s |
-| Changes required | Triage 1.0.0 | browser-reference | 42 | 30 | 180s |
-| Already correct | Triage 1.0.0 | browser-reference | 43 | 30 | 180s |
+| Incomplete | Triage 1.0.1 | browser-baseline | 42 | 1 | 30s |
+| Changes required | Triage 1.0.1 | browser-reference | 42 | 30 | 180s |
+| Already correct | Triage 1.0.1 | browser-reference | 43 | 30 | 180s |
 | Dispatch compatibility | Close 1.0.3 | browser-reference | 42 | 30 | 180s |
-| Optional model | Triage 1.0.0 | local-browser | 42 | 30 | 600s |
+| Optional model | Triage 1.0.1 | local-browser | 42 | 30 | 600s |
 
 Controls must finish, have zero invalid actions, complete cleanup and no pending
 resource reconciliation. The incomplete control must fail the business outcome
@@ -41,6 +52,12 @@ Both triage fixtures retain a distinct non-target issue assigned to the backup
 account with a severity-three label, exercising preservation of nonempty joins
 and label history. This is the original pre-collection distribution, not a later
 repair selected from experimental outcomes.
+The fixture distribution is unchanged from V1. The reference is now
+`public-ax-triage-control-v2`; this does not change the local model's tool contract.
+The collector verifies exactly one prepared policy identity for every slot after
+retaining its terminal raw evidence. Controls require exact reference version,
+baseline flag and training exclusion; the model requires the pinned digest,
+protocol and generation options. A mismatched control cannot qualify the model gate.
 The triage verifier's exact certificate defaults are provisional until the real
 positive controls qualify. Do not soften a check and reuse the same collection.
 

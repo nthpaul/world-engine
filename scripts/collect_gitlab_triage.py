@@ -36,8 +36,9 @@ def sha(data):
 
 
 def plan():
-    return {"schema": "world-engine.triage-qualification.v1", "slots": SLOTS, "model": "qwen3:8b",
+    return {"schema": "world-engine.triage-qualification.v2", "slots": SLOTS, "model": "qwen3:8b",
             "model_digest": MODEL_DIGEST, "automatic_retries": 0, "paid_calls": False,
+            "reference_protocol": "public-ax-triage-control-v2",
             "policy_protocol": PROTOCOL, "generation_options": dict(OPTIONS), "think": False,
             "max_total_seconds": 6000, "max_artifact_bytes": LIMIT, "evaluation_only": True,
             "training_eligible": False, "model_requires_explicit_flag_and_qualified_controls": True}
@@ -151,6 +152,23 @@ def controls_qualified(results, *, complete=True):
     return True
 
 
+def validate_policy_identity(attempt, spec):
+    prepared = [entry["data"] for entry in attempt["journal"] if entry["event"] == "policy_prepared"]
+    if len(prepared) != 1:
+        raise RuntimeError("one prepared policy identity is required; raw attempt retained")
+    if spec["provider_id"] == "local-browser":
+        if (prepared[0].get("model_digest") != MODEL_DIGEST
+                or prepared[0].get("protocol") != PROTOCOL or prepared[0].get("options") != OPTIONS):
+            raise RuntimeError("observed model identity differs; raw attempt retained")
+    else:
+        expected = {"protocol": "public-ax-triage-control-v2" if spec["task_id"] == "gitlab-incident-triage"
+                    else "public-ax-browser-control-v1", "scripted_control": True,
+                    "capability_measurement": False, "baseline": spec["provider_id"] == "browser-baseline",
+                    "training_eligible": False}
+        if prepared[0] != expected:
+            raise RuntimeError("observed control identity differs; raw attempt retained")
+
+
 def model_preflight():
     # Only selected public identity is used; no daemon catalogue or other model names are saved.
     with httpx.Client(timeout=10, trust_env=False, follow_redirects=False) as client:
@@ -233,13 +251,9 @@ def collect(output, revision, startup_revision, include_model=False):
                     if len(body) != artifact["size_bytes"] or sha(body) != artifact["sha256"]:
                         raise RuntimeError("artifact integrity differs")
                     write(output, directory / relative, body)
+                validate_policy_identity(attempt, spec)
                 if index < 4 and not controls_qualified(report["results"], complete=False):
                     raise RuntimeError("control qualification failed; no retry or later attempts")
-                if index == 4:
-                    prepared = [entry["data"] for entry in attempt["journal"] if entry["event"] == "policy_prepared"]
-                    if (len(prepared) != 1 or prepared[0].get("model_digest") != MODEL_DIGEST
-                            or prepared[0].get("protocol") != PROTOCOL or prepared[0].get("options") != OPTIONS):
-                        raise RuntimeError("observed model identity differs; raw attempt retained")
         if source_identity(revision) != source:
             raise RuntimeError("source drift after finalization")
         report["status"] = "completed"
