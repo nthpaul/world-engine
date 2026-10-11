@@ -30,6 +30,11 @@ INPUT_TOKENS, NEW_TOKENS, EPISODE_SECONDS = 4096, 128, 60
 DATA_REVISION = "a8b95a4df7a39d6e2884048fbf39c49095487bde"
 DATA_REPORT_HASH = "8ef491474ca183b6622381db99c466ebcec32e366f809e7644504cbdcbcd1b41"
 TRAIN_SCOPE = ("scripts/local_sft_train.py", "tests/test_local_sft_train.py", "docs/local-sft-training-protocol.md")
+STAGES = ("source_validation", "data_validation", "tokenizer_validation", "device_initialization", "model_load",
+          "base_loss", "base_live", "adapter_setup", "training", "post_training_verification", "adapter_save",
+          "final_loss", "final_live", "reload", "source_postcondition", "data_postcondition")
+CACHE_POINTS = ("backward_substep", "backward_step", "base_loss", "final_loss", "base_live_episode",
+                "final_live_episode", "before_reload")
 
 
 class TrainingStopped(RuntimeError):
@@ -39,7 +44,7 @@ class TrainingStopped(RuntimeError):
 def plan(mode="train"):
     if mode not in {"smoke", "train"}:
         raise TrainingStopped("unknown experiment mode")
-    protocol = {"id": "private-local-lora-v1", "mode": mode, "seed": SEED,
+    protocol = {"id": "private-local-lora-v2", "mode": mode, "seed": SEED,
                 "model": "Qwen/Qwen2.5-0.5B-Instruct", "cache_revision": data.CACHE_REVISION,
                 "cache_sha256": data.CACHE_HASHES, "template_sha256": data.TEMPLATE_HASH,
                 "versions": data.VERSIONS, "device": "mps", "dtype": "float32", "attention": "eager",
@@ -53,6 +58,11 @@ def plan(mode="train"):
                 "generation_cache": True,
                 "gradient_checkpointing": True, "checkpoint_use_reentrant": False,
                 "mps_allocator_fraction": 0.5, "memory_observations": "sampled RSS peak and MPS allocated/driver bytes",
+                "diagnostics_schema": "private-local-lora-diagnostics.v1", "diagnostics_stages": STAGES,
+                "cache_maintenance": {"points": CACHE_POINTS, "order": ["deadline_check", "memory_before",
+                    "durable_intent", "synchronize", "empty_cache", "memory_after", "durable_result", "deadline_check"],
+                    "adaptive": False, "max_training_calls": 1 if mode == "smoke" else 128,
+                    "max_phase_calls": 1 if mode == "smoke" else 19},
                 "trainer_periodic_evaluation": "disabled", "trainer_periodic_checkpoints": "disabled",
                 "trainer_external_reporting": "disabled",
                 "heldout_live_tasks": 0 if mode == "smoke" else 8, "base_final_pairs": mode == "train",
@@ -255,6 +265,65 @@ def memory_sample(torch):
             "limitation": "observed samples and process RSS peak; not a whole-host memory quota"}
 
 
+def failure_category(error, torch=None):
+    if isinstance(error, TrainingStopped):
+        return "training_guard"
+    if isinstance(error, MemoryError):
+        return "python_memory"
+    oom = getattr(torch, "OutOfMemoryError", None)
+    if isinstance(oom, type) and isinstance(error, oom):
+        return "torch_out_of_memory"
+    for kind, label in ((RuntimeError, "runtime_error"), (ValueError, "value_error"),
+                        (TypeError, "type_error"), (OSError, "os_error")):
+        if isinstance(error, kind):
+            return label
+    return "other_exception"
+
+
+class Diagnostics:
+    def __init__(self, report, journal):
+        self.report, self.journal = report, journal
+        self.stage, self.completed_steps, self.collated_batches, self.torch = "source_validation", 0, 0, None
+
+    def mark(self, stage):
+        if stage not in STAGES:
+            raise TrainingStopped("unknown diagnostics stage")
+        self.stage = stage
+        self.journal.write("stages.jsonl", self.snapshot())
+
+    def snapshot(self):
+        return {"stage": self.stage, "completed_optimizer_steps": self.completed_steps,
+                "collated_batches": self.collated_batches}
+
+    def failed(self, error):
+        failure = {**self.snapshot(), "category": failure_category(error, self.torch)}
+        if "failure" in self.report:
+            self.report.setdefault("postcondition_failures", []).append(failure)
+            return
+        self.report["failure"] = failure
+        # Memory diagnostics are best effort and must never replace the first failure.
+        if self.torch is None:
+            failure["memory"] = {"status": "not_initialized"}
+        else:
+            try:
+                failure["memory"] = {"status": "recorded", "sample": memory_sample(self.torch)}
+            except Exception:
+                failure["memory"] = {"status": "unavailable"}
+
+
+def maintain_cache(torch, journal, point):
+    if point not in CACHE_POINTS:
+        raise TrainingStopped("unknown cache maintenance point")
+    journal.check()
+    before = memory_sample(torch)
+    journal.write("cache-maintenance.jsonl", {"kind": "intent", "point": point, "before": before})
+    torch.mps.synchronize()
+    torch.mps.empty_cache()
+    after = memory_sample(torch)
+    journal.write("cache-maintenance.jsonl", {"kind": "result", "point": point, "after": after})
+    journal.check()
+
+
 def loss_report(model, rows, torch, journal):
     model.eval()
     total, count = 0.0, 0
@@ -337,6 +406,7 @@ async def live_evaluate(model, tokenizer, torch, rows, journal, phase):
         row.update(status=episode["status"], passed=episode["passed"], reward=episode["reward"],
                    steps=episode["steps"], invalid_actions=episode["invalid_actions"],
                    termination=episode["termination"], replay_verified=replay(episode)["verified"])
+        maintain_cache(torch, journal, f"{phase}_live_episode")
     return rows
 
 
@@ -352,11 +422,16 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
             or json.loads(regular(output / "supervisor-intent.json").read_text()) != expected_intent):
         raise TrainingStopped("fresh supervisor-owned output/intent required")
     journal = Journal(output)
-    report = {**protocol, "status": "started", "source": source_identity(revision),
+    report = {**protocol, "status": "started",
               "data_report_sha256": report_hash, "base_live": [], "final_live": [], "training_completed": False}
+    diagnostics = Diagnostics(report, journal)
     try:
+        diagnostics.mark("source_validation")
+        report["source"] = source_identity(revision)
         with data.offline():
+            diagnostics.mark("data_validation")
             stage, raw, public, encoded = load_dataset(dataset, report_hash)
+            diagnostics.mark("tokenizer_validation")
             data.cache_identity()
             tokenizer = data.load_tokenizer()
             validate_token_rows(public, encoded, tokenizer)
@@ -364,6 +439,7 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
                 for phase in ("base_live", "final_live"):
                     report[phase] = [{"task": task, "status": "unattempted"}
                                      for task in stage["heldout_live_evaluation"]]
+            diagnostics.mark("device_initialization")
             import torch
             from peft import LoraConfig, PeftModel, get_peft_model, get_peft_model_state_dict
             from transformers import (
@@ -374,6 +450,7 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
                 set_seed,
             )
 
+            diagnostics.torch = torch
             if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK", "0") != "0":
                 raise TrainingStopped("MPS operation fallback forbidden")
             if not torch.backends.mps.is_built() or not torch.backends.mps.is_available():
@@ -381,6 +458,7 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
             torch.mps.set_per_process_memory_fraction(0.5)
             report["memory_before_model"] = memory_sample(torch)
             set_seed(SEED)
+            diagnostics.mark("model_load")
             model = AutoModelForCausalLM.from_pretrained(data.CACHE_PATH, local_files_only=True,
                                                        trust_remote_code=False, dtype=torch.float32,
                                                        attn_implementation="eager").to("mps")
@@ -399,8 +477,12 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
                             heldout.append(masked)
             report["heldout_loss_counts"] = {"eligible_decisions": len(heldout), "oversize_decisions": skipped}
             if mode == "train":
+                diagnostics.mark("base_loss")
                 report["base_loss"] = loss_report(model, heldout, torch, journal)
+                maintain_cache(torch, journal, "base_loss")
+                diagnostics.mark("base_live")
                 asyncio.run(live_evaluate(model, tokenizer, torch, report["base_live"], journal, "base"))
+            diagnostics.mark("adapter_setup")
             model = get_peft_model(model, LoraConfig(r=8, lora_alpha=16, target_modules=["q_proj", "v_proj"],
                                                      lora_dropout=0, bias="none", task_type="CAUSAL_LM"))
             if any(parameter.requires_grad and "lora_" not in name for name, parameter in model.named_parameters()):
@@ -409,14 +491,22 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
             report["frozen_base_sha256_before"] = frozen_base_hash(model)
             report["trainable_parameters"] = sum(parameter.numel() for parameter in model.parameters() if parameter.requires_grad)
             training_started = time.monotonic()
+            diagnostics.mark("training")
 
             class Bounds(TrainerCallback):
                 def on_substep_end(self, args, state, control, **kwargs):
-                    return self.on_step_end(args, state, control, **kwargs)
+                    self.after_backward(state, "backward_substep")
 
                 def on_step_end(self, args, state, control, **kwargs):
+                    diagnostics.completed_steps = state.global_step
+                    self.after_backward(state, "backward_step")
+
+                def after_backward(self, state, point):
                     journal.check()
                     journal.write("memory.jsonl", {"step": state.global_step, **memory_sample(torch)})
+                    if time.monotonic() - training_started > TRAIN_SECONDS:
+                        raise TrainingStopped("training deadline reached")
+                    maintain_cache(torch, journal, point)
                     if time.monotonic() - training_started > TRAIN_SECONDS:
                         raise TrainingStopped("training deadline reached")
 
@@ -447,6 +537,7 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
                 if len(batch) != 1:
                     raise TrainingStopped("fixed batch size differs")
                 collated += 1
+                diagnostics.collated_batches = collated
                 journal.write("training-samples.jsonl", {"collated_batch": collated,
                                                          "decision_index": batch[0]["decision_index"],
                                                          "provenance": encoded[batch[0]["decision_index"]]["provenance"]})
@@ -455,6 +546,7 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
 
             trainer = Trainer(model=model, args=args, train_dataset=samples, data_collator=collate, callbacks=[Bounds()])
             result = trainer.train()
+            diagnostics.mark("post_training_verification")
             if trainer.state.global_step != protocol["protocol"]["optimizer_steps"] or not math.isfinite(result.training_loss):
                 raise TrainingStopped("optimizer step count or loss differs")
             changed = get_peft_model_state_dict(model)
@@ -463,6 +555,7 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
             report["frozen_base_sha256_after"] = frozen_base_hash(model)
             if report["frozen_base_sha256_after"] != report["frozen_base_sha256_before"]:
                 raise TrainingStopped("frozen base parameters changed")
+            diagnostics.mark("adapter_save")
             model.save_pretrained(output / "adapter", safe_serialization=True)
             tokenizer.save_pretrained(output / "tokenizer")
             report["training_completed"] = True
@@ -470,11 +563,16 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
             report["training_loss"] = result.training_loss
             report["training_seconds"] = time.monotonic() - training_started
             if mode == "train":
+                diagnostics.mark("final_loss")
                 report["final_loss"] = loss_report(model, heldout, torch, journal)
+                maintain_cache(torch, journal, "final_loss")
+                diagnostics.mark("final_live")
                 asyncio.run(live_evaluate(model, tokenizer, torch, report["final_live"], journal, "final"))
+            diagnostics.mark("reload")
             model.eval()
             with torch.no_grad():
                 before_reload = model(**tensors(samples[0], torch)).logits[:, -1, :].detach().cpu()
+            maintain_cache(torch, journal, "before_reload")
             fresh = AutoModelForCausalLM.from_pretrained(data.CACHE_PATH, local_files_only=True,
                                                         trust_remote_code=False, dtype=torch.float32,
                                                         attn_implementation="eager").to("mps")
@@ -495,20 +593,37 @@ def execute(output, revision, dataset, report_hash, mode, confirmed):
             report["memory_after_reload"] = memory_sample(torch)
             report["installed_packages"] = {package.metadata["Name"]: package.version
                                              for package in data.importlib.metadata.distributions()}
-            report["source_after"] = source_identity(revision)
-            if report["source_after"] != report["source"]:
-                raise TrainingStopped("source changed during pilot")
             report["status"] = "completed"
-    except Exception:
+    except Exception as error:
         report["status"] = "stopped"
         report["error"] = "private pilot failed; evidence prefix retained; no fallback or retry"
+        diagnostics.failed(error)
     finally:
+        diagnostics.stage = "source_postcondition"
+        try:
+            report["source_after"] = source_identity(revision)
+            report["source_unchanged"] = report["source_after"] == report.get("source")
+            if not report["source_unchanged"]:
+                raise TrainingStopped("source changed during pilot")
+            report["source_postcondition"] = "verified"
+        except Exception as error:
+            report["source_postcondition"] = "failed"
+            report["source_unchanged"] = False
+            report["status"] = "stopped"
+            report["error"] = "private pilot failed; evidence prefix retained; no fallback or retry"
+            diagnostics.failed(error)
+        diagnostics.stage = "data_postcondition"
         try:
             load_dataset(dataset, report_hash)
             report["original_data_unchanged"] = True
-        except Exception:
+            report["data_postcondition"] = "verified"
+        except Exception as error:
             report["original_data_unchanged"] = False
+            report["data_postcondition"] = "failed"
             report["status"] = "stopped"
+            report["error"] = "private pilot failed; evidence prefix retained; no fallback or retry"
+            diagnostics.failed(error)
+        report["diagnostics"] = diagnostics.snapshot()
         report["elapsed_seconds"] = time.monotonic() - journal.started
         report["files"] = {str(path.relative_to(output)): {"bytes": path.stat().st_size, "sha256": data.sha256(path)}
                            for path in output.rglob("*") if path.is_file() and path.name != "execution.log"}

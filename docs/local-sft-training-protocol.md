@@ -1,4 +1,4 @@
-# Private Local LoRA Pilot V1
+# Private Local LoRA Pilot V2
 
 This is an executable protocol, not a completed training result. The default
 `scripts/local_sft_train.py` prints its plan without files, library tensor imports,
@@ -6,6 +6,15 @@ network, model loading, inference or training. Physical execution requires expli
 operator approval after source and protocol review, followed by separate smoke and
 final-run authorizations. Do not run either while another model or GitLab cohort
 uses the machine.
+
+V2 is a separately versioned mechanical intervention after the preserved V1
+final run stopped with no saved adapter. That original generic error does not
+establish its cause. V2 adds bounded diagnostics and a fixed cache-release
+schedule; it does not change the data, learning choices or resource ceilings.
+Original V1 receipts and their source/protocol hashes remain unchanged. V2 smoke
+and final runs each require their own reviewed plan digest, new source revision
+and fresh output directory. This document declares a protocol, not a completed
+V2 result or an authorization to execute.
 
 ## Inputs Fixed Before Model Outcomes
 
@@ -33,6 +42,7 @@ public synthetic rule families, not unseen-rule or enterprise transfer tests.
 | Device / dtype | MPS / float32; eager attention; no CPU fallback |
 | MPS allocator | 0.5 × device-recommended maximum; not a whole-host quota |
 | Activation memory | Gradient checkpointing enabled, `use_reentrant=False` |
+| Cache maintenance | Fixed post-backward and completed-phase schedule below; no adaptive threshold |
 | LoRA | Rank 8, alpha 16, q_proj/v_proj, dropout 0, no trainable bias |
 | Optimizer | Trainer AdamW, learning rate 0.0001, constant schedule, weight decay 0 |
 | Gradient norm | 1 |
@@ -71,6 +81,54 @@ hyperparameter is selected on held-outs. Collation journals identify prepared
 training batches, not independently proven optimizer consumption. Optimizer step
 count, finite losses, changed adapter and whole frozen-base hashes are separate
 proofs. A saved checkpoint can be real even if it learns nothing useful.
+
+## Fixed Diagnostics And Cache Schedule
+
+The protocol ID is `private-local-lora-v2`. Its pure plan includes the
+`private-local-lora-diagnostics.v1` schema, fixed stage names and maintenance
+points. Stage transitions are fsynced before source/data/tokenizer/device/model
+initialization, base loss/live evaluation, adapter setup, training, post-training
+verification, adapter saving, final loss/live evaluation and reload. Final source
+and dataset postconditions are separately recorded in the report, including on
+stopped paths; successful completion requires both checks. Missing initial or
+final source proof is never synthesized.
+
+On a caught failure, the report retains the active stage, last callback-observed
+completed optimizer step, collated batch count and one fixed category:
+`training_guard`, `python_memory`, `torch_out_of_memory`, `runtime_error`,
+`value_error`, `type_error`, `os_error` or `other_exception`. Only an available
+typed Torch out-of-memory exception qualifies for that category; a generic
+RuntimeError is not inferred to mean OOM. No arbitrary exception class name,
+message, arguments or traceback is serialized by the diagnostics. Best-effort
+failure-time memory is sampled before subsequent postcondition checks. If memory
+sampling fails, it is marked unavailable and cannot replace the primary error.
+Secondary source/data failures retain their own fixed categories without
+overwriting the first failure. A supervisor-killed child might have no Python
+failure report; the actual supervisor exit/limit category remains authoritative.
+
+Each maintenance point performs this exact sequence inside the existing clocks:
+deadline check, memory sample, durable intent, MPS synchronize, MPS empty cache,
+memory sample, durable result, deadline check. It runs:
+
+- After each Trainer `on_substep_end` callback, following a backward microstep.
+- After each `on_step_end` callback, following optimizer update/zeroing.
+- After each completed base/final heldout-loss phase.
+- After each returned and durably recorded base/final live episode.
+- Before loading the fresh reload model, after capturing its comparison logits.
+
+The final run has at most 128 training-callback maintenance calls plus 19 phase
+calls: two loss phases, 16 live episodes and one reload. Smoke has one training
+call and one reload call. There is no maintenance in forward, no
+`torch_empty_cache_steps`, no OOM retry, no changed allocator fraction or fallback.
+Synchronize/cache time counts against the 900/2,400-second limits; cooperative
+calls can still block and the parent process-group deadline remains stronger.
+
+Empty cache releases unoccupied allocator cache, not live parameters, gradients
+or optimizer state. It does not guarantee reduced Metal framework allocation,
+effective memory savings or faster training. The reload proof still temporarily
+retains the original model/optimizer and a second base model; this intervention
+does not silently change those lifetimes or remove the comparison. Mock tests
+verify wiring and error preservation, not actual MPS effectiveness.
 
 ## Commands And Evidence
 

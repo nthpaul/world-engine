@@ -410,6 +410,7 @@ async def test_live_context_overflow_refused_before_model_execution():
 
 
 async def test_live_outcome_slots_keep_complete_failed_and_unattempted_prefix(monkeypatch):
+    monkeypatch.setattr(module, "maintain_cache", lambda *args: None)
     rows = [{"task": {"world": "refund-ops", "seed": seed}, "status": "unattempted"} for seed in range(3)]
     checks, raw = [], []
     def check():
@@ -468,20 +469,28 @@ def test_main_supervisor_restores_sigterm_handler(monkeypatch, tmp_path):
     assert module.signal.getsignal(module.signal.SIGTERM) == previous
 
 
-def fake_smoke_runtime(monkeypatch, tmp_path, *, defect=None):
+def fake_smoke_runtime(monkeypatch, tmp_path, *, defect=None, mode="smoke"):
     """Explicit fakes prove orchestration only; they perform no tensor work."""
     output = tmp_path / "smoke"
     output.mkdir()
     (output / "execution.log").write_text("")
-    confirmed = module.plan("smoke")["protocol_sha256"]
+    confirmed = module.plan(mode)["protocol_sha256"]
     dataset = tmp_path / "dataset"
     intent = {"source_revision": "a" * 40, "dataset": str(dataset), "data_report_sha256": module.DATA_REPORT_HASH,
-              "mode": "smoke", "protocol_sha256": confirmed}
+              "mode": mode, "protocol_sha256": confirmed}
     (output / "supervisor-intent.json").write_text(module.canonical_json(intent))
     sample = {"input_ids": [1, 2, 3, 4, 99], "attention_mask": [1] * 5,
               "labels": [-100, -100, -100, 4, 99], "provenance": {"episode_id": "fake"}}
     monkeypatch.setattr(module, "source_identity", lambda revision: {"revision": revision})
-    monkeypatch.setattr(module, "load_dataset", lambda *args: ({"heldout_live_evaluation": []}, [], [], [sample]))
+    tasks = [{"world": "refund-ops", "seed": index} for index in range(8)] if mode == "train" else []
+    monkeypatch.setattr(module, "load_dataset", lambda *args: ({"heldout_live_evaluation": tasks}, [], [], [sample]))
+    async def fake_live(model, tokenizer, torch, rows, journal, phase):
+        for row in rows:
+            row["status"] = "fake-completed"
+            module.maintain_cache(torch, journal, f"{phase}_live_episode")
+        return rows
+    if mode == "train":
+        monkeypatch.setattr(module, "live_evaluate", fake_live)
     monkeypatch.setattr(module, "validate_token_rows", lambda *args: None)
     monkeypatch.setattr(module.data, "cache_identity", lambda: {})
     tokenizer = Tokenizer()
@@ -557,16 +566,21 @@ def fake_smoke_runtime(monkeypatch, tmp_path, *, defect=None):
             self.state = SimpleNamespace(global_step=0)
         def train(self):
             assert len(self.samples) == 1
-            batch = self.collator(self.samples)
-            assert set(batch) == {"input_ids", "attention_mask", "labels"}
             if defect != "unchanged_adapter":
                 self.model.adapter.value = 2
             if defect == "base_changed":
                 self.model.base.value = 2
-            self.state.global_step = 2 if defect == "step_count" else 1
-            for callback in self.callbacks:
-                callback.on_step_end(self.args, self.state, None)
-                callback.on_log(self.args, self.state, None, {"loss": .25})
+            for step_index in range(1, self.args.max_steps + 1):
+                for microstep in range(self.args.gradient_accumulation_steps):
+                    batch = self.collator(self.samples)
+                    assert set(batch) == {"input_ids", "attention_mask", "labels"}
+                    for callback in self.callbacks:
+                        if microstep + 1 < self.args.gradient_accumulation_steps:
+                            callback.on_substep_end(self.args, self.state, None)
+                        else:
+                            self.state.global_step = 2 if defect == "step_count" else step_index
+                            callback.on_step_end(self.args, self.state, None)
+                            callback.on_log(self.args, self.state, None, {"loss": .25})
             return SimpleNamespace(training_loss=float("nan") if defect == "nonfinite" else .25)
 
     def arguments(**kwargs):
@@ -579,6 +593,7 @@ def fake_smoke_runtime(monkeypatch, tmp_path, *, defect=None):
                             backends=SimpleNamespace(mps=SimpleNamespace(is_built=lambda: True,
                                                                        is_available=lambda: defect != "no_mps")),
                             mps=SimpleNamespace(set_per_process_memory_fraction=lambda value: caps.append(value),
+                                                synchronize=lambda: None, empty_cache=lambda: None,
                                                 current_allocated_memory=lambda: 10,
                                                 driver_allocated_memory=lambda: 20,
                                                 recommended_max_memory=lambda: 100))
@@ -624,3 +639,193 @@ def test_explicit_fake_smoke_rejects_enabled_mps_cpu_operation_fallback(monkeypa
     monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", "1")
     report = module.execute(output, "a" * 40, dataset, module.DATA_REPORT_HASH, "smoke", confirmed)
     assert report["status"] == "stopped" and not models
+
+
+def test_v2_protocol_fixed_schedule_and_no_learning_change():
+    for mode in ("smoke", "train"):
+        protocol = module.plan(mode)["protocol"]
+        assert protocol["id"] == "private-local-lora-v2"
+        assert protocol["cache_maintenance"]["points"] == module.CACHE_POINTS
+        assert protocol["cache_maintenance"]["max_training_calls"] == (1 if mode == "smoke" else 128)
+        assert protocol["cache_maintenance"]["max_phase_calls"] == (1 if mode == "smoke" else 19)
+        assert protocol["cache_maintenance"]["adaptive"] is False
+        assert protocol["mps_allocator_fraction"] == .5 and protocol["training_seconds"] == 900
+        assert protocol["whole_seconds"] == 2400 and protocol["output_cap_bytes"] == 4 * 1024**3
+        assert protocol["learning_rate"] == .0001 and protocol["rank"] == 8 and protocol["seed"] == 20261011
+
+
+@pytest.mark.parametrize("stage", module.STAGES[:-2])
+def test_injected_phase_failures_are_fixed_redacted_and_source_checked(monkeypatch, tmp_path, stage):
+    output, dataset, confirmed, _, _, _ = fake_smoke_runtime(monkeypatch, tmp_path, mode="train")
+    original = module.Diagnostics.mark
+    secret = "RAW_SECRET_IN_CUSTOM_FAILURE"
+    def mark(self, value):
+        original(self, value)
+        if value == stage:
+            raise RuntimeError(secret)
+    monkeypatch.setattr(module.Diagnostics, "mark", mark)
+    report = module.execute(output, "a" * 40, dataset, module.DATA_REPORT_HASH, "train", confirmed)
+    assert report["status"] == "stopped" and report["failure"]["stage"] == stage
+    assert report["failure"]["category"] == "runtime_error"
+    assert report["data_postcondition"] == "verified"
+    if stage == "source_validation":
+        assert report["source_postcondition"] == "failed" and "source" not in report
+        assert report["source_after"] == {"revision": "a" * 40} and not report["source_unchanged"]
+    else:
+        assert report["source_postcondition"] == "verified"
+        assert report["source_after"] == report["source"]
+    assert all(secret not in path.read_text() for path in output.rglob("*") if path.is_file())
+
+
+@pytest.mark.parametrize("error,category", [(module.TrainingStopped("secret"), "training_guard"),
+    (MemoryError("secret"), "python_memory"), (RuntimeError("MPS OOM secret"), "runtime_error"),
+    (ValueError("secret"), "value_error"), (TypeError("secret"), "type_error"),
+    (OSError("secret"), "os_error"), (Exception("secret"), "other_exception")])
+def test_diagnostic_categories_never_infer_oom_or_expose_text(error, category):
+    report = {}
+    diagnostics = module.Diagnostics(report, SimpleNamespace())
+    diagnostics.stage, diagnostics.completed_steps, diagnostics.collated_batches = "training", 2, 13
+    diagnostics.failed(error)
+    failure = report["failure"]
+    assert failure["category"] == category and failure["memory"]["status"] == "not_initialized"
+    assert failure["completed_optimizer_steps"] == 2 and failure["collated_batches"] == 13
+    assert "secret" not in module.canonical_json(report) and "MPS OOM" not in module.canonical_json(report)
+
+
+def test_typed_oom_and_memory_sampler_failure_preserve_primary(monkeypatch):
+    class SecretOutOfMemory(RuntimeError):
+        pass
+    report = {}
+    diagnostics = module.Diagnostics(report, SimpleNamespace())
+    diagnostics.torch = SimpleNamespace(OutOfMemoryError=SecretOutOfMemory)
+    diagnostics.stage = "training"
+    monkeypatch.setattr(module, "memory_sample", lambda *args: (_ for _ in ()).throw(RuntimeError("MEMORY_SECRET")))
+    diagnostics.failed(SecretOutOfMemory("PRIMARY_SECRET"))
+    diagnostics.stage = "data_postcondition"
+    diagnostics.failed(TypeError("SECONDARY_SECRET"))
+    assert report["failure"]["category"] == "torch_out_of_memory"
+    assert report["failure"]["stage"] == "training" and report["failure"]["memory"]["status"] == "unavailable"
+    assert report["postcondition_failures"][0]["category"] == "type_error"
+    assert "SECRET" not in module.canonical_json(report) and "SecretOutOfMemory" not in module.canonical_json(report)
+
+
+def test_final_source_data_failures_preserve_training_failure_and_counters(monkeypatch, tmp_path):
+    output, dataset, confirmed, _, _, _ = fake_smoke_runtime(monkeypatch, tmp_path)
+    source_calls, data_calls = [], []
+    def source(revision):
+        source_calls.append(True)
+        if len(source_calls) == 2:
+            raise OSError("SOURCE_SECRET")
+        return {"revision": revision}
+    def data_read(*args):
+        data_calls.append(True)
+        if len(data_calls) == 2:
+            raise ValueError("DATA_SECRET")
+        sample = {"input_ids": [1], "attention_mask": [1], "labels": [1], "provenance": {}}
+        return {"heldout_live_evaluation": []}, [], [], [sample]
+    monkeypatch.setattr(module, "source_identity", source)
+    monkeypatch.setattr(module, "load_dataset", data_read)
+    def fail(torch, journal, point):
+        raise RuntimeError("TRAINING_SECRET")
+    monkeypatch.setattr(module, "maintain_cache", fail)
+    report = module.execute(output, "a" * 40, dataset, module.DATA_REPORT_HASH, "smoke", confirmed)
+    assert report["failure"]["category"] == "runtime_error" and report["failure"]["stage"] == "training"
+    assert report["failure"]["completed_optimizer_steps"] == report["failure"]["collated_batches"] == 1
+    assert [(item["stage"], item["category"]) for item in report["postcondition_failures"]] == [
+        ("source_postcondition", "os_error"), ("data_postcondition", "value_error")]
+    assert report["source_postcondition"] == report["data_postcondition"] == "failed"
+    assert not report["source_unchanged"] and not report["original_data_unchanged"]
+    assert "SECRET" not in (output / "report.json").read_text()
+
+
+@pytest.mark.parametrize("postcondition", ["source", "data"])
+def test_successful_training_cannot_hide_postcondition_failure(monkeypatch, tmp_path, postcondition):
+    output, dataset, confirmed, _, _, _ = fake_smoke_runtime(monkeypatch, tmp_path)
+    name = "source_identity" if postcondition == "source" else "load_dataset"
+    original, calls = getattr(module, name), []
+    def after(*args):
+        calls.append(True)
+        if len(calls) == 2:
+            raise ValueError("SECRET_POSTCONDITION")
+        return original(*args)
+    monkeypatch.setattr(module, name, after)
+    report = module.execute(output, "a" * 40, dataset, module.DATA_REPORT_HASH, "smoke", confirmed)
+    assert report["training_completed"] and report["status"] == "stopped"
+    assert report["failure"]["stage"] == f"{postcondition}_postcondition"
+    assert report["failure"]["category"] == "value_error"
+    assert "SECRET_POSTCONDITION" not in (output / "report.json").read_text()
+
+
+def test_cache_sequence_is_durable_bounded_and_does_not_modify_live_values(monkeypatch):
+    calls, live = [], {"parameters": [1], "gradients": [2], "sample_order": [3]}
+    original = copy.deepcopy(live)
+    torch = SimpleNamespace(mps=SimpleNamespace(synchronize=lambda: calls.append("sync"),
+                                               empty_cache=lambda: calls.append("empty")))
+    monkeypatch.setattr(module, "memory_sample", lambda *args: calls.append("memory") or {"bytes": 10})
+    journal = SimpleNamespace(check=lambda: calls.append("check"),
+                              write=lambda name, value: calls.append(value["kind"]))
+    module.maintain_cache(torch, journal, "backward_substep")
+    assert calls == ["check", "memory", "intent", "sync", "empty", "memory", "result", "check"]
+    assert live == original
+    calls.clear()
+    with pytest.raises(module.TrainingStopped):
+        module.maintain_cache(torch, journal, "forward")
+    assert not calls
+
+
+@pytest.mark.parametrize("boundary", ["deadline", "quota", "synchronize", "empty_cache", "after"])
+def test_cache_boundaries_stop_without_retry_or_later_effect(monkeypatch, boundary):
+    calls = []
+    def sync():
+        calls.append("sync")
+        if boundary == "synchronize":
+            raise RuntimeError("SECRET")
+    def empty():
+        calls.append("empty")
+        if boundary == "empty_cache":
+            raise RuntimeError("SECRET")
+    def check():
+        calls.append("check")
+        if boundary == "deadline" or boundary == "after" and calls.count("check") == 2:
+            raise module.TrainingStopped("SECRET")
+    def write(name, value):
+        calls.append(value["kind"])
+        if boundary == "quota":
+            raise module.TrainingStopped("SECRET")
+    monkeypatch.setattr(module, "memory_sample", lambda *args: {"bytes": 1})
+    torch = SimpleNamespace(mps=SimpleNamespace(synchronize=sync, empty_cache=empty))
+    with pytest.raises((module.TrainingStopped, RuntimeError)):
+        module.maintain_cache(torch, SimpleNamespace(check=check, write=write), "backward_step")
+    assert calls.count("sync") <= 1 and calls.count("empty") <= 1
+    if boundary in {"deadline", "quota"}:
+        assert "sync" not in calls and "empty" not in calls
+    if boundary == "synchronize":
+        assert "empty" not in calls
+
+
+def test_training_deadline_includes_cache_maintenance(monkeypatch, tmp_path):
+    output, dataset, confirmed, _, _, _ = fake_smoke_runtime(monkeypatch, tmp_path)
+    moment = [0.0]
+    monkeypatch.setattr(module.time, "monotonic", lambda: moment[0])
+    def release(torch, journal, point):
+        moment[0] += module.TRAIN_SECONDS + 1
+    monkeypatch.setattr(module, "maintain_cache", release)
+    report = module.execute(output, "a" * 40, dataset, module.DATA_REPORT_HASH, "smoke", confirmed)
+    assert report["status"] == "stopped" and report["failure"]["category"] == "training_guard"
+    assert report["failure"]["stage"] == "training" and report["failure"]["completed_optimizer_steps"] == 1
+    assert not report["training_completed"]
+
+
+def test_explicit_fake_final_cache_schedule_and_backwards_counters(monkeypatch, tmp_path):
+    output, dataset, confirmed, models, args_seen, caps = fake_smoke_runtime(monkeypatch, tmp_path, mode="train")
+    report = module.execute(output, "a" * 40, dataset, module.DATA_REPORT_HASH, "train", confirmed)
+    assert report["status"] == "completed" and len(models) == 2 and caps == [.5]
+    intents = [row for row in module.read_rows(output / "cache-maintenance.jsonl") if row["kind"] == "intent"]
+    points = [row["point"] for row in intents]
+    assert points == ["base_loss"] + ["base_live_episode"] * 8 + [
+        point for _ in range(32) for point in ["backward_substep"] * 3 + ["backward_step"]
+    ] + ["final_loss"] + ["final_live_episode"] * 8 + ["before_reload"]
+    assert len(points) == 147 and report["diagnostics"]["completed_optimizer_steps"] == 32
+    assert report["diagnostics"]["collated_batches"] == 128
+    assert args_seen[0]["max_steps"] == 32 and args_seen[0]["gradient_accumulation_steps"] == 4
+    assert "torch_empty_cache_steps" not in args_seen[0]
