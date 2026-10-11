@@ -55,6 +55,27 @@ fixture and grader are unchanged; a new committed protocol and fresh real
 controls are required before model admission. No positive qualification follows
 from these source repairs or mock tests.
 
+Actual V3 at `62df4a994b1d5a3ded207ce957e594b927e05b94` also stopped after
+two controls. The incomplete control completed with reward zero. The reference
+persisted the exact on-call assignment, then failed with `provider_error` after
+11 actions and zero invalid actions. GitLab closed the assignee picker immediately
+after selection, with no Apply action, and the closed sidebar exposed only the
+display name. The controller's Apply-only phase and username assumptions rejected
+that observed transition. No severity operation occurred, so the original reward
+zero remains correct. Already-correct, close-compatibility and model slots were
+unattempted; there were no inference events. Both cleanups completed.
+
+The generated assignment note also contradicts candidate certificate defaults:
+its namespace is null, and its note/metadata timestamps follow the issue update.
+Those are findings for a separately reviewed temporal and identity contract,
+not permission to relax checks, add a tolerance or replace an original grade.
+Independent read-only review reproduced both original grades and verified all
+434 original files, 42 pinned source blobs, 98 journal records and 16 registered
+media artifacts. GET-only console QA passed 38 checks with eleven desktop/mobile
+screenshots and desktop playback; both videos decoded fully. Mobile playback
+remains unqualified. Root separately confirmed idle admission, empty owned Docker
+inventories and preservation of all prior operator rows and browser evidence.
+
 The new verifier is **not yet qualified against a real reference execution**.
 Its candidate exact note/metadata defaults fail closed. A legitimate GitLab
 rendering/default mismatch stops qualification and preserves the rejected result;
