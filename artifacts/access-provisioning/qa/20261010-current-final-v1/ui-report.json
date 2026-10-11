@@ -1,0 +1,303 @@
+{
+  "generated_at": "2026-10-10T10:23:17.514Z",
+  "phase": "access",
+  "base_url": "http://127.0.0.1:5173",
+  "controller_source": {
+    "revision": "b4501029a332d7675a12fbf84b00358230d3d154",
+    "files": {
+      "pyproject.toml": "6c352c613b9a0d428c6b1bf0979c27595b119c22b50b4a26a92210a2e461412e",
+      "scripts/ui-qa.mjs": "0335fd062d3a489f9d90a3d095c39fba5f0eeb137cc96bde7adeee51dc858fc6",
+      "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+      "src/world_engine/__main__.py": "46f6078d57f6800b8c86f43edf2697e6939112883bad36e4d7964bef20e0b80a",
+      "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+      "src/world_engine/api.py": "12d7d71ffda3df3705a100303f1310413c5ed11b4543ea6d4baf25c9fd83c587",
+      "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+      "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+      "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+      "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+      "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+      "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+      "src/world_engine/native_config.py": "bebabd5b3dd2bab72c4a878b24c0173629e8ed737ff30bffb485194804307a50",
+      "src/world_engine/native_ledger.py": "986b65d8de1916455471cf4f5c3a528c5c653be1d56fb1bcaee073b68b2dfd5e",
+      "src/world_engine/ollama_tools.py": "3936518027cb9f6e4562ce1e1627353dbde41c11d1646757171bce5bdd3af435",
+      "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+      "src/world_engine/providers.py": "e68a7b6093ef45c7b19c69d7f2dff789112445d5c9e91b4c338957420798c26f",
+      "src/world_engine/rollout.py": "e51c3f8168b127574d02871e4a622e15051a3bc152473f678711432350f20f3d",
+      "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+      "tests/test_ui_qa.py": "297dea8b97f244ddd2625fbd78aa9b1b1199846fb0298843001207c13c2ed467",
+      "uv.lock": "a65eda4a34998fe5978fde9ef84ef99e94ada85d2a8e574e4e6c3e9d70c20034",
+      "web/package-lock.json": "61cf0d6fe5aea4c445bf6e744dabed4a089dae3ba057485b5740dfa7d8816f94",
+      "web/package.json": "cdd731e574c39e77a570b98968a2e36a479d6c26ed8131917fdca16bf0191006",
+      "web/src/App.tsx": "c5e7d9c9cf8a8e2d836d0d163c3082eaf54fe7e5330e916a2a7de57d42ce90e7",
+      "web/src/api.ts": "d2c0062a9d0f6c05b24016e641213b123c45658af617d7988a6428650e23ce05",
+      "web/src/main.tsx": "bf82136bef7bae65abd3f19b1e348b4d163b24b42610f556be1f708524add794",
+      "web/src/styles.css": "4da3cb9f81d8870548ecf76056376e9e75ee5e02827aeb28c68dd5f02c81742d"
+    },
+    "source_dirty": false,
+    "source_dirty_scope": [
+      "src/world_engine",
+      "web/src",
+      "web/package.json",
+      "web/package-lock.json",
+      "scripts/ui-qa.mjs",
+      "tests/test_ui_qa.py",
+      "pyproject.toml",
+      "uv.lock"
+    ]
+  },
+  "api_health": {
+    "status": "ok",
+    "version": "0.1.0",
+    "execution": "in-process",
+    "active_runs": 0,
+    "paid_calls_enabled": false,
+    "max_global_concurrency": 8
+  },
+  "api_episode_provenance": [
+    {
+      "environment_code_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+      "environment_id": "access-provisioning",
+      "environment_version": "1.0.0",
+      "evaluation_only": true,
+      "git_dirty": true,
+      "git_dirty_scope": "entire checkout including docs and generated artifacts",
+      "git_revision": "b4501029a332d7675a12fbf84b00358230d3d154",
+      "grader_code_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+      "grader_version": "1.0.0",
+      "implementation_dirty": false,
+      "implementation_dirty_scope": [
+        "src/world_engine",
+        "pyproject.toml",
+        "uv.lock"
+      ],
+      "initial_state_hash": "ceec376206e9067ff551e1b8897c2db35f016e53e2c7f010b7adf3adb36ec71f",
+      "lineage_id": "543ac96730032d199caea330f3f8a6364412615b456ded456d3562eea3e5f3ca",
+      "model": "scripted-oracle",
+      "model_digest": null,
+      "policy_code_hash": "e68a7b6093ef45c7b19c69d7f2dff789112445d5c9e91b4c338957420798c26f",
+      "policy_hash": "e4e9aa203e8bd27ef6d24021c20726ff04b0b07b83ee20eb10388691195809dd",
+      "policy_identity": "configuration-only; weights unverified",
+      "policy_version": "workflow-json-v1",
+      "prompt_hash": "d62cea87a6eec1dd06e3d6fdf59a7dcccb8b07df98d7dcacb7781d268cc1b19c",
+      "provider_class": "world_engine.providers.ScriptedProvider",
+      "provider_id": "scripted-oracle",
+      "provider_source_hash": "3a459c9582d0a43fa6bbaebc1e7ce79d48470485e4d366c7b28431571817603b",
+      "runtime": "3.13.5",
+      "scenario_id": "525e0c6c726a537e6c306b253ddec866aa7e21c4475a0ec373dd789908ecd0be",
+      "schema_version": "1.0.0",
+      "seed": 0,
+      "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+      "task_hash": "df80a39a979d5e4157ea8c01a58e6e306e1cbc778f6f115d57a36423eef0cf69"
+    },
+    {
+      "environment_code_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+      "environment_id": "access-provisioning",
+      "environment_version": "1.0.0",
+      "evaluation_only": true,
+      "git_dirty": true,
+      "git_dirty_scope": "entire checkout including docs and generated artifacts",
+      "git_revision": "b4501029a332d7675a12fbf84b00358230d3d154",
+      "grader_code_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+      "grader_version": "1.0.0",
+      "implementation_dirty": false,
+      "implementation_dirty_scope": [
+        "src/world_engine",
+        "pyproject.toml",
+        "uv.lock"
+      ],
+      "initial_state_hash": "ceec376206e9067ff551e1b8897c2db35f016e53e2c7f010b7adf3adb36ec71f",
+      "lineage_id": "543ac96730032d199caea330f3f8a6364412615b456ded456d3562eea3e5f3ca",
+      "model": "scripted-baseline",
+      "model_digest": null,
+      "policy_code_hash": "e68a7b6093ef45c7b19c69d7f2dff789112445d5c9e91b4c338957420798c26f",
+      "policy_hash": "c0295ad82d6369bc23668990d77efc8785c5ff7aae61a89470964da54f33e04c",
+      "policy_identity": "configuration-only; weights unverified",
+      "policy_version": "workflow-json-v1",
+      "prompt_hash": "d62cea87a6eec1dd06e3d6fdf59a7dcccb8b07df98d7dcacb7781d268cc1b19c",
+      "provider_class": "world_engine.providers.ScriptedProvider",
+      "provider_id": "scripted-baseline",
+      "provider_source_hash": "3a459c9582d0a43fa6bbaebc1e7ce79d48470485e4d366c7b28431571817603b",
+      "runtime": "3.13.5",
+      "scenario_id": "525e0c6c726a537e6c306b253ddec866aa7e21c4475a0ec373dd789908ecd0be",
+      "schema_version": "1.0.0",
+      "seed": 0,
+      "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+      "task_hash": "df80a39a979d5e4157ea8c01a58e6e306e1cbc778f6f115d57a36423eef0cf69"
+    }
+  ],
+  "run_ids": [
+    "8796d223-e391-44aa-9ead-a86376f0d1cc",
+    "4e80d850-dc06-408f-b5d9-06a7d66f58c0"
+  ],
+  "protocol": {
+    "environment_id": "access-provisioning",
+    "providers": [
+      "scripted-oracle",
+      "scripted-baseline"
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "episodes": 16,
+    "max_steps": 20,
+    "timeout_seconds": 30,
+    "concurrency": 1,
+    "evaluation_only": true
+  },
+  "model_calls": 0,
+  "paid_calls": 0,
+  "local_cancellation_requested": false,
+  "outcome_control_only": true,
+  "training_eligible": false,
+  "checks": [
+    "Access API responds through the local Vite proxy",
+    "Actual catalog contains the synthetic partial-observation access world",
+    "Access QA uses a committed controller and runtime source scope",
+    "scripted-oracle: actual API accepts the UI configuration",
+    "scripted-oracle: eight recorded episodes preserve committed provenance and bounded partial contexts",
+    "Desktop access scripted-oracle: document has no horizontal overflow",
+    "Access scripted-oracle inspector: sampled small labels meet 4.5:1 text contrast",
+    "scripted-oracle: traces preserves evaluation-only export boundary",
+    "scripted-oracle: atif preserves evaluation-only export boundary",
+    "scripted-oracle: sft preserves evaluation-only export boundary",
+    "scripted-oracle: dpo preserves evaluation-only export boundary",
+    "scripted-oracle: grpo preserves evaluation-only export boundary",
+    "Mobile 390 access scripted-oracle provenance: document has no horizontal overflow",
+    "Mobile 390 access scripted-oracle timeline: document has no horizontal overflow",
+    "Mobile 360 access scripted-oracle provenance: document has no horizontal overflow",
+    "Mobile 360 access scripted-oracle timeline: document has no horizontal overflow",
+    "scripted-baseline: actual API accepts the UI configuration",
+    "scripted-baseline: eight recorded episodes preserve committed provenance and bounded partial contexts",
+    "Desktop access scripted-baseline: document has no horizontal overflow",
+    "Access scripted-baseline inspector: sampled small labels meet 4.5:1 text contrast",
+    "scripted-baseline: traces preserves evaluation-only export boundary",
+    "scripted-baseline: atif preserves evaluation-only export boundary",
+    "scripted-baseline: sft preserves evaluation-only export boundary",
+    "scripted-baseline: dpo preserves evaluation-only export boundary",
+    "scripted-baseline: grpo preserves evaluation-only export boundary",
+    "Mobile 390 access scripted-baseline provenance: document has no horizontal overflow",
+    "Mobile 390 access scripted-baseline timeline: document has no horizontal overflow",
+    "Mobile 360 access scripted-baseline provenance: document has no horizontal overflow",
+    "Mobile 360 access scripted-baseline timeline: document has no horizontal overflow",
+    "All sixteen full operator episodes pass current-source CLI replay",
+    "Access phase has no browser runtime errors"
+  ],
+  "downloads": [
+    {
+      "format": "traces",
+      "quality": "all",
+      "run_id": "8796d223-e391-44aa-9ead-a86376f0d1cc",
+      "rows": 8,
+      "filename": "8796d223-e391-44aa-9ead-a86376f0d1cc-traces-all.jsonl",
+      "suggested_filename": "8796d223-e391-44aa-9ead-a86376f0d1cc-traces-all.jsonl",
+      "sha256": "ca112e7ca3e552aff3be7cae72bdfdf7a9df70d75e7b4de67fb98f6dee9c4322"
+    },
+    {
+      "format": "atif",
+      "quality": "all",
+      "run_id": "8796d223-e391-44aa-9ead-a86376f0d1cc",
+      "rows": 8,
+      "filename": "8796d223-e391-44aa-9ead-a86376f0d1cc-atif-all.jsonl",
+      "suggested_filename": "8796d223-e391-44aa-9ead-a86376f0d1cc-atif-all.jsonl",
+      "sha256": "c3368c576ba24fc33278ef6999514e1fa987c0d0629961d4822f7716e80a9f63"
+    },
+    {
+      "format": "sft",
+      "quality": "all",
+      "run_id": "8796d223-e391-44aa-9ead-a86376f0d1cc",
+      "rows": 0,
+      "filename": "8796d223-e391-44aa-9ead-a86376f0d1cc-sft-all.jsonl",
+      "suggested_filename": "8796d223-e391-44aa-9ead-a86376f0d1cc-sft-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "format": "dpo",
+      "quality": "all",
+      "run_id": "8796d223-e391-44aa-9ead-a86376f0d1cc",
+      "rows": 0,
+      "filename": "8796d223-e391-44aa-9ead-a86376f0d1cc-dpo-all.jsonl",
+      "suggested_filename": "8796d223-e391-44aa-9ead-a86376f0d1cc-dpo-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "format": "grpo",
+      "quality": "all",
+      "run_id": "8796d223-e391-44aa-9ead-a86376f0d1cc",
+      "rows": 0,
+      "filename": "8796d223-e391-44aa-9ead-a86376f0d1cc-grpo-all.jsonl",
+      "suggested_filename": "8796d223-e391-44aa-9ead-a86376f0d1cc-grpo-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "format": "traces",
+      "quality": "all",
+      "run_id": "4e80d850-dc06-408f-b5d9-06a7d66f58c0",
+      "rows": 8,
+      "filename": "4e80d850-dc06-408f-b5d9-06a7d66f58c0-traces-all.jsonl",
+      "suggested_filename": "4e80d850-dc06-408f-b5d9-06a7d66f58c0-traces-all.jsonl",
+      "sha256": "e629f4d245d5a7ce73532dfd0bbedfb957f32600ca9f48ce6d73e31cf8909dda"
+    },
+    {
+      "format": "atif",
+      "quality": "all",
+      "run_id": "4e80d850-dc06-408f-b5d9-06a7d66f58c0",
+      "rows": 8,
+      "filename": "4e80d850-dc06-408f-b5d9-06a7d66f58c0-atif-all.jsonl",
+      "suggested_filename": "4e80d850-dc06-408f-b5d9-06a7d66f58c0-atif-all.jsonl",
+      "sha256": "db2df060ed6531988665683d1cd6bb95e87c9fc1a3db2b2c88f1b8b6a36fd008"
+    },
+    {
+      "format": "sft",
+      "quality": "all",
+      "run_id": "4e80d850-dc06-408f-b5d9-06a7d66f58c0",
+      "rows": 0,
+      "filename": "4e80d850-dc06-408f-b5d9-06a7d66f58c0-sft-all.jsonl",
+      "suggested_filename": "4e80d850-dc06-408f-b5d9-06a7d66f58c0-sft-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "format": "dpo",
+      "quality": "all",
+      "run_id": "4e80d850-dc06-408f-b5d9-06a7d66f58c0",
+      "rows": 0,
+      "filename": "4e80d850-dc06-408f-b5d9-06a7d66f58c0-dpo-all.jsonl",
+      "suggested_filename": "4e80d850-dc06-408f-b5d9-06a7d66f58c0-dpo-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "format": "grpo",
+      "quality": "all",
+      "run_id": "4e80d850-dc06-408f-b5d9-06a7d66f58c0",
+      "rows": 0,
+      "filename": "4e80d850-dc06-408f-b5d9-06a7d66f58c0-grpo-all.jsonl",
+      "suggested_filename": "4e80d850-dc06-408f-b5d9-06a7d66f58c0-grpo-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "real_episode_count": 16,
+  "real_trace_steps": 121,
+  "operator_episode_file": "access-evaluation-episodes.jsonl",
+  "operator_episode_sha256": "587d8b51f36d0d4c1effe5d8b00be4d2c0a183d94760635920e168f4c7a86e9a",
+  "replay_file": "access-replay.json",
+  "text_contrast": [
+    {
+      "view": "Access scripted-oracle inspector",
+      "samples": 38,
+      "minimum_ratio": 4.756291932193622
+    },
+    {
+      "view": "Access scripted-baseline inspector",
+      "samples": 24,
+      "minimum_ratio": 4.756291932193622
+    }
+  ],
+  "browser_errors": [],
+  "video": "/Users/ple/projects/world-engine/artifacts/access-provisioning/qa/20261010-current-final-v1/video/page@03685b03830201791c495414f552675e.webm"
+}

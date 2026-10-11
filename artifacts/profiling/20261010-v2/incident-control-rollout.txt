@@ -1,0 +1,58 @@
+         1762074 function calls (1436898 primitive calls) in 0.227 seconds
+
+   Ordered by: cumulative time
+   List reduced from 170 to 50 due to restriction <50>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      192    0.000    0.000    0.225    0.001 base_events.py:1962(_run_once)
+      216    0.000    0.000    0.223    0.001 rollout.py:103(rollout)
+      216    0.001    0.000    0.222    0.001 rollout.py:132(_rollout)
+      192    0.000    0.000    0.221    0.001 events.py:87(_run)
+      192    0.000    0.000    0.221    0.001 {method 'run' of '_contextvars.Context' objects}
+      192    0.000    0.000    0.221    0.001 profile_scripted.py:210(collect)
+295512/5016    0.095    0.000    0.196    0.000 copy.py:119(deepcopy)
+36528/5040    0.031    0.000    0.192    0.000 copy.py:218(_deepcopy_dict)
+      456    0.001    0.000    0.150    0.000 environments.py:107(observe)
+12168/8976    0.005    0.000    0.130    0.000 copy.py:192(_deepcopy_list)
+      192    0.001    0.000    0.095    0.000 environments.py:127(step)
+     3648    0.001    0.000    0.051    0.000 environments.py:77(metadata)
+   586536    0.029    0.000    0.029    0.000 {method 'get' of 'dict' objects}
+      264    0.000    0.000    0.020    0.000 environments.py:118(snapshot)
+      216    0.000    0.000    0.020    0.000 environments.py:124(state_hash)
+       24    0.001    0.000    0.019    0.001 environments.py:633(evaluate)
+   397920    0.014    0.000    0.014    0.000 {built-in method builtins.id}
+    48696    0.009    0.000    0.013    0.000 copy.py:232(_keep_alive)
+     1248    0.000    0.000    0.011    0.000 models.py:16(canonical_json)
+     1248    0.001    0.000    0.011    0.000 __init__.py:183(dumps)
+     1248    0.001    0.000    0.010    0.000 encoder.py:183(encode)
+     1224    0.009    0.000    0.009    0.000 encoder.py:205(iterencode)
+       24    0.000    0.000    0.009    0.000 environments.py:694(make_environment)
+       24    0.000    0.000    0.009    0.000 environments.py:93(reset)
+     1032    0.001    0.000    0.008    0.000 models.py:20(digest)
+   246816    0.008    0.000    0.008    0.000 copy.py:173(_deepcopy_atomic)
+       24    0.000    0.000    0.005    0.000 rollout.py:59(world_fingerprints)
+      216    0.000    0.000    0.005    0.000 providers.py:44(policy_messages)
+       24    0.000    0.000    0.004    0.000 _abc.py:621(read_bytes)
+       24    0.000    0.000    0.004    0.000 _local.py:529(open)
+       24    0.004    0.000    0.004    0.000 {built-in method _io.open}
+    65160    0.004    0.000    0.004    0.000 {method 'append' of 'list' objects}
+      192    0.000    0.000    0.003    0.000 selectors.py:540(select)
+      192    0.003    0.000    0.003    0.000 {method 'control' of 'select.kqueue' objects}
+    36528    0.002    0.000    0.002    0.000 {method 'items' of 'dict' objects}
+      384    0.000    0.000    0.001    0.000 providers.py:53(decide)
+     1056    0.001    0.000    0.001    0.000 {built-in method _hashlib.openssl_sha256}
+      192    0.000    0.000    0.001    0.000 providers.py:126(incident)
+      168    0.000    0.000    0.001    0.000 environments.py:583(apply)
+      528    0.000    0.000    0.000    0.000 {method 'validate_python' of 'pydantic_core._pydantic_core.SchemaValidator' objects}
+       24    0.000    0.000    0.000    0.000 _abc.py:476(is_file)
+       24    0.000    0.000    0.000    0.000 _local.py:510(stat)
+      408    0.000    0.000    0.000    0.000 main.py:472(model_dump)
+       24    0.000    0.000    0.000    0.000 {built-in method posix.stat}
+      336    0.000    0.000    0.000    0.000 main.py:270(__init__)
+       48    0.000    0.000    0.000    0.000 _local.py:166(__fspath__)
+       48    0.000    0.000    0.000    0.000 _local.py:227(__str__)
+       24    0.000    0.000    0.000    0.000 environments.py:560(build)
+      192    0.000    0.000    0.000    0.000 base_events.py:823(call_soon)
+      408    0.000    0.000    0.000    0.000 {method 'to_python' of 'pydantic_core._pydantic_core.SchemaSerializer' objects}
+
+

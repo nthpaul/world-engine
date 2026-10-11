@@ -11,9 +11,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 
 from world_engine import __version__
+from world_engine.browser_api import browser_router
+from world_engine.browser_runs import default_browser_manager
 from world_engine.environments import ENVIRONMENTS
 from world_engine.exports import ExportFormat, Quality, export_records, jsonl
 from world_engine.models import RunConfig
+from world_engine.native_config import NativeRunConfig
 from world_engine.providers import ProviderError, provider_metadata
 from world_engine.rollout import RunManager
 from world_engine.store import Store
@@ -22,15 +25,25 @@ ALLOWED_HOSTS = {"127.0.0.1", "localhost", "::1", "testserver"}
 ALLOWED_ORIGINS = {"http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:8000", "http://127.0.0.1:8000"}
 
 
-def create_app(db_path: str | Path | None = None) -> FastAPI:
+def create_app(db_path: str | Path | None = None, *, browser_factory=default_browser_manager) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         store = Store(db_path or os.environ.get("WORLD_ENGINE_DB", ".world-engine/engine.sqlite3"))
         app.state.manager = RunManager(store)
-        yield
-        await app.state.manager.close()
+        browser_manager = None
+        try:
+            browser_manager = browser_factory(store.path.parent / "browser")
+            app.state.browser_manager = browser_manager
+            yield
+        finally:
+            try:
+                if browser_manager is not None:
+                    await browser_manager.close()
+            finally:
+                await app.state.manager.close()
 
     app = FastAPI(title="World Engine", version=__version__, lifespan=lifespan)
+    app.include_router(browser_router())
 
     @app.exception_handler(RequestValidationError)
     async def safe_validation_error(request: Request, error: RequestValidationError):
@@ -39,7 +52,23 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
 
     @app.middleware("http")
     async def local_boundary(request: Request, call_next):
-        host = urlparse("http://" + request.headers.get("host", "")).hostname
+        authority = request.headers.get("host", "")
+        try:
+            if not authority or not authority.isascii() or any(char.isspace() or ord(char) < 32 or ord(char) == 127 for char in authority):
+                raise ValueError
+            parsed = urlparse("http://" + authority)
+            host, port = parsed.hostname, parsed.port
+            if (host is None or parsed.netloc != authority or parsed.path or parsed.params or parsed.query or parsed.fragment
+                    or parsed.username is not None or parsed.password is not None):
+                raise ValueError
+            host_part = f"[{host}]" if ":" in host else host
+            suffix = authority[len(host_part):]
+            if (authority[:len(host_part)].lower() != host_part
+                    or suffix and (not suffix.startswith(":") or port is None)
+                    or port is not None and not 1 <= port <= 65535):
+                raise ValueError
+        except ValueError:
+            return JSONResponse({"detail": "invalid host authority"}, status_code=400)
         if host not in ALLOWED_HOSTS:
             return JSONResponse({"detail": "host is not allowed"}, status_code=403)
         origin = request.headers.get("origin")
@@ -93,7 +122,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         return {"runs": manager(request).store.list_runs(limit, offset)}
 
     @app.post("/api/runs", status_code=202)
-    async def start_run(config: RunConfig, request: Request):
+    async def start_run(config: RunConfig | NativeRunConfig, request: Request):
         try:
             return manager(request).submit(config)
         except ProviderError as error:
