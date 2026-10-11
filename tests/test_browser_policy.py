@@ -486,7 +486,7 @@ def triage_activity(text, *, username="@casey-oncall", date="now", comment=False
 async def test_triage_v4_actual_picker_no_bid_waits_then_selects_current_bid():
     policy = triage_control()
     opened = await policy.decide(triage_observation(triage_closed()), [])
-    assert opened.action.bid == "1144" and opened.evidence["protocol"] == "public-ax-triage-control-v6"
+    assert opened.action.bid == "1144" and opened.evidence["protocol"] == "public-ax-triage-control-v7"
     transient = await policy.decide(triage_observation(triage_picker(bid=None)), [])
     assert transient.action.kind == "wait"
     selected = await policy.decide(triage_observation(triage_picker(bid="3001")), [])
@@ -639,6 +639,22 @@ def triage_display_closed(*, classified=False):
     return triage_closed(assigned=True, classified=classified).replace("link '@casey-oncall'", "link 'Casey On-call'")
 
 
+def triage_inspection_picker(*, search_bid="9999"):
+    picker = (f"\t[{search_bid}] combobox 'Search'\n"
+              "\t[2081] listbox 'Select assignee', multiselectable=False\n"
+              "\t\t[2085] group 'Selected'\n"
+              "\t\t\t[2087] option 'Casey On-call @casey-oncall', selected=True\n"
+              "\t\t[2098] group 'All users'\n"
+              "\t\t\t[2100] option 'Workflow Agent @workflow-agent'\n"
+              "\t\t\t[2111] option 'Administrator @root'\n")
+    return triage_display_closed(classified=True).replace(
+        "\t[1144] button 'Edit'\n\t[2107] link 'Casey On-call'\n", picker)
+
+
+def completed_action(history, decision):
+    history.append({"step": len(history), "action": decision.action.model_dump(), "result": {"ok": True}})
+
+
 async def test_triage_v4_observed_immediate_commit_requires_new_activity_then_switches_field():
     policy = triage_control()
     assert (await policy.decide(triage_observation(triage_closed()), [])).action.bid == "1144"
@@ -680,16 +696,23 @@ async def test_triage_v4_stale_spoofed_or_unscoped_activity_cannot_confirm(mutat
 async def test_triage_v4_already_correct_display_identity_inspected_and_dismissed_without_write():
     policy = triage_control()
     closed = triage_display_closed(classified=True)
-    assert (await policy.decide(triage_observation(closed), [])).action.bid == "1144"
-    dismissed = await policy.decide(triage_observation(triage_picker(selected=True, search_bid="9999")), [])
+    history = []
+    opened = await policy.decide(triage_observation(closed), history)
+    assert opened.action.bid == "1144"
+    completed_action(history, opened)
+    dismissed = await policy.decide(triage_observation(triage_inspection_picker()), history)
     assert dismissed.action.kind == "press" and dismissed.action.key == "Escape" and dismissed.action.bid == "9999"
-    assert (await policy.decide(triage_observation(triage_picker(selected=True)), [])).action.kind == "wait"
-    assert (await policy.decide(triage_observation(closed), [])).action.kind == "finish"
+    completed_action(history, dismissed)
+    pending = await policy.decide(triage_observation(triage_inspection_picker()), history)
+    assert pending.action.kind == "wait"
+    completed_action(history, pending)
+    assert (await policy.decide(triage_observation(closed), history)).action.kind == "finish"
 
 
 @pytest.mark.parametrize("phase", ["opening", "searching", "selecting", "applying", "dismissing"])
 async def test_triage_v4_waits_are_finite_and_never_repeat_a_write(phase):
     policy = triage_control()
+    history = []
     if phase == "opening":
         text = triage_closed()
         await policy.decide(triage_observation(text), [])
@@ -699,15 +722,21 @@ async def test_triage_v4_waits_are_finite_and_never_repeat_a_write(phase):
     elif phase == "selecting":
         text = triage_picker()
         await policy.decide(triage_observation(text), [])
+    elif phase == "dismissing":
+        opened = await policy.decide(triage_observation(triage_display_closed(classified=True)), history)
+        completed_action(history, opened)
+        text = triage_inspection_picker()
+        escaped = await policy.decide(triage_observation(text), history)
+        completed_action(history, escaped)
     else:
         text = triage_picker(selected=True)
         if phase == "applying":
             await policy.decide(triage_observation(triage_picker()), [])
         await policy.decide(triage_observation(text), [])
     for _ in range(5):
-        assert (await policy.decide(triage_observation(text), [])).action.kind == "wait"
+        assert (await policy.decide(triage_observation(text), history)).action.kind == "wait"
     with pytest.raises(BrowserError, match="exhausted pending"):
-        await policy.decide(triage_observation(text), [])
+        await policy.decide(triage_observation(text), history)
 
 
 @pytest.mark.parametrize("mutation", ["duplicate", "backup", "spoofed_name", "unknown_other_selected"])

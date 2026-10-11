@@ -52,11 +52,43 @@ def assignee_picker(*, option_bid="12", selected=False, apply_bid="15"):
     return sidebar().replace("\t[1144] button 'Edit'\n\tStaticText 'None'\n", picker)
 
 
+def inspected_closed():
+    return sidebar(assigned=True, classified=True).replace(
+        "link 'Casey On-call @casey-oncall'", "link 'Casey On-call'")
+
+
+def grouped_inspection(*, candidate_bid="2087", search_bid="1648"):
+    # Public V6 no-op observation 13; offered accounts omit selection flags.
+    picker = ("\t[1629] button 'Apply'\n"
+              f"\t[{search_bid}] combobox 'Search', focused, expanded=True\n"
+              "\t[2081] listbox 'Select assignee', multiselectable=False\n"
+              "\t\t[2085] group 'Selected'\n"
+              f"\t\t\t[{candidate_bid}] option 'Casey On-call @casey-oncall', selected=True\n"
+              "\t\t\t\tStaticText 'Casey On-call'\n"
+              "\t\t[2098] group 'All users'\n"
+              "\t\t\t[2100] option 'Workflow Agent @workflow-agent'\n"
+              "\t\t\t[2111] option 'Administrator @root'\n")
+    return inspected_closed().replace("\t[1144] button 'Edit'\n\t[2107] link 'Casey On-call'\n", picker)
+
+
+def record(history, decision):
+    history.append({"step": len(history), "action": decision.action.model_dump(), "result": {"ok": True}})
+
+
+async def owned_inspection():
+    policy = control()
+    history = []
+    decision = await policy.decide(observation(inspected_closed()), history)
+    assert decision.action.bid == "1144"
+    record(history, decision)
+    return policy, history
+
+
 @pytest.mark.parametrize("heading", ["Assignee", "Assignees"])
 async def test_actual_heading_and_generic_edit_are_scoped(heading):
     decision = await control().decide(observation(sidebar(heading=heading)), [])
     assert decision.action.kind == "click" and decision.action.bid == "1144"
-    assert decision.evidence["protocol"] == "public-ax-triage-control-v6"
+    assert decision.evidence["protocol"] == "public-ax-triage-control-v7"
 
 
 async def test_uses_current_observed_bid_not_previous_observation():
@@ -186,13 +218,153 @@ async def test_actual_display_only_commit_and_ordinary_activity_corroborate_iden
 
 
 async def test_display_only_existing_assignee_is_not_trusted_without_picker_inspection():
-    policy = control()
-    closed = sidebar(assigned=True, classified=True).replace(
-        "link 'Casey On-call @casey-oncall'", "link 'Casey On-call'")
-    assert (await policy.decide(observation(closed), [])).action.bid == "1144"
-    action = (await policy.decide(observation(assignee_picker(selected=True)), [])).action
-    assert action.kind == "press" and action.key == "Escape" and action.bid == "10"
-    assert (await policy.decide(observation(closed), [])).action.kind == "finish"
+    policy, history = await owned_inspection()
+    decision = await policy.decide(observation(grouped_inspection()), history)
+    assert decision.action.model_dump() == {"kind": "press", "bid": "1648", "key": "Escape"}
+    record(history, decision)
+    assert (await policy.decide(observation(inspected_closed()), history)).action.kind == "finish"
+
+
+@pytest.mark.parametrize("phase", ["edit", "escape"])
+@pytest.mark.parametrize("mutation", ["absent", "none", "list", "bad_step", "bool_step", "wrong_bid", "extra_action",
+                                     "false", "numeric_ok", "missing_ok", "uncertain", "unknown_uncertainty", "wrong_slot"])
+async def test_v7_owned_edit_and_escape_require_exact_certain_receipts(phase, mutation):
+    policy, history = await owned_inspection()
+    if phase == "escape":
+        record(history, await policy.decide(observation(grouped_inspection()), history))
+    index = len(history) - 1
+    row = history[index]
+    if mutation == "absent":
+        history.pop()
+    elif mutation == "none":
+        row["result"] = None
+    elif mutation == "list":
+        row["result"] = []
+    elif mutation == "bad_step":
+        row["step"] += 1
+    elif mutation == "bool_step":
+        row["step"] = bool(index)
+    elif mutation == "wrong_bid":
+        row["action"]["bid"] = "stale"
+    elif mutation == "extra_action":
+        row["action"]["extra"] = "not emitted"
+    elif mutation == "false":
+        row["result"] = {"ok": False}
+    elif mutation == "numeric_ok":
+        row["result"] = {"ok": 1}
+    elif mutation == "missing_ok":
+        row["result"] = {}
+    elif mutation == "uncertain":
+        row["result"] = {"ok": True, "uncertain_effect": True}
+    elif mutation == "unknown_uncertainty":
+        row["result"] = {"ok": True, "uncertain_effect": None}
+    else:
+        history.insert(index, {"step": index, "action": {"kind": "wait", "seconds": 1}, "result": {"ok": True}})
+    with pytest.raises(BrowserError):
+        await policy.decide(observation(inspected_closed() if phase == "escape" else grouped_inspection()), history)
+    assert not policy.triage_confirmed_assignee
+
+
+@pytest.mark.parametrize("mutation", ["missing_group", "duplicate_group", "nested_group", "extra_selected", "duplicate_bid",
+                                     "duplicate_identity", "backup", "false_candidate", "missing_candidate_flag", "nonempty_search",
+                                     "loading", "multiselect", "ungrouped", "changed_labels", "checked_true"])
+async def test_v7_grouped_readonly_inspection_rejects_ambiguous_or_changed_context(mutation):
+    policy, history = await owned_inspection()
+    text = grouped_inspection()
+    if mutation == "missing_group":
+        text = text.replace("group 'All users'", "group 'Other users'")
+    elif mutation == "duplicate_group":
+        text = text.replace("\t\t[2098]", "\t\t[3000] group 'Selected'\n\t\t[2098]")
+    elif mutation == "nested_group":
+        text = text.replace("\t\t[2098]", "\t\t\t[2098]")
+    elif mutation == "extra_selected":
+        text = text.replace("@workflow-agent'", "@workflow-agent', selected=True")
+    elif mutation == "duplicate_bid":
+        text = text.replace("[2100]", "[2087]")
+    elif mutation == "duplicate_identity":
+        text = text.replace("Administrator @root", "Workflow Agent @workflow-agent")
+    elif mutation == "backup":
+        text = text.replace("Casey On-call @casey-oncall", "Casey On-call Backup @casey-backup")
+    elif mutation == "false_candidate":
+        text = text.replace("selected=True", "selected=False")
+    elif mutation == "missing_candidate_flag":
+        text = text.replace(", selected=True", "")
+    elif mutation == "nonempty_search":
+        text = text.replace("focused, expanded=True", "focused, expanded=True, value='casey'")
+    elif mutation == "loading":
+        text = text.replace("[1629]", "[3000] status 'Loading users'\n\t[1629]")
+    elif mutation == "multiselect":
+        text = text.replace("multiselectable=False", "multiselectable=True")
+    elif mutation == "ungrouped":
+        text = text.replace("[2081]", "[3000] option 'Other @other', selected=False\n\t[2081]")
+    elif mutation == "changed_labels":
+        text = text.replace("link 'incident'", "link 'unrelated'")
+    else:
+        text = text.replace("@workflow-agent'", "@workflow-agent', checked=True")
+    with pytest.raises(BrowserError):
+        await policy.decide(observation(text), history)
+
+
+@pytest.mark.parametrize("property_text", ["selected=1", "selected='False'", "selected=None", "selected False",
+                                          "selected: False", "selected", "selected=False, selected=False",
+                                          "checked=0", "checked='False'", "checked=False, checked=True"])
+async def test_v7_present_malformed_flags_are_not_unknown(property_text):
+    policy, history = await owned_inspection()
+    text = grouped_inspection().replace("@workflow-agent'", f"@workflow-agent', {property_text}")
+    with pytest.raises(BrowserError):
+        await policy.decide(observation(text), history)
+
+
+async def test_v7_valid_trailing_properties_and_quoted_commas_remain_readonly():
+    policy, history = await owned_inspection()
+    text = grouped_inspection().replace("selected=True", "selected=True, visible").replace(
+        "Workflow Agent @workflow-agent", "Workflow, Agent @workflow-agent")
+    decision = await policy.decide(observation(text), history)
+    assert decision.action.model_dump() == {"kind": "press", "bid": "1648", "key": "Escape"}
+
+
+@pytest.mark.parametrize("missing", ["candidate", "search"])
+async def test_v7_current_ids_required_and_receipts_remain_bound_through_waits(missing):
+    policy, history = await owned_inspection()
+    text = grouped_inspection().replace("[2087] " if missing == "candidate" else "[1648] ", "")
+    pending = await policy.decide(observation(text), history)
+    assert pending.action.kind == "wait"
+    record(history, pending)
+    escaped = await policy.decide(observation(grouped_inspection(search_bid="9999")), history)
+    assert escaped.action.bid == "9999"
+    record(history, escaped)
+    pending = await policy.decide(observation(grouped_inspection()), history)
+    assert pending.action.kind == "wait"
+    record(history, pending)
+    assert (await policy.decide(observation(inspected_closed()), history)).action.kind == "finish"
+
+
+@pytest.mark.parametrize("mutation", ["extra_assignee", "missing_assignee", "changed_labels", "extra_label"])
+async def test_v7_dismissal_does_not_certify_changed_closed_state(mutation):
+    policy, history = await owned_inspection()
+    record(history, await policy.decide(observation(grouped_inspection()), history))
+    text = inspected_closed()
+    if mutation == "extra_assignee":
+        text = text.replace("[2107]", "[3000] link 'Other @other'\n\t[2107]")
+    elif mutation == "missing_assignee":
+        text = text.replace("link 'Casey On-call'", "StaticText 'None'")
+    elif mutation == "changed_labels":
+        text = text.replace("link 'incident'", "link 'other'")
+    else:
+        text = text.replace("[1149]", "[3000] link 'other'\n\t[1149]")
+    if mutation == "missing_assignee":
+        for _ in range(5):
+            decision = await policy.decide(observation(text), history)
+            assert decision.action.kind == "wait"
+            record(history, decision)
+    with pytest.raises(BrowserError):
+        await policy.decide(observation(text), history)
+    assert not policy.triage_confirmed_assignee
+
+
+async def test_v7_unsolicited_grouped_picker_cannot_use_unknown_flags():
+    with pytest.raises(BrowserError):
+        await control().decide(observation(grouped_inspection()), [])
 
 
 async def test_current_picker_bid_can_select_but_cannot_certify_closed_commit():
