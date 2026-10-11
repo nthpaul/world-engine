@@ -1,0 +1,364 @@
+{
+  "generated_at": "2026-10-10T21:04:58.416Z",
+  "plan": {
+    "mode": "read-only browser console inspection",
+    "viewports": [
+      1440,
+      390,
+      360
+    ],
+    "new_attempts": 0,
+    "inference_calls": 0,
+    "allowed_methods": [
+      "GET"
+    ],
+    "preview_websockets": "Vite HMR at the selected loopback UI origin and root path only",
+    "preview_permission": "local-network-access scoped to that UI origin",
+    "artifact_cap_bytes": 67108864,
+    "overall_ms": 120000,
+    "limits": "Cooperative deadline and post-close video quota check, not a hard video filesystem quota.",
+    "status": "plan only / no browser, API, source commands or output"
+  },
+  "source": {
+    "revision": "878667345a9796443539e270b4134c866b316586",
+    "source_dirty": false,
+    "checkout_dirty": true,
+    "files": {
+      "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+      "src/world_engine/__main__.py": "6443b178672d8f66981168d66a4cc41a86b118c871fdbdff8d99df4be1b3951b",
+      "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+      "src/world_engine/api.py": "d9482f44eb36052a753ce2b948b74cad79ddfdb546298e9475b4ffb753d6babc",
+      "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+      "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+      "src/world_engine/browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+      "src/world_engine/browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+      "src/world_engine/browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+      "src/world_engine/browser_policy.py": "bcaad4e6372e840f93bb1db736f0cfd9799b657c71a453cd621b028f4473f213",
+      "src/world_engine/browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+      "src/world_engine/browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+      "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+      "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+      "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+      "src/world_engine/gitlab_runtime.py": "b6cd5cf20171729c9eb681ff63941f9b55016866f6fd2a8ee17748986879694a",
+      "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+      "src/world_engine/native_config.py": "77aa30a43bc1b90c1bbfa5d4c84d0836294c0b697e5aa4ef2eb16f794779f51c",
+      "src/world_engine/native_ledger.py": "986b65d8de1916455471cf4f5c3a528c5c653be1d56fb1bcaee073b68b2dfd5e",
+      "src/world_engine/ollama_tools.py": "3936518027cb9f6e4562ce1e1627353dbde41c11d1646757171bce5bdd3af435",
+      "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+      "src/world_engine/providers.py": "572cc08040ffe9647a441d2b6714c51ece279f3f57940a46be141dba489f9088",
+      "src/world_engine/rollout.py": "e51c3f8168b127574d02871e4a622e15051a3bc152473f678711432350f20f3d",
+      "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+      "src/world_engine/taskpacks/gitlab/config.rb": "9245908d907a710d56a9da80c22403a7c1855f4fabd7c3909feb1b3417e3ce9a",
+      "src/world_engine/taskpacks/gitlab/export.rb": "2bd681f605fe01e8c761556de2fa9881ffd54e42396ad3bef063ade97571521c",
+      "src/world_engine/taskpacks/gitlab/relay.Dockerfile": "a4fff999eec9f41b2356bba2da97192b4c46a99b56a4d0c91aab598016dd5e93",
+      "src/world_engine/taskpacks/gitlab/relay.py": "c42765f077e72442f6b8156f3fcb3664099047cecc4528782351f8d8ea50e23d",
+      "src/world_engine/taskpacks/gitlab/verifier.Dockerfile": "46963a441a805c198a8c877d471d85ce18ad5eb76c121642293cf82d52424860",
+      "src/world_engine/taskpacks/gitlab/verify.py": "0e59171fb5b18a7d521767497bed5d86e66552311fd266a8ea1052bfdac5f96a",
+      "web/src/App.tsx": "b5f95e6b8e3809d9da54bc649b195950ed9179aa8a55d89274e1b4fe37c578f7",
+      "web/src/BrowserConsole.tsx": "935752a13b4e04d8c8ba665892b26529fd6bbfaa1feed1ea9feef34a89cce38b",
+      "web/src/api.ts": "d2c0062a9d0f6c05b24016e641213b123c45658af617d7988a6428650e23ce05",
+      "web/src/browserApi.ts": "c91fdb720ac439d3daeb93e35b0a08046e3da7f8d35de7e62d04736f90057f8a",
+      "web/src/main.tsx": "bf82136bef7bae65abd3f19b1e348b4d163b24b42610f556be1f708524add794",
+      "web/src/styles.css": "b8f01099794747033cface29071d616364a1a51194f3ac6693b073699e1dcb27",
+      "web/package.json": "cdd731e574c39e77a570b98968a2e36a479d6c26ed8131917fdca16bf0191006",
+      "web/package-lock.json": "61cf0d6fe5aea4c445bf6e744dabed4a089dae3ba057485b5740dfa7d8816f94",
+      "web/vite.config.ts": "e33334557d4981f6be7fc699a5f1b9818afdc0c9059ef2884a04ed1a34b9e648",
+      "web/index.html": "c3d0cbe811be1a5fd93e6d323dbec39e5b7fd14dd7c59f1bc3db9a51897ef175",
+      "pyproject.toml": "a5e7717f5add422b764a7aad5afd19031459674dd904216b3abaad57acf83f99",
+      "uv.lock": "05de896909ea21fe32fee14038050222cadd192ddf4d53af473a7ce97eeae381",
+      "scripts/browser-console-qa.mjs": "384c387c7cab29854ceed15ccaaf9add115707111cda7ec70e8706df5fb2f1e7",
+      "scripts/ui-browser-check.mjs": "7aea55dcdf39deefcd23b5965058e08c09a74e71b42a1e788d28407eeb16fd3a",
+      "scripts/ui-qa.mjs": "0335fd062d3a489f9d90a3d095c39fba5f0eeb137cc96bde7adeee51dc858fc6",
+      "scripts/native-ui-qa.mjs": "29d60528e0702c0003c152976b26ac61cf31c2b3458fe90917d5092a6df78dc6",
+      "tests/test_ui_browser_console.py": "aa077de518800fdee1ea52fc64d7d89ef27252828b8615836bc86c0cd084d9e9"
+    }
+  },
+  "api_startup_revision_operator_attestation": "878667345a9796443539e270b4134c866b316586",
+  "attempt_id": "1b5d2dbd-cd1a-4645-8c81-f63f636bb786",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "Paid server gate disabled",
+      "passed": true
+    },
+    {
+      "name": "Requested attempt identity",
+      "passed": true
+    },
+    {
+      "name": "Evaluation-only task",
+      "passed": true
+    },
+    {
+      "name": "Artifact 0 byte size and digest",
+      "passed": true
+    },
+    {
+      "name": "Artifact 1 byte size and digest",
+      "passed": true
+    },
+    {
+      "name": "Actual browser attempt heading",
+      "passed": true
+    },
+    {
+      "name": "Recorded browser video decodes and advances frames",
+      "passed": true
+    },
+    {
+      "name": "1440 captured image decoded",
+      "passed": true
+    },
+    {
+      "name": "1440-browser no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "1440-timeline no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "1440-outcome no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "390 captured image decoded",
+      "passed": true
+    },
+    {
+      "name": "390-browser no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "390-timeline no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "390-outcome no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "360 captured image decoded",
+      "passed": true
+    },
+    {
+      "name": "360-browser no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "360-timeline no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "360-outcome no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "1440-environments no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "1440-attempts no body horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "No mutation or redirected requests",
+      "passed": true
+    },
+    {
+      "name": "No browser application errors",
+      "passed": true
+    },
+    {
+      "name": "Source content unchanged",
+      "passed": true
+    }
+  ],
+  "get_requests": 43,
+  "local_preview_hmr_connections": 1,
+  "blocked_requests": [],
+  "browser_errors": [],
+  "artifacts": [
+    {
+      "id": "screenshots/0000.png",
+      "kind": "screenshot",
+      "mime_type": "image/png",
+      "size_bytes": 84047,
+      "sha256": "b64e67ed9788c6d4f4891d58a42e340baca86ebd9a8ba69dabd224850ecf3399",
+      "url": "/api/browser/attempts/1b5d2dbd-cd1a-4645-8c81-f63f636bb786/artifacts/screenshots/0000.png",
+      "saved_file": "recorded-000-screenshot.png"
+    },
+    {
+      "id": "video/5fd61781d8e70674fe4f9cbec567992e.webm",
+      "kind": "video",
+      "mime_type": "video/webm",
+      "size_bytes": 498513,
+      "sha256": "1c075a9ee4bd0e44058289dc16a685e13df817e01ff8a044bd6b7aa399fd6e29",
+      "url": "/api/browser/attempts/1b5d2dbd-cd1a-4645-8c81-f63f636bb786/artifacts/video/5fd61781d8e70674fe4f9cbec567992e.webm",
+      "saved_file": "recorded-001-video.webm"
+    }
+  ],
+  "screenshots": [
+    "1440-browser.png",
+    "1440-timeline.png",
+    "1440-outcome.png",
+    "390-browser.png",
+    "390-timeline.png",
+    "390-outcome.png",
+    "360-browser.png",
+    "360-timeline.png",
+    "360-outcome.png",
+    "1440-environments.png",
+    "1440-attempts.png"
+  ],
+  "inference_calls": 0,
+  "new_attempts": 0,
+  "limits": "Cooperative deadline and post-close video quota check, not a hard video filesystem quota.",
+  "preview_network": {
+    "permission": "local-network-access",
+    "permission_origin": "http://127.0.0.1:5173",
+    "websocket_limit": "Same UI protocol and host, root path, no URL credentials; Vite HMR only"
+  },
+  "runtime": {
+    "package_version": "0.1.0",
+    "package_version_is_not_source_revision": true,
+    "active_simulation_runs": 0,
+    "browser_available": true,
+    "active_attempts": 0,
+    "max_active_attempts": 1,
+    "paid_calls_enabled": false
+  },
+  "attempt": {
+    "id": "1b5d2dbd-cd1a-4645-8c81-f63f636bb786",
+    "status": "failed",
+    "termination": "provider_error",
+    "provider_id": "local-browser",
+    "seed": 42,
+    "steps": 0,
+    "invalid_actions": 0,
+    "passed": false,
+    "reward": 0,
+    "outcome": {
+      "passed": false,
+      "reward": 0,
+      "checks": [
+        {
+          "name": "fixed_records",
+          "passed": true,
+          "detail": "Project access, accounts, labels and namespaces remain unchanged."
+        },
+        {
+          "name": "project_preservation",
+          "passed": true,
+          "detail": "No project creation/deletion or settings changes; activity timestamps may advance."
+        },
+        {
+          "name": "issue_preservation",
+          "passed": true,
+          "detail": "All unrelated issues remain byte-equivalent in the exported projection."
+        },
+        {
+          "name": "authorized_closure",
+          "passed": false,
+          "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact."
+        },
+        {
+          "name": "exact_comment_and_history",
+          "passed": false,
+          "detail": "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved."
+        },
+        {
+          "name": "closure_certificate",
+          "passed": false,
+          "detail": "One target closure state event, attributed to the ordinary actor."
+        },
+        {
+          "name": "requested_order",
+          "passed": false,
+          "detail": "The exact comment precedes authorized closure."
+        }
+      ],
+      "grader_version": "gitlab-state-v3",
+      "sealed_state_sha256": "a061c7473a40e36e8861f78db8948c2316f6498fde6b519a5f0517d806acff6c"
+    },
+    "cleanup": {
+      "status": "completed",
+      "error_code": null
+    },
+    "schema": "world-engine.browser.v1",
+    "observation_mode": "AX",
+    "detail_sha256": "955e605bf630c0f1eda47041785ad61f4e9de7bd4c1fe59262852e1e7bf500a2",
+    "detail_bytes": 48787
+  },
+  "recorded_video_playback": {
+    "duration_seconds": 9.44,
+    "before_seconds": 0,
+    "after_seconds": 0.2487,
+    "decoded_frames_before": 0,
+    "decoded_frames_after": 10,
+    "width": 1440,
+    "height": 1000,
+    "error": null
+  },
+  "ui_video": {
+    "relative_path": "video/page@6b082fc8df0ac2a3e67f4d1946c55553.webm",
+    "bytes": 690143,
+    "sha256": "b1df7a223a2be1efe4f4e498f5d07621f8427e126bd3c3b4e68f776e32f44e1c"
+  },
+  "source_after": {
+    "revision": "878667345a9796443539e270b4134c866b316586",
+    "source_dirty": false,
+    "checkout_dirty": true,
+    "files": {
+      "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+      "src/world_engine/__main__.py": "6443b178672d8f66981168d66a4cc41a86b118c871fdbdff8d99df4be1b3951b",
+      "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+      "src/world_engine/api.py": "d9482f44eb36052a753ce2b948b74cad79ddfdb546298e9475b4ffb753d6babc",
+      "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+      "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+      "src/world_engine/browser_api.py": "21c255ea762ee86b2d2bbb7b782fb5a28eb7d734ce8021704b11d9715e83b2b8",
+      "src/world_engine/browser_contracts.py": "dfdf5b0a5df859050568915b072c9877dd3ebdc30bddd336c64e68660bb00599",
+      "src/world_engine/browser_driver.py": "25391d35d4cb86f05aaa180c169d38bcfe3c1cddea61bec4718559d0d8bee552",
+      "src/world_engine/browser_policy.py": "bcaad4e6372e840f93bb1db736f0cfd9799b657c71a453cd621b028f4473f213",
+      "src/world_engine/browser_runs.py": "859d5900408fef479b386b560dd0462eb136cd1db42fc77847aad5a1bdcd89a4",
+      "src/world_engine/browser_store.py": "ee0acb5802bca97d4b270c776c69051a8b5fd1fd6acee6cf24f8d6519c35e05e",
+      "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+      "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+      "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+      "src/world_engine/gitlab_runtime.py": "b6cd5cf20171729c9eb681ff63941f9b55016866f6fd2a8ee17748986879694a",
+      "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+      "src/world_engine/native_config.py": "77aa30a43bc1b90c1bbfa5d4c84d0836294c0b697e5aa4ef2eb16f794779f51c",
+      "src/world_engine/native_ledger.py": "986b65d8de1916455471cf4f5c3a528c5c653be1d56fb1bcaee073b68b2dfd5e",
+      "src/world_engine/ollama_tools.py": "3936518027cb9f6e4562ce1e1627353dbde41c11d1646757171bce5bdd3af435",
+      "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+      "src/world_engine/providers.py": "572cc08040ffe9647a441d2b6714c51ece279f3f57940a46be141dba489f9088",
+      "src/world_engine/rollout.py": "e51c3f8168b127574d02871e4a622e15051a3bc152473f678711432350f20f3d",
+      "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+      "src/world_engine/taskpacks/gitlab/config.rb": "9245908d907a710d56a9da80c22403a7c1855f4fabd7c3909feb1b3417e3ce9a",
+      "src/world_engine/taskpacks/gitlab/export.rb": "2bd681f605fe01e8c761556de2fa9881ffd54e42396ad3bef063ade97571521c",
+      "src/world_engine/taskpacks/gitlab/relay.Dockerfile": "a4fff999eec9f41b2356bba2da97192b4c46a99b56a4d0c91aab598016dd5e93",
+      "src/world_engine/taskpacks/gitlab/relay.py": "c42765f077e72442f6b8156f3fcb3664099047cecc4528782351f8d8ea50e23d",
+      "src/world_engine/taskpacks/gitlab/verifier.Dockerfile": "46963a441a805c198a8c877d471d85ce18ad5eb76c121642293cf82d52424860",
+      "src/world_engine/taskpacks/gitlab/verify.py": "0e59171fb5b18a7d521767497bed5d86e66552311fd266a8ea1052bfdac5f96a",
+      "web/src/App.tsx": "b5f95e6b8e3809d9da54bc649b195950ed9179aa8a55d89274e1b4fe37c578f7",
+      "web/src/BrowserConsole.tsx": "935752a13b4e04d8c8ba665892b26529fd6bbfaa1feed1ea9feef34a89cce38b",
+      "web/src/api.ts": "d2c0062a9d0f6c05b24016e641213b123c45658af617d7988a6428650e23ce05",
+      "web/src/browserApi.ts": "c91fdb720ac439d3daeb93e35b0a08046e3da7f8d35de7e62d04736f90057f8a",
+      "web/src/main.tsx": "bf82136bef7bae65abd3f19b1e348b4d163b24b42610f556be1f708524add794",
+      "web/src/styles.css": "b8f01099794747033cface29071d616364a1a51194f3ac6693b073699e1dcb27",
+      "web/package.json": "cdd731e574c39e77a570b98968a2e36a479d6c26ed8131917fdca16bf0191006",
+      "web/package-lock.json": "61cf0d6fe5aea4c445bf6e744dabed4a089dae3ba057485b5740dfa7d8816f94",
+      "web/vite.config.ts": "e33334557d4981f6be7fc699a5f1b9818afdc0c9059ef2884a04ed1a34b9e648",
+      "web/index.html": "c3d0cbe811be1a5fd93e6d323dbec39e5b7fd14dd7c59f1bc3db9a51897ef175",
+      "pyproject.toml": "a5e7717f5add422b764a7aad5afd19031459674dd904216b3abaad57acf83f99",
+      "uv.lock": "05de896909ea21fe32fee14038050222cadd192ddf4d53af473a7ce97eeae381",
+      "scripts/browser-console-qa.mjs": "384c387c7cab29854ceed15ccaaf9add115707111cda7ec70e8706df5fb2f1e7",
+      "scripts/ui-browser-check.mjs": "7aea55dcdf39deefcd23b5965058e08c09a74e71b42a1e788d28407eeb16fd3a",
+      "scripts/ui-qa.mjs": "0335fd062d3a489f9d90a3d095c39fba5f0eeb137cc96bde7adeee51dc858fc6",
+      "scripts/native-ui-qa.mjs": "29d60528e0702c0003c152976b26ac61cf31c2b3458fe90917d5092a6df78dc6",
+      "tests/test_ui_browser_console.py": "aa077de518800fdee1ea52fc64d7d89ef27252828b8615836bc86c0cd084d9e9"
+    }
+  },
+  "elapsed_seconds": 2.661,
+  "original_artifact_bytes_before_report": 3294275
+}

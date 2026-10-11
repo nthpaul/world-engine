@@ -1,0 +1,387 @@
+{
+  "schema": "world-engine.model-concurrency-independent-validation.v1",
+  "recorded_date_utc": "2026-10-10",
+  "status": "verified",
+  "publication_only": true,
+  "collection_repeated": false,
+  "publication_scope": "Additional publication sidecar; outside the two original collector files and their 4,473,315-byte accounting.",
+  "collection_source_revision": "1d9f2315348cbea192f7ae5c4f1cf0343ba6618a",
+  "protocol_sha256": "46b07934df72ff4d88c020fe9f937018ef94e603e405c0a615b0ddaf7abf2b68",
+  "source": {
+    "recorded_scope_clean": true,
+    "recorded_checkout_dirty": true,
+    "scope": [
+      "src/world_engine",
+      "pyproject.toml",
+      "uv.lock",
+      "examples/model_concurrency_study.py",
+      "tests/test_model_concurrency_study.py",
+      "docs/model-concurrency-study.md"
+    ],
+    "files_sha256": {
+      "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+      "src/world_engine/__main__.py": "46f6078d57f6800b8c86f43edf2697e6939112883bad36e4d7964bef20e0b80a",
+      "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+      "src/world_engine/api.py": "12d7d71ffda3df3705a100303f1310413c5ed11b4543ea6d4baf25c9fd83c587",
+      "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+      "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+      "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+      "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+      "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+      "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+      "src/world_engine/native_config.py": "bebabd5b3dd2bab72c4a878b24c0173629e8ed737ff30bffb485194804307a50",
+      "src/world_engine/native_ledger.py": "986b65d8de1916455471cf4f5c3a528c5c653be1d56fb1bcaee073b68b2dfd5e",
+      "src/world_engine/ollama_tools.py": "3936518027cb9f6e4562ce1e1627353dbde41c11d1646757171bce5bdd3af435",
+      "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+      "src/world_engine/providers.py": "e68a7b6093ef45c7b19c69d7f2dff789112445d5c9e91b4c338957420798c26f",
+      "src/world_engine/rollout.py": "e51c3f8168b127574d02871e4a622e15051a3bc152473f678711432350f20f3d",
+      "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+      "pyproject.toml": "6c352c613b9a0d428c6b1bf0979c27595b119c22b50b4a26a92210a2e461412e",
+      "uv.lock": "a65eda4a34998fe5978fde9ef84ef99e94ada85d2a8e574e4e6c3e9d70c20034",
+      "examples/model_concurrency_study.py": "137433634dc990baea6ba95b564eeeb74c53607aead7a54808c5155b444ddd7c",
+      "tests/test_model_concurrency_study.py": "5c87169cfaee351c1299d0e762d602cad8bcfdb87382970b9a65b67d0651a871",
+      "docs/model-concurrency-study.md": "4ede47e6cb43969631583a9b0e4f4deaaa44fc92491dc4c9617c8619cab030bb"
+    },
+    "pinned_collection_blob_hashes_verified": 22,
+    "current_file_hashes_verified_at_validation": 22,
+    "note": "Pinned collection blobs are the source authority; later current-source edits must not be assumed to match."
+  },
+  "audits": [
+    {
+      "reviewer": "root",
+      "method": "Independent read-only validation after terminal source post gate; replay, actual pinned Harbor, real exporters, pinned Git blobs, raw/report rows, counters, pairing and original bytes.",
+      "replays": 32,
+      "actual_Harbor_validations": 32,
+      "training_exclusions": 96
+    },
+    {
+      "reviewer": "console",
+      "method": "Separate independent read-only proof; same checks plus paired wave transport timestamp ordering and overlap.",
+      "replays": 32,
+      "actual_Harbor_validations": 32,
+      "training_exclusions": 96,
+      "pre_success_proof_command_failure": {
+        "category": "KeyError from wrong request-body field name",
+        "collection_retries": 0,
+        "original_file_writes": 0,
+        "new_model_calls": 0
+      }
+    }
+  ],
+  "upstream": {
+    "library": "Harbor",
+    "version": "0.24.0",
+    "revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+    "model": "harbor.models.trajectories.trajectory.Trajectory",
+    "schema_version": "ATIF-v1.8",
+    "schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c",
+    "documents_validated": 32,
+    "schema_conformance_is_not_execution_authenticity_or_training_permission": true
+  },
+  "original_accounting": {
+    "file_count": 2,
+    "total_bytes": 4473315,
+    "files": [
+      {
+        "path": "evaluation-episodes.jsonl",
+        "bytes": 4338748,
+        "sha256": "704f7b02eeb445d31333df6c299722afadebbb616cd60227594bacc3edb5773d"
+      },
+      {
+        "path": "report.json",
+        "bytes": 134567,
+        "sha256": "6720e6f31db4cc1760a28e30931e1e29c0858e1faa6d45f354e9c8ea4dc08882"
+      }
+    ],
+    "all_original_bytes_and_hashes_unchanged": true,
+    "additional_publication_bytes_excluded": true
+  },
+  "evidence": {
+    "attempted_episodes": 32,
+    "returned_values": 32,
+    "raw_records_preserved": 32,
+    "exact_raw_values": 32,
+    "diagnostic_markers": 0,
+    "raw_persistence_failures": 0,
+    "verified_episodes": 32,
+    "inconclusive_episodes": 0,
+    "unattempted_episodes": 0,
+    "chat_requests_started": 236,
+    "metadata_requests_started": 12,
+    "finalized_slots": 32,
+    "unique_tasks": 8,
+    "repeats_per_task": 4,
+    "independent_pair_count_claimed": false,
+    "business_passes": 29,
+    "clean_successes": 12,
+    "steps": 233,
+    "invalid_actions": 32,
+    "terminations": {
+      "finished": 29,
+      "timeout": 3
+    },
+    "status_outcomes": {
+      "completed": 29,
+      "failed": 3
+    },
+    "comparison_scope": "SDK caller-wave admission; not RunManager/API throughput or causal GPU parallelism",
+    "source_post_valid": true,
+    "elapsed_seconds": 441.5729265830014,
+    "batches": [
+      {
+        "index": 0,
+        "concurrency": 1,
+        "peak_admitted": 1,
+        "wall_seconds": 100.85858487500809,
+        "prepare_seconds": 0.10735420801211149,
+        "validation_seconds": 0.051158625981770456,
+        "cleanup": {
+          "status": "completed",
+          "seconds": 0.00021658302284777164
+        },
+        "business_passes": 8,
+        "clean_successes": 3,
+        "invalid_actions": 8,
+        "passes_per_second": 0.07931897924122404,
+        "episodes_per_second": 0.07931897924122404,
+        "steps_per_second": 0.5948923443091804
+      },
+      {
+        "index": 1,
+        "concurrency": 2,
+        "peak_admitted": 2,
+        "wall_seconds": 103.46010183298495,
+        "prepare_seconds": 0.08173933404032141,
+        "validation_seconds": 0.04604625003412366,
+        "cleanup": {
+          "status": "completed",
+          "seconds": 0.0002660420723259449
+        },
+        "business_passes": 7,
+        "clean_successes": 3,
+        "invalid_actions": 8,
+        "passes_per_second": 0.06765893205189437,
+        "episodes_per_second": 0.07732449377359356,
+        "steps_per_second": 0.5606025798585533
+      },
+      {
+        "index": 2,
+        "concurrency": 2,
+        "peak_admitted": 2,
+        "wall_seconds": 115.90294274990447,
+        "prepare_seconds": 0.08048433403018862,
+        "validation_seconds": 0.044064915855415165,
+        "cleanup": {
+          "status": "completed",
+          "seconds": 0.00029129208996891975
+        },
+        "business_passes": 6,
+        "clean_successes": 3,
+        "invalid_actions": 8,
+        "passes_per_second": 0.051767451780295244,
+        "episodes_per_second": 0.06902326904039366,
+        "steps_per_second": 0.47453497465270644
+      },
+      {
+        "index": 3,
+        "concurrency": 1,
+        "peak_admitted": 1,
+        "wall_seconds": 119.35349858296104,
+        "prepare_seconds": 0.09152033401187509,
+        "validation_seconds": 0.050556540954858065,
+        "cleanup": {
+          "status": "completed",
+          "seconds": 0.00017975002992898226
+        },
+        "business_passes": 8,
+        "clean_successes": 3,
+        "invalid_actions": 8,
+        "passes_per_second": 0.0670277796208823,
+        "episodes_per_second": 0.0670277796208823,
+        "steps_per_second": 0.5027083471566173
+      }
+    ],
+    "rounds": [
+      {
+        "batch_pair": [
+          0,
+          1
+        ],
+        "eligible_pairs": 8,
+        "incomplete_seeds": [],
+        "business": {
+          "cells": {
+            "both_pass": 7,
+            "one_only": 1,
+            "two_only": 0,
+            "neither": 0
+          },
+          "two_minus_one": -0.125
+        },
+        "clean": {
+          "cells": {
+            "both_pass": 3,
+            "one_only": 0,
+            "two_only": 0,
+            "neither": 5
+          },
+          "two_minus_one": 0
+        }
+      },
+      {
+        "batch_pair": [
+          3,
+          2
+        ],
+        "eligible_pairs": 8,
+        "incomplete_seeds": [],
+        "business": {
+          "cells": {
+            "both_pass": 6,
+            "one_only": 2,
+            "two_only": 0,
+            "neither": 0
+          },
+          "two_minus_one": -0.25
+        },
+        "clean": {
+          "cells": {
+            "both_pass": 3,
+            "one_only": 0,
+            "two_only": 0,
+            "neither": 5
+          },
+          "two_minus_one": 0
+        }
+      }
+    ],
+    "unique_task_counts": [
+      {
+        "seed": 53000,
+        "all_four_eligible": true,
+        "one_passes": 2,
+        "two_passes": 2,
+        "two_minus_one_fraction": 0
+      },
+      {
+        "seed": 53001,
+        "all_four_eligible": true,
+        "one_passes": 2,
+        "two_passes": 2,
+        "two_minus_one_fraction": 0
+      },
+      {
+        "seed": 53002,
+        "all_four_eligible": true,
+        "one_passes": 2,
+        "two_passes": 2,
+        "two_minus_one_fraction": 0
+      },
+      {
+        "seed": 53003,
+        "all_four_eligible": true,
+        "one_passes": 2,
+        "two_passes": 2,
+        "two_minus_one_fraction": 0
+      },
+      {
+        "seed": 53004,
+        "all_four_eligible": true,
+        "one_passes": 2,
+        "two_passes": 0,
+        "two_minus_one_fraction": -1
+      },
+      {
+        "seed": 53005,
+        "all_four_eligible": true,
+        "one_passes": 2,
+        "two_passes": 1,
+        "two_minus_one_fraction": -0.5
+      },
+      {
+        "seed": 53006,
+        "all_four_eligible": true,
+        "one_passes": 2,
+        "two_passes": 2,
+        "two_minus_one_fraction": 0
+      },
+      {
+        "seed": 53007,
+        "all_four_eligible": true,
+        "one_passes": 2,
+        "two_passes": 2,
+        "two_minus_one_fraction": 0
+      }
+    ],
+    "counters": {
+      "model_request_attempts_observed": 236,
+      "model_request_attempts_complete": true,
+      "request_body_bytes_known": 1496132,
+      "response_body_bytes_observed_known": 98587,
+      "response_body_bytes_complete": false,
+      "transport_elapsed_ms_known": 625436.8953336962,
+      "request_outcomes": {
+        "accepted": 233,
+        "cancelled": 3
+      },
+      "input_tokens_known": 303693,
+      "input_tokens_known_requests": 233,
+      "input_tokens_complete": false,
+      "output_tokens_known": 6899,
+      "output_tokens_known_requests": 233,
+      "output_tokens_complete": false,
+      "inference_ns_known": 620575252623,
+      "inference_ns_known_requests": 233,
+      "inference_ns_complete": false
+    },
+    "training_exports": {
+      "sft": {
+        "quality": "all",
+        "records": 0,
+        "unsupported_provider_protocol_exclusions": 32,
+        "candidate_pool_visited": false
+      },
+      "dpo": {
+        "quality": "all",
+        "records": 0,
+        "unsupported_provider_protocol_exclusions": 32,
+        "candidate_pool_visited": false
+      },
+      "grpo": {
+        "quality": "all",
+        "records": 0,
+        "unsupported_provider_protocol_exclusions": 32,
+        "candidate_pool_visited": false
+      }
+    }
+  },
+  "wave_timestamp_audit": {
+    "waves_per_batch": [
+      8,
+      4,
+      4,
+      8
+    ],
+    "two_episode_waves_with_transport_overlap": 8,
+    "no_next_wave_transport_before_prior_wave_completion": true,
+    "client_overlap_is_not_GPU_parallelism": true
+  },
+  "background": {
+    "api": "Idle service",
+    "activities": [
+      "Root lightweight image/proof activity",
+      "Researcher brief read-only journal progress checks"
+    ],
+    "other_model_inference": false,
+    "concurrent_CPU_benchmark": false,
+    "concurrent_browser_collection": false
+  },
+  "limits": [
+    "Eight fixed synthetic tasks repeated four times, not 32 independent tasks or sixteen independent pairs.",
+    "All failed timeouts remain; no collection retry, fallback, tuning, weight download, paid/cloud or training calls.",
+    "Known usage covers 233 of 236 requests; cancelled daemon work is unknown, not zero.",
+    "Continuous batch timing includes raw fsync, semantic validation and interwave source checks; preparation/cleanup separate.",
+    "No verified warm-load/cache/GPU scheduling/full-token-context/optimal-admission/cloud-scaling claim.",
+    "Finalized journal is not mid-episode process-crash durability; time/cleanup bounds are cooperative."
+  ]
+}
