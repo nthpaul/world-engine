@@ -1,0 +1,23 @@
+{
+  "schema": "world-engine.ui-qa-failure-publication.v1",
+  "recorded_at": "2026-10-10T08:25:31+00:00",
+  "collection_revision": "ee26d7b9e29397e3dcccfc09c664f08dcf3b004c",
+  "status": "failed",
+  "failed_check": "CLI replay of the full operator JSONL",
+  "observed_error": "grader differs from the replayed episode",
+  "root_cause": "The QA script parsed API JSON with JavaScript then serialized it again. It changed floating-point reward labels 1.0 and 0.0 into integers. Strict canonical replay correctly rejected the resulting operator JSONL.",
+  "failed_file": {
+    "filename": "access-evaluation-episodes.jsonl",
+    "bytes": 2380199,
+    "sha256": "b1b44dd4968a8c81e0ea0b4b0d05d791ff53b795cc6d72cfb6b213da27a4bc3d",
+    "replay_verified": false
+  },
+  "original_run_ids": ["c515dec5-eeeb-47d6-8a22-e076e1ada23b", "d3e42909-e097-40d3-af6a-e092f92fee00"],
+  "underlying_api_episodes_independently_replayed": 16,
+  "underlying_api_records_changed": false,
+  "original_downloads_screenshots_video_retained": true,
+  "original_failed_jsonl_changed": false,
+  "script_fix_revision": "e1550290b6bb954df86d2d8dd0e52dd7d6428967",
+  "replacement_receipt": "../20261010-ui-v2/ui-report.json",
+  "limitations": "This is an after-the-fact failure explanation, not the original script's report. The first capture did not produce a successful UI report. The failed JSONL is intentionally preserved and must not be used as replay-verified data."
+}

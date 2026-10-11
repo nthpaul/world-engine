@@ -1,0 +1,100 @@
+{
+  "allowed_methods": [
+    "GET"
+  ],
+  "new_attempts": 0,
+  "inference_calls": 0,
+  "get_requests": 49,
+  "blocked_requests": [],
+  "console": [
+    "WebSocket connection to 'ws://127.0.0.1:5173/?token=[REDACTED]' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    "WebSocket connection to 'ws://127.0.0.1:5173/?token=[REDACTED]' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    "[vite] failed to connect to websocket.\nyour current setup:\n  (browser) 127.0.0.1:5173/ <--[HTTP]--> 127.0.0.1:5173/ (server)\n  (browser) 127.0.0.1:5173/ <--[WebSocket (failing)]--> 127.0.0.1:5173/ (server)\nCheck out your Vite / network configuration and /config/server-options.html ."
+  ],
+  "failed": [
+    {
+      "path": "/api/runs",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/api/browser/tasks",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/api/browser/status",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/api/browser/attempts",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/api/browser/attempts/c10a8218-7863-48b9-9c19-ff236e474f56",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/api/browser/attempts/c10a8218-7863-48b9-9c19-ff236e474f56/artifacts/video/75610dde34f70e1b0d8e240d36e0c3b2.webm",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "media_responses": [
+    {
+      "path": "/api/browser/attempts/c10a8218-7863-48b9-9c19-ff236e474f56/artifacts/screenshots/0015.png",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "content-length": "191020",
+        "content-type": "image/png"
+      }
+    },
+    {
+      "path": "/api/browser/attempts/c10a8218-7863-48b9-9c19-ff236e474f56/artifacts/video/75610dde34f70e1b0d8e240d36e0c3b2.webm",
+      "status": 206,
+      "headers": {
+        "content-range": "bytes 0-1723841/1723842",
+        "accept-ranges": "bytes",
+        "content-length": "1723842",
+        "content-type": "video/webm"
+      }
+    },
+    {
+      "path": "/api/browser/attempts/c10a8218-7863-48b9-9c19-ff236e474f56/artifacts/video/75610dde34f70e1b0d8e240d36e0c3b2.webm",
+      "status": 206,
+      "headers": {
+        "content-range": "bytes 1703936-1723841/1723842",
+        "accept-ranges": "bytes",
+        "content-length": "19906",
+        "content-type": "video/webm"
+      }
+    },
+    {
+      "path": "/api/browser/attempts/c10a8218-7863-48b9-9c19-ff236e474f56/artifacts/video/75610dde34f70e1b0d8e240d36e0c3b2.webm",
+      "status": 206,
+      "headers": {
+        "content-range": "bytes 1048576-1723841/1723842",
+        "accept-ranges": "bytes",
+        "content-length": "675266",
+        "content-type": "video/webm"
+      }
+    }
+  ],
+  "before": {
+    "readyState": 4,
+    "networkState": 1,
+    "error": null,
+    "currentTime": 0,
+    "duration": 16.08,
+    "paused": true
+  },
+  "after": {
+    "readyState": 4,
+    "currentTime": 2.0076,
+    "paused": false,
+    "error": null
+  },
+  "elapsed_bound_seconds": 30,
+  "public_copy_redactions": {
+    "scope": "Two ephemeral Vite WebSocket query token values only; original retained privately and never pushed.",
+    "original_sha256": "595f66fc4fd2c6317e7b24a8a359f844aaf817a1118094488a6c3b5c1a6cffea"
+  }
+}
