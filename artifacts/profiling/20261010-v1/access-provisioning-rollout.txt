@@ -1,0 +1,58 @@
+         8286795 function calls (6721805 primitive calls) in 0.977 seconds
+
+   Ordered by: cumulative time
+   List reduced from 206 to 50 due to restriction <50>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      320    0.001    0.000    0.973    0.003 base_events.py:1962(_run_once)
+      344    0.000    0.000    0.970    0.003 rollout.py:103(rollout)
+      344    0.003    0.000    0.970    0.003 rollout.py:132(_rollout)
+      320    0.000    0.000    0.967    0.003 events.py:87(_run)
+      320    0.000    0.000    0.967    0.003 {method 'run' of '_contextvars.Context' objects}
+      320    0.000    0.000    0.967    0.003 <stdin>:40(main)
+1417040/16828    0.444    0.000    0.905    0.000 copy.py:119(deepcopy)
+153161/16412    0.136    0.000    0.891    0.000 copy.py:218(_deepcopy_dict)
+     1056    0.003    0.000    0.600    0.001 access_provisioning.py:166(observe)
+57068/29039    0.029    0.000    0.597    0.000 copy.py:192(_deepcopy_list)
+      320    0.001    0.000    0.451    0.001 environments.py:127(step)
+    12672    0.003    0.000    0.261    0.000 environments.py:77(metadata)
+      392    0.000    0.000    0.153    0.000 environments.py:118(snapshot)
+      344    0.000    0.000    0.148    0.000 environments.py:124(state_hash)
+  2817940    0.137    0.000    0.137    0.000 {method 'get' of 'dict' objects}
+  1853966    0.062    0.000    0.062    0.000 {built-in method builtins.id}
+   210229    0.036    0.000    0.055    0.000 copy.py:232(_keep_alive)
+       24    0.001    0.000    0.047    0.002 access_provisioning.py:326(evaluate)
+       48    0.000    0.000    0.043    0.001 environments.py:93(reset)
+  1206811    0.035    0.000    0.035    0.000 copy.py:173(_deepcopy_atomic)
+     1640    0.000    0.000    0.031    0.000 models.py:16(canonical_json)
+     1640    0.001    0.000    0.030    0.000 __init__.py:183(dumps)
+     1640    0.001    0.000    0.029    0.000 encoder.py:183(encode)
+     1616    0.028    0.000    0.028    0.000 encoder.py:205(iterencode)
+       24    0.000    0.000    0.021    0.001 environments.py:694(make_environment)
+     1296    0.001    0.000    0.020    0.000 models.py:20(digest)
+   330757    0.017    0.000    0.017    0.000 {method 'append' of 'list' objects}
+      344    0.000    0.000    0.014    0.000 providers.py:44(policy_messages)
+      296    0.001    0.000    0.012    0.000 access_provisioning.py:232(apply)
+   153161    0.008    0.000    0.008    0.000 {method 'items' of 'dict' objects}
+       24    0.000    0.000    0.005    0.000 rollout.py:59(world_fingerprints)
+      320    0.000    0.000    0.005    0.000 selectors.py:540(select)
+      320    0.005    0.000    0.005    0.000 {method 'control' of 'select.kqueue' objects}
+       24    0.000    0.000    0.004    0.000 _abc.py:621(read_bytes)
+       24    0.000    0.000    0.004    0.000 _local.py:529(open)
+       24    0.004    0.000    0.004    0.000 {built-in method _io.open}
+      640    0.000    0.000    0.003    0.000 providers.py:53(decide)
+      320    0.001    0.000    0.003    0.000 access_provisioning.py:479(reference_action)
+       48    0.001    0.000    0.002    0.000 access_provisioning.py:100(build)
+      125    0.000    0.000    0.002    0.000 access_provisioning.py:181(_page)
+      125    0.000    0.000    0.002    0.000 access_provisioning.py:351(page)
+     1320    0.001    0.000    0.001    0.000 {built-in method _hashlib.openssl_sha256}
+       63    0.000    0.000    0.001    0.000 access_provisioning.py:211(_scope)
+     3438    0.001    0.000    0.001    0.000 access_provisioning.py:53(_email)
+       93    0.000    0.000    0.001    0.000 access_provisioning.py:64(_contract)
+     1163    0.000    0.000    0.001    0.000 {built-in method builtins.sorted}
+     1056    0.001    0.000    0.001    0.000 {method 'validate_python' of 'pydantic_core._pydantic_core.SchemaValidator' objects}
+       48    0.000    0.000    0.001    0.000 random.py:363(sample)
+      960    0.000    0.000    0.001    0.000 main.py:472(model_dump)
+       63    0.000    0.000    0.001    0.000 access_provisioning.py:171(contract)
+
+
