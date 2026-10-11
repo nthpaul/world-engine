@@ -36,9 +36,9 @@ def sha(data):
 
 
 def plan():
-    return {"schema": "world-engine.triage-qualification.v5", "slots": SLOTS, "model": "qwen3:8b",
+    return {"schema": "world-engine.triage-qualification.v6", "slots": SLOTS, "model": "qwen3:8b",
             "model_digest": MODEL_DIGEST, "automatic_retries": 0, "paid_calls": False,
-            "reference_protocol": "public-ax-triage-control-v5",
+            "reference_protocol": "public-ax-triage-control-v6",
             "policy_protocol": PROTOCOL, "generation_options": dict(OPTIONS), "think": False,
             "max_total_seconds": 6000, "max_artifact_bytes": LIMIT, "evaluation_only": True,
             "training_eligible": False, "model_requires_explicit_flag_and_qualified_controls": True}
@@ -161,7 +161,7 @@ def validate_policy_identity(attempt, spec):
                 or prepared[0].get("protocol") != PROTOCOL or prepared[0].get("options") != OPTIONS):
             raise RuntimeError("observed model identity differs; raw attempt retained")
     else:
-        expected = {"protocol": "public-ax-triage-control-v5" if spec["task_id"] == "gitlab-incident-triage"
+        expected = {"protocol": "public-ax-triage-control-v6" if spec["task_id"] == "gitlab-incident-triage"
                     else "public-ax-browser-control-v1", "scripted_control": True,
                     "capability_measurement": False, "baseline": spec["provider_id"] == "browser-baseline",
                     "training_eligible": False}

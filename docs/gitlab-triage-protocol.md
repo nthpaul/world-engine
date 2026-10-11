@@ -1,4 +1,4 @@
-# GitLab Triage Qualification Protocol V5
+# GitLab Triage Qualification Protocol V6
 
 This is an integration qualification of two registered task packs, not training,
 a population benchmark, a concurrency study or proof of full GitLab fidelity.
@@ -105,9 +105,49 @@ uses named observed groups and prior closed-label agreement; hidden/virtualized
 renderings and actual post-selection behavior remain qualification risks.
 Offline regressions demonstrate this contract, not successful real triage.
 
+Actual V5 at `7033af7424bdd88eb6453efa17920aee1f3d3003` stopped after two
+controls. The reference accepted thirteen valid actions, including one current
+severity option click, then rejected the next draft observation before Apply.
+All marked the target selected while Selected still contained only the prior
+label. The original isolated grade retains the passing assignment certificate,
+failed severity/label certificate and overall zero. Both cleanups completed;
+the three later slots, including the model, remain unattempted. These records
+are unchanged. That observation does not prove why the groups differed, whether
+waiting would refresh them or whether Apply would commit the expected effect.
+
+## V6 Draft-Membership Contract
+
+V6 versions the triage reference and collector only to
+`public-ax-triage-control-v6` and `world-engine.triage-qualification.v6`.
+Task, grader, fixtures, permissions, close/model behavior and generation options
+remain unchanged. Opening retains the strict group agreement above and the
+exact prior closed-label set. The requested target must not already be present
+before a write; already-correct closed membership is inspected without toggling.
+
+Before emitting the one current target click, retain that exact action and the
+expected next completed-history slot. Selecting may advance only after that
+same action has a strict successful result without uncertain effect. A phase,
+title, unrelated earlier action or draft flag cannot substitute for its receipt.
+Positive All membership must be exactly prior plus target. Selected may be
+exactly prior or that same expected set; every member must be explicitly true
+and have an exact true All copy. Opening cannot use this post-click exception.
+Malformed, removed, additional or otherwise contradictory membership fails.
+A consistent unchanged prior draft can only wait within the existing bound.
+
+Issue one unique enabled current field-local Apply after the expected draft.
+Its exact successful completed-history receipt is required before waiting for
+closure or accepting closed confirmation. A still-open valid expected draft
+can wait, never select or Apply again. Missing current IDs can wait only for
+otherwise valid membership. Each phase retains at most five one-second waits;
+unchanged observations do not reset that budget. Labels do not inherit the
+assignee immediate-commit shortcut. Finish requires exact closed expected links
+and the original assignee checks; draft state never replaces isolated grading.
+
 Fixture distribution, permissions, seeds, order, budgets, model, generation
-options and eligibility below remain unchanged. This is a new integration
-qualification, not a matched capability comparison or retry within V4.
+options and eligibility below remain unchanged. V6 is a new integration
+qualification, not a matched capability comparison or retry within V5.
+Offline regressions and proposed actions over recorded observations do not
+establish actual post-Apply behavior or a successful real triage outcome.
 
 Commit and review the runtime, collector, tests and this protocol first. Root must
 restart the owned loopback API at that full revision and separately authorize the
@@ -143,7 +183,7 @@ account with a severity-three label, exercising preservation of nonempty joins
 and label history. This is the original pre-collection distribution, not a later
 repair selected from experimental outcomes.
 The fixture distribution is unchanged from V1. The reference is now
-`public-ax-triage-control-v5`; this does not change the local model's tool contract.
+`public-ax-triage-control-v6`; this does not change the local model's tool contract.
 The collector verifies exactly one prepared policy identity for every slot after
 retaining its terminal raw evidence. Controls require exact reference version,
 baseline flag and training exclusion; the model requires the pinned digest,

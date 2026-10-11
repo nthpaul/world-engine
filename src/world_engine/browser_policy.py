@@ -222,6 +222,25 @@ def ax_nodes(text: str) -> list[dict]:
 
 
 @dataclass(frozen=True)
+class _TriageClickReceipt:
+    history_index: int
+    bid: str
+
+    def require_success(self, history: list[dict]) -> None:
+        if len(history) <= self.history_index:
+            raise BrowserError("reference control lacks the emitted label action receipt")
+        row = history[self.history_index]
+        if (type(row) is not dict or type(row.get("step")) is not int
+                or row["step"] != self.history_index or type(row.get("action")) is not dict
+                or row["action"] != {"kind": "click", "bid": self.bid}):
+            raise BrowserError("reference control found a mismatched label action receipt")
+        result = row.get("result")
+        if (type(result) is not dict or result.get("ok") is not True
+                or ("uncertain_effect" in result and result["uncertain_effect"] is not False)):
+            raise BrowserError("reference control requires a successful certain label action receipt")
+
+
+@dataclass(frozen=True)
 class _TriageEdit:
     field: Literal["assignee", "labels"]
     phase: Literal["opening", "searching", "selecting", "applying", "dismissing"]
@@ -229,6 +248,8 @@ class _TriageEdit:
     prior_activity: frozenset[tuple] = frozenset()
     waits: int = 0
     prior_labels: frozenset[str] = frozenset()
+    selection_receipt: _TriageClickReceipt | None = None
+    apply_receipt: _TriageClickReceipt | None = None
 
 
 class BrowserReferencePolicy:
@@ -253,7 +274,7 @@ class BrowserReferencePolicy:
         self.confirmed_comment = False
         self.comment_requested = False
         self.recorder: RECORDER = lambda kind, payload: None
-        self.evidence_metadata = {"protocol": "public-ax-triage-control-v5" if triage else "public-ax-browser-control-v1", "scripted_control": True,
+        self.evidence_metadata = {"protocol": "public-ax-triage-control-v6" if triage else "public-ax-browser-control-v1", "scripted_control": True,
                                   "capability_measurement": False, "baseline": baseline, "training_eligible": False}
 
     def set_recorder(self, recorder: RECORDER) -> None:
@@ -265,7 +286,17 @@ class BrowserReferencePolicy:
     async def decide(self, observation: BrowserObservation, history: list[dict]) -> BrowserDecision:
         if self.baseline:
             return BrowserDecision(Finish())
-        if self.triage and any(item.get("result", {}).get("uncertain_effect") is True for item in history):
+        edit = self.triage_edit
+        if self.triage and edit and edit.field == "labels" and edit.phase in ("selecting", "applying"):
+            if edit.selection_receipt is None:
+                raise BrowserError("reference control lacks the emitted label action receipt")
+            edit.selection_receipt.require_success(history)
+            if edit.phase == "applying":
+                if edit.apply_receipt is None:
+                    raise BrowserError("reference control lacks the emitted label Apply receipt")
+                edit.apply_receipt.require_success(history)
+        if self.triage and any(type(item) is dict and type(item.get("result")) is dict
+                               and item["result"].get("uncertain_effect") is True for item in history):
             raise BrowserError("reference control stopped after an uncertain browser effect")
         nodes = ax_nodes(observation.accessibility_text)
 
@@ -304,7 +335,7 @@ class BrowserReferencePolicy:
             elif not is_target:
                 action = Wait(seconds=1.0)
             elif self.triage:
-                action = self._triage_action(observation.accessibility_text)
+                action = self._triage_action(observation.accessibility_text, history)
             elif self.comment_requested and not persisted_comment and not self.confirmed_comment:
                 action = Wait(seconds=1.0)
             elif persisted_comment and not choose("button", "Comment", exact=True):
@@ -349,7 +380,7 @@ class BrowserReferencePolicy:
             action = Wait(seconds=1.0)
         return BrowserDecision(action=action, evidence=self.evidence_metadata)
 
-    def _triage_action(self, accessibility_text):
+    def _triage_action(self, accessibility_text, history):
         """Candidate feasibility control. Every target is from the current AX tree."""
         # Background work items remain in AX while the target detail is open.
         nodes = []
@@ -497,34 +528,37 @@ class BrowserReferencePolicy:
             if (any(label_attributes(node).get("selected") is not True for node in selected.values())
                     or not selected.keys() <= all_options.keys()):
                 raise BrowserError("reference control found inconsistent label membership")
-            for name, node in all_options.items():
-                flag = label_attributes(node).get("selected")
-                if (name in selected and flag is not True) or (name not in selected and flag is True):
-                    raise BrowserError("reference control found inconsistent label membership")
+            positives = frozenset(name for name, node in all_options.items()
+                                  if label_attributes(node).get("selected") is True)
+            if not selected.keys() <= positives:
+                raise BrowserError("reference control found inconsistent label membership")
             bids = [node["bid"] for group in inventories.values() for node in group.values() if node["bid"]]
             if len(bids) != len(set(bids)):
                 raise BrowserError("reference control found ambiguous grouped label node IDs")
-            return frozenset(selected), all_options
+            return frozenset(selected), positives, all_options
 
         def labels_action(items, picker_index, search):
             edit = self.triage_edit
             if not edit or edit.field != "labels" or edit.phase not in ("opening", "selecting", "applying"):
                 raise BrowserError("reference control lacks prior closed label membership")
-            selected, options = label_inventory(items, picker_index, search)
+            selected, positives, options = label_inventory(items, picker_index, search)
             expected = edit.prior_labels | {"severity::2"}
             if edit.phase == "opening":
-                if selected != edit.prior_labels:
+                if selected != edit.prior_labels or positives != edit.prior_labels:
                     raise BrowserError("reference control found changed initial label membership")
+                if "severity::2" in edit.prior_labels:
+                    raise BrowserError("reference control will not toggle a prior label")
                 target = options.get("severity::2")
                 if not target or not target["bid"]:
                     return waiting("labels")
                 if label_attributes(target).get("disabled") is True:
                     raise BrowserError("reference control found a disabled label option")
-                self.triage_edit = replace(edit, phase="selecting", waits=0)
+                self.triage_edit = replace(edit, phase="selecting", waits=0,
+                                          selection_receipt=_TriageClickReceipt(len(history), target["bid"]))
                 return Click(bid=target["bid"])
-            if selected == edit.prior_labels and edit.phase == "selecting":
+            if selected == positives == edit.prior_labels and edit.phase == "selecting":
                 return waiting("labels")
-            if selected != expected:
+            if positives != expected or selected not in (edit.prior_labels, expected):
                 raise BrowserError("reference control found changed pending label membership")
             if edit.phase == "applying":
                 return waiting("labels")
@@ -536,7 +570,8 @@ class BrowserReferencePolicy:
                 raise BrowserError("reference control found a disabled label Apply button")
             if not buttons[0]["bid"]:
                 return waiting("labels")
-            self.triage_edit = replace(edit, phase="applying", waits=0)
+            self.triage_edit = replace(edit, phase="applying", waits=0,
+                                      apply_receipt=_TriageClickReceipt(len(history), buttons[0]["bid"]))
             return Click(bid=buttons[0]["bid"])
 
         def wanted(node, field):
