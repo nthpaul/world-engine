@@ -32,6 +32,24 @@ export async function reserveFreshOutput(output) {
   await mkdir(output); // Exclusive reservation also closes the preflight existence race.
 }
 
+export function operatorEpisodeJsonl(rawDetails) {
+  if (!Array.isArray(rawDetails) || !rawDetails.length ||
+      rawDetails.some((value) => typeof value !== "string"))
+    throw new Error("Raw API detail responses are required");
+  const input = JSON.stringify(rawDetails);
+  if (Buffer.byteLength(input) > 16 * 1024 * 1024)
+    throw new Error("Raw API detail responses exceed the receipt budget");
+  // JavaScript numbers lose authoritative float types and integers above 2^53.
+  return execFileSync("uv", ["run", "python", "-c", [
+    "import json, sys",
+    "for raw in json.load(sys.stdin):",
+    "    detail = json.loads(raw)",
+    "    for episode in detail['episodes']:",
+    "        print(json.dumps(episode, sort_keys=True, separators=(',', ':'), allow_nan=False))",
+  ].join("\n")], { cwd: root, input, encoding: "utf8", timeout: 10000,
+    maxBuffer: 16 * 1024 * 1024 });
+}
+
 async function main(options) {
 const output = options.output;
 await reserveFreshOutput(output);
@@ -399,6 +417,7 @@ async function runAccessQA() {
   for (const file of tracked)
     files[file] = createHash("sha256").update(await readFile(path.join(root, file))).digest("hex");
   const details = [];
+  const rawDetails = [];
   const operatorEpisodes = [];
   for (const provider of ["scripted-oracle", "scripted-baseline"]) {
     await page.goto("/#runs");
@@ -437,7 +456,9 @@ async function runAccessQA() {
     await page.getByText("Hidden grader", { exact: true }).waitFor();
     const detailResponse = await context.request.get(`/api/runs/${created.id}`);
     assert.ok(detailResponse.ok());
-    const detail = await detailResponse.json();
+    const rawDetail = await detailResponse.text();
+    rawDetails.push(rawDetail);
+    const detail = JSON.parse(rawDetail);
     assert.equal(detail.episodes.length, 8);
     assert.deepEqual(detail.episodes.map((episode) => episode.seed).sort((a, b) => a - b), [0, 1, 2, 3, 4, 5, 6, 7]);
     for (const episode of detail.episodes) {
@@ -514,7 +535,7 @@ async function runAccessQA() {
     await page.setViewportSize({ width: 1440, height: 960 });
     details.push(detail);
   }
-  const encoded = operatorEpisodes.map((episode) => JSON.stringify(episode)).join("\n") + "\n";
+  const encoded = operatorEpisodeJsonl(rawDetails);
   assert.ok(Buffer.byteLength(encoded) <= 16 * 1024 * 1024);
   const operatorFilename = "access-evaluation-episodes.jsonl";
   await writeFile(path.join(output, operatorFilename), encoded, { flag: "wx" });

@@ -145,8 +145,15 @@ class ScriptedProvider:
 
 def local_endpoint() -> str:
     endpoint = os.environ.get("WORLD_ENGINE_LOCAL_URL", "http://127.0.0.1:11434").rstrip("/")
-    parsed = urlparse(endpoint)
-    host = parsed.hostname
+    if not endpoint or endpoint != endpoint.strip() or any(not character.isprintable() for character in endpoint):
+        raise ProviderError("local provider endpoint must be a plain loopback HTTP URL") from None
+    try:
+        parsed = urlparse(endpoint)
+        host, port = parsed.hostname, parsed.port
+    except ValueError:
+        raise ProviderError("local provider endpoint must be a plain loopback HTTP URL") from None
+    if parsed.netloc.endswith(":") or port is not None and not 1 <= port <= 65535:
+        raise ProviderError("local provider endpoint must have a valid port") from None
     if parsed.scheme not in ("http", "https") or parsed.username or parsed.password or parsed.query or parsed.fragment:
         raise ProviderError("local provider endpoint must be a plain loopback HTTP URL")
     try:
@@ -386,13 +393,23 @@ class HTTPProvider:
             if not self.key:
                 raise ProviderError(f"{variable} is not configured")
             default = "https://api.openai.com/v1" if self.kind == "openai" else "https://api.anthropic.com/v1"
-            self.endpoint = os.environ.get("WORLD_ENGINE_OPENAI_URL" if self.kind == "openai" else "WORLD_ENGINE_ANTHROPIC_URL", default).rstrip("/")
-            parsed = urlparse(self.endpoint)
-            if (parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.username or parsed.password
-                    or parsed.query or parsed.fragment):
-                raise ProviderError("provider endpoint must be a plain HTTP URL without credentials, query or fragment")
+            endpoint = os.environ.get("WORLD_ENGINE_OPENAI_URL" if self.kind == "openai" else "WORLD_ENGINE_ANTHROPIC_URL", default)
+            if not endpoint or endpoint != endpoint.strip() or any(not character.isprintable() for character in endpoint):
+                raise ProviderError("provider endpoint must be a plain HTTP URL without credentials, query or fragment") from None
+            self.endpoint = endpoint.rstrip("/")
             try:
-                loopback = parsed.hostname == "localhost" or ipaddress.ip_address(parsed.hostname).is_loopback
+                parsed = urlparse(self.endpoint)
+                host, port = parsed.hostname, parsed.port
+                httpx.URL(self.endpoint)
+            except (ValueError, httpx.InvalidURL):
+                raise ProviderError("provider endpoint must be a plain HTTP URL without credentials, query or fragment") from None
+            if parsed.netloc.endswith(":") or port is not None and not 1 <= port <= 65535:
+                raise ProviderError("provider endpoint must have a valid port") from None
+            if (parsed.scheme not in ("http", "https") or not host or parsed.username is not None or parsed.password is not None
+                    or parsed.query or parsed.fragment):
+                raise ProviderError("provider endpoint must be a plain HTTP URL without credentials, query or fragment") from None
+            try:
+                loopback = host == "localhost" or ipaddress.ip_address(host).is_loopback
             except ValueError:
                 loopback = False
             if parsed.scheme != "https" and not loopback:
@@ -500,29 +517,37 @@ class HTTPProvider:
         self.prepared_model = None
         self.model_digest = None
         self.daemon_version = None
-        if "cloud" in self.model.lower():
+        requested_model = self.model
+        if "cloud" in requested_model.lower():
             raise ProviderError("local provider requires an installed local model; no downloads or cloud calls")
         tags = await local_metadata(self._client(), self.endpoint, "/api/tags")
         models = tags.get("models", [])
         if not isinstance(models, list):
             raise ProviderError("local model catalog invalid")
-        model = next((item for item in models if local_model_entry(item) and item["name"] == self.model), None)
+        model = next((item for item in models if local_model_entry(item) and item["name"] == requested_model), None)
         if model is None:
             raise ProviderError("requested installed local model or valid digest unavailable; no downloads or cloud calls")
-        shown = await local_metadata(self._client(), self.endpoint, "/api/show", {"model": self.model})
+        shown = await local_metadata(self._client(), self.endpoint, "/api/show", {"model": requested_model})
         capabilities = shown.get("capabilities", [])
         if shown.get("remote_host") or shown.get("remote_model") or not isinstance(capabilities, list) or "completion" not in capabilities:
             raise ProviderError("local provider requires local completion capability; no cloud calls")
         version = await local_metadata(self._client(), self.endpoint, "/api/version")
+        if self.model != requested_model:
+            raise ProviderError("local model changed during preparation; prepare again")
         self.daemon_version = printable_name(version.get("version"), 80)
         self.model_digest = model["digest"]
-        self.prepared_model = self.model
+        self.prepared_model = requested_model
         self.prepared = True
 
 
 def make_provider(config: RunConfig) -> Provider:
     if config.provider_id.startswith("scripted-"):
         return ScriptedProvider(oracle=config.provider_id == "scripted-oracle")
+    if config.provider_id in ("local-tools", "local-tools-ledger"):
+        from world_engine.ollama_tools import LEDGER_PROTOCOL, PROTOCOL, OllamaToolsProvider
+
+        protocol = PROTOCOL if config.provider_id == "local-tools" else LEDGER_PROTOCOL
+        return OllamaToolsProvider(config, protocol=protocol)
     return HTTPProvider(config)
 
 
@@ -540,6 +565,8 @@ async def provider_metadata() -> list[JsonObject]:
         {"id": "scripted-oracle", "name": "Scripted Oracle", "kind": "scripted", "configured": True, "requires_opt_in": False, "models": []},
         {"id": "scripted-baseline", "name": "Naive Baseline", "kind": "scripted", "configured": True, "requires_opt_in": False, "models": []},
         {"id": "local", "name": "Local Ollama", "kind": "local", "configured": bool(local_models), "requires_opt_in": False, "models": local_models},
+        {"id": "local-tools", "name": "Native Tools", "kind": "local", "configured": bool(local_models), "requires_opt_in": False, "models": local_models},
+        {"id": "local-tools-ledger", "name": "Native Ledger", "kind": "local", "configured": bool(local_models), "requires_opt_in": False, "models": local_models},
         {"id": "openai", "name": "OpenAI Compatible", "kind": "remote", "configured": bool(os.environ.get("OPENAI_API_KEY")), "requires_opt_in": True, "models": ["gpt-4.1-mini"]},
         {"id": "anthropic", "name": "Anthropic", "kind": "remote", "configured": bool(os.environ.get("ANTHROPIC_API_KEY")), "requires_opt_in": True, "models": ["claude-sonnet-4-5"]},
     ]
