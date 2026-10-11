@@ -30,25 +30,50 @@ MAX_COMMAND_BYTES = 8 * 1024
 MAX_ARTIFACT = 256 * 1024
 COMMAND_TIMEOUT = 15
 EPISODE_TIMEOUT = 180
+MAX_METADATA = 64 * 1024
+_docker_endpoint: str | None = None
+_docker_environment: dict[str, str] | None = None
 
 
 def local_endpoint(value: str) -> str:
-    parsed = urllib.parse.urlparse(value)
-    if (parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}
+    if not value or value != value.strip() or not value.isprintable():
+        raise ValueError("Ollama endpoint must be a credential-free loopback HTTP origin") from None
+    try:
+        parsed = urllib.parse.urlparse(value)
+        host, port = parsed.hostname, parsed.port
+    except ValueError:
+        raise ValueError("Ollama endpoint must be a credential-free loopback HTTP origin") from None
+    if (parsed.scheme != "http" or host not in {"127.0.0.1", "localhost", "::1"}
             or parsed.username or parsed.password or parsed.query or parsed.fragment
             or parsed.path not in {"", "/"}):
         raise ValueError("Ollama endpoint must be a credential-free loopback HTTP origin")
-    # Accessing port validates malformed/out-of-range ports.
-    if parsed.port is not None and not 1 <= parsed.port <= 65535:
+    if parsed.netloc.endswith(":") or port is not None and not 1 <= port <= 65535:
         raise ValueError("Invalid loopback port")
     return value.rstrip("/")
 
 
 def bounded_process(args: list[str], *, timeout: float, stdin: str | None = None,
                     max_output: int = MAX_OUTPUT) -> dict:
+    environment = None
+    if args[0] == "docker":
+        if _docker_endpoint is None or _docker_environment is None:
+            raise RuntimeError("Local Docker preflight is required") from None
+        args = ["docker", "--host", _docker_endpoint, *args[1:]]
+        environment = _docker_environment
+    try:
+        return _bounded_process(args, timeout=timeout, stdin=stdin, max_output=max_output,
+                                environment=environment)
+    except (OSError, subprocess.SubprocessError):
+        if environment is not None:
+            raise RuntimeError("Local Docker command failed or exceeded its limit") from None
+        raise
+
+
+def _bounded_process(args: list[str], *, timeout: float, stdin: str | None = None,
+                     max_output: int = MAX_OUTPUT, environment: dict[str, str] | None = None) -> dict:
     started = time.monotonic()
     process = subprocess.Popen(args, stdin=subprocess.PIPE if stdin is not None else subprocess.DEVNULL,
-                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=environment)
     output = bytearray()
     reason = None
     try:
@@ -85,13 +110,55 @@ def bounded_process(args: list[str], *, timeout: float, stdin: str | None = None
             process.wait(timeout=3)
         if process.stdout:
             process.stdout.close()
+        if process.stdin and not process.stdin.closed:
+            process.stdin.close()
     return {"returncode": process.returncode, "output": output.decode(errors="replace"),
             "elapsed_seconds": round(time.monotonic() - started, 4), "limit": reason}
+
+
+def configure_docker() -> None:
+    """Resolve without contacting a daemon; pin all later Docker CLI calls."""
+    global _docker_endpoint, _docker_environment
+    _docker_endpoint = _docker_environment = None
+    environment = {name: os.environ[name] for name in ("HOME", "PATH", "DOCKER_CONFIG") if name in os.environ}
+    try:
+        endpoint = os.environ.get("DOCKER_HOST")
+        if endpoint is None:
+            context = os.environ.get("DOCKER_CONTEXT")
+
+            def lookup(args: list[str]) -> str:
+                result = _bounded_process(["docker", "context", *args], timeout=10,
+                                          max_output=4096, environment=environment)
+                if result["returncode"] != 0 or result["limit"]:
+                    raise ValueError("Docker context lookup failed")
+                return result["output"].strip()
+
+            if context is None:
+                context = lookup(["show"])
+            if (not context or len(context) > 200 or not all(char.isalnum() or char in "_.-" for char in context)
+                    or context.startswith("-")):
+                raise ValueError("Invalid Docker context")
+            raw = lookup(["inspect", context, "--format", "{{json .Endpoints.docker.Host}}"])
+            endpoint = json.loads(raw)
+        if (not isinstance(endpoint, str) or len(endpoint) > 4096 or not endpoint.isprintable()
+                or endpoint != endpoint.strip()):
+            raise ValueError("Invalid Docker endpoint")
+        unix = endpoint.startswith("unix:///") and len(endpoint) > len("unix:///")
+        pipe = endpoint.startswith("npipe:////./pipe/") and len(endpoint) > len("npipe:////./pipe/")
+        if pipe:
+            pipe = all(char.isalnum() or char in "_.-" for char in endpoint[len("npipe:////./pipe/"):])
+        if not (unix or pipe) or any(char in endpoint for char in "?#"):
+            raise ValueError("Docker must use a local Unix socket or named pipe")
+    except (OSError, ValueError, TypeError, RecursionError, subprocess.SubprocessError):
+        raise RuntimeError("Local Docker endpoint preflight failed") from None
+    _docker_endpoint, _docker_environment = endpoint, environment
 
 
 def checked(args: list[str], *, timeout: float = 30, max_output: int = MAX_OUTPUT) -> str:
     result = bounded_process(args, timeout=timeout, max_output=max_output)
     if result["returncode"] != 0 or result["limit"]:
+        if args[0] == "docker":
+            raise RuntimeError("Local Docker command failed or exceeded its limit") from None
         raise RuntimeError(f"Command failed: {args[0:2]}: {result['output'][-2000:]}")
     return result["output"].strip()
 
@@ -157,23 +224,65 @@ def validate_command(value: object) -> str:
     return command
 
 
-def json_request(endpoint: str, route: str, payload: dict | None, timeout: float) -> dict:
+def json_request(endpoint: str, route: str, payload: dict | None, timeout: float,
+                 *, max_bytes: int = 256 * 1024) -> dict:
     request = urllib.request.Request(local_endpoint(endpoint) + route,
                                      data=json.dumps(payload).encode() if payload is not None else None,
-                                     headers={"Content-Type": "application/json"})
+                                     headers={"Content-Type": "application/json", "Accept-Encoding": "identity"})
     # The loopback origin must stay loopback; disable redirects and environment proxies.
     class NoRedirect(urllib.request.HTTPRedirectHandler):
         def redirect_request(self, *_args, **_kwargs):
             raise ValueError("Redirects are not allowed for model calls")
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
-    with opener.open(request, timeout=max(0.1, timeout)) as response:
-        body = response.read(256 * 1024 + 1)
-        if len(body) > 256 * 1024:
-            raise ValueError("Model response exceeded byte limit")
-    data = json.loads(body)
-    if not isinstance(data, dict):
-        raise ValueError("Expected object response from local model")
+    try:
+        with opener.open(request, timeout=max(0.1, timeout)) as response:
+            if response.headers.get("Content-Encoding", "identity").lower() != "identity":
+                raise ValueError("Unsupported model response encoding")
+            body = response.read(max_bytes + 1)
+            if len(body) > max_bytes:
+                raise ValueError("Model response exceeded byte limit")
+        data = json.loads(body)
+        if not isinstance(data, dict):
+            raise ValueError("Expected object response from local model")
+    except (OSError, ValueError, RecursionError):
+        raise ValueError("Local model response failed bounded validation") from None
     return data
+
+
+def model_preflight(endpoint: str, model: str, protocol: str) -> dict:
+    """Validate installed local identity before any image pull or build."""
+    try:
+        if (not model or len(model) > 200 or not model.isprintable() or "cloud" in model.lower()
+                or protocol not in {"json-command-v1", "native-tools-v2"}):
+            raise ValueError("Invalid local model name or protocol")
+        tags = json_request(endpoint, "/api/tags", None, 5, max_bytes=MAX_METADATA)
+        models = tags.get("models")
+        if (tags.get("remote_host") or tags.get("remote_model") or not isinstance(models, list)
+                or not all(isinstance(item, dict) for item in models)):
+            raise ValueError("Invalid model catalog")
+        matches = [item for item in models if item.get("name") == model]
+        if len(matches) != 1:
+            raise ValueError("Exact local model unavailable")
+        installed = matches[0]
+        digest = installed.get("digest")
+        if (installed.get("remote_host") or installed.get("remote_model") or not isinstance(digest, str)
+                or len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest)):
+            raise ValueError("Local identity unavailable")
+        shown = json_request(endpoint, "/api/show", {"model": model}, 5, max_bytes=MAX_METADATA)
+        required = "tools" if protocol == "native-tools-v2" else "completion"
+        capabilities = shown.get("capabilities")
+        if (shown.get("remote_host") or shown.get("remote_model") or not isinstance(capabilities, list)
+                or not all(isinstance(item, str) for item in capabilities) or required not in capabilities):
+            raise ValueError("Local protocol capability unavailable")
+        daemon = json_request(endpoint, "/api/version", None, 5, max_bytes=MAX_METADATA)
+        if daemon.get("remote_host") or daemon.get("remote_model"):
+            raise ValueError("Remote daemon metadata")
+        version = daemon.get("version")
+        if not isinstance(version, str) or not 0 < len(version) <= 200 or not version.isprintable():
+            raise ValueError("Local daemon version unavailable")
+    except (OSError, ValueError, TypeError, RecursionError):
+        raise ValueError("Installed local model preflight failed; no downloads or cloud calls") from None
+    return {"name": model, "digest": digest, "capabilities": capabilities, "daemon_version": version}
 
 
 def build_images() -> dict:
@@ -440,13 +549,9 @@ def main() -> None:
     args.output.mkdir(parents=True, exist_ok=False, mode=0o700)
     endpoint = local_endpoint(args.ollama_url)
     verify_source()
+    configure_docker()
+    model_info = None if args.skip_local else model_preflight(endpoint, args.model, args.protocol)
     images = build_images()
-    model_info = None
-    if not args.skip_local:
-        models = json_request(endpoint, "/api/tags", None, 5).get("models", [])
-        model_info = next((item for item in models if item.get("name") == args.model), None)
-        if model_info is None:
-            raise ValueError(f"Requested local model is not installed: {args.model}")
     report = {"generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
               "evaluation_only": True, "training_eligible": False, "provenance": source_provenance(),
               "images": images, "local_model": model_info, "episodes": []}

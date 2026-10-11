@@ -1,0 +1,7 @@
+{
+  "bytes": 128,
+  "method": "GET",
+  "path": "/api/health",
+  "sha256": "2fddd2c5a70ec09e2388cfee5105cacf4d524f90535f65581fb0d43b5dcf9abf",
+  "status": 200
+}

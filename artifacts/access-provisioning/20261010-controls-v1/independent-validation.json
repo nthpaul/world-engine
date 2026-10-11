@@ -1,0 +1,24 @@
+{
+  "schema": "world-engine.access-controls-independent-validation.v1",
+  "validated_at": "2026-10-10T08:09:11+00:00",
+  "collection_revision": "ee26d7b9e29397e3dcccfc09c664f08dcf3b004c",
+  "source_manifest_rechecked": true,
+  "replayed_episodes": 64,
+  "actual_upstream_validated_documents": 64,
+  "harbor_distribution_version": "0.24.0",
+  "upstream_harbor_revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+  "harbor_schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c",
+  "pydantic_version": "2.14.0",
+  "training_format_exclusions": {"sft": 64, "dpo": 64, "grpo": 64},
+  "candidate_pool_queries_from_excluded_episodes": 0,
+  "oracle": {"episodes": 32, "business_passes": 32},
+  "baseline": {"episodes": 32, "business_passes": 0},
+  "distinct_world_seed_tasks": 32,
+  "fixed_case_types": 8,
+  "model_calls": 0,
+  "original_collection_files": {
+    "controls.json": {"bytes": 10046484, "sha256": "aa29078bde3e8ee9bd065515fc3a4e4712f6380730cfcf29b8f039f6e6a6bf02"}
+  },
+  "publication_sidecar_excluded_from_original_collection_byte_accounting": true,
+  "limitations": "Deterministic scripted controls with four cycles of eight fixed case types. Not 32 independent workflow families, a paired native comparison, model capability evidence or training examples."
+}

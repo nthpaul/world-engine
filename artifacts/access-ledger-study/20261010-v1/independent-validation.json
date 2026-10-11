@@ -1,0 +1,70 @@
+{
+  "schema": "world-engine.access-ledger-independent-validation.v1",
+  "validated_at": "2026-10-10T09:36:38+00:00",
+  "collection_revision": "cc2d4956c320867569e866bea3adbb53123a477f",
+  "protocol_sha256": "91e7782c305b5a66ec4ab8a5290b54850e102d232b045221480a048732ba49f6",
+  "independent_reviewers": 2,
+  "source_manifest_files_rechecked_against_committed_and_current_bytes": 21,
+  "ordered_slots_and_returned_rows_match": true,
+  "replayed_episodes": 16,
+  "documented_cli_replay_verified_episodes": 16,
+  "actual_upstream_validated_documents": 16,
+  "harbor_distribution_version": "0.24.0",
+  "upstream_harbor_revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+  "harbor_schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c",
+  "training_exclusions": {"sft": 16, "dpo": 16, "grpo": 16},
+  "training_exclusion_reason": "unsupported_provider_protocol",
+  "eligible_comparable_pairs": 8,
+  "business_cells": {"both_pass": 0, "v1_only": 0, "v2_only": 0, "neither_pass": 8},
+  "clean_cells": {"both_pass": 0, "v1_only": 0, "v2_only": 0, "neither_pass": 8},
+  "inconclusive_episodes": 0,
+  "unattempted_slots": 0,
+  "native_v1": {
+    "episodes": 8, "business_passes": 0, "clean_passes": 0,
+    "decisions": 89, "invalid_actions": 33,
+    "model_request_attempts": 97, "accepted": 89, "cancelled_requests": 8,
+    "terminations": {"timeout": 8},
+    "request_body_bytes": 1364914,
+    "known_input_tokens": 229146, "known_output_tokens": 2847,
+    "known_usage_requests": 89, "usage_complete": false
+  },
+  "native_v2": {
+    "episodes": 8, "business_passes": 0, "clean_passes": 0,
+    "decisions": 125, "invalid_actions": 101,
+    "model_request_attempts": 125, "accepted": 125, "cancelled_requests": 0,
+    "terminations": {"finished": 3, "max_steps": 5},
+    "request_body_bytes": 1178809,
+    "known_input_tokens": 211175, "known_output_tokens": 3951,
+    "known_usage_requests": 125, "usage_complete": true
+  },
+  "request_attempts": 222,
+  "accepted_responses": 214,
+  "cancelled_requests": 8,
+  "known_input_tokens": 440321,
+  "known_output_tokens": 6798,
+  "known_inference_ns": 363631938297,
+  "known_usage_requests": 214,
+  "aggregate_usage_complete": false,
+  "all_reported_usage_known_counts_and_completeness_recomputed": true,
+  "all_request_and_response_observed_bytes_recomputed": true,
+  "original_collection_files": {
+    "evaluation-episodes.jsonl": {
+      "bytes": 6957175,
+      "sha256": "dbae9db2ac2a03b68d0e673ce2754a98c50935dff4a8da95d73a7f467dcb3b3f"
+    },
+    "report.json": {
+      "bytes": 46461,
+      "sha256": "93c1b17d42892a9da48eefbbe32198e04123db298353e7fe756919abb6ea823d"
+    }
+  },
+  "original_collection_bytes": 7003636,
+  "validation_sidecar_excluded_from_original_collection_accounting": true,
+  "original_eight_episode_access_failure_receipt_unchanged": true,
+  "completed_caller_cleanup_operations": 2,
+  "actual_external_resource_closure_attested": false,
+  "model_calls_from_validation": 0,
+  "paid_calls": 0,
+  "model_downloaded": false,
+  "training_executed": false,
+  "limitations": "Repeated eight-case synthetic comparison of complete context contracts, not a population estimate or isolated deduplication/cache experiment. Native v2 has more semantic rejections and no improved business outcome. Reported daemon usage and catalog identity are not signed execution or tokenizer-consumption attestation. Finalized raw evidence is not a mid-episode crash journal. Operator snapshots and both native formats remain excluded from training."
+}

@@ -1,0 +1,284 @@
+{
+  "schema": "world-engine.readonly-metric-preflight.v2",
+  "created_at": "2026-10-10T09:19:23.279Z",
+  "passed": true,
+  "scope": "Readonly saved-run metric preflight; cached backend e155 source; not current-source full acceptance",
+  "runId": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef",
+  "api_response_sha256": "49c05f66b618960ae6e46a94ce2559a409aec1f2960918070aac3ca30fbd065e",
+  "steps_per_second": 235.32064973909567,
+  "elapsed_seconds": 0.0679923330899328,
+  "backend_episode_git_revisions": [
+    "e1550290b6bb954df86d2d8dd0e52dd7d6428967"
+  ],
+  "source_sha256": {
+    "web/src/App.tsx": "afb028840f26c8889f18d4b3d4b81a629ae23418570c550cce9402feea2e0917",
+    "tests/test_ui_qa.py": "297dea8b97f244ddd2625fbd78aa9b1b1199846fb0298843001207c13c2ed467"
+  },
+  "model_calls": 0,
+  "new_episodes": 0,
+  "mutations": [],
+  "errors": [],
+  "violations": [],
+  "results": [
+    {
+      "width": 1440,
+      "height": 960,
+      "value": "235.32",
+      "note": "steps/s / 68 ms elapsed",
+      "expectedValue": "235.32",
+      "expectedNote": "steps/s / 68 ms elapsed",
+      "textOverflow": false,
+      "bodyOverflow": false,
+      "metric": {
+        "left": 1117.5,
+        "right": 1406,
+        "top": 273,
+        "bottom": 348
+      },
+      "values": [
+        {
+          "tag": "SPAN",
+          "text": "Step throughput",
+          "clientWidth": 241,
+          "scrollWidth": 241,
+          "clientHeight": 17,
+          "scrollHeight": 17,
+          "rect": {
+            "left": 1141.5,
+            "right": 1382,
+            "top": 273,
+            "bottom": 289.5
+          },
+          "textRect": {
+            "left": 1141.5,
+            "right": 1227.203125,
+            "top": 274,
+            "bottom": 287
+          },
+          "fontSize": "11px"
+        },
+        {
+          "tag": "STRONG",
+          "text": "235.32",
+          "clientWidth": 241,
+          "scrollWidth": 241,
+          "clientHeight": 28,
+          "scrollHeight": 28,
+          "rect": {
+            "left": 1141.5,
+            "right": 1382,
+            "top": 297.5,
+            "bottom": 325
+          },
+          "textRect": {
+            "left": 1141.5,
+            "right": 1226,
+            "top": 296.5,
+            "bottom": 325.5
+          },
+          "fontSize": "25px"
+        },
+        {
+          "tag": "SMALL",
+          "text": "steps/s / 68 ms elapsed",
+          "clientWidth": 241,
+          "scrollWidth": 241,
+          "clientHeight": 15,
+          "scrollHeight": 15,
+          "rect": {
+            "left": 1141.5,
+            "right": 1382,
+            "top": 333,
+            "bottom": 348
+          },
+          "textRect": {
+            "left": 1141.5,
+            "right": 1256.21875,
+            "top": 334,
+            "bottom": 346
+          },
+          "fontSize": "10px"
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "height": 960,
+      "value": "235.32",
+      "note": "steps/s / 68 ms elapsed",
+      "expectedValue": "235.32",
+      "expectedNote": "steps/s / 68 ms elapsed",
+      "textOverflow": false,
+      "bodyOverflow": false,
+      "metric": {
+        "left": 195,
+        "right": 372,
+        "top": 329.5,
+        "bottom": 400
+      },
+      "values": [
+        {
+          "tag": "SPAN",
+          "text": "Step throughput",
+          "clientWidth": 145,
+          "scrollWidth": 145,
+          "clientHeight": 15,
+          "scrollHeight": 15,
+          "rect": {
+            "left": 215,
+            "right": 360,
+            "top": 329.5,
+            "bottom": 344.5
+          },
+          "textRect": {
+            "left": 215,
+            "right": 293.796875,
+            "top": 330.5,
+            "bottom": 342.5
+          },
+          "fontSize": "10px"
+        },
+        {
+          "tag": "STRONG",
+          "text": "235.32",
+          "clientWidth": 145,
+          "scrollWidth": 145,
+          "clientHeight": 28,
+          "scrollHeight": 28,
+          "rect": {
+            "left": 215,
+            "right": 360,
+            "top": 352.5,
+            "bottom": 380
+          },
+          "textRect": {
+            "left": 215,
+            "right": 299.5,
+            "top": 351.5,
+            "bottom": 380.5
+          },
+          "fontSize": "25px"
+        },
+        {
+          "tag": "SMALL",
+          "text": "steps/s / 68 ms elapsed",
+          "clientWidth": 145,
+          "scrollWidth": 145,
+          "clientHeight": 12,
+          "scrollHeight": 12,
+          "rect": {
+            "left": 215,
+            "right": 360,
+            "top": 388,
+            "bottom": 400
+          },
+          "textRect": {
+            "left": 215,
+            "right": 309.359375,
+            "top": 389,
+            "bottom": 399
+          },
+          "fontSize": "8px"
+        }
+      ]
+    },
+    {
+      "width": 360,
+      "height": 960,
+      "value": "235.32",
+      "note": "steps/s / 68 ms elapsed",
+      "expectedValue": "235.32",
+      "expectedNote": "steps/s / 68 ms elapsed",
+      "textOverflow": false,
+      "bodyOverflow": false,
+      "metric": {
+        "left": 180,
+        "right": 342,
+        "top": 329.5,
+        "bottom": 400
+      },
+      "values": [
+        {
+          "tag": "SPAN",
+          "text": "Step throughput",
+          "clientWidth": 130,
+          "scrollWidth": 130,
+          "clientHeight": 15,
+          "scrollHeight": 15,
+          "rect": {
+            "left": 200,
+            "right": 330,
+            "top": 329.5,
+            "bottom": 344.5
+          },
+          "textRect": {
+            "left": 200,
+            "right": 278.796875,
+            "top": 330.5,
+            "bottom": 342.5
+          },
+          "fontSize": "10px"
+        },
+        {
+          "tag": "STRONG",
+          "text": "235.32",
+          "clientWidth": 130,
+          "scrollWidth": 130,
+          "clientHeight": 28,
+          "scrollHeight": 28,
+          "rect": {
+            "left": 200,
+            "right": 330,
+            "top": 352.5,
+            "bottom": 380
+          },
+          "textRect": {
+            "left": 200,
+            "right": 284.5,
+            "top": 351.5,
+            "bottom": 380.5
+          },
+          "fontSize": "25px"
+        },
+        {
+          "tag": "SMALL",
+          "text": "steps/s / 68 ms elapsed",
+          "clientWidth": 130,
+          "scrollWidth": 130,
+          "clientHeight": 12,
+          "scrollHeight": 12,
+          "rect": {
+            "left": 200,
+            "right": 330,
+            "top": 388,
+            "bottom": 400
+          },
+          "textRect": {
+            "left": 200,
+            "right": 294.359375,
+            "top": 389,
+            "bottom": 399
+          },
+          "fontSize": "8px"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "desktop-1440-step-throughput.png",
+      "bytes": 111541,
+      "sha256": "d6f3fe44eec5efde3f68292559ecdcfa61e9f2ffbf54db2cd25f4886fd3ed2be"
+    },
+    {
+      "file": "mobile-390-step-throughput.png",
+      "bytes": 58839,
+      "sha256": "bdf3d89df3f458c3ff4f8f9be98e8803d58e6f49a5723a6a1cabacaa5d0bb8ac"
+    },
+    {
+      "file": "mobile-360-step-throughput.png",
+      "bytes": 58636,
+      "sha256": "dd65197d99158680248a5e506c78952a75e7db8910dc441e46cc844cdd161592"
+    }
+  ]
+}
