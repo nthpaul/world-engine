@@ -1,4 +1,4 @@
-# GitLab Triage Qualification Protocol V6
+# GitLab Triage Qualification Protocol V7
 
 This is an integration qualification of two registered task packs, not training,
 a population benchmark, a concurrency study or proof of full GitLab fidelity.
@@ -149,6 +149,41 @@ qualification, not a matched capability comparison or retry within V5.
 Offline regressions and proposed actions over recorded observations do not
 establish actual post-Apply behavior or a successful real triage outcome.
 
+## V7 Nonmutating Identity Inspection
+
+V6's real changes-required reference passed, but its already-correct control
+failed before Escape because other offered accounts omitted selection flags.
+The V6 cohort is closed; its failed termination and positive business-state
+grade remain distinct and unchanged. V7 versions only the reference and collector
+to `public-ax-triage-control-v7` and `world-engine.triage-qualification.v7`.
+This source contract does not establish a successful real V7 control or model.
+
+The omission accommodation belongs only to an owned read-only inspection.
+Before opening Assignee Edit, retain the unique closed Casey display member and
+exact closed labels. Bind the emitted current Edit to its expected history slot;
+its exact successful certain acknowledgement is required before proceeding.
+Require unique direct Selected and All users groups in the named assignee picker.
+Selected must contain only the exact Casey account with literal true selection.
+Other offered All users flags may be absent and remain unknown, not false.
+Reject additional positive selection, duplicate identities or node IDs, malformed
+present properties, unscoped or nested options, observed loading or filtering.
+An unsolicited picker, search shortcut or assignment-write phase cannot use this
+accommodation. Assignment Click and Apply retain their complete boolean inventory.
+
+Emit one Escape on the current scoped Search node. Its exact expected-slot
+Press/bid/key, integer step and successful certain result must be retained before
+any subsequent routing, wait or confirmation. A missing, failed, moved or
+uncertain acknowledgement fails closed; a later Wait cannot repair it. Pending
+closure can wait only within the existing five-wait bound, never repeat Escape.
+After closure, require the same singleton closed assignment and exact prior
+labels before corroborating identity or finishing. Public inspection never
+substitutes for detached grading.
+
+Task1.0.2, grader v3, state/seal v2, fixtures, permissions, close task/controller,
+local-model protocol/options, slots, seeds, budgets and training exclusions
+remain unchanged. Offline original-prefix replay and hypothetical post-Escape
+fixtures do not prove real dismissal or qualify the complete control gate.
+
 Commit and review the runtime, collector, tests and this protocol first. Root must
 restart the owned loopback API at that full revision and separately authorize the
 local experiment. Use an explicit fresh directory; existing files, directories,
@@ -183,7 +218,7 @@ account with a severity-three label, exercising preservation of nonempty joins
 and label history. This is the original pre-collection distribution, not a later
 repair selected from experimental outcomes.
 The fixture distribution is unchanged from V1. The reference is now
-`public-ax-triage-control-v6`; this does not change the local model's tool contract.
+`public-ax-triage-control-v7`; this does not change the local model's tool contract.
 The collector verifies exactly one prepared policy identity for every slot after
 retaining its terminal raw evidence. Controls require exact reference version,
 baseline flag and training exclusion; the model requires the pinned digest,

@@ -241,6 +241,25 @@ class _TriageClickReceipt:
 
 
 @dataclass(frozen=True)
+class _TriageEscapeReceipt:
+    history_index: int
+    bid: str
+
+    def require_success(self, history: list[dict]) -> None:
+        if len(history) <= self.history_index:
+            raise BrowserError("reference control lacks the emitted Escape receipt")
+        row = history[self.history_index]
+        if (type(row) is not dict or type(row.get("step")) is not int
+                or row["step"] != self.history_index or type(row.get("action")) is not dict
+                or row["action"] != {"kind": "press", "bid": self.bid, "key": "Escape"}):
+            raise BrowserError("reference control found a mismatched Escape receipt")
+        result = row.get("result")
+        if (type(result) is not dict or result.get("ok") is not True
+                or ("uncertain_effect" in result and result["uncertain_effect"] is not False)):
+            raise BrowserError("reference control requires a successful certain Escape receipt")
+
+
+@dataclass(frozen=True)
 class _TriageEdit:
     field: Literal["assignee", "labels"]
     phase: Literal["opening", "searching", "selecting", "applying", "dismissing"]
@@ -250,6 +269,9 @@ class _TriageEdit:
     prior_labels: frozenset[str] = frozenset()
     selection_receipt: _TriageClickReceipt | None = None
     apply_receipt: _TriageClickReceipt | None = None
+    prior_assignee: str | None = None
+    edit_receipt: _TriageClickReceipt | None = None
+    escape_receipt: _TriageEscapeReceipt | None = None
 
 
 class BrowserReferencePolicy:
@@ -274,7 +296,7 @@ class BrowserReferencePolicy:
         self.confirmed_comment = False
         self.comment_requested = False
         self.recorder: RECORDER = lambda kind, payload: None
-        self.evidence_metadata = {"protocol": "public-ax-triage-control-v6" if triage else "public-ax-browser-control-v1", "scripted_control": True,
+        self.evidence_metadata = {"protocol": "public-ax-triage-control-v7" if triage else "public-ax-browser-control-v1", "scripted_control": True,
                                   "capability_measurement": False, "baseline": baseline, "training_eligible": False}
 
     def set_recorder(self, recorder: RECORDER) -> None:
@@ -287,6 +309,14 @@ class BrowserReferencePolicy:
         if self.baseline:
             return BrowserDecision(Finish())
         edit = self.triage_edit
+        if self.triage and edit and edit.field == "assignee" and edit.prior_assignee is not None:
+            if edit.edit_receipt is None:
+                raise BrowserError("reference control lacks the owned assignee Edit receipt")
+            edit.edit_receipt.require_success(history)
+            if edit.phase == "dismissing":
+                if edit.escape_receipt is None:
+                    raise BrowserError("reference control lacks the emitted Escape receipt")
+                edit.escape_receipt.require_success(history)
         if self.triage and edit and edit.field == "labels" and edit.phase in ("selecting", "applying"):
             if edit.selection_receipt is None:
                 raise BrowserError("reference control lacks the emitted label action receipt")
@@ -579,6 +609,78 @@ class BrowserReferencePolicy:
                     bool(re.search(r"(?:^|[^\w-])@casey-oncall(?:$|[^\w-])", node["name"]))
                     and "backup" not in node["name"].lower())
 
+        def readonly_assignee(items, picker_index, search):
+            edit = self.triage_edit
+            if not edit or edit.phase != "opening" or edit.prior_assignee != "Casey On-call":
+                return None
+            # Only this owned inspection tolerates unknown offered-option flags.
+            properties = []
+            for node in items:
+                parts = re.findall(r"(?:'(?:\\.|[^'])*'|\"(?:\\.|[^\"])*\"|[^,'\"])+", node["attributes"])
+                flags = {}
+                for part in parts:
+                    key, separator, value = part.strip().partition("=")
+                    key, value = key.strip(), value.strip()
+                    if re.match(r"(?:selected|checked)(?:\s|:)", key):
+                        raise BrowserError("reference control found malformed assignee properties")
+                    if key not in ("selected", "checked"):
+                        continue
+                    if key in flags or not separator or value not in ("True", "False"):
+                        raise BrowserError("reference control found malformed assignee properties")
+                    flags[key] = value == "True"
+                properties.append(flags)
+            if (any(label_attributes(node).get("busy") is True for node in items)
+                    or any(node["role"] in ("status", "progressbar") or
+                           node["name"].strip().lower() in ("loading", "loading...", "loading users", "no results")
+                           for node in items)
+                    or label_attributes(search).get("value", "") != ""):
+                raise BrowserError("reference control requires settled unfiltered assignee inspection")
+            picker = items[picker_index]
+            if (label_attributes(picker).get("multiselectable") is not False
+                    or search["indent"] != picker["indent"]):
+                raise BrowserError("reference control requires a single-select assignee inspection")
+            children = subtree(items, picker_index)
+            groups = [node for node in children if node["role"] == "group"]
+            if (len(groups) != 2 or {node["name"] for node in groups} != {"Selected", "All users"}
+                    or any(node["indent"] != picker["indent"] + 1 for node in groups)):
+                raise BrowserError("reference control requires unique direct assignee groups")
+            inventories = {}
+            recognized = set()
+            for group in groups:
+                index = next(index for index, node in enumerate(children) if node is group)
+                options = []
+                for node in subtree(children, index):
+                    if node["role"] not in ("option", "checkbox", "listbox"):
+                        continue
+                    if node["role"] != "option" or node["indent"] != group["indent"] + 1 or not node["name"]:
+                        raise BrowserError("reference control found malformed grouped assignees")
+                    options.append(node)
+                    recognized.add(id(node))
+                inventories[group["name"]] = options
+            options = inventories["Selected"] + inventories["All users"]
+            if any(node["role"] in ("option", "checkbox", "listbox") and id(node) not in recognized
+                   for node in items if node is not picker):
+                raise BrowserError("reference control found ungrouped assignee options")
+            bids = [node["bid"] for node in items if node["bid"]]
+            if (len(bids) != len(set(bids)) or len({node["name"] for node in options}) != len(options)
+                    or len(inventories["Selected"]) != 1):
+                raise BrowserError("reference control found ambiguous assignee inspection")
+            candidate = inventories["Selected"][0]
+            flags = properties[next(index for index, node in enumerate(items) if node is candidate)]
+            if (candidate["name"] != "Casey On-call @casey-oncall" or flags != {"selected": True}
+                    or any(properties[index].get("selected") is True or properties[index].get("checked") is True
+                           for index, node in enumerate(items) if id(node) != id(candidate))):
+                raise BrowserError("reference control requires the sole exact selected assignee")
+            if closed_labels() != edit.prior_labels:
+                raise BrowserError("reference control found changed inspection labels")
+            if not candidate["bid"] or not search["bid"]:
+                return waiting("assignee")
+            if label_attributes(search).get("disabled") is True:
+                raise BrowserError("reference control found disabled assignee Search")
+            self.triage_edit = replace(edit, phase="dismissing", identity=candidate["name"], waits=0,
+                                      escape_receipt=_TriageEscapeReceipt(len(history), search["bid"]))
+            return Press(bid=search["bid"], key="Escape")
+
         opened = [field for field, items in fields.items()
                   if any(node["role"] in ("listbox", "combobox", "textbox") for node in items)]
         if len(opened) > 1 or (opened and self.triage_edit and opened[0] != self.triage_edit.field):
@@ -600,6 +702,9 @@ class BrowserReferencePolicy:
                 raise BrowserError("reference control requires one scoped picker search")
             if field == "labels":
                 return labels_action(items, pickers[0], searches[0])
+            inspection = readonly_assignee(items, pickers[0], searches[0])
+            if inspection is not None:
+                return inspection
             options = [node for node in subtree(items, pickers[0]) if node["role"] in ("option", "checkbox")]
             candidates = [node for node in options if wanted(node, field)]
             if len(candidates) > 1:
@@ -630,10 +735,7 @@ class BrowserReferencePolicy:
                 self.triage_edit = _TriageEdit(field, "selecting", candidate["name"], frozenset(activity))
                 return Click(bid=candidate["bid"])
             if not self.triage_edit or self.triage_edit.phase in ("opening", "searching"):
-                if not searches[0]["bid"]:
-                    return waiting(field)
-                self.triage_edit = _TriageEdit(field, "dismissing", candidate["name"])
-                return Press(bid=searches[0]["bid"], key="Escape")
+                raise BrowserError("reference control requires owned closed assignee inspection")
             buttons = [node for node in items if node["role"] == "button" and node["name"] == "Apply"]
             if len(buttons) != 1:
                 raise BrowserError("reference control requires one scoped Apply button")
@@ -682,6 +784,9 @@ class BrowserReferencePolicy:
                     return waiting(edit.field)
                 if edit.identity != "Casey On-call @casey-oncall":
                     raise BrowserError("reference control lacks corroborated account identity")
+                if edit.phase == "dismissing" and (member["name"] != edit.prior_assignee
+                                                   or closed_labels() != edit.prior_labels):
+                    raise BrowserError("reference control found changed dismissed membership")
                 if edit.phase != "dismissing" and not (activity - edit.prior_activity):
                     return waiting(edit.field)
                 self.triage_confirmed_assignee = True
@@ -696,7 +801,11 @@ class BrowserReferencePolicy:
                    and node["name"] == "Edit"]
         if len(buttons) != 1:
             raise BrowserError("reference control requires one observed sidebar edit button")
-        self.triage_edit = _TriageEdit(field, "opening", prior_labels=closed_labels() if field == "labels" else frozenset())
+        prior_assignee = committed("assignee") if field == "assignee" else None
+        inspection = bool(prior_assignee and prior_assignee["name"] == "Casey On-call")
+        self.triage_edit = _TriageEdit(field, "opening", prior_labels=closed_labels(),
+                                      prior_assignee=prior_assignee["name"] if inspection else None,
+                                      edit_receipt=_TriageClickReceipt(len(history), buttons[0]["bid"]) if inspection else None)
         return Click(bid=buttons[0]["bid"])
 
     async def close(self) -> None:

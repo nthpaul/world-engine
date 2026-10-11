@@ -4,6 +4,27 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 
 ## Active increments
 
+The V7 source-only increment separates owned read-only assignee inspection
+from assignment mutation. Exact accepted Edit and Escape receipts bind their
+original history slots. Only unique direct Selected/All users groups with one
+exact selected account may accommodate omitted offered-account flags, which
+remain unknown. Closure must preserve the prior singleton assignee and exact
+labels; pending waits cannot repeat Escape. Assignment mutation and label
+draft guards, task/grader/fixtures, close/model contracts and fixed budgets
+remain unchanged. Reference and collector identities advance to v7.
+
+Root passed 2,899 offline tests with six optional skips, Ruff and the default
+no-contact collector plan. Both independent whole-source and fingerprint
+reviews found no actionable issue, each passing an overlapping 923-test suite.
+All 15 changes-required and 13 already-correct original public actions reproduce;
+the next proposed Escape is unexecuted. Nine protected pack fingerprints remain
+unchanged. GitHub CI must pass at the exact committed head before merge.
+Root owns collector/protocol, this board, GitHub and future authorization;
+console owns controller/tests. No physical V7 cohort, inference or tensor work
+is authorized by this source increment. Hypothetical closure tests do not
+establish actual Escape closure or qualify the complete control gate. The
+running API remains at immutable V6 source `0990c549`.
+
 V6 source at `0990c549` passed independent whole-source and fingerprint review,
 2,837 root local tests with six optional skips, Ruff and publication inspection.
 PR73 passed source CI38175107748 and merged; master `f637522` passed
@@ -32,8 +53,8 @@ four full video decodes; mobile playback is unqualified. All three cleanups
 completed. Root confirmed idle admission, empty owned Docker inventories and
 preservation of 19 prior browser rows/303 evidence files and the legacy store.
 One changes-required reference is qualified, not the complete control gate,
-full application fidelity or a model. Root owns this results-only publication
-and future authorization. No third training, new resource or spend is active.
+full application fidelity or a model. Root owns the retained V6 results and
+future authorization. No third training, new resource or spend is active.
 
 V5 labels-group source is committed at `7033af7`, PR71, after independent
 whole-diff and task/grader fingerprint reviews. Root passed 2,683 local tests
@@ -151,8 +172,8 @@ any repair needs a separately committed source and fixed fresh protocol.
 Original grades are not replaced. The prior close receipts retain their original source;
 registered close release 1.0.3 changes recipe ownership, not prior grades.
 
-PR62 through PR73 are merged with existing history retained. Merged master
-`f637522` passed backend and console CI38175283893. Root owns Git,
+PR62 through PR74 are merged with existing history retained. Merged master
+`3e6a1dec` passed backend and console CI38179466787. Root owns Git,
 publication, fixed-source collection and this board. Engine's private V2
 trainer artifact audit is complete. Console's V3 reference repair and terminal
 QA and research's independent source/evidence review are complete. Root owns collector

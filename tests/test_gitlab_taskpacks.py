@@ -118,7 +118,7 @@ async def test_public_reference_discovers_project_and_target_before_edit():
         "StaticText 'Incident reference: INC-2026-0217'\n[5] region 'Sidebar'\n\t[6] heading 'Assignee'\n"
         "\t[7] button 'Edit'\n\t[8] heading 'Labels'\n\t[9] button 'Edit'"), [])
     assert decision.action.bid == "7"
-    assert decision.evidence["protocol"] == "public-ax-triage-control-v6"
+    assert decision.evidence["protocol"] == "public-ax-triage-control-v7"
 
 
 async def test_reference_corroborates_username_and_current_bid_then_applies_picker():

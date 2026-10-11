@@ -265,6 +265,31 @@ this trusted local controller do not certify full GitLab fidelity, multi-tenant
 isolation, useful learning or population capability. A controller correction
 requires a separately reviewed source, protocol and fresh cohort.
 
+## Nonmutating Identity Inspection
+
+V7 separates assignment mutation authorization from read-only account inspection.
+Its grouped inspection starts only from an owned singleton closed Casey member
+and preserved label set, followed by an exact accepted Assignee Edit receipt.
+The sole direct Selected option must expose the exact requested account with
+literal true selection; offered All users options may omit selection flags.
+Those omissions remain unknown and never authorize a selection or Apply.
+Ambiguous groups, identities, node IDs, malformed properties, extra positives,
+observed filtering or loading still fail closed. Mutation inventory guards stay
+strict; no task, grader, fixture, permission or local-model setting changes.
+
+One current scoped Escape must have an exact successful certain action receipt
+before further waits or closed confirmation. The closed singleton assignment
+and labels must remain exactly as inspected before corroboration. The reference
+cannot finish from an open picker, repeat Escape to recover an unknown effect,
+or treat a later successful Wait as the dismissal acknowledgement.
+
+This source increments reference/collector identities to
+`public-ax-triage-control-v7` and `world-engine.triage-qualification.v7`.
+It requires independent source review, green committed CI and separately
+authorized fresh controls before physical or model qualification. Proposed
+actions over V6 observations are unexecuted; V6's original failed no-op and all
+earlier evidence remain unchanged. This is not a new successful model result.
+
 ## Close-Task Compatibility
 
 The close task is now release `1.0.3`: its fixture recipe moved into
