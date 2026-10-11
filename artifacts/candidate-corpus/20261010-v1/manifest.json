@@ -1,0 +1,5047 @@
+{
+  "schema": "world-engine.scripted-candidate-corpus.v1",
+  "created_at": "2026-10-10T08:39:27.466446+00:00",
+  "source": {
+    "git_revision": "5e5eb0d94b504e84a0d903811ad60ae5ca602c95",
+    "source_dirty": false,
+    "scope": [
+      "src/world_engine",
+      "pyproject.toml",
+      "uv.lock",
+      "examples/scripted_candidate_corpus.py",
+      "tests/test_scripted_candidate_corpus.py",
+      "docs/scripted-candidate-corpus.md"
+    ],
+    "files_sha256": {
+      "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+      "src/world_engine/__main__.py": "46f6078d57f6800b8c86f43edf2697e6939112883bad36e4d7964bef20e0b80a",
+      "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+      "src/world_engine/api.py": "179ec4a0e95639cfc7c63d519c68bc0a23a0024bf8efd34a7fd671b8248b7e65",
+      "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+      "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+      "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+      "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+      "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+      "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+      "src/world_engine/native_ledger.py": "6bfdf6a001d905765d427f762fc2ffcd7c581c507a3d53843ee1a0176d5806f8",
+      "src/world_engine/ollama_tools.py": "88c85134c250489e0c867f2f07353c85dd5a4c3b0acc8949958ae20f90bcf841",
+      "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+      "src/world_engine/providers.py": "ff635c6fb2a47f4634796af3a42e83c6a9624f3b56be1bf6655ccb5eb60eda7f",
+      "src/world_engine/rollout.py": "db10d555a531d4a67796568e047f46362104abfa55ae62d357d3786653843088",
+      "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+      "pyproject.toml": "6c352c613b9a0d428c6b1bf0979c27595b119c22b50b4a26a92210a2e461412e",
+      "uv.lock": "a65eda4a34998fe5978fde9ef84ef99e94ada85d2a8e574e4e6c3e9d70c20034",
+      "examples/scripted_candidate_corpus.py": "16dd0a93129da155efa9b87410d1ab88718277e6480c69b8e5c00acca1bd138f",
+      "tests/test_scripted_candidate_corpus.py": "c511e8cbe6442e9a94891f8a413a92810cd89f5e7dc9ce3b7dd62f52d806674a",
+      "docs/scripted-candidate-corpus.md": "1a81d2b708e1814a762aed2fbfbd7ef040589bacf15caf0b3037b863d83c0ca0"
+    },
+    "checkout_dirty": true
+  },
+  "plan": {
+    "protocol": {
+      "id": "paired-scripted-candidate-corpus-v1",
+      "slots": [
+        {
+          "index": 0,
+          "world": "crm-merge",
+          "seed": 50000,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 1,
+          "world": "crm-merge",
+          "seed": 50000,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 2,
+          "world": "crm-merge",
+          "seed": 50001,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 3,
+          "world": "crm-merge",
+          "seed": 50001,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 4,
+          "world": "crm-merge",
+          "seed": 50002,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 5,
+          "world": "crm-merge",
+          "seed": 50002,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 6,
+          "world": "crm-merge",
+          "seed": 50003,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 7,
+          "world": "crm-merge",
+          "seed": 50003,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 8,
+          "world": "crm-merge",
+          "seed": 50004,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 9,
+          "world": "crm-merge",
+          "seed": 50004,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 10,
+          "world": "crm-merge",
+          "seed": 50005,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 11,
+          "world": "crm-merge",
+          "seed": 50005,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 12,
+          "world": "crm-merge",
+          "seed": 50006,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 13,
+          "world": "crm-merge",
+          "seed": 50006,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 14,
+          "world": "crm-merge",
+          "seed": 50007,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 15,
+          "world": "crm-merge",
+          "seed": 50007,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 16,
+          "world": "crm-merge",
+          "seed": 50008,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 17,
+          "world": "crm-merge",
+          "seed": 50008,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 18,
+          "world": "crm-merge",
+          "seed": 50009,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 19,
+          "world": "crm-merge",
+          "seed": 50009,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 20,
+          "world": "crm-merge",
+          "seed": 50010,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 21,
+          "world": "crm-merge",
+          "seed": 50010,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 22,
+          "world": "crm-merge",
+          "seed": 50011,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 23,
+          "world": "crm-merge",
+          "seed": 50011,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 24,
+          "world": "crm-merge",
+          "seed": 50012,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 25,
+          "world": "crm-merge",
+          "seed": 50012,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 26,
+          "world": "crm-merge",
+          "seed": 50013,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 27,
+          "world": "crm-merge",
+          "seed": 50013,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 28,
+          "world": "crm-merge",
+          "seed": 50014,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 29,
+          "world": "crm-merge",
+          "seed": 50014,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 30,
+          "world": "crm-merge",
+          "seed": 50015,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 31,
+          "world": "crm-merge",
+          "seed": 50015,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 32,
+          "world": "refund-ops",
+          "seed": 50000,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 33,
+          "world": "refund-ops",
+          "seed": 50000,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 34,
+          "world": "refund-ops",
+          "seed": 50001,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 35,
+          "world": "refund-ops",
+          "seed": 50001,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 36,
+          "world": "refund-ops",
+          "seed": 50002,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 37,
+          "world": "refund-ops",
+          "seed": 50002,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 38,
+          "world": "refund-ops",
+          "seed": 50003,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 39,
+          "world": "refund-ops",
+          "seed": 50003,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 40,
+          "world": "refund-ops",
+          "seed": 50004,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 41,
+          "world": "refund-ops",
+          "seed": 50004,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 42,
+          "world": "refund-ops",
+          "seed": 50005,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 43,
+          "world": "refund-ops",
+          "seed": 50005,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 44,
+          "world": "refund-ops",
+          "seed": 50006,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 45,
+          "world": "refund-ops",
+          "seed": 50006,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 46,
+          "world": "refund-ops",
+          "seed": 50007,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 47,
+          "world": "refund-ops",
+          "seed": 50007,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 48,
+          "world": "refund-ops",
+          "seed": 50008,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 49,
+          "world": "refund-ops",
+          "seed": 50008,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 50,
+          "world": "refund-ops",
+          "seed": 50009,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 51,
+          "world": "refund-ops",
+          "seed": 50009,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 52,
+          "world": "refund-ops",
+          "seed": 50010,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 53,
+          "world": "refund-ops",
+          "seed": 50010,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 54,
+          "world": "refund-ops",
+          "seed": 50011,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 55,
+          "world": "refund-ops",
+          "seed": 50011,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 56,
+          "world": "refund-ops",
+          "seed": 50012,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 57,
+          "world": "refund-ops",
+          "seed": 50012,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 58,
+          "world": "refund-ops",
+          "seed": 50013,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 59,
+          "world": "refund-ops",
+          "seed": 50013,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 60,
+          "world": "refund-ops",
+          "seed": 50014,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 61,
+          "world": "refund-ops",
+          "seed": 50014,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 62,
+          "world": "refund-ops",
+          "seed": 50015,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 63,
+          "world": "refund-ops",
+          "seed": 50015,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 64,
+          "world": "incident-control",
+          "seed": 50000,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 65,
+          "world": "incident-control",
+          "seed": 50000,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 66,
+          "world": "incident-control",
+          "seed": 50001,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 67,
+          "world": "incident-control",
+          "seed": 50001,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 68,
+          "world": "incident-control",
+          "seed": 50002,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 69,
+          "world": "incident-control",
+          "seed": 50002,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 70,
+          "world": "incident-control",
+          "seed": 50003,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 71,
+          "world": "incident-control",
+          "seed": 50003,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 72,
+          "world": "incident-control",
+          "seed": 50004,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 73,
+          "world": "incident-control",
+          "seed": 50004,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 74,
+          "world": "incident-control",
+          "seed": 50005,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 75,
+          "world": "incident-control",
+          "seed": 50005,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 76,
+          "world": "incident-control",
+          "seed": 50006,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 77,
+          "world": "incident-control",
+          "seed": 50006,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 78,
+          "world": "incident-control",
+          "seed": 50007,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 79,
+          "world": "incident-control",
+          "seed": 50007,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 80,
+          "world": "incident-control",
+          "seed": 50008,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 81,
+          "world": "incident-control",
+          "seed": 50008,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 82,
+          "world": "incident-control",
+          "seed": 50009,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 83,
+          "world": "incident-control",
+          "seed": 50009,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 84,
+          "world": "incident-control",
+          "seed": 50010,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 85,
+          "world": "incident-control",
+          "seed": 50010,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 86,
+          "world": "incident-control",
+          "seed": 50011,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 87,
+          "world": "incident-control",
+          "seed": 50011,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 88,
+          "world": "incident-control",
+          "seed": 50012,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 89,
+          "world": "incident-control",
+          "seed": 50012,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 90,
+          "world": "incident-control",
+          "seed": 50013,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 91,
+          "world": "incident-control",
+          "seed": 50013,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 92,
+          "world": "incident-control",
+          "seed": 50014,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 93,
+          "world": "incident-control",
+          "seed": 50014,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 94,
+          "world": "incident-control",
+          "seed": 50015,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 95,
+          "world": "incident-control",
+          "seed": 50015,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 96,
+          "world": "access-provisioning",
+          "seed": 50000,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 97,
+          "world": "access-provisioning",
+          "seed": 50000,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 98,
+          "world": "access-provisioning",
+          "seed": 50001,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 99,
+          "world": "access-provisioning",
+          "seed": 50001,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 100,
+          "world": "access-provisioning",
+          "seed": 50002,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 101,
+          "world": "access-provisioning",
+          "seed": 50002,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 102,
+          "world": "access-provisioning",
+          "seed": 50003,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 103,
+          "world": "access-provisioning",
+          "seed": 50003,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 104,
+          "world": "access-provisioning",
+          "seed": 50004,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 105,
+          "world": "access-provisioning",
+          "seed": 50004,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 106,
+          "world": "access-provisioning",
+          "seed": 50005,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 107,
+          "world": "access-provisioning",
+          "seed": 50005,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 108,
+          "world": "access-provisioning",
+          "seed": 50006,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 109,
+          "world": "access-provisioning",
+          "seed": 50006,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 110,
+          "world": "access-provisioning",
+          "seed": 50007,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 111,
+          "world": "access-provisioning",
+          "seed": 50007,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 112,
+          "world": "access-provisioning",
+          "seed": 50008,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 113,
+          "world": "access-provisioning",
+          "seed": 50008,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 114,
+          "world": "access-provisioning",
+          "seed": 50009,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 115,
+          "world": "access-provisioning",
+          "seed": 50009,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 116,
+          "world": "access-provisioning",
+          "seed": 50010,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 117,
+          "world": "access-provisioning",
+          "seed": 50010,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 118,
+          "world": "access-provisioning",
+          "seed": 50011,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 119,
+          "world": "access-provisioning",
+          "seed": 50011,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 120,
+          "world": "access-provisioning",
+          "seed": 50012,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 121,
+          "world": "access-provisioning",
+          "seed": 50012,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 122,
+          "world": "access-provisioning",
+          "seed": 50013,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 123,
+          "world": "access-provisioning",
+          "seed": 50013,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 124,
+          "world": "access-provisioning",
+          "seed": 50014,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 125,
+          "world": "access-provisioning",
+          "seed": 50014,
+          "policy": "scripted-baseline"
+        },
+        {
+          "index": 126,
+          "world": "access-provisioning",
+          "seed": 50015,
+          "policy": "scripted-oracle"
+        },
+        {
+          "index": 127,
+          "world": "access-provisioning",
+          "seed": 50015,
+          "policy": "scripted-baseline"
+        }
+      ],
+      "world_versions": {
+        "crm-merge": "1.1.1",
+        "refund-ops": "1.1.2",
+        "incident-control": "1.0.1",
+        "access-provisioning": "1.0.0"
+      },
+      "fixtures_sha256": "13a5c375389889c50f1ba6a3c8ea52f51ccd0a87ba05a42f14bf6f0601dce014",
+      "scripted_policy_sha256": "3a459c9582d0a43fa6bbaebc1e7ce79d48470485e4d366c7b28431571817603b",
+      "policy_version": "workflow-json-v1",
+      "expected_task_splits": {
+        "train": 51,
+        "validation": 6,
+        "test": 7
+      },
+      "max_steps": 20,
+      "episode_seconds": 30,
+      "concurrency": 1,
+      "overall_seconds": 600,
+      "finalize_seconds": 30,
+      "model_calls": 0,
+      "paid_calls": 0,
+      "training_executed": false,
+      "evaluation_only": false,
+      "artifact_cap": 67108864,
+      "database_cap": 16777216,
+      "rollback_journal_cap": 17825792,
+      "failure_cap": 16777216,
+      "exports_combined_cap": 14680064,
+      "manifest_cap": 1048576,
+      "next_episode_reserve": 8388608,
+      "retry_policy": "none"
+    },
+    "protocol_sha256": "d0b3a3c0c8ef9578f9d754ce137f4ca736db5f7a200d5acd22044907b2d49c2f",
+    "fixtures": [
+      {
+        "world": "crm-merge",
+        "seed": 50000,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "5dffbaa2992577f808a700fbd9b9e03c8972a0153b9fa1e27244f5e269f642da",
+        "lineage_id": "344844827c953248f63f5cc99f24465ebafe989dba01c15037faba578dca811e",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50001,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "8a1bc2ca040a58cc365f3c767d71738219e06c00b66338b7b5df1f5b6e5019a0",
+        "lineage_id": "6744c769c023adea7d83b1a64574d29b83979e5a482d26952d71de3298f001e5",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50002,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "bf2400fc1a43d98f4b2bed355f2f91c8939d0f3e1ab1dc5cd65255e6afe73c63",
+        "lineage_id": "5a2270fada75b36432874c882469ba2c9b25af9e40265810e3b429fbf6756890",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50003,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "fffdbdab3d5ffa9d5b5c9fc169410a6a483af0aec71e1e23db3fb9f889b00098",
+        "lineage_id": "7e3c2796f73cbe00d6b64ff82cdd6a179b0bb6cf6e09fa2c3f49822b8f6daafa",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50004,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "d9bdc070c75b823a0b05e93195b0ede74aeff70ff6c4295901f8b7f54b29d352",
+        "lineage_id": "9ec60d55954ff4b1dfa71cf8e5616262b306bc9c1b29a989b625a575d2372cd7",
+        "split": "test"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50005,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "6493e4231fcebfe5c2963227f72498d42780a455092fbd3823a05464f88f50b8",
+        "lineage_id": "a5158bd45689dbc3131e57cf14301b1f572a6be103ebaef500d9e0f21a89bb86",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50006,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "b218341c9e14061a1376f798a2df76d9730792bb8ec269ba5c9392def5a7c0ba",
+        "lineage_id": "8df1e7f5048e751755a49b083049372c3984be69b9b85d7126c5de64b6c28fde",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50007,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "06971ba11443140b848ef0699737b0780b735054340bf45e7b9323218cc6ccee",
+        "lineage_id": "6a7c051c096b8d528dd6536b4f1ab2557ffe37947b341aaff817b717dc7811e5",
+        "split": "validation"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50008,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "386ea9e0633badab2230d0e09c42bda34c8a40b4a307870793d4995e5cb7b30e",
+        "lineage_id": "bf59a51c9f41c113206a42e8f311c6a64dc63dc0d78f56eeaef2d37daa5159f0",
+        "split": "validation"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50009,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "7452cefaf3511fcadeb822a2544f1f00e94cb710c19ab638dc56116b4a1ba858",
+        "lineage_id": "c3f945111df962bcf03285848313812417ed796a9e6b370fd21f4133a3a5b269",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50010,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "cffcdc515783ea86fb52c890642e749487d8f7bbc3ebc9b9fedc425b33382fbb",
+        "lineage_id": "25624e77a312d694262b42578789632a5f4366d00b9ee54d366ad69ef72586a9",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50011,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "d7ba34af3361dd788da3d8b8fe47c1bccc245ddbe7562c70318895e534512229",
+        "lineage_id": "24506de4a3ca30773fdfcef48ff2cb292a66173456010d774199b9fcd3602ea7",
+        "split": "validation"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50012,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "67be945e9101f431644d727d5eefd795edb93f641d49cb9815a552eaffbefb10",
+        "lineage_id": "5d6c7510b64c0e173eaf8b8de5202a3125989373931090089abc3df0ba88fe59",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50013,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "59aa0f1cbc52c0add9d5c2cf0ad62946b52a90b36eb33bfe222460afd5f4b325",
+        "lineage_id": "20727593619566c2aa17248816b25d23dba09e2e2363c337d09b3a5bf702edf1",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50014,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "26edbcca0370a11349944539dfd56b967f9077a1fb7eb0afc5c6c50b00927019",
+        "lineage_id": "15e0c90acd33042a8a6b42c1908ae808bbfbefc083a0ef6072fa4c9808f16d99",
+        "split": "train"
+      },
+      {
+        "world": "crm-merge",
+        "seed": 50015,
+        "version": "1.1.1",
+        "environment_hash": "9a4df019599f5b947e614b4e52fad79eb4b612888dfe8a33bd9bc717f64c0972",
+        "grader_hash": "28352e22f226e032eb2cc2bd9888ee044249cb712b646b9e60729af191779716",
+        "initial_state_hash": "0d6015aee663fc9ad14b61f2e7f7db272bdb8aa5eccf3044d2e8531ccaae280a",
+        "lineage_id": "6fda765dc28a0c31691641357f31d13e0bd950b03ad5e4fecb0ce268abb83683",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50000,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "f24cca139a0e8b08bfd32c9608d19873eb5b1fdc824d3b7f7f33ade5d6f6f8da",
+        "lineage_id": "8f48b3f8e4011e5e2b24bfd3e49fac86cb361c931e3ecf297e4b9eb12c8be1de",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50001,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "1f042c40d840807184e41fadd942f9c0b7ac22938dad1d9f3c74647f3b982a7a",
+        "lineage_id": "f4797394cb7554e38b94717bfb735956c5882d0283be0755653a96a3d2decd56",
+        "split": "validation"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50002,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "70230308fca54ed2280dd428711fa596ba867ba3596f351d1ee05441ff09d155",
+        "lineage_id": "3c823d7cefaf4607d20c0c5637dcc3788b8abeb6197d4a7691af62f1664054f6",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50003,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "efcd00783a73d06f0d872b839c039f2c0bb62bfa97ea1a2e44973e45dd102803",
+        "lineage_id": "6fb69c624d0287d8b0279d4008f1a6ec6afc5ad475929aaa7f67f5321581c085",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50004,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "3bfcc4def92ad5acb3ed6e86ad7ba2787aada41649c4f569b8fcb73037d7fb14",
+        "lineage_id": "8f58bf7f0bf169e67c6fbe8588eb7101f69c88f4b0d67e9d2b7dda5348015161",
+        "split": "test"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50005,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "e83bbe2424a7e2c20fb02fc1266394c8365797db7fabbf30586e40aa83eceffa",
+        "lineage_id": "63e89c1b49847e273c9261c1031cc7b345b5ff6aeaa7bbf662d79aa9c76ae162",
+        "split": "test"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50006,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "769d8a65c522fd01ee49a1bf42ea50ddb88d823ca4fc381f2577c3922fee2899",
+        "lineage_id": "7143ea3b7b334eaafa68d22751f0fe126cb9df9b2e087e31179525d5f3dd87a8",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50007,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "5248ac03355daf8b6709164a94d1b8ad5658b0e14d7cb99925016346fa8f1968",
+        "lineage_id": "b6ef4e6a48199546b44e8ee92588198af9397b26c63557f3b2f5b3a813719782",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50008,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "dc1d84c05f2f70cba807a7e1b8f2fc5c856fdd0e7e86fec12a6dc42f01b34fe0",
+        "lineage_id": "2e1e6db7008aed23601d4f20040dda7b7b1a85797853c91b4a474514c2201bcd",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50009,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "1a51884405ffc4b1fe09d5efff78b55c7442ed9451a18077616a74c731ceb31b",
+        "lineage_id": "6222a504622c07bad8150ccd7d1a49de9aee7d0d8beedef1b5f4ee7e80467a5e",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50010,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "c2704674115efd1067e1eb8a9a5dc04c4b5ac8766f44003515ee506acb2ef3e1",
+        "lineage_id": "ded9b180b7fe565c8ad5511b9803e73151b0953a31d227e48dfd5395536657bb",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50011,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "3651524d3471fe56dc5fba0c566b2d33de24471e59551d8fcd2cdb27efe8e432",
+        "lineage_id": "e676c0222f69dbbc378c4f9c3f911379c146e229ec84a699d0b4ba3d2dac0d34",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50012,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "e00ecebdb5211b7fa9d18237978a5ed7f282d879a62cc116856066748f523b6a",
+        "lineage_id": "cf3acef417755068e859cbea2c55741d1c6e39cc5d18618a90e34ce6d70b6fad",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50013,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "885f6a6dcba7730835a155b93974cfddd9faebdd04635ac67deecf7c7775ea26",
+        "lineage_id": "020f3462efa350f4ffecd2ed6b6cf0e90ea37a41cf48013a8d5ef5a031b7f08b",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50014,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "7986c562d781833202c22670e5f1887f03e1f87a064ca6909d621efb1e02bb55",
+        "lineage_id": "0865071bc03b257e4b40b2cb5386534c1709fddbd40550b7f8a6e59eabff8965",
+        "split": "train"
+      },
+      {
+        "world": "refund-ops",
+        "seed": 50015,
+        "version": "1.1.2",
+        "environment_hash": "4a89c019ccf09faec523b10e61128e13c0689c4ee4e94bb88dde4f5bcbad7f06",
+        "grader_hash": "56ae60240d24e1fb3eed4d7f29434174d674bddd7e1cdd0c9ddb2368529d22c7",
+        "initial_state_hash": "f290bd9c58aad6ddf807f19e6b76fdcaf28cb46de958c8ac56ba2b18f034b122",
+        "lineage_id": "3479f801cc59c364afccd457d6deace129bc63c28837b264fcb68a5120ff5799",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50000,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "5c200b9081f5f6183eb071888c72a99415bae044490815e4bcde5fda703bd62a",
+        "lineage_id": "eff8041a038bd5ca090d0ecd777fc59646a9bf93b5c050271331ad7100f5d5fa",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50001,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "4e97575c69187b404396bad12732c1f6d4f0900ca2da0513a9e1e68fd9e4cb54",
+        "lineage_id": "8375ed77d4204b4de2182a14d73ee78adcaa2efad6426bc48b136148974e493c",
+        "split": "test"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50002,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "b3dfbe7db489e178a89f0a32b814b0724ece65b3146d3e64f28d23333760fc84",
+        "lineage_id": "b7c785037e8e7abe7736247faadb975ea240bdfa3d7ea30bace8fc9ec2fdf1fc",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50003,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "dea9b225d8969ac4e7a7a8479c6801b4ffbcc6ff628c6cd5a247c1c775dcf90b",
+        "lineage_id": "caf3f9106945a1baecfc56a42ffca02996c9fbcb8561d4879c2d777e25c3b622",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50004,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "39a794331585fc50cee601507eb4544ada21cc34e6aa14f73709a9ebee1a5fc6",
+        "lineage_id": "cee5b2b204737dbfe4c9b51f2d58ebe21fb0a140895babac23b973a0ec40721a",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50005,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "56f634d3ab456b632311351fa13b400b69f75898a3fdb0ed0550057c47304419",
+        "lineage_id": "5f3f8f042e6d641c5d7806614f02314e66f9e62b305b63e81d24b3c5a8f07a6c",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50006,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "321d14c500718e82ad04517b03ebb441314cfc3774611f42f81962c2ca5416d4",
+        "lineage_id": "39b497693f64b7c1fa335d16cd6d3b526705a65f24b45f008a98f4ad61f9bdd8",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50007,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "9b5042061be3afdf9fa8730cd862949be26851597a3b08e9771ff01afe463378",
+        "lineage_id": "c080fcf0676ccece5faf99ff4be1c4fed51707a946e77f7638225aad6faf473b",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50008,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "b3c309831e54240236bb954a9c579de0c57e4a882c0ad7759cbe8613529a31e7",
+        "lineage_id": "2fef7eab9646f7fd2a18a6ae4e0f6c2371c90c20a9b2bf7c5e1d3dd365130cf8",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50009,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "876f872bae2b36913f869d8fac89c38ad0e4f8992f86766b783bc6b66a04e153",
+        "lineage_id": "1b9ba139730125b951baabd163703cf5269c51f28071191ddd42504557bbcdfc",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50010,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "5622dff3cdf6b891486ee48294c80a806e04831a6059de744d3adddc57ae7608",
+        "lineage_id": "f0a722209ce3c7f6ee81639f8892b94f05de28e507f049adbea2ce188f60f745",
+        "split": "validation"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50011,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "b140e9b895c5d76401ea17c011995e827c0007bfcaa45e6253386b7d96d6d2ab",
+        "lineage_id": "eea0c00090c0400012431f4cca050e8851acf05df87e603e38723f4271115316",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50012,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "0ebdf7b23220908e216de55c313ef0c7f96662c40231b735b15e6fc6d91569d3",
+        "lineage_id": "52147daa23e9d7036769cc2bab98608282914a5b4ca52613571aa590de015125",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50013,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "4150916ffa21dd61ecae05f3ea1eb5593306b54e708833fbcdc840cd0b722cab",
+        "lineage_id": "832958aa0e8b5278195a8f1c5a393c23d5428fd58f88a08f6f3c067f7ccddfee",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50014,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "221ed847361bb96c23a8dfbbcfcab226be535bb9be07925ecc4e4f35639b8fe4",
+        "lineage_id": "342f2bdd0101cbea6c8b2c66d6d5702a4b4e98ba551db9f779670e134c6dbe4a",
+        "split": "train"
+      },
+      {
+        "world": "incident-control",
+        "seed": 50015,
+        "version": "1.0.1",
+        "environment_hash": "682825deaf3af52967bfb0bb6768d67afe2bdd2609f0266be7f7f2f858d09384",
+        "grader_hash": "65bef9f90b31e4be3dd05327542f08cf9406e11a901ecfae7d7ed79ba1f279a3",
+        "initial_state_hash": "0f0a7b2bc150442bb2e55c1472a28726c1b151349e83ffe9b7326f7ceb8695fe",
+        "lineage_id": "0e079f1db60fe2201d1b0d88a909bcf8cbb74447abe1937c857fe026e2218915",
+        "split": "test"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50000,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "cc4bcd70b6c3331d28bf2d25f3973a389175a08d023eb12649f577492baec25a",
+        "lineage_id": "546e50ca53575011722fa2d1618da10dc04cc0f797930f26f165f56f8ca52212",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50001,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "45b8422678da0a0779fbdc2b6a37f331dfcfebe389de8395f580ba6f477c3293",
+        "lineage_id": "d38b578ea410ffa43cb9a8c2fd637323ffbb4cc7df32894d30cdbcf2d9e4ff7c",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50002,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "0433e15fb4410e274ae73679d4683057c9aec5015cbc35f71f7a3911b8bc8a30",
+        "lineage_id": "652976a4e80cc9001574b269be58731574a17bc231b470e1125a68d336bc3eaf",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50003,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "46aef2565b1562584a45e63d5e551a4ecddcce2e2dd14c593ad1d3a8223a6a5e",
+        "lineage_id": "cdcb985aa0936f1131b8c12f600c10af1f0a14de290d1d57ddb7f39baa6b742d",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50004,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "0c79a04df91074ab696b3af9dd39884c4fc458b064be06867da52d9b39af06f4",
+        "lineage_id": "675649e4bd2e91081b4665f79edd59caa61bfbb3751274bc2f3b219c873d5397",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50005,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "0e0ae72f76daa68e016326975da3fa0b84a483667d10bcaf23e449d316ac9d25",
+        "lineage_id": "f57e4b9469a697cb9d41e30d0fca4d2515ab318c7c6657c8b3ad36ef5e07bc88",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50006,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "f31bae553de647b81eced8e38729a22988f2ee4d8428541e352bb6a6d57ec71a",
+        "lineage_id": "fde4c23bac4af10a4b3c4c1ad9774a6138660bcf581213d6dcf696cd5d328f3c",
+        "split": "test"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50007,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "2927f120d8ef46eb25e537a345de6a63396828d97ba8a103650d8c6b8c0ff0db",
+        "lineage_id": "b18473dcdcf6747f252ea98c493c789927b0898c2043482afc910bff2508ad72",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50008,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "b2c056462f519c1afe5863bf97d0be102f9a2a33f654edb9bb6a5d0e82ba1742",
+        "lineage_id": "32868f9ebd40ffb17bba0e9f4ce7b46f3f60ac152f7e72ebfe57ebe45968dde9",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50009,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "3bcdcdf4997f7bbbfa28ff1d3cbb74478ac9cb43ca22689157f05855df1ad95c",
+        "lineage_id": "8d4c588e5eb262ad314aec74483bda1a666af30722d78adaf9c7964464fcf3d7",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50010,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "ce08dce77e4808f20e62b92d276e42305781402f24e77963fc860bc8f2a84cc4",
+        "lineage_id": "f0accf56b377e6df3b445c396ba090761d0ab7810522f21dcee86f1289ad1d48",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50011,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "90676f576ed6747d1fbb59414fdc34608ca36567d1216450d5e38bfa213e32f3",
+        "lineage_id": "42f8c15779a31aa2a7b54ddad96677533281031e5b3833bc32adc87b79fc9c11",
+        "split": "test"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50012,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "f675f0924b073a08b46f23409c33b6ef271eedfdb1a6bd8e5f291ceee8718917",
+        "lineage_id": "b6a46b718257d2b8a7c36795f9db5b22c8f42154a4523fbfc69b7c459349c5d3",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50013,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "a485c8a134242d7b356d2c1729b59892386a85a28d5f446b52c997b5c483d733",
+        "lineage_id": "4082665a65f9bc7674975d7552176409a5e1a1be6c09769f380e49021700bdc1",
+        "split": "train"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50014,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "27405e4ac156e704207fad6baf8c1bd6a01a1d3836b5dad01cfcccf5250c594b",
+        "lineage_id": "4caa0458aba19f9b10d09eb7b75e1d8a5c55a1f00f0e3e716412bbf6010ee8ef",
+        "split": "validation"
+      },
+      {
+        "world": "access-provisioning",
+        "seed": 50015,
+        "version": "1.0.0",
+        "environment_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+        "grader_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+        "initial_state_hash": "0f82c306a3822cc40966dd0403392ff3d08afada6e14185e0024af91e8ebc869",
+        "lineage_id": "6d64b68de41ad85382c026b7007209e692fd703ab7a180c6acd7e338a7d6b8d3",
+        "split": "train"
+      }
+    ],
+    "status": "plan-only; no Store, provider or training activity",
+    "limitations": "New seeds in existing public synthetic families; not a new-family holdout or learning claim."
+  },
+  "slots": [
+    {
+      "index": 0,
+      "world": "crm-merge",
+      "seed": 50000,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 1,
+      "world": "crm-merge",
+      "seed": 50000,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 2,
+      "world": "crm-merge",
+      "seed": 50001,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 3,
+      "world": "crm-merge",
+      "seed": 50001,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 4,
+      "world": "crm-merge",
+      "seed": 50002,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 5,
+      "world": "crm-merge",
+      "seed": 50002,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 6,
+      "world": "crm-merge",
+      "seed": 50003,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 7,
+      "world": "crm-merge",
+      "seed": 50003,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 8,
+      "world": "crm-merge",
+      "seed": 50004,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 9,
+      "world": "crm-merge",
+      "seed": 50004,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 10,
+      "world": "crm-merge",
+      "seed": 50005,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 11,
+      "world": "crm-merge",
+      "seed": 50005,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 12,
+      "world": "crm-merge",
+      "seed": 50006,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 13,
+      "world": "crm-merge",
+      "seed": 50006,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 14,
+      "world": "crm-merge",
+      "seed": 50007,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 15,
+      "world": "crm-merge",
+      "seed": 50007,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 16,
+      "world": "crm-merge",
+      "seed": 50008,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 17,
+      "world": "crm-merge",
+      "seed": 50008,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 18,
+      "world": "crm-merge",
+      "seed": 50009,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 19,
+      "world": "crm-merge",
+      "seed": 50009,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 20,
+      "world": "crm-merge",
+      "seed": 50010,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 21,
+      "world": "crm-merge",
+      "seed": 50010,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 22,
+      "world": "crm-merge",
+      "seed": 50011,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 23,
+      "world": "crm-merge",
+      "seed": 50011,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 24,
+      "world": "crm-merge",
+      "seed": 50012,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 25,
+      "world": "crm-merge",
+      "seed": 50012,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 26,
+      "world": "crm-merge",
+      "seed": 50013,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 27,
+      "world": "crm-merge",
+      "seed": 50013,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 28,
+      "world": "crm-merge",
+      "seed": 50014,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 29,
+      "world": "crm-merge",
+      "seed": 50014,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 30,
+      "world": "crm-merge",
+      "seed": 50015,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 31,
+      "world": "crm-merge",
+      "seed": 50015,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 32,
+      "world": "refund-ops",
+      "seed": 50000,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 33,
+      "world": "refund-ops",
+      "seed": 50000,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 34,
+      "world": "refund-ops",
+      "seed": 50001,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 35,
+      "world": "refund-ops",
+      "seed": 50001,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 36,
+      "world": "refund-ops",
+      "seed": 50002,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 37,
+      "world": "refund-ops",
+      "seed": 50002,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 38,
+      "world": "refund-ops",
+      "seed": 50003,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 39,
+      "world": "refund-ops",
+      "seed": 50003,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 40,
+      "world": "refund-ops",
+      "seed": 50004,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 41,
+      "world": "refund-ops",
+      "seed": 50004,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 42,
+      "world": "refund-ops",
+      "seed": 50005,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 43,
+      "world": "refund-ops",
+      "seed": 50005,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 44,
+      "world": "refund-ops",
+      "seed": 50006,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 45,
+      "world": "refund-ops",
+      "seed": 50006,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 46,
+      "world": "refund-ops",
+      "seed": 50007,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 47,
+      "world": "refund-ops",
+      "seed": 50007,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 48,
+      "world": "refund-ops",
+      "seed": 50008,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 49,
+      "world": "refund-ops",
+      "seed": 50008,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 50,
+      "world": "refund-ops",
+      "seed": 50009,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 51,
+      "world": "refund-ops",
+      "seed": 50009,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 52,
+      "world": "refund-ops",
+      "seed": 50010,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 53,
+      "world": "refund-ops",
+      "seed": 50010,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 54,
+      "world": "refund-ops",
+      "seed": 50011,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 55,
+      "world": "refund-ops",
+      "seed": 50011,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 56,
+      "world": "refund-ops",
+      "seed": 50012,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 57,
+      "world": "refund-ops",
+      "seed": 50012,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 58,
+      "world": "refund-ops",
+      "seed": 50013,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 59,
+      "world": "refund-ops",
+      "seed": 50013,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 60,
+      "world": "refund-ops",
+      "seed": 50014,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 61,
+      "world": "refund-ops",
+      "seed": 50014,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 62,
+      "world": "refund-ops",
+      "seed": 50015,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 63,
+      "world": "refund-ops",
+      "seed": 50015,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 64,
+      "world": "incident-control",
+      "seed": 50000,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 65,
+      "world": "incident-control",
+      "seed": 50000,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 66,
+      "world": "incident-control",
+      "seed": 50001,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 67,
+      "world": "incident-control",
+      "seed": 50001,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 68,
+      "world": "incident-control",
+      "seed": 50002,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 69,
+      "world": "incident-control",
+      "seed": 50002,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 70,
+      "world": "incident-control",
+      "seed": 50003,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 71,
+      "world": "incident-control",
+      "seed": 50003,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 72,
+      "world": "incident-control",
+      "seed": 50004,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 73,
+      "world": "incident-control",
+      "seed": 50004,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 74,
+      "world": "incident-control",
+      "seed": 50005,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 75,
+      "world": "incident-control",
+      "seed": 50005,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 76,
+      "world": "incident-control",
+      "seed": 50006,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 77,
+      "world": "incident-control",
+      "seed": 50006,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 78,
+      "world": "incident-control",
+      "seed": 50007,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 79,
+      "world": "incident-control",
+      "seed": 50007,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 80,
+      "world": "incident-control",
+      "seed": 50008,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 81,
+      "world": "incident-control",
+      "seed": 50008,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 82,
+      "world": "incident-control",
+      "seed": 50009,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 83,
+      "world": "incident-control",
+      "seed": 50009,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 84,
+      "world": "incident-control",
+      "seed": 50010,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 85,
+      "world": "incident-control",
+      "seed": 50010,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 86,
+      "world": "incident-control",
+      "seed": 50011,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 87,
+      "world": "incident-control",
+      "seed": 50011,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 88,
+      "world": "incident-control",
+      "seed": 50012,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 89,
+      "world": "incident-control",
+      "seed": 50012,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 90,
+      "world": "incident-control",
+      "seed": 50013,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 91,
+      "world": "incident-control",
+      "seed": 50013,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 92,
+      "world": "incident-control",
+      "seed": 50014,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 93,
+      "world": "incident-control",
+      "seed": 50014,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 94,
+      "world": "incident-control",
+      "seed": 50015,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 95,
+      "world": "incident-control",
+      "seed": 50015,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 96,
+      "world": "access-provisioning",
+      "seed": 50000,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 97,
+      "world": "access-provisioning",
+      "seed": 50000,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 98,
+      "world": "access-provisioning",
+      "seed": 50001,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 99,
+      "world": "access-provisioning",
+      "seed": 50001,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 100,
+      "world": "access-provisioning",
+      "seed": 50002,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 101,
+      "world": "access-provisioning",
+      "seed": 50002,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 102,
+      "world": "access-provisioning",
+      "seed": 50003,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 103,
+      "world": "access-provisioning",
+      "seed": 50003,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 104,
+      "world": "access-provisioning",
+      "seed": 50004,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 105,
+      "world": "access-provisioning",
+      "seed": 50004,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 106,
+      "world": "access-provisioning",
+      "seed": 50005,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 107,
+      "world": "access-provisioning",
+      "seed": 50005,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 108,
+      "world": "access-provisioning",
+      "seed": 50006,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 109,
+      "world": "access-provisioning",
+      "seed": 50006,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 110,
+      "world": "access-provisioning",
+      "seed": 50007,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 111,
+      "world": "access-provisioning",
+      "seed": 50007,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 112,
+      "world": "access-provisioning",
+      "seed": 50008,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 113,
+      "world": "access-provisioning",
+      "seed": 50008,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 114,
+      "world": "access-provisioning",
+      "seed": 50009,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 115,
+      "world": "access-provisioning",
+      "seed": 50009,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 116,
+      "world": "access-provisioning",
+      "seed": 50010,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 117,
+      "world": "access-provisioning",
+      "seed": 50010,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 118,
+      "world": "access-provisioning",
+      "seed": 50011,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 119,
+      "world": "access-provisioning",
+      "seed": 50011,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 120,
+      "world": "access-provisioning",
+      "seed": 50012,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 121,
+      "world": "access-provisioning",
+      "seed": 50012,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 122,
+      "world": "access-provisioning",
+      "seed": 50013,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 123,
+      "world": "access-provisioning",
+      "seed": 50013,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 124,
+      "world": "access-provisioning",
+      "seed": 50014,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 125,
+      "world": "access-provisioning",
+      "seed": 50014,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    },
+    {
+      "index": 126,
+      "world": "access-provisioning",
+      "seed": 50015,
+      "policy": "scripted-oracle",
+      "status": "verified"
+    },
+    {
+      "index": 127,
+      "world": "access-provisioning",
+      "seed": 50015,
+      "policy": "scripted-baseline",
+      "status": "verified"
+    }
+  ],
+  "rows": [
+    {
+      "index": 0,
+      "world": "crm-merge",
+      "seed": 50000,
+      "policy": "scripted-oracle",
+      "episode_id": "256c5e66-966c-44fd-8fa6-44fb0f043dba",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 6,
+      "invalid_actions": 0
+    },
+    {
+      "index": 1,
+      "world": "crm-merge",
+      "seed": 50000,
+      "policy": "scripted-baseline",
+      "episode_id": "e0cf564c-c849-4ab6-81c2-576f2674d66b",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 2,
+      "world": "crm-merge",
+      "seed": 50001,
+      "policy": "scripted-oracle",
+      "episode_id": "10ca9fe4-165d-4329-afb1-5ba05cfa3a02",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 6,
+      "invalid_actions": 0
+    },
+    {
+      "index": 3,
+      "world": "crm-merge",
+      "seed": 50001,
+      "policy": "scripted-baseline",
+      "episode_id": "86b453f4-2972-45ba-9186-0918b4715393",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 4,
+      "world": "crm-merge",
+      "seed": 50002,
+      "policy": "scripted-oracle",
+      "episode_id": "0231da3f-0ee5-4693-9ac9-54f7eba0096c",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 7,
+      "invalid_actions": 0
+    },
+    {
+      "index": 5,
+      "world": "crm-merge",
+      "seed": 50002,
+      "policy": "scripted-baseline",
+      "episode_id": "82c4f916-4c58-40f3-adf9-c1d8159e0df4",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 6,
+      "world": "crm-merge",
+      "seed": 50003,
+      "policy": "scripted-oracle",
+      "episode_id": "ed5d223a-290f-4a68-b3e7-d31eb1b97e35",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 7,
+      "invalid_actions": 0
+    },
+    {
+      "index": 7,
+      "world": "crm-merge",
+      "seed": 50003,
+      "policy": "scripted-baseline",
+      "episode_id": "db3f407e-6876-4445-951a-3d960e233b16",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 8,
+      "world": "crm-merge",
+      "seed": 50004,
+      "policy": "scripted-oracle",
+      "episode_id": "9679563f-d945-4f7b-851b-d84834119c20",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 6,
+      "invalid_actions": 0
+    },
+    {
+      "index": 9,
+      "world": "crm-merge",
+      "seed": 50004,
+      "policy": "scripted-baseline",
+      "episode_id": "6dfabf03-010a-4ffd-8573-a875b8665a50",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 10,
+      "world": "crm-merge",
+      "seed": 50005,
+      "policy": "scripted-oracle",
+      "episode_id": "53d4548f-1f05-497e-8e03-69d81b69ab03",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 6,
+      "invalid_actions": 0
+    },
+    {
+      "index": 11,
+      "world": "crm-merge",
+      "seed": 50005,
+      "policy": "scripted-baseline",
+      "episode_id": "a73877f0-a601-4a8b-8326-2c2a76b160d1",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 12,
+      "world": "crm-merge",
+      "seed": 50006,
+      "policy": "scripted-oracle",
+      "episode_id": "19dcccd9-d5be-4b7b-983d-abdfcad7b009",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 7,
+      "invalid_actions": 0
+    },
+    {
+      "index": 13,
+      "world": "crm-merge",
+      "seed": 50006,
+      "policy": "scripted-baseline",
+      "episode_id": "5b5dec96-3e7e-4f51-a6d1-38ca4df2b302",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 14,
+      "world": "crm-merge",
+      "seed": 50007,
+      "policy": "scripted-oracle",
+      "episode_id": "0bc6cd56-650c-4b5f-b7ba-7f9a9eff1186",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 7,
+      "invalid_actions": 0
+    },
+    {
+      "index": 15,
+      "world": "crm-merge",
+      "seed": 50007,
+      "policy": "scripted-baseline",
+      "episode_id": "f8482b0f-7947-4d02-a007-ec0acb4cf32c",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 16,
+      "world": "crm-merge",
+      "seed": 50008,
+      "policy": "scripted-oracle",
+      "episode_id": "f7d953d1-41aa-442b-bf8e-423a7a7d4404",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 6,
+      "invalid_actions": 0
+    },
+    {
+      "index": 17,
+      "world": "crm-merge",
+      "seed": 50008,
+      "policy": "scripted-baseline",
+      "episode_id": "cb01dca6-4087-4a3e-abcb-6021184ccad2",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 18,
+      "world": "crm-merge",
+      "seed": 50009,
+      "policy": "scripted-oracle",
+      "episode_id": "c0d4a2b1-f0d9-47d7-8ef1-4a9b35614684",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 4,
+      "invalid_actions": 0
+    },
+    {
+      "index": 19,
+      "world": "crm-merge",
+      "seed": 50009,
+      "policy": "scripted-baseline",
+      "episode_id": "d763916a-c1b0-421e-b6bb-a1fab83c1a9e",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 20,
+      "world": "crm-merge",
+      "seed": 50010,
+      "policy": "scripted-oracle",
+      "episode_id": "3492962a-836a-465a-aadd-632cf0498b61",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 7,
+      "invalid_actions": 0
+    },
+    {
+      "index": 21,
+      "world": "crm-merge",
+      "seed": 50010,
+      "policy": "scripted-baseline",
+      "episode_id": "afa45d6d-6607-46d6-a751-de69b1dfe0a1",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 22,
+      "world": "crm-merge",
+      "seed": 50011,
+      "policy": "scripted-oracle",
+      "episode_id": "d6eaae90-a015-4875-9755-0a883803585f",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 7,
+      "invalid_actions": 0
+    },
+    {
+      "index": 23,
+      "world": "crm-merge",
+      "seed": 50011,
+      "policy": "scripted-baseline",
+      "episode_id": "55177408-0a77-4b87-b000-e3700a145e7d",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 24,
+      "world": "crm-merge",
+      "seed": 50012,
+      "policy": "scripted-oracle",
+      "episode_id": "26867110-5cef-4666-ab30-ffbbf26937e5",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 6,
+      "invalid_actions": 0
+    },
+    {
+      "index": 25,
+      "world": "crm-merge",
+      "seed": 50012,
+      "policy": "scripted-baseline",
+      "episode_id": "91ba1154-9c45-4ae5-b3c2-753c32fb39d0",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 26,
+      "world": "crm-merge",
+      "seed": 50013,
+      "policy": "scripted-oracle",
+      "episode_id": "4e0a2d32-6ace-47d7-8227-1c10dbb2c238",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 6,
+      "invalid_actions": 0
+    },
+    {
+      "index": 27,
+      "world": "crm-merge",
+      "seed": 50013,
+      "policy": "scripted-baseline",
+      "episode_id": "65779025-eb7d-4d68-b369-8917f57156b5",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 28,
+      "world": "crm-merge",
+      "seed": 50014,
+      "policy": "scripted-oracle",
+      "episode_id": "a240370f-cf64-41ac-8206-838aa18cd40b",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 7,
+      "invalid_actions": 0
+    },
+    {
+      "index": 29,
+      "world": "crm-merge",
+      "seed": 50014,
+      "policy": "scripted-baseline",
+      "episode_id": "86972a2d-abab-44d8-b3c8-502785ea9f49",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 30,
+      "world": "crm-merge",
+      "seed": 50015,
+      "policy": "scripted-oracle",
+      "episode_id": "d648824c-9013-42d6-88d7-9bfa2858d3d8",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 7,
+      "invalid_actions": 0
+    },
+    {
+      "index": 31,
+      "world": "crm-merge",
+      "seed": 50015,
+      "policy": "scripted-baseline",
+      "episode_id": "b88726b1-83fb-4272-922d-5745aae3890e",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 32,
+      "world": "refund-ops",
+      "seed": 50000,
+      "policy": "scripted-oracle",
+      "episode_id": "7f046e24-eecf-4391-b1bc-e703ed68a266",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 4,
+      "invalid_actions": 0
+    },
+    {
+      "index": 33,
+      "world": "refund-ops",
+      "seed": 50000,
+      "policy": "scripted-baseline",
+      "episode_id": "99f7ed38-8911-44bc-86ae-a00a88401df5",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 34,
+      "world": "refund-ops",
+      "seed": 50001,
+      "policy": "scripted-oracle",
+      "episode_id": "06a9a151-c642-456c-96d9-4f44066474fa",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 3,
+      "invalid_actions": 0
+    },
+    {
+      "index": 35,
+      "world": "refund-ops",
+      "seed": 50001,
+      "policy": "scripted-baseline",
+      "episode_id": "6b59fe8f-b734-46b3-bb8d-db474b5aa31b",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 36,
+      "world": "refund-ops",
+      "seed": 50002,
+      "policy": "scripted-oracle",
+      "episode_id": "f5bdb810-d4b4-4e68-bfc9-5814b483e740",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 3,
+      "invalid_actions": 0
+    },
+    {
+      "index": 37,
+      "world": "refund-ops",
+      "seed": 50002,
+      "policy": "scripted-baseline",
+      "episode_id": "a27714e8-7d40-47d9-82ac-5ca127cead90",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 38,
+      "world": "refund-ops",
+      "seed": 50003,
+      "policy": "scripted-oracle",
+      "episode_id": "3e78d7ad-bd2e-4051-8006-1bd8d7fcaadd",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 4,
+      "invalid_actions": 0
+    },
+    {
+      "index": 39,
+      "world": "refund-ops",
+      "seed": 50003,
+      "policy": "scripted-baseline",
+      "episode_id": "e0eeea60-3d70-42f3-8f20-57fd3cedfb4e",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 40,
+      "world": "refund-ops",
+      "seed": 50004,
+      "policy": "scripted-oracle",
+      "episode_id": "6b9607f0-05d0-4cc3-a076-5d0395d4d85b",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 0
+    },
+    {
+      "index": 41,
+      "world": "refund-ops",
+      "seed": 50004,
+      "policy": "scripted-baseline",
+      "episode_id": "abff3e92-e58c-4c38-88a7-ae8d9103ca7f",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 42,
+      "world": "refund-ops",
+      "seed": 50005,
+      "policy": "scripted-oracle",
+      "episode_id": "c7f522ea-8199-4e50-9d9f-2aa49c661834",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 0
+    },
+    {
+      "index": 43,
+      "world": "refund-ops",
+      "seed": 50005,
+      "policy": "scripted-baseline",
+      "episode_id": "f3633654-e860-4755-bea9-0d1854ed46c8",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 44,
+      "world": "refund-ops",
+      "seed": 50006,
+      "policy": "scripted-oracle",
+      "episode_id": "80cdf22e-1a56-4ac7-9407-b5b7a06ac44f",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 0
+    },
+    {
+      "index": 45,
+      "world": "refund-ops",
+      "seed": 50006,
+      "policy": "scripted-baseline",
+      "episode_id": "df98c393-f090-482c-aba2-9e0bc6b9bd76",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 46,
+      "world": "refund-ops",
+      "seed": 50007,
+      "policy": "scripted-oracle",
+      "episode_id": "8036c518-3a74-442c-8978-c46a7c3b9a56",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 0
+    },
+    {
+      "index": 47,
+      "world": "refund-ops",
+      "seed": 50007,
+      "policy": "scripted-baseline",
+      "episode_id": "59a7aba9-3f4e-49cf-aa9c-f94b8a212e17",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 48,
+      "world": "refund-ops",
+      "seed": 50008,
+      "policy": "scripted-oracle",
+      "episode_id": "e8ae5acf-bc91-4c4d-8f89-fd78a5ea6df0",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 3,
+      "invalid_actions": 0
+    },
+    {
+      "index": 49,
+      "world": "refund-ops",
+      "seed": 50008,
+      "policy": "scripted-baseline",
+      "episode_id": "10264273-b4d3-4ba0-afc8-928e162391fa",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 50,
+      "world": "refund-ops",
+      "seed": 50009,
+      "policy": "scripted-oracle",
+      "episode_id": "45d4b809-2985-451f-9917-59a2e7b748f7",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 4,
+      "invalid_actions": 0
+    },
+    {
+      "index": 51,
+      "world": "refund-ops",
+      "seed": 50009,
+      "policy": "scripted-baseline",
+      "episode_id": "08f2aaf6-aa8f-4604-9142-408039258da1",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 52,
+      "world": "refund-ops",
+      "seed": 50010,
+      "policy": "scripted-oracle",
+      "episode_id": "6f4ff91c-e9c1-4d44-8c7b-50f45d349b82",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 3,
+      "invalid_actions": 0
+    },
+    {
+      "index": 53,
+      "world": "refund-ops",
+      "seed": 50010,
+      "policy": "scripted-baseline",
+      "episode_id": "9d18115a-d675-4f41-9a46-8cffadc673e4",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 54,
+      "world": "refund-ops",
+      "seed": 50011,
+      "policy": "scripted-oracle",
+      "episode_id": "f1f47c78-740b-4eec-9b37-528d28d010c6",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 4,
+      "invalid_actions": 0
+    },
+    {
+      "index": 55,
+      "world": "refund-ops",
+      "seed": 50011,
+      "policy": "scripted-baseline",
+      "episode_id": "3b9776b8-d404-48c7-8139-f610a5300b42",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 56,
+      "world": "refund-ops",
+      "seed": 50012,
+      "policy": "scripted-oracle",
+      "episode_id": "24e2c4dd-e2cb-413f-a297-e8a1087ce7ea",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 0
+    },
+    {
+      "index": 57,
+      "world": "refund-ops",
+      "seed": 50012,
+      "policy": "scripted-baseline",
+      "episode_id": "93b7a11f-0753-4e4c-bd93-2cc9b833ff57",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 58,
+      "world": "refund-ops",
+      "seed": 50013,
+      "policy": "scripted-oracle",
+      "episode_id": "dab86cdf-1bcf-407c-9d32-36950d4905d2",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 0
+    },
+    {
+      "index": 59,
+      "world": "refund-ops",
+      "seed": 50013,
+      "policy": "scripted-baseline",
+      "episode_id": "74b59e5e-9e4b-424a-a7c4-1c4d3d1b7c91",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 60,
+      "world": "refund-ops",
+      "seed": 50014,
+      "policy": "scripted-oracle",
+      "episode_id": "97c5962f-4eea-447a-b9d3-d9ded2051f14",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 0
+    },
+    {
+      "index": 61,
+      "world": "refund-ops",
+      "seed": 50014,
+      "policy": "scripted-baseline",
+      "episode_id": "4e8d1234-b580-4f8e-9b0e-f031c472f51e",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 62,
+      "world": "refund-ops",
+      "seed": 50015,
+      "policy": "scripted-oracle",
+      "episode_id": "411d914b-f921-46da-8baa-e6800349f139",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 0
+    },
+    {
+      "index": 63,
+      "world": "refund-ops",
+      "seed": 50015,
+      "policy": "scripted-baseline",
+      "episode_id": "e32cedd6-197e-4faf-a1b9-19b80e0ede46",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 64,
+      "world": "incident-control",
+      "seed": 50000,
+      "policy": "scripted-oracle",
+      "episode_id": "51779de6-506c-4bb6-ac5a-359d55465190",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 65,
+      "world": "incident-control",
+      "seed": 50000,
+      "policy": "scripted-baseline",
+      "episode_id": "8250dcf3-0d07-4a5c-92b2-79ee33489677",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 66,
+      "world": "incident-control",
+      "seed": 50001,
+      "policy": "scripted-oracle",
+      "episode_id": "e5d2636c-1ae2-4b00-aaa9-c2013a56f7f2",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 67,
+      "world": "incident-control",
+      "seed": 50001,
+      "policy": "scripted-baseline",
+      "episode_id": "07c5faf7-3887-4479-bbb2-5eedccdb9bd8",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 68,
+      "world": "incident-control",
+      "seed": 50002,
+      "policy": "scripted-oracle",
+      "episode_id": "22367849-6808-4417-9e2e-890123f57e89",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 69,
+      "world": "incident-control",
+      "seed": 50002,
+      "policy": "scripted-baseline",
+      "episode_id": "89669f7f-fd45-4238-ab1b-ff92020c6343",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 70,
+      "world": "incident-control",
+      "seed": 50003,
+      "policy": "scripted-oracle",
+      "episode_id": "cedb9c43-9ce0-4ac1-9b5f-ee58484cdc8d",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 71,
+      "world": "incident-control",
+      "seed": 50003,
+      "policy": "scripted-baseline",
+      "episode_id": "a6f74de1-7bbd-45d0-83b8-2aedd2f6802b",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 72,
+      "world": "incident-control",
+      "seed": 50004,
+      "policy": "scripted-oracle",
+      "episode_id": "c2f9abef-6725-4994-b447-be689af674a0",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 73,
+      "world": "incident-control",
+      "seed": 50004,
+      "policy": "scripted-baseline",
+      "episode_id": "a5e30fbf-e015-4ac0-9717-a323c9f1dc29",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 74,
+      "world": "incident-control",
+      "seed": 50005,
+      "policy": "scripted-oracle",
+      "episode_id": "bdc3158f-bb10-476d-8bb1-edbda2cc9379",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 75,
+      "world": "incident-control",
+      "seed": 50005,
+      "policy": "scripted-baseline",
+      "episode_id": "96bbc7b3-dc85-44ce-a2f8-30c1ec8018b6",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 76,
+      "world": "incident-control",
+      "seed": 50006,
+      "policy": "scripted-oracle",
+      "episode_id": "cd401f05-eaff-4b1c-83e1-f75c386e09a3",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 77,
+      "world": "incident-control",
+      "seed": 50006,
+      "policy": "scripted-baseline",
+      "episode_id": "e7375a88-40db-4345-ae77-9c6bfc8ebbe2",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 78,
+      "world": "incident-control",
+      "seed": 50007,
+      "policy": "scripted-oracle",
+      "episode_id": "237eef21-dd2b-4499-b821-a945f8e14c05",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 79,
+      "world": "incident-control",
+      "seed": 50007,
+      "policy": "scripted-baseline",
+      "episode_id": "845569c3-570d-4e7d-9c05-11e804eed722",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 80,
+      "world": "incident-control",
+      "seed": 50008,
+      "policy": "scripted-oracle",
+      "episode_id": "b9e1cbef-2747-46fb-ab25-ecac7ac7ff5d",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 81,
+      "world": "incident-control",
+      "seed": 50008,
+      "policy": "scripted-baseline",
+      "episode_id": "62868125-58cc-44e2-9307-76a9866b7b70",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 82,
+      "world": "incident-control",
+      "seed": 50009,
+      "policy": "scripted-oracle",
+      "episode_id": "6ffef1bf-f913-4d62-baa9-36cac2c3c95c",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 83,
+      "world": "incident-control",
+      "seed": 50009,
+      "policy": "scripted-baseline",
+      "episode_id": "16ff5b19-e233-450c-80a6-208a066cb57c",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 84,
+      "world": "incident-control",
+      "seed": 50010,
+      "policy": "scripted-oracle",
+      "episode_id": "6833b21f-e3a4-42f5-b639-11a26c54c3b3",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 85,
+      "world": "incident-control",
+      "seed": 50010,
+      "policy": "scripted-baseline",
+      "episode_id": "bc664b01-b515-4c38-93a6-71a332a4b111",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 86,
+      "world": "incident-control",
+      "seed": 50011,
+      "policy": "scripted-oracle",
+      "episode_id": "4e5254fb-2525-4a1d-9713-251e4b824276",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 87,
+      "world": "incident-control",
+      "seed": 50011,
+      "policy": "scripted-baseline",
+      "episode_id": "e3e4f277-4452-42df-a28e-fcd024673138",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 88,
+      "world": "incident-control",
+      "seed": 50012,
+      "policy": "scripted-oracle",
+      "episode_id": "9d17fa16-7ffc-487a-86db-8398c4b60575",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 89,
+      "world": "incident-control",
+      "seed": 50012,
+      "policy": "scripted-baseline",
+      "episode_id": "cff3dc84-1fe8-410b-92f9-6d6fa8b58622",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 90,
+      "world": "incident-control",
+      "seed": 50013,
+      "policy": "scripted-oracle",
+      "episode_id": "619e35fe-1204-4b58-94f2-dcc24068fbde",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 91,
+      "world": "incident-control",
+      "seed": 50013,
+      "policy": "scripted-baseline",
+      "episode_id": "1ccd6a3b-72be-4933-9762-ececf1fe573e",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 92,
+      "world": "incident-control",
+      "seed": 50014,
+      "policy": "scripted-oracle",
+      "episode_id": "bdd14f55-46f9-4083-9df9-5f7aa0aa33ab",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 93,
+      "world": "incident-control",
+      "seed": 50014,
+      "policy": "scripted-baseline",
+      "episode_id": "ee135c07-c51a-4d84-8a7a-91f5eb7e2b5c",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 94,
+      "world": "incident-control",
+      "seed": 50015,
+      "policy": "scripted-oracle",
+      "episode_id": "0c467f9c-3e5e-4fdc-aead-cd5e182d4800",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 95,
+      "world": "incident-control",
+      "seed": 50015,
+      "policy": "scripted-baseline",
+      "episode_id": "cc8a5d43-cb31-4747-8f08-aff051e20f68",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 96,
+      "world": "access-provisioning",
+      "seed": 50000,
+      "policy": "scripted-oracle",
+      "episode_id": "af00d801-febc-446a-b467-949d9282bd50",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 18,
+      "invalid_actions": 0
+    },
+    {
+      "index": 97,
+      "world": "access-provisioning",
+      "seed": 50000,
+      "policy": "scripted-baseline",
+      "episode_id": "27d52da1-f993-4889-b668-e0d1fa8b9f92",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 98,
+      "world": "access-provisioning",
+      "seed": 50001,
+      "policy": "scripted-oracle",
+      "episode_id": "3ac865a9-7e77-43ae-ad7a-a3e0ad98c3ee",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 18,
+      "invalid_actions": 0
+    },
+    {
+      "index": 99,
+      "world": "access-provisioning",
+      "seed": 50001,
+      "policy": "scripted-baseline",
+      "episode_id": "ea69c373-170b-49c9-a06c-aeddcdd53f6e",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 100,
+      "world": "access-provisioning",
+      "seed": 50002,
+      "policy": "scripted-oracle",
+      "episode_id": "3ce104c4-f5d2-4fb5-a5f7-9bdbcbda010d",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 6,
+      "invalid_actions": 0
+    },
+    {
+      "index": 101,
+      "world": "access-provisioning",
+      "seed": 50002,
+      "policy": "scripted-baseline",
+      "episode_id": "e67d479c-4550-4af9-bf8e-9fc7beec5fe9",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 102,
+      "world": "access-provisioning",
+      "seed": 50003,
+      "policy": "scripted-oracle",
+      "episode_id": "d0334fb2-c3f8-437f-9093-35d339636433",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 7,
+      "invalid_actions": 0
+    },
+    {
+      "index": 103,
+      "world": "access-provisioning",
+      "seed": 50003,
+      "policy": "scripted-baseline",
+      "episode_id": "bc8d935f-7933-46de-9a3d-a01b18755e3c",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 104,
+      "world": "access-provisioning",
+      "seed": 50004,
+      "policy": "scripted-oracle",
+      "episode_id": "6adf9956-52ac-4a64-8a12-5cf40d34fe9f",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 19,
+      "invalid_actions": 0
+    },
+    {
+      "index": 105,
+      "world": "access-provisioning",
+      "seed": 50004,
+      "policy": "scripted-baseline",
+      "episode_id": "d718c83c-ea0c-484d-80af-5fe35be5d648",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 106,
+      "world": "access-provisioning",
+      "seed": 50005,
+      "policy": "scripted-oracle",
+      "episode_id": "7300e0f3-75f8-4fa3-bc2f-b4d10000abfc",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 17,
+      "invalid_actions": 0
+    },
+    {
+      "index": 107,
+      "world": "access-provisioning",
+      "seed": 50005,
+      "policy": "scripted-baseline",
+      "episode_id": "e3aad54c-a4ba-47f5-8594-bd465cc85525",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 108,
+      "world": "access-provisioning",
+      "seed": 50006,
+      "policy": "scripted-oracle",
+      "episode_id": "0fd5bf20-4ea4-4d14-94bf-546d636d9fe2",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 15,
+      "invalid_actions": 0
+    },
+    {
+      "index": 109,
+      "world": "access-provisioning",
+      "seed": 50006,
+      "policy": "scripted-baseline",
+      "episode_id": "81c20a15-ebd7-488f-bd1a-916fb980b9d2",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 110,
+      "world": "access-provisioning",
+      "seed": 50007,
+      "policy": "scripted-oracle",
+      "episode_id": "fe546595-6fca-4e43-acf8-4503a98c1cf0",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 10,
+      "invalid_actions": 0
+    },
+    {
+      "index": 111,
+      "world": "access-provisioning",
+      "seed": 50007,
+      "policy": "scripted-baseline",
+      "episode_id": "3c0611d6-dd8e-44f7-babf-d7ee8a09d3bf",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 112,
+      "world": "access-provisioning",
+      "seed": 50008,
+      "policy": "scripted-oracle",
+      "episode_id": "9f3557b4-1d3e-43d5-a93d-625c7bcdb9d5",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 18,
+      "invalid_actions": 0
+    },
+    {
+      "index": 113,
+      "world": "access-provisioning",
+      "seed": 50008,
+      "policy": "scripted-baseline",
+      "episode_id": "be78bc87-9a5a-475a-bfd8-8c63087d48c3",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 114,
+      "world": "access-provisioning",
+      "seed": 50009,
+      "policy": "scripted-oracle",
+      "episode_id": "3a83c2ed-9a1f-4fcb-9d22-6ec116c57e18",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 16,
+      "invalid_actions": 0
+    },
+    {
+      "index": 115,
+      "world": "access-provisioning",
+      "seed": 50009,
+      "policy": "scripted-baseline",
+      "episode_id": "ab99cc89-9f6a-481a-9d87-fc7c65461f43",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 116,
+      "world": "access-provisioning",
+      "seed": 50010,
+      "policy": "scripted-oracle",
+      "episode_id": "b3fc5464-84dd-41f4-a986-9bca0ddbff93",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 6,
+      "invalid_actions": 0
+    },
+    {
+      "index": 117,
+      "world": "access-provisioning",
+      "seed": 50010,
+      "policy": "scripted-baseline",
+      "episode_id": "479138fd-a726-44f4-b4d8-dfef6516956c",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 118,
+      "world": "access-provisioning",
+      "seed": 50011,
+      "policy": "scripted-oracle",
+      "episode_id": "d0bccb24-eeb1-48b7-8695-071e11ca80a4",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 119,
+      "world": "access-provisioning",
+      "seed": 50011,
+      "policy": "scripted-baseline",
+      "episode_id": "20994cf4-f9d6-4339-a7a7-2e88a236c618",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "test",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 120,
+      "world": "access-provisioning",
+      "seed": 50012,
+      "policy": "scripted-oracle",
+      "episode_id": "390bc6ae-aee9-4fd4-803f-8248a7382487",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 19,
+      "invalid_actions": 0
+    },
+    {
+      "index": 121,
+      "world": "access-provisioning",
+      "seed": 50012,
+      "policy": "scripted-baseline",
+      "episode_id": "6255ad1b-161e-46d2-a06d-4132b36ad415",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 122,
+      "world": "access-provisioning",
+      "seed": 50013,
+      "policy": "scripted-oracle",
+      "episode_id": "8bf8bc43-5651-44b2-971a-30a9fa3e9440",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 18,
+      "invalid_actions": 0
+    },
+    {
+      "index": 123,
+      "world": "access-provisioning",
+      "seed": 50013,
+      "policy": "scripted-baseline",
+      "episode_id": "19e166a8-1913-400f-ac86-1c58d19da51d",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 124,
+      "world": "access-provisioning",
+      "seed": 50014,
+      "policy": "scripted-oracle",
+      "episode_id": "9519f54a-dc29-43fc-977d-a0753613dbd9",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 15,
+      "invalid_actions": 0
+    },
+    {
+      "index": 125,
+      "world": "access-provisioning",
+      "seed": 50014,
+      "policy": "scripted-baseline",
+      "episode_id": "fa82fa69-afc7-441b-b817-486f18f6a91c",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "validation",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    },
+    {
+      "index": 126,
+      "world": "access-provisioning",
+      "seed": 50015,
+      "policy": "scripted-oracle",
+      "episode_id": "cedc7d0d-b639-4dec-bea0-3270c18244d5",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": true,
+      "clean_success": true,
+      "observed_passed": true,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 8,
+      "invalid_actions": 0
+    },
+    {
+      "index": 127,
+      "world": "access-provisioning",
+      "seed": 50015,
+      "policy": "scripted-baseline",
+      "episode_id": "08e578ac-bd53-4675-b8f9-819839a014d7",
+      "outcome_integrity": true,
+      "replay_verified": true,
+      "passed": false,
+      "clean_success": false,
+      "observed_passed": false,
+      "storage": "candidates.sqlite3",
+      "split": "train",
+      "status": "completed",
+      "termination": "finished",
+      "steps": 2,
+      "invalid_actions": 1
+    }
+  ],
+  "prior_receipt_seed_overlap": [],
+  "model_calls": 0,
+  "paid_calls": 0,
+  "training_executed": false,
+  "trainer_token_count": null,
+  "note": "Scripted candidates only. Grouped rollouts trainable=false; DPO trajectory messages need a trainer adapter.",
+  "final_checkout_dirty": true,
+  "exports": {
+    "artifacts": {
+      "sft": {
+        "file": "sft.jsonl",
+        "records": 397,
+        "bytes": 3762119,
+        "sha256": "db1cd955b2ca92413dff89a7721a3c48d80008435f48447ba53d8a17e3aa9f1f"
+      },
+      "dpo": {
+        "file": "dpo.jsonl",
+        "records": 51,
+        "bytes": 2802762,
+        "sha256": "6534e3d9c81ac91b1a7d9aac18d79930db785fb1d4aeaea9c0121248d6f74a09"
+      },
+      "grpo": {
+        "file": "grouped-rollouts.jsonl",
+        "records": 51,
+        "bytes": 2657301,
+        "sha256": "9578a6ad9acbd0bb31e5f4007d68c2a7d7c34b418b7035e07008a2970b6dc329"
+      }
+    },
+    "per_world_reports": {
+      "crm-merge": {
+        "sft": {
+          "format": "sft",
+          "quality": "passed",
+          "records": 76,
+          "source_episodes": 16,
+          "skipped": 4,
+          "excluded": {
+            "heldout_split": 4,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "dpo": {
+          "format": "dpo",
+          "quality": "passed",
+          "records": 12,
+          "source_episodes": 16,
+          "skipped": 4,
+          "excluded": {
+            "heldout_split": 4,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "grpo": {
+          "format": "grpo",
+          "quality": "passed",
+          "records": 12,
+          "source_episodes": 16,
+          "skipped": 4,
+          "excluded": {
+            "heldout_split": 4,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        }
+      },
+      "refund-ops": {
+        "sft": {
+          "format": "sft",
+          "quality": "passed",
+          "records": 37,
+          "source_episodes": 16,
+          "skipped": 3,
+          "excluded": {
+            "heldout_split": 3,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "dpo": {
+          "format": "dpo",
+          "quality": "passed",
+          "records": 13,
+          "source_episodes": 16,
+          "skipped": 3,
+          "excluded": {
+            "heldout_split": 3,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "grpo": {
+          "format": "grpo",
+          "quality": "passed",
+          "records": 13,
+          "source_episodes": 16,
+          "skipped": 3,
+          "excluded": {
+            "heldout_split": 3,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        }
+      },
+      "incident-control": {
+        "sft": {
+          "format": "sft",
+          "quality": "passed",
+          "records": 104,
+          "source_episodes": 16,
+          "skipped": 3,
+          "excluded": {
+            "heldout_split": 3,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "dpo": {
+          "format": "dpo",
+          "quality": "passed",
+          "records": 13,
+          "source_episodes": 16,
+          "skipped": 3,
+          "excluded": {
+            "heldout_split": 3,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "grpo": {
+          "format": "grpo",
+          "quality": "passed",
+          "records": 13,
+          "source_episodes": 16,
+          "skipped": 3,
+          "excluded": {
+            "heldout_split": 3,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        }
+      },
+      "access-provisioning": {
+        "sft": {
+          "format": "sft",
+          "quality": "passed",
+          "records": 180,
+          "source_episodes": 16,
+          "skipped": 3,
+          "excluded": {
+            "heldout_split": 3,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "dpo": {
+          "format": "dpo",
+          "quality": "passed",
+          "records": 13,
+          "source_episodes": 16,
+          "skipped": 3,
+          "excluded": {
+            "heldout_split": 3,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        },
+        "grpo": {
+          "format": "grpo",
+          "quality": "passed",
+          "records": 13,
+          "source_episodes": 16,
+          "skipped": 3,
+          "excluded": {
+            "heldout_split": 3,
+            "evaluation_only": 0,
+            "quality": 0,
+            "replay_mismatch": 0,
+            "insufficient_alternatives": 0,
+            "unsupported_provider_protocol": 0
+          },
+          "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."
+        }
+      }
+    }
+  },
+  "status": "completed",
+  "stop_reason": null,
+  "candidate_batch_approved": true,
+  "runs": {
+    "crm-merge": {
+      "scripted-oracle": "88a9345b-1ddf-4b9b-9f30-f27008fda348",
+      "scripted-baseline": "23eb13ed-d95f-4bbb-93fe-f9e7eb98adb7"
+    },
+    "refund-ops": {
+      "scripted-oracle": "36a46b70-d634-4a7d-8506-802aa66ff230",
+      "scripted-baseline": "b8c615d9-d2c9-4c1f-8614-d52a60c4c91b"
+    },
+    "incident-control": {
+      "scripted-oracle": "d899f0b7-fe78-4410-82f8-bd18693bdeac",
+      "scripted-baseline": "42f78093-bdd9-48f2-883b-ff3a13bdf028"
+    },
+    "access-provisioning": {
+      "scripted-oracle": "b9b956fb-1c31-49e7-8481-1bf533af7fc9",
+      "scripted-baseline": "f8d9244c-4cea-4ced-b896-2e055956dcc3"
+    }
+  },
+  "elapsed_seconds": 11.456073333043605,
+  "attempted_episodes": 128,
+  "verified_episodes": 128,
+  "inconclusive_episodes": 0,
+  "unattempted_episodes": 0,
+  "business_passes": 64,
+  "clean_passes": 64,
+  "recorded_episode_splits": {
+    "train": 102,
+    "test": 14,
+    "validation": 12
+  },
+  "pairs": {
+    "complete_pairs": 64,
+    "incomplete_pairs": 0,
+    "comparable_pairs": 64,
+    "distinct_action_trajectories": 64,
+    "train_pairs": 51
+  },
+  "per_world_policy": {
+    "crm-merge": {
+      "scripted-oracle": {
+        "attempted": 16,
+        "verified": 16,
+        "business_passes": 16,
+        "clean_passes": 16
+      },
+      "scripted-baseline": {
+        "attempted": 16,
+        "verified": 16,
+        "business_passes": 0,
+        "clean_passes": 0
+      }
+    },
+    "refund-ops": {
+      "scripted-oracle": {
+        "attempted": 16,
+        "verified": 16,
+        "business_passes": 16,
+        "clean_passes": 16
+      },
+      "scripted-baseline": {
+        "attempted": 16,
+        "verified": 16,
+        "business_passes": 0,
+        "clean_passes": 0
+      }
+    },
+    "incident-control": {
+      "scripted-oracle": {
+        "attempted": 16,
+        "verified": 16,
+        "business_passes": 16,
+        "clean_passes": 16
+      },
+      "scripted-baseline": {
+        "attempted": 16,
+        "verified": 16,
+        "business_passes": 0,
+        "clean_passes": 0
+      }
+    },
+    "access-provisioning": {
+      "scripted-oracle": {
+        "attempted": 16,
+        "verified": 16,
+        "business_passes": 16,
+        "clean_passes": 16
+      },
+      "scripted-baseline": {
+        "attempted": 16,
+        "verified": 16,
+        "business_passes": 0,
+        "clean_passes": 0
+      }
+    }
+  },
+  "journal_sampled_peak_bytes": 33344,
+  "private_db_journal_mode": "delete",
+  "artifact_files": {
+    "dpo.jsonl": {
+      "bytes": 2802762,
+      "sha256": "6534e3d9c81ac91b1a7d9aac18d79930db785fb1d4aeaea9c0121248d6f74a09"
+    },
+    "sft.jsonl": {
+      "bytes": 3762119,
+      "sha256": "db1cd955b2ca92413dff89a7721a3c48d80008435f48447ba53d8a17e3aa9f1f"
+    },
+    "grouped-rollouts.jsonl": {
+      "bytes": 2657301,
+      "sha256": "9578a6ad9acbd0bb31e5f4007d68c2a7d7c34b418b7035e07008a2970b6dc329"
+    },
+    "candidates.sqlite3": {
+      "bytes": 9650176,
+      "sha256": "4aa379851e0d419ca102a0fbd429c26e80fd692505b7d4b354b48edfc0784af4"
+    }
+  },
+  "artifacts_bytes_before_manifest": 18872358,
+  "manifest_bytes": 149123,
+  "artifact_total_bytes": 19021481
+}

@@ -1,0 +1,407 @@
+{
+  "schema": "world-engine.scripted-profile-validation.v1",
+  "recorded_at": "2026-10-10T10:29:28Z",
+  "publication_only": true,
+  "collection_repeated": false,
+  "source": {
+    "collection_revision": "b4501029a332d7675a12fbf84b00358230d3d154",
+    "validation_checkout_revision": "1d9f2315348cbea192f7ae5c4f1cf0343ba6618a",
+    "validation_checkout_revision_supplied_by": "root",
+    "recorded_scope_clean": true,
+    "recorded_checkout_dirty": true,
+    "files_sha256": {
+      "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+      "src/world_engine/__main__.py": "46f6078d57f6800b8c86f43edf2697e6939112883bad36e4d7964bef20e0b80a",
+      "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+      "src/world_engine/api.py": "12d7d71ffda3df3705a100303f1310413c5ed11b4543ea6d4baf25c9fd83c587",
+      "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+      "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+      "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+      "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+      "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+      "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+      "src/world_engine/native_config.py": "bebabd5b3dd2bab72c4a878b24c0173629e8ed737ff30bffb485194804307a50",
+      "src/world_engine/native_ledger.py": "986b65d8de1916455471cf4f5c3a528c5c653be1d56fb1bcaee073b68b2dfd5e",
+      "src/world_engine/ollama_tools.py": "3936518027cb9f6e4562ce1e1627353dbde41c11d1646757171bce5bdd3af435",
+      "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+      "src/world_engine/providers.py": "e68a7b6093ef45c7b19c69d7f2dff789112445d5c9e91b4c338957420798c26f",
+      "src/world_engine/rollout.py": "e51c3f8168b127574d02871e4a622e15051a3bc152473f678711432350f20f3d",
+      "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+      "pyproject.toml": "6c352c613b9a0d428c6b1bf0979c27595b119c22b50b4a26a92210a2e461412e",
+      "uv.lock": "a65eda4a34998fe5978fde9ef84ef99e94ada85d2a8e574e4e6c3e9d70c20034",
+      "scripts/profile_scripted.py": "b0d13ae960948d7ccaf3ca1b08c6f02521488ac9bccf037caa848d2da9ee1835",
+      "tests/test_profile_scripted.py": "8c5011b64d1f7a668195fba9eccc2c83018274efee570c69e4fb171e6805dbc4",
+      "docs/scripted-profiling.md": "1e423b0731090a6696956eab91993315f680a77fb5c86a079559382cc2d67021"
+    },
+    "pinned_collection_blob_hashes_verified": 22,
+    "current_file_hashes_verified": 22
+  },
+  "audits": [
+    {
+      "reviewer": "console",
+      "date_utc": "2026-10-10",
+      "method": "independent read-only proof; no original file writes, database writes, profiling, model or API calls",
+      "replays": 192,
+      "actual_Harbor_validations": 192,
+      "training_exclusions": 576
+    },
+    {
+      "reviewer": "root",
+      "date_utc": "2026-10-10",
+      "completed_window_utc": [
+        "2026-10-10T10:27:47Z",
+        "2026-10-10T10:28:00Z"
+      ],
+      "method": "separate independent read-only proof; all original hashes checked before and after",
+      "replays": 192,
+      "actual_Harbor_validations": 192,
+      "training_exclusions": 576,
+      "pre_success_proof_command_failures": {
+        "count": 2,
+        "categories": [
+          "shell newline quoting",
+          "statistics filename"
+        ],
+        "collection_retries": 0,
+        "original_file_writes": 0
+      }
+    }
+  ],
+  "upstream": {
+    "library": "Harbor",
+    "version": "0.24.0",
+    "revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+    "model": "harbor.models.trajectories.trajectory.Trajectory",
+    "schema_version": "ATIF-v1.8",
+    "schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c",
+    "validation_path": "/tmp/world-engine-atif-upstream",
+    "documents_validated": 192,
+    "schema_conformance_is_not_execution_authenticity_or_training_permission": true
+  },
+  "evidence": {
+    "ordered_full_envelopes": 192,
+    "worlds": 4,
+    "trials_per_world": 2,
+    "episodes_per_trial": 24,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ],
+    "total_steps": 1456,
+    "passed": 192,
+    "invalid_actions": 0,
+    "errors": 0,
+    "unattempted": 0,
+    "diagnostics": 0,
+    "returned_without_persistence": 0,
+    "replay_verified": 192,
+    "model_calls": 0,
+    "evaluation_only": true,
+    "training_eligible": false,
+    "measured_replay_episodes": 96,
+    "measured_sqlite_operations": {
+      "append": 96,
+      "list": 100,
+      "detail": 40
+    },
+    "paired_new_trial_logical_matches": 96,
+    "historical_saved_profiled_logical_matches": 96,
+    "logical_match_fields": [
+      "scenario_id",
+      "lineage_id",
+      "split",
+      "initial_observation",
+      "initial_snapshot",
+      "final_observation",
+      "final_snapshot",
+      "final_state_hash",
+      "grader",
+      "reward",
+      "passed",
+      "trace.index",
+      "trace.action",
+      "trace.observation",
+      "trace.result",
+      "trace.state_hash"
+    ],
+    "timings_and_generated_episode_ids_not_required_equal": true,
+    "training_exports": {
+      "sft": {
+        "quality": "all",
+        "records": 0,
+        "evaluation_only_exclusions": 192,
+        "candidate_pool_visited": false
+      },
+      "dpo": {
+        "quality": "all",
+        "records": 0,
+        "evaluation_only_exclusions": 192,
+        "candidate_pool_visited": false
+      },
+      "grpo": {
+        "quality": "all",
+        "records": 0,
+        "evaluation_only_exclusions": 192,
+        "candidate_pool_visited": false
+      }
+    }
+  },
+  "profile_statistics": {
+    "binary_profiles_verified": 8,
+    "total_calls_and_profiled_seconds_match": true,
+    "all_top_50_cumulative_and_exclusive_entries_match": true,
+    "observation_counts": [
+      {
+        "world": "crm-merge",
+        "historical": 528,
+        "current": 376,
+        "decisions_per_trial": 152,
+        "setup_reads_per_episode": 3
+      },
+      {
+        "world": "refund-ops",
+        "historical": 264,
+        "current": 200,
+        "decisions_per_trial": 64,
+        "setup_reads_per_episode": 3
+      },
+      {
+        "world": "incident-control",
+        "historical": 648,
+        "current": 456,
+        "decisions_per_trial": 192,
+        "setup_reads_per_episode": 3
+      },
+      {
+        "world": "access-provisioning",
+        "historical": 1056,
+        "current": 736,
+        "decisions_per_trial": 320,
+        "setup_reads_per_episode": 4
+      }
+    ],
+    "method": "exact observe method code filename/first line/function identity in each saved binary profile",
+    "duplicate_observation_reads_removed_per_profiled_trial": 728,
+    "unprofiled_observation_reads_instrumented": false
+  },
+  "collection_accounting": {
+    "execution_seconds": 4.604684542049654,
+    "deadline_seconds": 240,
+    "artifact_cap_bytes": 67108864,
+    "original_file_count": 18,
+    "original_file_bytes": 21824261,
+    "bytes_before_report": 21509476,
+    "report_bytes": 314785,
+    "all_original_bytes_and_hashes_unchanged": true,
+    "temporary_database_removed": true,
+    "original_files": {
+      "access-provisioning-rollout.prof": {
+        "bytes": 27949,
+        "sha256": "8fee5d35952be23feea86c5b2d6ea767d76416f912edfc6417eed98f112359d9"
+      },
+      "access-provisioning-rollout.txt": {
+        "bytes": 4125,
+        "sha256": "74f91179e0f25fad916ac23ff55baedfac6f3e5e4547190e97bb05b4161c9b98"
+      },
+      "crm-merge-rollout.prof": {
+        "bytes": 25954,
+        "sha256": "2f9c622a516a42142ec62d150d5b0383eaa8c8e8725beccd522e3c91b4b78e02"
+      },
+      "crm-merge-rollout.txt": {
+        "bytes": 4039,
+        "sha256": "7aa0cbd667202027015cb23ba166081d177c3173a6c1de45f298908a86422c30"
+      },
+      "episodes.jsonl": {
+        "bytes": 21325782,
+        "sha256": "31cb7c7be5b217a6b5762973ec98e9db50b4368645dcaf5629fe2188e09e98a7"
+      },
+      "incident-control-rollout.prof": {
+        "bytes": 22573,
+        "sha256": "bf586d3931f38478ca8d7f1641731eeb9c6b1148deac223025fe888f0e0d643b"
+      },
+      "incident-control-rollout.txt": {
+        "bytes": 4068,
+        "sha256": "7c88160a861e57376fde6da8f45db7f89ef20ca63002837978e31062a02f54b1"
+      },
+      "profile.json": {
+        "bytes": 314785,
+        "sha256": "72ae6a730f2452b4f542b4125eb696cb70915dcf618aabcfb792f5203ec89d95"
+      },
+      "refund-ops-rollout.prof": {
+        "bytes": 23384,
+        "sha256": "8c2dc1b142b11c5f680f9a10367d860fdd40a17a2edf8cf7311023e1be89dbcc"
+      },
+      "refund-ops-rollout.txt": {
+        "bytes": 4007,
+        "sha256": "4d681a3d8fa0e2ced07838b105ddabd47e20e7c92edb60b0453d328142349d64"
+      },
+      "sqlite-append.prof": {
+        "bytes": 4848,
+        "sha256": "171a1571895805f80d995566ac7c2c1fef977e9200e2a1f8f8942101073f1f27"
+      },
+      "sqlite-append.txt": {
+        "bytes": 3162,
+        "sha256": "a390338b90f96aa1c43c2322a1f0a74cb36562ff4d2bd0614c97fe32bde0b996"
+      },
+      "sqlite-detail-24.prof": {
+        "bytes": 6023,
+        "sha256": "bccf55c83326d30df3e018866c51bee6feb08c1dd2d9ce7e786a414005eb16f4"
+      },
+      "sqlite-detail-24.txt": {
+        "bytes": 3790,
+        "sha256": "d7100d195a25687b9b279350a652dc391e269a95f84640daf80e960c5424ee29"
+      },
+      "sqlite-list-page.prof": {
+        "bytes": 4346,
+        "sha256": "9b6e93e8f4433998d1202a416649f4c7914c5938b7e4c1c7f6cf60906fd6bbb5"
+      },
+      "sqlite-list-page.txt": {
+        "bytes": 2863,
+        "sha256": "5037ed6e91407b20b09cd51a7c15e7d7a7dd48e5f6165fb38deff76dc030066d"
+      },
+      "trusted-replay.prof": {
+        "bytes": 38481,
+        "sha256": "265880c4a7a1e3e77901ff4c078e01c86e18a7e5372114c05ded55b685eabacf"
+      },
+      "trusted-replay.txt": {
+        "bytes": 4082,
+        "sha256": "e9304b3774181fa746e8f3f04637606c2fc6cbf66b02f3212cd0752d12685800"
+      }
+    },
+    "this_sidecar_is_additional_publication_bytes_not_original_collection_bytes": true
+  },
+  "historical": {
+    "directory": "artifacts/profiling/20261010-v1",
+    "revision": "d71a05d35f8c95df930d957ff4ebecc2ef3b0b72",
+    "saved_episodes": 96,
+    "unsaved_unprofiled_episodes_independently_verified": false,
+    "total_files": 20,
+    "total_bytes": 11115988,
+    "original_measurement_files": 18,
+    "original_measurement_bytes": 11101259,
+    "retrospective_sidecars": [
+      "producer.py",
+      "profile.md"
+    ],
+    "retrospective_sidecar_bytes": 14729,
+    "four_input_hashes_unchanged": {
+      "profile.json": "a9f1a202f0400cdca50beca6b7ac9c6d06f044ab0a3ae298b0b7ceb821e9a167",
+      "episodes.jsonl": "14825518abf5063d3422c78ba0515ce377c71d533b6c4d3aad1982ad6d0a12a9",
+      "profile.md": "7d66e175de00dc9f74dc0a862b0e71cdcb70c59ff8043383f777fb5fb8bfaa46",
+      "producer.py": "ac0d5d7279c16235ab02ef89bf6f86a2744cefb7fbf8483a3f9ee0914aebb449"
+    },
+    "files": {
+      "access-provisioning-rollout.prof": {
+        "bytes": 27591,
+        "sha256": "4a55072f25e639eb9fd17a6e49f0fcc6dfcd2f6bc4263364e3c551d42d4b1bb5"
+      },
+      "access-provisioning-rollout.txt": {
+        "bytes": 4118,
+        "sha256": "1a8d8acde3d749ed5b8b005265d07e149139767bb928e8ee0ac157431ae65ef4"
+      },
+      "crm-merge-rollout.prof": {
+        "bytes": 25596,
+        "sha256": "e088c698886f7b604461de86f24a412395d4583f014faa3c8da82e5add82583a"
+      },
+      "crm-merge-rollout.txt": {
+        "bytes": 4019,
+        "sha256": "117400b42a5de90e3b8c6568e324f481cb05f99a755a9a0d40e873f648b9eedf"
+      },
+      "episodes.jsonl": {
+        "bytes": 10648320,
+        "sha256": "14825518abf5063d3422c78ba0515ce377c71d533b6c4d3aad1982ad6d0a12a9"
+      },
+      "incident-control-rollout.prof": {
+        "bytes": 22215,
+        "sha256": "47973f0a4538b74663746199c84f717197aeed3bcd35db6437174bfef7347faf"
+      },
+      "incident-control-rollout.txt": {
+        "bytes": 4053,
+        "sha256": "771d049079c801d838622777ce4f9fa3d15f1b92b58e5a268c622ea7b06aecbf"
+      },
+      "producer.py": {
+        "bytes": 9579,
+        "sha256": "ac0d5d7279c16235ab02ef89bf6f86a2744cefb7fbf8483a3f9ee0914aebb449"
+      },
+      "profile.json": {
+        "bytes": 272543,
+        "sha256": "a9f1a202f0400cdca50beca6b7ac9c6d06f044ab0a3ae298b0b7ceb821e9a167"
+      },
+      "profile.md": {
+        "bytes": 5150,
+        "sha256": "7d66e175de00dc9f74dc0a862b0e71cdcb70c59ff8043383f777fb5fb8bfaa46"
+      },
+      "refund-ops-rollout.prof": {
+        "bytes": 23026,
+        "sha256": "231702b366869b74bd4d270858dff54c1a1e0fd1c65a274c8f501ef07b4ec7ae"
+      },
+      "refund-ops-rollout.txt": {
+        "bytes": 3992,
+        "sha256": "341e8fcd08573a0d77ebe222df6fe851d89358686c61d7474fede5a4067c9609"
+      },
+      "sqlite-append.prof": {
+        "bytes": 4507,
+        "sha256": "756611ed05b1760f574a5ece4bd5545d433162d9daa5c0be3aedac8fe89bdae0"
+      },
+      "sqlite-append.txt": {
+        "bytes": 2919,
+        "sha256": "54f32eb447bfb869d69eb30b5b679e25b802bcca344f628e59668495b9d7f241"
+      },
+      "sqlite-detail-24.prof": {
+        "bytes": 5788,
+        "sha256": "2dc05b78c17af64b50658d8323cb5823449b27ec3eebba55462755307c8abf79"
+      },
+      "sqlite-detail-24.txt": {
+        "bytes": 3615,
+        "sha256": "9d6153700c822a879f19bbd170fd3684846318d845a376d746e76991da7caf28"
+      },
+      "sqlite-list-page.prof": {
+        "bytes": 4030,
+        "sha256": "a5b8440613afdb5be1bd030b74aac86c7bf1109c40cccdfacacc84811befd209"
+      },
+      "sqlite-list-page.txt": {
+        "bytes": 2606,
+        "sha256": "7c1a6489149498d30c628f41ea5b2354eedd5a42f8e74cc25b73b2591191e823"
+      },
+      "trusted-replay.prof": {
+        "bytes": 38242,
+        "sha256": "b5917de06274bb5eded5ef3c2578c37747b40cd27baa0e0a6397feaddb2b43eb"
+      },
+      "trusted-replay.txt": {
+        "bytes": 4079,
+        "sha256": "dd888b0a1c10e89c8ff8b0576058bfa82975151da0b9024c9f853f1c08566697"
+      }
+    }
+  },
+  "limitations": [
+    "Sequential trusted synthetic scripted workload only; no model, CPU/GPU or inference-parallelism benchmark.",
+    "Fixed unprofiled-first/profiled-second ordering, warm caches, shared-machine load, cProfile overhead and changed guards prevent a causal speedup claim.",
+    "The historical unprofiled envelopes were not saved, so their recorded successful counts are not independent raw replay proof.",
+    "The new 192-envelope independent proof is distinct from the 96-episode measured replay/SQLite workload.",
+    "Deadline is cooperative and artifact cap does not bound temporary storage or process memory.",
+    "Schema validation and replay coherence do not attest execution authenticity or authorize downstream training."
+  ]
+}
+
