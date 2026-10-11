@@ -4,25 +4,42 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 
 ## Active increments
 
-V6 draft-membership controller source is ready for GitHub delivery under a
-separate reviewed contract. It requires exact successful target-click and Apply receipts,
-allow only the observed prior or exactly refreshed Selected inventory against
-the exact expected All set, preserve prior labels and confirm exact closed
-membership. Reference/collector identities change to v6; task/grader/fixtures,
-close and model behavior remain unchanged. Root owns collector/protocol/board
-and GitHub, console owns controller/tests, engine and research independently
-review source/fingerprints. Root passed 2,837 local tests with six optional skips,
-Ruff and diff whitespace checks. Cross-family review passed 774 focused tests;
-the model/close AST and task/grader/fixture fingerprints remain unchanged.
-No V6 physical collection is authorized yet; completed source review and green
-committed CI must precede a separate fixed execution decision.
-V1--V5 evidence stays closed and unchanged. No third training or spend is active.
+V6 source at `0990c549` passed independent whole-source and fingerprint review,
+2,837 root local tests with six optional skips, Ruff and publication inspection.
+PR73 passed source CI38175107748 and merged; master `f637522` passed
+CI38175283893. Reference/collector identities are v6; task/grader/fixtures,
+close and local-model contracts remain unchanged. Root separately authorized
+one fresh fixed cohort and restarted the owned API from that immutable source.
+
+The cohort stopped after three controls in 563.398453 seconds. Incomplete
+finished one valid action with reward zero. Changes-required
+`2f53be4d-073b-4d3e-a34f-0d73fa596813` finished 15 valid actions, zero invalid,
+reward one and all seven isolated checks. The requested assignment and severity
+both persisted with exact certificates and preservation of unrelated records.
+Already-correct `b108a24a-e71a-4563-a0b1-0cda1e09dd34` failed with
+`provider_error` after 13 valid actions and zero invalid. Its preserved business
+state passes every isolated check, but failed completion retains attempt reward
+zero. The assignee identity guard rejected omitted selection attributes on two
+other offered options before nonmutating Escape. No duplicate business effect
+was created. Close compatibility and model are unattempted with zero inference.
+No retry, tuning, source repair or grade replacement occurred within the cohort.
+
+Independent audits verified 685 original files, 42 source blobs, 321 API pairs,
+202 journal records, 35 media artifacts and all 29 public actions. V1--V5
+originals remain unchanged. GET-only console QA passed 42/40 checks for the
+change/no-op controls with 22 desktop/mobile screenshots, desktop playback and
+four full video decodes; mobile playback is unqualified. All three cleanups
+completed. Root confirmed idle admission, empty owned Docker inventories and
+preservation of 19 prior browser rows/303 evidence files and the legacy store.
+One changes-required reference is qualified, not the complete control gate,
+full application fidelity or a model. Root owns this results-only publication
+and future authorization. No third training, new resource or spend is active.
 
 V5 labels-group source is committed at `7033af7`, PR71, after independent
 whole-diff and task/grader fingerprint reviews. Root passed 2,683 local tests
 with six optional skips, Ruff and tracked publication checks; independent
 focused suites passed 494 and 620 cases. Source and merged-master CI passed
-before/after delivery. The owned API loads that immutable reviewed source.
+before/after delivery. That cohort's API loaded its immutable reviewed source.
 Task1.0.2/grader v3/fixtures and the local-model protocol are unchanged.
 
 Its separately authorized fixed fresh cohort stopped after two controls.
@@ -41,7 +58,8 @@ actions, preserving 442 files, 42 pinned source blobs, 108 journal records and
 remain unchanged. GET-only console QA passed 40 checks with eleven screenshots,
 desktop playback and both full video decodes; mobile playback is unqualified.
 Root verified idle admission, empty owned Docker inventories and all seventeen
-prior browser rows/279 evidence files unchanged. Full triage remains unqualified;
+prior browser rows/279 evidence files unchanged. Full triage remained unqualified
+at that V5 checkpoint;
 future changes require independently reviewed source and a fresh fixed protocol.
 Root owns this two-file measured-results increment and future authorization.
 
@@ -133,8 +151,8 @@ any repair needs a separately committed source and fixed fresh protocol.
 Original grades are not replaced. The prior close receipts retain their original source;
 registered close release 1.0.3 changes recipe ownership, not prior grades.
 
-PR62 through PR72 are merged with existing history retained. Merged master
-`6fcc350` passed backend and console CI38172950340. Root owns Git,
+PR62 through PR73 are merged with existing history retained. Merged master
+`f637522` passed backend and console CI38175283893. Root owns Git,
 publication, fixed-source collection and this board. Engine's private V2
 trainer artifact audit is complete. Console's V3 reference repair and terminal
 QA and research's independent source/evidence review are complete. Root owns collector
