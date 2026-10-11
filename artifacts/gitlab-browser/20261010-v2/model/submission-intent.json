@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-10T20:57:36.046835+00:00",
+  "config": {
+    "max_steps": 30,
+    "model": "qwen3:8b",
+    "provider_id": "local-browser",
+    "seed": 42,
+    "task_id": "gitlab-issue-close",
+    "timeout_seconds": 600
+  }
+}

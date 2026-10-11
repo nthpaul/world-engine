@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, get_args
 
+from world_engine.atif import export_episode
 from world_engine.models import JsonObject, canonical_json, digest
 from world_engine.providers import policy_messages
 from world_engine.rollout import replay
 from world_engine.store import Store
 
-ExportFormat = Literal["sft", "dpo", "grpo", "traces"]
+ExportFormat = Literal["sft", "dpo", "grpo", "traces", "atif"]
 Quality = Literal["passed", "all"]
 
 
@@ -28,6 +29,16 @@ def clean_success(episode: JsonObject) -> bool:
     return episode["passed"] and episode["status"] == "completed" and episode["invalid_actions"] == 0
 
 
+def json_training_compatible(episode: JsonObject) -> bool:
+    provenance = episode["provenance"]
+    cleanup = episode.get("provider_cleanup")
+    return (provenance.get("provider_protocol", "workflow-json-v1") == "workflow-json-v1"
+            and provenance.get("provider_class") != "world_engine.ollama_tools.OllamaToolsProvider"
+            and provenance.get("provider_record_calls") is not True
+            and (cleanup is None or isinstance(cleanup, dict) and cleanup.get("status") == "completed")
+            and provenance.get("training_eligible", True) is not False and not episode.get("provider_events"))
+
+
 def comparable(left: JsonObject, right: JsonObject) -> bool:
     fields = ("environment_id", "environment_version", "grader_version", "environment_code_hash", "grader_code_hash", "task_hash", "prompt_hash", "initial_state_hash")
     return (left["scenario_id"] == right["scenario_id"] and left["split"] == right["split"]
@@ -36,13 +47,35 @@ def comparable(left: JsonObject, right: JsonObject) -> bool:
 
 
 def export_records(store: Store, run_id: str, format: ExportFormat = "sft", quality: Quality = "passed") -> tuple[list[JsonObject], JsonObject]:
+    if format not in get_args(ExportFormat):
+        raise ValueError("unsupported export format")
+    if quality not in get_args(Quality):
+        raise ValueError("unsupported export quality")
     store.get_run(run_id)
     episodes = store.episodes(run_id)
     records: list[JsonObject] = []
     seen: set[str] = set()
     skipped = 0
-    excluded = {"heldout_split": 0, "evaluation_only": 0, "quality": 0, "replay_mismatch": 0, "insufficient_alternatives": 0}
+    excluded = {"heldout_split": 0, "evaluation_only": 0, "quality": 0, "replay_mismatch": 0,
+                "insufficient_alternatives": 0, "unsupported_provider_protocol": 0}
     for episode in episodes:
+        if format == "atif":
+            try:
+                record = export_episode(episode, run_id=run_id)
+            except ValueError:
+                skipped += 1
+                excluded["replay_mismatch"] += 1
+                continue
+            if quality == "passed" and not clean_success(episode):
+                skipped += 1
+                excluded["quality"] += 1
+                continue
+            records.append(record)
+            continue
+        if format != "traces" and not json_training_compatible(episode):
+            skipped += 1
+            excluded["unsupported_provider_protocol"] += 1
+            continue
         if format != "traces" and episode["provenance"].get("evaluation_only"):
             skipped += 1
             excluded["evaluation_only"] += 1
@@ -75,17 +108,27 @@ def export_records(store: Store, run_id: str, format: ExportFormat = "sft", qual
                                     "reward": episode["reward"], "passed": episode["passed"], "training_unit": "single-tool-decision"})
             else:
                 # Operator detail exposes check descriptions; dataset exports do not copy the grader rubric.
-                records.append({"schema": "world-engine.trace.v1", "provenance": provenance,
+                record = {"schema": "world-engine.trace.v1", "provenance": provenance,
                                 "initial_observation": episode["initial_observation"], "trace": episode["trace"],
                                 "final_state_hash": episode["final_state_hash"], "reward": episode["reward"],
-                                "passed": episode["passed"], "termination": episode["termination"]})
+                                "passed": episode["passed"], "termination": episode["termination"]}
+                if "provider_events" in episode:
+                    record["provider_events"] = episode["provider_events"]
+                    record["provider_recording"] = episode["provider_recording"]
+                    record["usage"] = episode["usage"]
+                    record["training_eligible"] = False
+                if "provider_cleanup" in episode:
+                    record["provider_cleanup"] = episode["provider_cleanup"]
+                    if episode["provider_cleanup"]["status"] != "completed":
+                        record["training_eligible"] = False
+                records.append(record)
             continue
         if episode["scenario_id"] in seen:
             continue
         seen.add(episode["scenario_id"])
         candidates = [candidate for candidate in store.candidates(episode["scenario_id"])
                       if comparable(episode, candidate) and candidate["trace"] and candidate["status"] == "completed"
-                      and not candidate["provenance"].get("evaluation_only")]
+                      and not candidate["provenance"].get("evaluation_only") and json_training_compatible(candidate)]
         unique: dict[str, JsonObject] = {}
         for candidate in candidates:
             try:
@@ -124,9 +167,13 @@ def export_records(store: Store, run_id: str, format: ExportFormat = "sft", qual
                             "policy_consistent": len({candidate["provenance"]["policy_hash"] for candidate in candidates}) == 1,
                             "trainable": False,
                             "missing_training_fields": ["sampled_token_ids", "action_loss_mask", "behavior_logprobs", "frozen_policy_checkpoint"]})
+    note = ("ATIF is replay-verified operator interchange across all splits and evaluation-only episodes. "
+            "Every record is training_eligible=false; this is not a curated training batch or a Harbor trial result."
+            if format == "atif" else
+            "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch.")
     return records, {"format": format, "quality": quality, "records": len(records), "source_episodes": len(episodes), "skipped": skipped,
                      "excluded": excluded,
-                     "note": "DPO requires matching successful and lower-reward trajectories. GRPO is raw grouped rollout data, not an on-policy training batch."}
+                     "note": note}
 
 
 def jsonl(records: list[JsonObject]) -> str:

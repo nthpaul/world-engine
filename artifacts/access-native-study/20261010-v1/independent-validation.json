@@ -1,0 +1,53 @@
+{
+  "schema": "world-engine.access-native-independent-validation.v1",
+  "validated_at": "2026-10-10T08:04:55+00:00",
+  "collection_revision": "ee26d7b9e29397e3dcccfc09c664f08dcf3b004c",
+  "protocol_sha256": "9aa85f8ab1d5bae48b1c9231d6649cf274d80377059ae6e0fd85c6ad6ff2fc76",
+  "source_manifest_rechecked": true,
+  "ordered_raw_rows_match_report": true,
+  "replayed_episodes": 8,
+  "actual_upstream_validated_documents": 8,
+  "harbor_distribution_version": "0.24.0",
+  "upstream_harbor_revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+  "harbor_schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c",
+  "pydantic_version": "2.14.0",
+  "training_format_exclusions": {"sft": 8, "dpo": 8, "grpo": 8},
+  "candidate_pool_queries_from_excluded_episodes": 0,
+  "business_passes": 0,
+  "clean_passes": 0,
+  "timeout_episodes": 8,
+  "inconclusive_episodes": 0,
+  "unattempted_slots": 0,
+  "model_request_attempts": 97,
+  "accepted_responses": 89,
+  "cancelled_final_requests": 8,
+  "completed_environment_decisions": 89,
+  "semantic_invalid_actions": 32,
+  "completed_response_daemon_duration_ns": {
+    "reports": 89,
+    "total_duration": 267646931457,
+    "load_duration": 4648983920,
+    "prompt_eval_duration": 215610054882,
+    "eval_duration": 39925752597,
+    "missing_cancelled_request_reports": 8,
+    "independently_summed_from_original_response_bodies": true,
+    "scope": "Daemon-reported completed-response counters only; not cache-hit, causal speedup or full computation evidence."
+  },
+  "known_partial_usage": {
+    "input_tokens": 228895,
+    "output_tokens": 2847,
+    "requests_with_known_usage": 89,
+    "requests_without_usage": 8,
+    "input_tokens_complete": false,
+    "output_tokens_complete": false
+  },
+  "original_collection_files": {
+    "evaluation-episodes.jsonl": {"bytes": 3361494, "sha256": "83f1864fba3cb4656350cfafe96d17d9949917dca6f9ffc584e0a497156f8a91"},
+    "report.json": {"bytes": 15954, "sha256": "6f88157e60c866e240b4745214f78481598bd62dfe9a0dda3445cb5a6c5226a1"}
+  },
+  "original_collection_bytes": 3377448,
+  "original_collection_byte_accounting_rechecked": true,
+  "publication_sidecar_excluded_from_original_collection_byte_accounting": true,
+  "model_requests_from_validation": 0,
+  "limitations": "Fixed synthetic evaluation cases, not a population benchmark, signed collection, verified immutable weights, production transfer or training consent. All original failures remain unchanged. Token totals are known partial sums; cancelled client requests do not attest daemon cessation. Historical native replay requires the original pinned source when adapter modules change."
+}

@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Box,
   CheckCircle2,
+  ChevronsLeft,
   ChevronRight,
   Circle,
   CircleAlert,
@@ -13,6 +14,7 @@ import {
   FlaskConical,
   GitBranch,
   Layers3,
+  Monitor,
   LoaderCircle,
   Play,
   Plus,
@@ -35,16 +37,21 @@ import {
   type RunConfig,
   type RunDetail,
 } from "./api";
+import BrowserConsole from "./BrowserConsole";
 
-type View = "runs" | "worlds" | "benchmarks" | "runtime";
+type View = "browser-environments" | "attempts" | "runs" | "worlds" | "benchmarks" | "runtime";
 type Route = { view: View; runId: string | null };
 const navigation = [
+  { id: "browser-environments", label: "Browser Environments", icon: Monitor },
+  { id: "attempts", label: "Attempts", icon: Play },
   { id: "runs", label: "Rollout runs", icon: Activity },
   { id: "worlds", label: "World library", icon: Box },
   { id: "benchmarks", label: "Benchmarks", icon: FlaskConical },
   { id: "runtime", label: "Runtime", icon: Server },
 ] satisfies { id: View; label: string; icon: typeof Activity }[];
 const live = (run: Run) => run.status === "queued" || run.status === "running";
+const HISTORY_PAGE_SIZE = 50;
+const HISTORY_MAX_OFFSET = 100000;
 const percent = (value: number) => `${Math.round(value * 100)}%`;
 const number = (value: number) =>
   new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
@@ -58,13 +65,15 @@ const defaultModel = (provider: Provider | undefined) =>
   provider?.kind === "local"
     ? (provider.models.find((model) => model === "qwen3:8b") ?? null)
     : (provider?.models[0] ?? null);
+const isNativeProvider = (id: string | undefined) =>
+  id === "local-tools" || id === "local-tools-ledger";
 
 function readRoute(): Route {
   const parts = window.location.hash.slice(1).split("/");
   const view = navigation.find((item) => item.id === parts[0])?.id ?? "runs";
   return {
     view,
-    runId: view === "runs" && parts[1] ? decodeURIComponent(parts[1]) : null,
+    runId: (view === "runs" || view === "attempts") && parts[1] ? decodeURIComponent(parts[1]) : null,
   };
 }
 function go(view: View, runId?: string) {
@@ -77,6 +86,13 @@ export default function App() {
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [runs, setRuns] = useState<Run[]>([]);
+  const [historyOffset, setHistoryOffset] = useState(0);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyError, setHistoryError] = useState("");
+  const [hasOlder, setHasOlder] = useState(false);
+  const historyRequest = useRef(0);
+  const historyPendingOffset = useRef<number | null>(null);
+  const historyController = useRef<AbortController | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -84,18 +100,45 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedRuns, setSelectedRuns] = useState<string[]>([]);
+  const [selectedSnapshots, setSelectedSnapshots] = useState<Run[]>([]);
+  const refreshHistory = useCallback(async () => {
+    if (historyPendingOffset.current === historyOffset) return;
+    const request = ++historyRequest.current;
+    historyPendingOffset.current = historyOffset;
+    historyController.current?.abort();
+    const controller = new AbortController();
+    historyController.current = controller;
+    try {
+      const result = await api.runs({
+        limit: HISTORY_PAGE_SIZE + 1,
+        offset: historyOffset,
+        signal: controller.signal,
+      });
+      if (request !== historyRequest.current) return;
+      setRuns(result.runs.slice(0, HISTORY_PAGE_SIZE));
+      setHasOlder(result.runs.length > HISTORY_PAGE_SIZE);
+      setHistoryError("");
+    } catch (err) {
+      if (request === historyRequest.current) setHistoryError(message(err));
+    } finally {
+      if (request === historyRequest.current) {
+        historyPendingOffset.current = null;
+        historyController.current = null;
+        setHistoryLoading(false);
+      }
+    }
+  }, [historyOffset]);
   const refresh = useCallback(async () => {
     try {
-      const [h, e, p, r] = await Promise.all([
+      const [h, e, p] = await Promise.all([
         api.health(),
         api.environments(),
         api.providers(),
-        api.runs(),
+        refreshHistory(),
       ]);
       setHealth(h);
       setEnvironments(e.environments);
       setProviders(p.providers);
-      setRuns(r.runs);
       setError("");
     } catch (err) {
       setError(message(err));
@@ -103,11 +146,17 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [refreshHistory]);
   useEffect(() => {
     void refresh();
     const interval = setInterval(() => void refresh(), 2000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      historyRequest.current += 1;
+      historyController.current?.abort();
+      historyController.current = null;
+      historyPendingOffset.current = null;
+    };
   }, [refresh]);
   useEffect(() => {
     const change = () => setRoute(readRoute());
@@ -120,6 +169,30 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [notice]);
   const completed = runs.filter((run) => run.status === "completed");
+  const comparisonRuns = [
+    ...runs,
+    ...selectedSnapshots.filter((saved) => !runs.some((run) => run.id === saved.id)),
+  ];
+  const selectComparedRuns = (ids: string[]) => {
+    setSelectedRuns(ids);
+    setSelectedSnapshots(comparisonRuns.filter((run) => ids.includes(run.id)));
+  };
+  useEffect(() => {
+    setSelectedSnapshots((saved) =>
+      saved.map((run) => runs.find((current) => current.id === run.id) ?? run),
+    );
+  }, [runs]);
+  const changeHistoryPage = (offset: number) => {
+    historyRequest.current += 1;
+    historyController.current?.abort();
+    historyController.current = null;
+    historyPendingOffset.current = null;
+    setHistoryLoading(true);
+    setHistoryError("");
+    setRuns([]);
+    setHasOlder(false);
+    setHistoryOffset(offset);
+  };
   const episodes = runs.reduce(
     (total, run) => total + run.completed_episodes,
     0,
@@ -160,13 +233,16 @@ export default function App() {
             <a
               key={id}
               href={`#${id}`}
+              title={label}
               className={route.view === id ? "nav-item active" : "nav-item"}
               aria-current={route.view === id ? "page" : undefined}
             >
               <Icon size={18} />
               <span>{label}</span>
-              {id === "runs" && runs.some(live) && (
-                <span className="nav-count">{runs.filter(live).length}</span>
+              {id === "runs" && health && health.active_runs > 0 && (
+                <span className="nav-count" title="Active runs across the runtime">
+                  {health.active_runs}
+                </span>
               )}
             </a>
           ))}
@@ -232,7 +308,9 @@ export default function App() {
               </button>
             </div>
           )}
-          {route.view === "runs" && route.runId ? (
+          {route.view === "browser-environments" || route.view === "attempts" ? (
+            <BrowserConsole view={route.view} attemptId={route.runId} notify={setNotice} />
+          ) : route.view === "runs" && route.runId ? (
             <RunInspector
               id={route.runId}
               environments={environments}
@@ -245,9 +323,9 @@ export default function App() {
                 <div>
                   <div className="eyebrow">
                     {route.view === "runs"
-                      ? "EXECUTION"
+                      ? "SIMULATION DIAGNOSTICS"
                       : route.view === "worlds"
-                        ? "ENVIRONMENTS"
+                        ? "SYNTHETIC SIMULATIONS"
                         : route.view === "benchmarks"
                           ? "EVALUATION"
                           : "CONFIGURATION"}
@@ -255,9 +333,9 @@ export default function App() {
                   <h1>{title}</h1>
                   <p>
                     {route.view === "runs"
-                      ? "Episode batches, outcomes, and reproducible agent traces."
+                      ? "Synthetic simulation batches, outcomes, and reproducible agent traces."
                       : route.view === "worlds"
-                        ? "Stateful workflow environments and their tool contracts."
+                        ? "Synthetic workflow simulations and their tool contracts."
                         : route.view === "benchmarks"
                           ? "Compare observed outcomes across runs and model providers."
                           : "Provider configuration and local execution readiness."}
@@ -284,19 +362,19 @@ export default function App() {
                 <>
                   <div className="metric-strip">
                     <Metric
-                      label="Total runs"
+                      label="Runs on page"
                       value={String(runs.length)}
-                      note={`${runs.filter(live).length} active`}
+                      note={`${runs.filter(live).length} active on page`}
                     />
                     <Metric
-                      label="Completed episodes"
+                      label="Page episodes"
                       value={number(episodes)}
-                      note={`${completed.length} completed batches`}
+                      note={`${completed.length} completed batches on page`}
                     />
                     <Metric
-                      label="Pass rate"
+                      label="Page pass rate"
                       value={episodes ? percent(passed / episodes) : "--"}
-                      note={`${passed} episodes passed`}
+                      note={`${passed} page episodes passed`}
                     />
                     <Metric
                       label="Worlds available"
@@ -306,20 +384,20 @@ export default function App() {
                   </div>
                   <div className="section-heading">
                     <h2>
-                      Run history <span>{filtered.length}</span>
+                      Run history <span>{filtered.length} on page</span>
                     </h2>
                     <div className="table-tools">
                       <label className="search">
                         <Search size={16} />
                         <input
-                          placeholder="Search runs..."
+                          placeholder="Search this page..."
                           value={query}
                           onChange={(event) => setQuery(event.target.value)}
-                          aria-label="Search runs"
+                          aria-label="Search runs on this page"
                         />
                       </label>
                       <select
-                        aria-label="Filter run status"
+                        aria-label="Filter run status on this page"
                         value={statusFilter}
                         onChange={(event) =>
                           setStatusFilter(event.target.value)
@@ -339,7 +417,32 @@ export default function App() {
                       </select>
                     </div>
                   </div>
-                  {runs.length ? (
+                  <HistoryPager
+                    offset={historyOffset}
+                    count={runs.length}
+                    hasOlder={hasOlder}
+                    loading={historyLoading}
+                    change={changeHistoryPage}
+                  />
+                  {historyError && (
+                    <div className="history-error" role="alert">
+                      <CircleAlert size={16} />
+                      <span>History refresh failed: {historyError}</span>
+                      <button className="button quiet" onClick={() => {
+                        setHistoryLoading(true);
+                        void refreshHistory();
+                      }}>
+                        <RefreshCw size={14} />Retry history
+                      </button>
+                    </div>
+                  )}
+                  {historyLoading ? (
+                    <Empty
+                      icon={LoaderCircle}
+                      title="Loading run page"
+                      text={`Page ${historyOffset / HISTORY_PAGE_SIZE + 1}`}
+                    />
+                  ) : runs.length ? (
                     filtered.length ? (
                       <div className="table-scroll">
                         <table className="run-table">
@@ -453,25 +556,34 @@ export default function App() {
                     ) : (
                       <Empty
                         icon={Search}
-                        title="No matching runs"
-                        text="Try another search or status."
+                        title="No matching runs on this page"
+                        text="Other pages may contain matching runs."
                       />
                     )
                   ) : (
                     <Empty
                       icon={Activity}
-                      title="No rollout runs yet"
-                      text="Choose a world and policy to start an episode batch."
+                      title={historyError ? "Run history unavailable" : historyOffset ? "No runs on this page" : "No rollout runs yet"}
+                      text={historyError ? "Retry loading the current page." : historyOffset ? "Return to a newer page." : "Choose a world and policy to start an episode batch."}
                       action={
-                        <button
+                        !historyOffset && !historyError ? <button
                           className="button"
                           disabled={!health}
                           onClick={() => setLaunch("")}
                         >
                           <Play size={16} />
                           Start first rollout
-                        </button>
+                        </button> : undefined
                       }
+                    />
+                  )}
+                  {runs.length > 15 && (
+                    <HistoryPager
+                      offset={historyOffset}
+                      count={runs.length}
+                      hasOlder={hasOlder}
+                      loading={historyLoading}
+                      change={changeHistoryPage}
                     />
                   )}
                   <div className="section-footer">
@@ -486,9 +598,10 @@ export default function App() {
                 <Worlds environments={environments} launch={setLaunch} />
               ) : route.view === "benchmarks" ? (
                 <Benchmarks
-                  runs={runs}
+                  runs={comparisonRuns}
+                  pageRuns={runs}
                   selected={selectedRuns}
-                  setSelected={setSelectedRuns}
+                  setSelected={selectComparedRuns}
                 />
               ) : (
                 <Runtime health={health} providers={providers} />
@@ -517,12 +630,47 @@ export default function App() {
           created={(run) => {
             setLaunch(null);
             setNotice("Rollout created.");
-            void refresh();
+            if (historyOffset) changeHistoryPage(0);
+            else void refresh();
             go("runs", run.id);
           }}
         />
       )}
     </div>
+  );
+}
+
+function HistoryPager({ offset, count, hasOlder, loading, change }: {
+  offset: number;
+  count: number;
+  hasOlder: boolean;
+  loading: boolean;
+  change: (offset: number) => void;
+}) {
+  return (
+    <nav className="history-pager" aria-label="Run history pages">
+      <span role="status">
+        Page {offset / HISTORY_PAGE_SIZE + 1}
+        <span className="text-muted">
+          {" / "}{loading ? "Loading" : count ? `Runs ${offset + 1}-${offset + count}` : "No loaded runs"}
+        </span>
+      </span>
+      <div>
+        <button className="icon-button" title="Newest runs" aria-label="Newest runs"
+          disabled={loading || offset === 0} onClick={() => change(0)}>
+          <ChevronsLeft size={17} />
+        </button>
+        <button className="icon-button" title="Newer runs" aria-label="Newer runs"
+          disabled={loading || offset === 0} onClick={() => change(offset - HISTORY_PAGE_SIZE)}>
+          <ArrowLeft size={17} />
+        </button>
+        <button className="icon-button" title="Older runs" aria-label="Older runs"
+          disabled={loading || !hasOlder || offset + HISTORY_PAGE_SIZE > HISTORY_MAX_OFFSET}
+          onClick={() => change(offset + HISTORY_PAGE_SIZE)}>
+          <ArrowRight size={17} />
+        </button>
+      </div>
+    </nav>
   );
 }
 
@@ -670,16 +818,18 @@ function Worlds({
 
 function Benchmarks({
   runs,
+  pageRuns,
   selected,
   setSelected,
 }: {
   runs: Run[];
+  pageRuns: Run[];
   selected: string[];
   setSelected: (ids: string[]) => void;
 }) {
   const eligible = runs.filter((run) => run.completed_episodes > 0);
   const compared = eligible.filter((run) => selected.includes(run.id));
-  const shown = compared.length ? compared : eligible.slice(0, 6);
+  const shown = compared.length ? compared : pageRuns.filter((run) => run.completed_episodes > 0).slice(0, 6);
   return (
     <>
       <div className="section-heading">
@@ -687,7 +837,7 @@ function Benchmarks({
         <span className="text-muted">
           {compared.length
             ? `${compared.length} selected`
-            : "Latest six runs with results"}
+            : "Up to six results from the loaded page"}
         </span>
       </div>
       {shown.length ? (
@@ -901,10 +1051,10 @@ function LaunchDialog({
     episodes: 10,
     seed: 42,
     max_steps: 20,
-    concurrency: 4,
+    concurrency: isNativeProvider(enabledProviders[0]?.id) ? 1 : 4,
     model: defaultModel(enabledProviders[0]),
     allow_paid: false,
-    evaluation_only: false,
+    evaluation_only: isNativeProvider(enabledProviders[0]?.id),
     timeout_seconds: 60,
     label: "",
   });
@@ -1010,6 +1160,13 @@ function LaunchDialog({
                     provider_id: event.target.value,
                     model: defaultModel(next),
                     allow_paid: false,
+                    evaluation_only:
+                      isNativeProvider(event.target.value) || config.evaluation_only,
+                    concurrency:
+                      isNativeProvider(event.target.value) &&
+                      !isNativeProvider(config.provider_id)
+                        ? 1
+                        : config.concurrency,
                   });
                 }}
               >
@@ -1131,6 +1288,7 @@ function LaunchDialog({
             <input
               type="checkbox"
               checked={config.evaluation_only}
+              disabled={isNativeProvider(config.provider_id)}
               onChange={(event) =>
                 setConfig({ ...config, evaluation_only: event.target.checked })
               }
@@ -1238,7 +1396,7 @@ function RunInspector({
       <>
         <a className="back-link" href="#runs">
           <ArrowLeft size={16} />
-          All runs
+          Run history
         </a>
         <Empty
           icon={CircleAlert}
@@ -1262,7 +1420,7 @@ function RunInspector({
     <>
       <a className="back-link" href="#runs">
         <ArrowLeft size={16} />
-        All runs
+        Run history
       </a>
       <div className="page-heading detail-heading">
         <div>
@@ -1311,9 +1469,9 @@ function RunInspector({
           note="Across completed episodes"
         />
         <Metric
-          label="Throughput"
-          value={`${number(run.steps_per_second)} / s`}
-          note={`${duration(run.elapsed_seconds)} elapsed`}
+          label="Step throughput"
+          value={number(run.steps_per_second)}
+          note={`steps/s / ${duration(run.elapsed_seconds)} elapsed`}
         />
       </div>
       <div className="run-config-bar">
@@ -1366,12 +1524,14 @@ function RunInspector({
                 selected === "sft" ||
                 selected === "dpo" ||
                 selected === "grpo" ||
+                selected === "atif" ||
                 selected === "traces"
               )
                 setFormat(selected);
             }}
           >
             <option value="traces">Raw traces</option>
+            <option value="atif">Harbor ATIF</option>
             <option value="sft">SFT</option>
             <option value="dpo">DPO pairs</option>
             <option value="grpo">Grouped RL</option>

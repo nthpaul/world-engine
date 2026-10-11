@@ -1,0 +1,105 @@
+{
+  "schema_version": "ATIF-v1.8",
+  "harbor_revision": "09f5b964f8e5075f7e52fd08c9994dfc80ad5d24",
+  "source": "examples/benchmark-results/local-model-traces.jsonl",
+  "source_sha256": "890a7c66eca5233e91a6ad6989d1673ef55dbce7582595939d85599d689b3ad3",
+  "upstream_validation": true,
+  "files": [
+    {
+      "file": "episode-000.json",
+      "sha256": "aee32c2001aa811cd3fb83bc4125f92fdd00e17096e95c1e8c4849cdc6ef8a44",
+      "episode_id": "dadba2cf-8c71-47aa-8b68-d6c29955273c",
+      "steps": 8,
+      "evaluation_only": true,
+      "training_eligible": false
+    },
+    {
+      "file": "episode-001.json",
+      "sha256": "b3ccb554e41d9d24b9fef3ec59759feba72949debe81f400a76eb3008ee9a48d",
+      "episode_id": "d3c7618d-44f9-4429-ba51-d458b07b0597",
+      "steps": 4,
+      "evaluation_only": true,
+      "training_eligible": false
+    },
+    {
+      "file": "episode-002.json",
+      "sha256": "aea9cd41afd93a815c767b8cb9fdb6d91bf1312930357b5ee3280b19fd8e7c1d",
+      "episode_id": "f883c1dc-a157-49cd-b3f1-97b5cc7d5452",
+      "steps": 22,
+      "evaluation_only": true,
+      "training_eligible": false
+    },
+    {
+      "file": "episode-003.json",
+      "sha256": "95e04538846fdd0be3602e9bdeffbfaeea502f874a66cf1af7aca7035c584681",
+      "episode_id": "ebe89a68-933f-43f4-ab5b-170f58fb7821",
+      "steps": 5,
+      "evaluation_only": true,
+      "training_eligible": false
+    },
+    {
+      "file": "episode-004.json",
+      "sha256": "b835bbee007647bfb898df89ee9d2f8a5f8bf4876589586b4b52d73b09f2980c",
+      "episode_id": "44d4521b-58a9-47d4-90dc-d3a1921d97f8",
+      "steps": 4,
+      "evaluation_only": true,
+      "training_eligible": false
+    },
+    {
+      "file": "episode-005.json",
+      "sha256": "7d8d2cdd08f428aeec5f57a8b55a19836ccb10b2c8f8290c9eafccda31f4121e",
+      "episode_id": "dd7d5618-17ca-43d8-9145-3fb750d2113b",
+      "steps": 11,
+      "evaluation_only": true,
+      "training_eligible": false
+    },
+    {
+      "file": "episode-006.json",
+      "sha256": "804ecd6d275be35903ded62c7214b97972330828113ece02abbb64c7a08a5e30",
+      "episode_id": "f38a78cb-5d4f-496b-89a6-080954af14fa",
+      "steps": 10,
+      "evaluation_only": true,
+      "training_eligible": false
+    },
+    {
+      "file": "episode-007.json",
+      "sha256": "028847f0bfa76d4189f9cd3197a8286227468e5b184f4903ded24fb63cf1d011",
+      "episode_id": "dced4973-830a-4621-8cd6-a61ac99e8dc2",
+      "steps": 4,
+      "evaluation_only": true,
+      "training_eligible": false
+    },
+    {
+      "file": "episode-008.json",
+      "sha256": "f9fdd9177380df385aa3f9f65c594fe51b74bdc717a66c499d9e66fd863e4f78",
+      "episode_id": "d17a9b3b-3f0e-4776-bc3c-5e9bc44d8478",
+      "steps": 22,
+      "evaluation_only": true,
+      "training_eligible": false
+    }
+  ],
+  "provider_calls": 0,
+  "paid_calls": 0,
+  "training_eligible": false,
+  "validation_command": [
+    "/Users/ple/projects/world-engine/.venv/bin/python3",
+    "examples/export_atif.py",
+    "--validate-upstream"
+  ],
+  "validation_pythonpath": "/tmp/world-engine-atif-upstream",
+  "exporter_source": {
+    "files": {
+      "/Users/ple/projects/world-engine/src/world_engine/atif.py": "29d6342a36d9fa1f1cd04ab4c2f9fb97f6727e60847c661e47a26cf8b44b6f8e",
+      "/Users/ple/projects/world-engine/examples/export_atif.py": "47a7b0bfabc32287505eca0c1a189faecef53e115acab7b9748a013eb641faa4"
+    },
+    "git_revision": "993895462766e232b4f920a03fb5a2860756fe47",
+    "source_dirty": false,
+    "source_dirty_scope": [
+      "src/world_engine/atif.py",
+      "examples/export_atif.py"
+    ]
+  },
+  "upstream_model": "harbor.models.trajectories.trajectory.Trajectory",
+  "pydantic_version": "2.14.0",
+  "schema_sha256": "892a423ee9c710e8067740b36dd15c9de2f0157d05b6c1ea30acc25ff1c4da6c"
+}

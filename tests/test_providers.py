@@ -9,20 +9,46 @@ from world_engine.models import RunConfig
 from world_engine.providers import HTTPProvider, ProviderError, policy_messages
 from world_engine.rollout import rollout
 
+FIXTURE_DIGEST = "a" * 64
+
+
+class RawBody(httpx.AsyncByteStream):
+    def __init__(self, body):
+        self.body = body
+
+    async def __aiter__(self):
+        yield self.body
+
+
+def raw_response(status=200, *, data=None, content=None):
+    return httpx.Response(status, stream=RawBody(json.dumps(data).encode() if content is None else content))
+
+
+def metadata_response(request):
+    if request.url.path == "/api/tags":
+        return raw_response(data={"models": [{"name": "qwen3:8b", "digest": FIXTURE_DIGEST}]})
+    if request.url.path == "/api/show":
+        return raw_response(data={"capabilities": ["completion"]})
+    if request.url.path == "/api/version":
+        return raw_response(data={"version": "fixture"})
+    return None
+
 
 async def test_local_uses_structured_actions_and_reuses_client():
     requests = []
 
     async def respond(request):
         requests.append(request)
-        if request.url.path == "/api/tags":
-            return httpx.Response(200, json={"models": [{"name": "qwen3:8b", "digest": "immutable-weights-digest"}]})
+        metadata = metadata_response(request)
+        if metadata is not None:
+            return metadata
         body = json.loads(request.content)
         assert body["think"] is False and body["stream"] is False
         assert body["options"]["num_predict"] == 512
         assert body["messages"] == policy_messages(make_environment("crm-merge", 42).observe(), [])
         assert body["format"]["additionalProperties"] is False
-        return httpx.Response(200, json={"message": {"content": '{"tool":"inspect","args":{}}'}, "prompt_eval_count": 123, "eval_count": 9})
+        return raw_response(data={"done": True, "done_reason": "stop", "message": {"role": "assistant", "content": '{"tool":"inspect","args":{}}'},
+                                  "prompt_eval_count": 123, "eval_count": 9})
 
     provider = HTTPProvider(RunConfig(environment_id="crm-merge", provider_id="local"))
     provider.client = httpx.AsyncClient(transport=httpx.MockTransport(respond))
@@ -34,21 +60,22 @@ async def test_local_uses_structured_actions_and_reuses_client():
         assert decision.action.tool == "inspect"
         assert decision.usage["input_tokens"] == 123
         assert provider.client is client
-    assert provider.model_digest == "immutable-weights-digest"
+    assert provider.model_digest == FIXTURE_DIGEST
     await provider.close()
     assert client.is_closed
-    assert len(requests) == 3
+    assert len(requests) == 5
 
 
 async def test_provider_errors_never_reflect_remote_body():
     sentinel = "SYNTHETIC-SECRET-NEVER-REFLECT"
 
     async def respond(request):
-        return httpx.Response(403, content=sentinel.encode())
+        return metadata_response(request) or raw_response(403, content=sentinel.encode())
 
     provider = HTTPProvider(RunConfig(environment_id="crm-merge", provider_id="local"))
     provider.client = httpx.AsyncClient(transport=httpx.MockTransport(respond))
     try:
+        await provider.prepare()
         with pytest.raises(ProviderError) as error:
             await provider.decide(make_environment("crm-merge", 42).observe(), [])
         assert sentinel not in str(error.value)
@@ -57,14 +84,15 @@ async def test_provider_errors_never_reflect_remote_body():
         await provider.close()
 
 
-@pytest.mark.parametrize("content", [b"x" * 256_001, b'{"message":{"content":"{\\"tool\\":\\"finish\\",\\"reward\\":1}"}}'])
+@pytest.mark.parametrize("content", [b"x" * 256_001, b'{"done":true,"done_reason":"stop","message":{"role":"assistant","content":"{\\"tool\\":\\"finish\\",\\"reward\\":1}"}}'])
 async def test_oversize_and_untrusted_reward_responses_rejected(content):
     async def respond(request):
-        return httpx.Response(200, content=content)
+        return metadata_response(request) or raw_response(content=content)
 
     provider = HTTPProvider(RunConfig(environment_id="crm-merge", provider_id="local"))
     provider.client = httpx.AsyncClient(transport=httpx.MockTransport(respond))
     try:
+        await provider.prepare()
         with pytest.raises(ProviderError):
             await provider.decide(make_environment("crm-merge", 42).observe(), [])
     finally:

@@ -97,7 +97,7 @@ const episodeSchema = z.object({
     "internal_error",
   ]),
   invalid_actions: z.number(),
-  usage: z.record(z.number()),
+  usage: jsonObject,
 });
 const environmentSchema = z.object({
   id: z.string(),
@@ -139,7 +139,7 @@ export type Environment = z.infer<typeof environmentSchema>;
 export type Provider = z.infer<typeof providerSchema>;
 export type RunConfig = z.infer<typeof configSchema>;
 export type Health = z.infer<typeof healthSchema>;
-export type ExportFormat = "sft" | "dpo" | "grpo" | "traces";
+export type ExportFormat = "sft" | "dpo" | "grpo" | "traces" | "atif";
 
 async function request<T>(
   path: string,
@@ -173,7 +173,16 @@ export const api = {
     ),
   providers: () =>
     request("/providers", z.object({ providers: z.array(providerSchema) })),
-  runs: () => request("/runs", z.object({ runs: z.array(runSchema) })),
+  runs: ({ limit = 50, offset = 0, signal }: {
+    limit?: number;
+    offset?: number;
+    signal?: AbortSignal;
+  } = {}) =>
+    request(
+      `/runs?limit=${limit}&offset=${offset}`,
+      z.object({ runs: z.array(runSchema) }),
+      { signal },
+    ),
   run: (id: string) => request(`/runs/${encodeURIComponent(id)}`, detailSchema),
   create: (config: RunConfig) =>
     request("/runs", runSchema, {
