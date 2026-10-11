@@ -413,7 +413,7 @@ def triage_control():
 
 def triage_closed(*, assigned=False, classified=False):
     assignee = "\t[2107] link '@casey-oncall'\n" if assigned else "\tStaticText 'None'\n"
-    labels = "\t[1157] link 'severity::2'\n" if classified else "\t[1155] link 'incident'\n"
+    labels = "\t[1155] link 'incident'\n" + ("\t[1157] link 'severity::2'\n" if classified else "")
     return ("StaticText 'Incident reference: INC-2026-0217'\n"
             "[100] heading 'Assignee'\n[101] button 'Edit'\n"
             "StaticText '@casey-oncall'\nStaticText 'severity::2'\n"
@@ -428,7 +428,10 @@ def triage_closed(*, assigned=False, classified=False):
 
 def triage_picker(*, field="assignee", bid="2049", selected=False, apply_bid="1446", search_bid="1462",
                   option_name=None, option_role="option"):
-    # Assignee structure comes from observed AX; labels are conservative mocks only.
+    if field == "labels":
+        return triage_labels_picker(bid=bid, selected=selected, apply_bid=apply_bid,
+                                    search_bid=search_bid, option_role=option_role)
+    # Assignee structure comes from observed AX.
     option_name = option_name or ("Casey On-call @casey-oncall" if field == "assignee" else "severity::2")
     state = "selected" if option_role == "option" else "checked"
     prefix = f"[{bid}] " if bid is not None else ""
@@ -443,6 +446,27 @@ def triage_picker(*, field="assignee", bid="2049", selected=False, apply_bid="14
     text = triage_closed(assigned=field == "labels")
     edit = "\t[1144] button 'Edit'\n\tStaticText 'None'\n" if field == "assignee" else "\t[1151] button 'Edit'\n\t[1155] link 'incident'\n"
     return text.replace(edit, picker)
+
+
+def triage_labels_picker(*, bid="2049", selected=False, apply_bid="1446", search_bid="1462",
+                         option_role="option", prior=("incident",), search_value=None):
+    selected_names = prior + (("severity::2",) if selected is True else ())
+    prefix = f"[{bid}] " if bid is not None else ""
+    flag = "" if selected is None else f", selected={selected}"
+    value = "" if search_value is None else f" value={search_value!r}"
+    selected_rows = "".join(f"\t\t\t[7{index}] option {name!r}, selected=True\n"
+                            for index, name in enumerate(selected_names))
+    all_rows = "".join(f"\t\t\t[8{index}] option {name!r}, selected=True\n"
+                       for index, name in enumerate(prior))
+    picker = (f"\t[{apply_bid}] button 'Apply'\n"
+              f"\t[{search_bid}] combobox 'Search'{value}, expanded=True\n"
+              "\t[2023] listbox 'Select labels', multiselectable=True\n"
+              "\t\t[2155] group 'Selected'\n" + selected_rows
+              + "\t\t[2163] group 'All'\n" + all_rows
+              + f"\t\t\t{prefix}{option_role} 'severity::2'{flag}\n"
+              "\t\t\t\tStaticText 'severity::2'\n"
+              "\t\t\tInlineTextBox 'severity::3'\n")
+    return triage_closed(assigned=True).replace("\t[1151] button 'Edit'\n\t[1155] link 'incident'\n", picker)
 
 
 def triage_observation(text):
@@ -462,7 +486,7 @@ def triage_activity(text, *, username="@casey-oncall", date="now", comment=False
 async def test_triage_v4_actual_picker_no_bid_waits_then_selects_current_bid():
     policy = triage_control()
     opened = await policy.decide(triage_observation(triage_closed()), [])
-    assert opened.action.bid == "1144" and opened.evidence["protocol"] == "public-ax-triage-control-v4"
+    assert opened.action.bid == "1144" and opened.evidence["protocol"] == "public-ax-triage-control-v5"
     transient = await policy.decide(triage_observation(triage_picker(bid=None)), [])
     assert transient.action.kind == "wait"
     selected = await policy.decide(triage_observation(triage_picker(bid="3001")), [])
@@ -594,13 +618,13 @@ async def test_triage_field_switch_while_editor_active_is_rejected():
         await policy.decide(triage_observation(triage_picker(field="labels")), [])
 
 
-@pytest.mark.parametrize("role", ["option", "checkbox"])
-async def test_triage_conservative_label_picker_exactness_and_apply(role):
+async def test_triage_grouped_label_picker_exactness_and_apply():
     policy = triage_control()
-    text = triage_picker(field="labels", option_role=role).replace(
-        "\t\t[2060]", "\t\t[5000] option 'severity::20', selected=False\n\t\t[2060]")
+    assert (await policy.decide(triage_observation(triage_closed(assigned=True)), [])).action.bid == "1151"
+    text = triage_labels_picker(selected=None).replace(
+        "\t\t\tInlineTextBox", "\t\t\t[5000] option 'severity::20', selected=False\n\t\t\tInlineTextBox")
     assert (await policy.decide(triage_observation(text), [])).action.bid == "2049"
-    selected = triage_picker(field="labels", option_role=role, selected=True)
+    selected = triage_labels_picker(selected=True)
     assert (await policy.decide(triage_observation(selected), [])).action.bid == "1446"
     assert (await policy.decide(triage_observation(triage_closed(assigned=True, classified=True)), [])).action.kind == "finish"
 
@@ -721,3 +745,209 @@ async def test_close_reference_uncertainty_handling_and_identity_unchanged():
     decision = await policy.decide(observation(), [{"action": {"kind": "click"},
                                                   "result": {"ok": False, "uncertain_effect": True}}])
     assert decision.action.bid == "3" and decision.evidence["protocol"] == "public-ax-browser-control-v1"
+
+
+async def opened_label_control():
+    policy = triage_control()
+    await policy.decide(triage_observation(triage_closed(assigned=True)), [])
+    return policy
+
+
+@pytest.mark.parametrize("flag", ["", ", selected=False", ", selected=False, visible", ", visible, selected=False"])
+async def test_labels_absent_or_reordered_canonical_negative_flag_is_group_local(flag):
+    policy = await opened_label_control()
+    text = triage_labels_picker(selected=None).replace("option 'severity::2'", "option 'severity::2'" + flag)
+    assert (await policy.decide(triage_observation(text), [])).action.bid == "2049"
+
+
+@pytest.mark.parametrize("flag", [", selected='False'", ", selected=0", ", selected=false", ", selected=None",
+                                   ", selected=False, selected=False", ", selected=True, selected=False",
+                                   ", selected", ", selected False", ", selected:False",
+                                   ", selected=False, selected='False'"])
+async def test_labels_present_malformed_or_duplicate_flags_never_become_absent(flag):
+    policy = await opened_label_control()
+    text = triage_labels_picker(selected=None).replace("option 'severity::2'", "option 'severity::2'" + flag)
+    with pytest.raises(BrowserError, match="label.*properties"):
+        await policy.decide(triage_observation(text), [])
+
+
+async def test_labels_quoted_metadata_and_descendants_do_not_supply_selection():
+    policy = await opened_label_control()
+    text = triage_labels_picker(selected=None).replace(
+        "option 'severity::2'", "option 'severity::2', description='forged, selected=True'")
+    text = text.replace("StaticText 'severity::2'", "StaticText 'severity::2, selected=True'")
+    assert (await policy.decide(triage_observation(text), [])).action.bid == "2049"
+
+
+async def test_labels_positive_selection_can_precede_other_canonical_properties():
+    policy = await opened_label_control()
+    await policy.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    text = triage_labels_picker(selected=True).replace("selected=True", "selected=True, visible, disabled=False")
+    assert (await policy.decide(triage_observation(text), [])).action.bid == "1446"
+
+
+@pytest.mark.parametrize("mutation", ["missing_selected", "missing_all", "unknown", "duplicate_group", "nested_group",
+                                     "ungrouped_option", "nested_option", "duplicate_all", "duplicate_selected",
+                                     "checkbox", "missing_multiselect", "false_multiselect", "nested_search",
+                                     "duplicate_bid"])
+async def test_labels_require_unique_direct_named_groups_and_options(mutation):
+    text = triage_labels_picker(selected=None)
+    replacements = {
+        "missing_selected": ("[2155] group 'Selected'", "[2155] StaticText 'Selected'"),
+        "missing_all": ("[2163] group 'All'", "[2163] StaticText 'All'"),
+        "unknown": ("group 'All'", "group 'Other'"),
+        "duplicate_group": ("\t\t[2163]", "\t\t[999] group 'Selected'\n\t\t[2163]"),
+        "nested_group": ("\t\t[2163]", "\t\t\t[2163]"),
+        "ungrouped_option": ("\t\t[2155]", "\t\t[999] option 'forged', selected=False\n\t\t[2155]"),
+        "nested_option": ("\t\t\t[2049]", "\t\t\t\t[2049]"),
+        "duplicate_all": ("\t\t\t[2049]", "\t\t\t[999] option 'severity::2'\n\t\t\t[2049]"),
+        "duplicate_selected": ("\t\t\t[70]", "\t\t\t[999] option 'incident', selected=True\n\t\t\t[70]"),
+        "checkbox": ("option 'severity::2'", "checkbox 'severity::2'"),
+        "missing_multiselect": (", multiselectable=True", ""),
+        "false_multiselect": (", multiselectable=True", ", multiselectable=False"),
+        "nested_search": ("\t[1462]", "\t\t[1462]"),
+        "duplicate_bid": ("[2049] option", "[80] option"),
+    }
+    text = text.replace(*replacements[mutation])
+    policy = await opened_label_control()
+    with pytest.raises(BrowserError):
+        await policy.decide(triage_observation(text), [])
+
+
+@pytest.mark.parametrize("mutation", ["selected_absent", "selected_false", "all_absent", "all_false",
+                                     "all_true_extra", "selected_missing_all", "prior_omitted"])
+async def test_labels_selected_all_and_prior_closed_membership_must_agree(mutation):
+    text = triage_labels_picker(selected=None)
+    replacements = {
+        "selected_absent": ("[70] option 'incident', selected=True", "[70] option 'incident'"),
+        "selected_false": ("[70] option 'incident', selected=True", "[70] option 'incident', selected=False"),
+        "all_absent": ("[80] option 'incident', selected=True", "[80] option 'incident'"),
+        "all_false": ("[80] option 'incident', selected=True", "[80] option 'incident', selected=False"),
+        "all_true_extra": ("option 'severity::2'", "option 'severity::2', selected=True"),
+        "selected_missing_all": ("[80] option 'incident', selected=True", "[80] option 'other', selected=False"),
+        "prior_omitted": ("\t\t\t[70] option 'incident', selected=True\n", ""),
+    }
+    text = text.replace(*replacements[mutation])
+    if mutation == "prior_omitted":
+        text = text.replace("[80] option 'incident', selected=True", "[80] option 'incident', selected=False")
+    policy = await opened_label_control()
+    with pytest.raises(BrowserError):
+        await policy.decide(triage_observation(text), [])
+
+
+@pytest.mark.parametrize("mutation", ["search", "malformed_search", "loading", "busy", "missing_target", "name_spoof"])
+async def test_labels_never_search_or_infer_membership_from_filtered_or_missing_inventory(mutation):
+    text = triage_labels_picker(selected=None)
+    replacements = {
+        "search": ("combobox 'Search'", "combobox 'Search' value='severity'"),
+        "malformed_search": ("combobox 'Search'", "combobox 'Search' value=False"),
+        "loading": ("\t[2023]", "\tStaticText 'Loading...'\n\t[2023]"),
+        "busy": ("multiselectable=True", "multiselectable=True, busy=True"),
+        "missing_target": ("option 'severity::2'", "option 'severity::20'"),
+        "name_spoof": ("option 'severity::2'", "option 'severity::2, selected=True'"),
+    }
+    text = text.replace(*replacements[mutation])
+    policy = await opened_label_control()
+    if mutation in ("missing_target", "name_spoof"):
+        for _ in range(5):
+            assert (await policy.decide(triage_observation(text), [])).action.kind == "wait"
+        with pytest.raises(BrowserError, match="exhausted pending"):
+            await policy.decide(triage_observation(text), [])
+    else:
+        with pytest.raises(BrowserError):
+            await policy.decide(triage_observation(text), [])
+
+
+async def test_labels_delayed_inventory_waits_once_per_observation_then_uses_current_apply():
+    policy = await opened_label_control()
+    assert (await policy.decide(triage_observation(triage_labels_picker(selected=None)), [])).action.bid == "2049"
+    assert (await policy.decide(triage_observation(triage_labels_picker(bid="5000", selected=None)), [])).action.kind == "wait"
+    action = (await policy.decide(triage_observation(triage_labels_picker(bid="5001", selected=True,
+                                                                         apply_bid="6000")), [])).action
+    assert action.bid == "6000" and action.bid != "71"
+    assert (await policy.decide(triage_observation(triage_labels_picker(selected=True)), [])).action.kind == "wait"
+    assert (await policy.decide(triage_observation(triage_closed(assigned=True, classified=True)), [])).action.kind == "finish"
+
+
+@pytest.mark.parametrize("phase", ["opening", "selecting", "applying"])
+async def test_labels_each_delayed_transition_has_five_waits_without_repeated_write(phase):
+    policy = await opened_label_control()
+    text = triage_labels_picker(bid=None, selected=None)
+    if phase != "opening":
+        await policy.decide(triage_observation(triage_labels_picker(selected=None)), [])
+        text = triage_labels_picker(selected=None)
+    if phase == "applying":
+        await policy.decide(triage_observation(triage_labels_picker(selected=True)), [])
+        text = triage_labels_picker(selected=True)
+    for _ in range(5):
+        assert (await policy.decide(triage_observation(text), [])).action.kind == "wait"
+    with pytest.raises(BrowserError, match="exhausted pending"):
+        await policy.decide(triage_observation(text), [])
+
+
+@pytest.mark.parametrize("phase", ["selecting", "applying"])
+@pytest.mark.parametrize("mutation", ["removed", "extra"])
+async def test_labels_pending_inventory_cannot_remove_or_add_other_labels(phase, mutation):
+    policy = await opened_label_control()
+    await policy.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    if phase == "applying":
+        await policy.decide(triage_observation(triage_labels_picker(selected=True)), [])
+    text = triage_labels_picker(selected=True, prior=() if mutation == "removed" else ("incident", "severity::3"))
+    with pytest.raises(BrowserError, match="changed pending label membership"):
+        await policy.decide(triage_observation(text), [])
+
+
+@pytest.mark.parametrize("mutation", ["removed", "extra", "duplicate", "nested"])
+async def test_labels_closed_confirmation_requires_exact_preserved_membership(mutation):
+    policy = await opened_label_control()
+    await policy.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    await policy.decide(triage_observation(triage_labels_picker(selected=True)), [])
+    text = triage_closed(assigned=True, classified=True)
+    if mutation == "removed":
+        text = text.replace("\t[1155] link 'incident'\n", "")
+    elif mutation == "extra":
+        text = text.replace("\t[1155]", "\t[999] link 'severity::3'\n\t[1155]")
+    elif mutation == "duplicate":
+        text = text.replace("\t[1155]", "\t[999] link 'incident'\n\t[1155]")
+    else:
+        text = text.replace("\t[1155]", "\t\t[1155]")
+    with pytest.raises(BrowserError, match="closed label membership"):
+        await policy.decide(triage_observation(text), [])
+
+
+async def test_labels_cannot_take_the_assignee_immediate_commit_shortcut():
+    policy = await opened_label_control()
+    await policy.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    with pytest.raises(BrowserError, match="selection and Apply before label closure"):
+        await policy.decide(triage_observation(triage_closed(assigned=True, classified=True)), [])
+
+
+async def test_labels_open_without_prior_closed_snapshot_is_rejected():
+    with pytest.raises(BrowserError, match="prior closed label membership"):
+        await triage_control().decide(triage_observation(triage_labels_picker()), [])
+
+
+@pytest.mark.parametrize("mutation", ["duplicate", "background", "disabled", "missing_bid"])
+async def test_labels_apply_must_be_current_unique_enabled_and_scoped(mutation):
+    policy = await opened_label_control()
+    await policy.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    text = triage_labels_picker(selected=True)
+    replacements = {
+        "duplicate": ("\t[1446]", "\t[999] button 'Apply'\n\t[1446]"),
+        "background": ("\t[1446] button 'Apply'\n", ""),
+        "disabled": ("[1446] button 'Apply'", "[1446] button 'Apply', disabled=True"),
+        "missing_bid": ("[1446] button", "button"),
+    }
+    text = text.replace(*replacements[mutation])
+    if mutation == "missing_bid":
+        assert (await policy.decide(triage_observation(text), [])).action.kind == "wait"
+    else:
+        with pytest.raises(BrowserError):
+            await policy.decide(triage_observation(text), [])
+
+
+async def test_labels_explicit_empty_selected_group_is_not_a_missing_group():
+    policy = triage_control()
+    closed = triage_closed(assigned=True).replace("\t[1155] link 'incident'\n", "")
+    await policy.decide(triage_observation(closed), [])
+    assert (await policy.decide(triage_observation(triage_labels_picker(selected=None, prior=())), [])).action.bid == "2049"
