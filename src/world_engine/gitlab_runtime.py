@@ -26,59 +26,18 @@ from .browser_contracts import (
     SealedState,
     TaskPack,
 )
+from .gitlab_close import APP_DIGEST, GITLAB_VERSION, gitlab_task
+from .gitlab_taskpacks import GitLabPackDefinition, resolve_gitlab_pack
 
-GITLAB_VERSION = "19.4.1"
-APP_DIGEST = "sha256:7fff8748a25202c1d38885797510afe055f555856f3f50c2b17466a853be5d24"
 APP_IMAGE = f"gitlab/gitlab-ce@{APP_DIGEST}"
 VERIFIER_BASE = "sha256:a1165e272e578941b84abc79e4ab38a0305cd12803a5c4247979ac7655f4d641"
 OWNER_LABEL = "world-engine.gitlab-owner"
 MAX_STATE_BYTES = 8 * 1024 * 1024
 ROOT = Path(__file__).resolve().parent / "taskpacks" / "gitlab"
-COMMENT = "Release checklist verified; ready for closure."
-MARKER = "Deployment reference: REL-2026-1042"
 
 
 def _hash(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
-
-
-def gitlab_task(seed: int = 42) -> TaskPack:
-    fixture = json.dumps(
-        {
-            "marker": MARKER,
-            "comment": COMMENT,
-            "comment_internal": False,
-            "schema": "gitlab-fixture-v1",
-            "seed": seed,
-            "ordering": "rotate-three-descriptions-by-seed-modulo-three",
-            "project": "Release Operations",
-            "agent_role": 30,
-            "auditor_role": 20,
-            "issue_count": 3,
-            "existing_note": "Original release coordination note; retain this history.",
-            "fixture_source_sha256": _hash(Path(__file__).read_bytes()),
-            "config_sha256": _hash((ROOT / "config.rb").read_bytes()),
-            "export_sha256": _hash((ROOT / "export.rb").read_bytes()),
-        },
-        sort_keys=True,
-    )
-    return TaskPack(
-        id="gitlab-issue-close",
-        version="1.0.2",
-        name="GitLab release issue closure",
-        instruction=(
-            f"In Release Operations, find the open issue whose description says {MARKER}. "
-            f"Add exactly this comment: {COMMENT} Then close that issue. "
-            "Use an ordinary comment, not an internal note. Leave other issues, "
-            "existing comments and project access unchanged."
-        ),
-        application="GitLab CE",
-        application_version=GITLAB_VERSION,
-        image_digest=APP_DIGEST,
-        fixture_hash=_hash(fixture.encode()),
-        grader_version="gitlab-state-v3",
-        seed=seed,
-    )
 
 
 TASK_PACK = gitlab_task()
@@ -180,9 +139,9 @@ class GitLabRuntime:
         async with self._admission:
             return await self._start(attempt_id, task, directory)
 
-    async def _prepare_verifier(self) -> str:
-        code_hash = _hash((ROOT / "verify.py").read_bytes())
-        build_hash = _hash((ROOT / "verifier.Dockerfile").read_bytes())
+    async def _prepare_verifier(self, pack: GitLabPackDefinition) -> str:
+        code_hash = _hash(pack.verifier_path.read_bytes())
+        build_hash = _hash(pack.verifier_recipe_path.read_bytes())
         if self.verifier_image is None:
             await self._inspect("image", VERIFIER_BASE)
             tag = f"world-engine-gitlab-verifier:{code_hash[:24]}"
@@ -197,8 +156,8 @@ class GitLabRuntime:
                 "--tag",
                 tag,
                 "--file",
-                str(ROOT / "verifier.Dockerfile"),
-                str(ROOT),
+                str(pack.verifier_recipe_path),
+                str(pack.verifier_path.parent),
                 timeout=120,
             )
             image = await self._inspect("image", tag)
@@ -213,7 +172,6 @@ class GitLabRuntime:
             != build_hash
         ):
             raise GitLabRuntimeError("verifier image does not match current build recipe")
-        self.verifier_image = image["Id"]
         return image["Id"]
 
     async def _prepare_relay(self) -> str:
@@ -236,9 +194,10 @@ class GitLabRuntime:
         return image["Id"]
 
     async def _start(self, attempt_id: str, task: TaskPack, directory: Path) -> RuntimeHandle:
-        if not re.fullmatch(r"[a-zA-Z0-9_-]{1,100}", attempt_id) or task.id != "gitlab-issue-close":
+        if not re.fullmatch(r"[a-zA-Z0-9_-]{1,100}", attempt_id):
             raise GitLabRuntimeError("unsupported GitLab attempt or task")
-        expected = gitlab_task(task.seed)
+        pack = resolve_gitlab_pack(task.id)
+        expected = pack.public_task(task.seed)
         if task != expected:
             raise GitLabRuntimeError("GitLab task manifest does not match trusted implementation")
         directory = Path(directory)
@@ -263,7 +222,7 @@ class GitLabRuntime:
         image = json.loads(await self._docker("image", "inspect", APP_IMAGE))
         if image[0]["Architecture"] != "arm64":
             raise GitLabRuntimeError("approved native arm64 GitLab image is required")
-        verifier_image = await self._prepare_verifier()
+        verifier_image = await self._prepare_verifier(pack)
         relay_image = await self._prepare_relay()
         owner = secrets.token_hex(12)
         name = f"world-engine-gitlab-{owner}"
@@ -288,13 +247,14 @@ class GitLabRuntime:
                 "image_id": image[0]["Id"],
                 "config_sha256": _hash((ROOT / "config.rb").read_bytes()),
                 "fixture_sha256": task.fixture_hash,
-                "grader_sha256": _hash((ROOT / "verify.py").read_bytes()),
-                "export_sha256": _hash((ROOT / "export.rb").read_bytes()),
-                "grader_build_sha256": _hash((ROOT / "verifier.Dockerfile").read_bytes()),
+                "grader_sha256": _hash(pack.verifier_path.read_bytes()),
+                "export_sha256": _hash(pack.export_path.read_bytes()),
+                "grader_build_sha256": _hash(pack.verifier_recipe_path.read_bytes()),
                 "grader_image_id": verifier_image,
                 "relay_image_id": relay_image,
                 "relay_sha256": _hash((ROOT / "relay.py").read_bytes()),
                 "isolation": "local Docker development only; privileged host trusted",
+                **pack.provenance(task.seed),
             },
         )
         record = {
@@ -306,6 +266,8 @@ class GitLabRuntime:
             "baseline": None,
             "expected": None,
             "task": task,
+            "definition": pack,
+            "verifier_image": verifier_image,
             "sealed": False,
         }
         self._instances[name] = record
@@ -489,69 +451,7 @@ class GitLabRuntime:
                         raise GitLabRuntimeError("trusted GitLab fixture creation failed")
                     return response.json()
 
-                agent = await post(
-                    "/users",
-                    {
-                        "email": "agent@example.invalid",
-                        "username": "workflow-agent",
-                        "name": "Workflow Agent",
-                        "password": password,
-                        "skip_confirmation": True,
-                    },
-                )
-                auditor = await post(
-                    "/users",
-                    {
-                        "email": "auditor@example.invalid",
-                        "username": "release-auditor",
-                        "name": "Release Auditor",
-                        "password": secrets.token_urlsafe(30),
-                        "skip_confirmation": True,
-                    },
-                )
-                project = await post(
-                    "/projects",
-                    {
-                        "name": "Release Operations",
-                        "path": "release-operations",
-                        "visibility": "private",
-                        "issues_enabled": True,
-                        "builds_enabled": False,
-                        "container_registry_enabled": False,
-                    },
-                )
-                project_id = project["id"]
-                await post(f"/projects/{project_id}/members", {"user_id": agent["id"], "access_level": 30})
-                await post(f"/projects/{project_id}/members", {"user_id": auditor["id"], "access_level": 20})
-                descriptions = [
-                    "Deployment reference: REL-2026-1041",
-                    MARKER,
-                    "Deployment reference: REL-2026-1043",
-                ]
-                # Seed controls fixture ordering, not an answer exposed through the observation contract.
-                offset = task.seed % 3
-                descriptions = descriptions[offset:] + descriptions[:offset]
-                target = None
-                for description in descriptions:
-                    issue = await post(
-                        f"/projects/{project_id}/issues",
-                        {
-                            "title": "Release checklist review",
-                            "description": f"{description}\nReview the release checklist before closing.",
-                        },
-                    )
-                    await post(
-                        f"/projects/{project_id}/issues/{issue['iid']}/notes",
-                        {"body": "Original release coordination note; retain this history."},
-                    )
-                    if description == MARKER:
-                        target = issue["id"]
-                record["expected"] = {
-                    "project_id": project_id,
-                    "target_issue_id": target,
-                    "agent_id": agent["id"],
-                    "comment": COMMENT,
-                }
+                record["expected"] = await record["definition"].fixture(post, task.seed, password)
         finally:
             await self._rails(
                 handle,
@@ -562,7 +462,8 @@ class GitLabRuntime:
             )
 
     async def _export(self, handle: RuntimeHandle) -> dict:
-        raw = await self._rails(handle, (ROOT / "export.rb").read_text())
+        record = self._owned(handle)
+        raw = await self._rails(handle, record["definition"].export_path.read_text())
         try:
             value = json.loads(raw)
         except (ValueError, TypeError):
@@ -585,7 +486,7 @@ class GitLabRuntime:
         final = await self._export(handle)
         await self._docker("stop", "--time", "30", handle.instance_id, timeout=60)
         payload = {
-            "schema": "world-engine-gitlab-sealed-v1",
+            "schema": record["definition"].sealed_schema,
             "baseline": record["baseline"],
             "final": final,
             "expected": record["expected"],
@@ -607,8 +508,6 @@ class GitLabRuntime:
 
     async def grade(self, sealed: SealedState, task: TaskPack) -> GradeResult:
         await self._local_docker()
-        if self.verifier_image is None or not re.fullmatch(r"sha256:[0-9a-f]{64}", self.verifier_image):
-            raise GitLabRuntimeError("a pinned built verifier image is required")
         if sealed.path.is_symlink() or sealed.path.stat().st_size > MAX_STATE_BYTES:
             raise GitLabRuntimeError("sealed GitLab artifact must be a bounded regular file")
         raw = sealed.path.read_bytes()
@@ -624,6 +523,9 @@ class GitLabRuntime:
         )
         if record is None:
             raise GitLabRuntimeError("grading requires this runtime's owned sealed attempt")
+        image = record["verifier_image"]
+        if not re.fullmatch(r"sha256:[0-9a-f]{64}", image):
+            raise GitLabRuntimeError("a pinned built verifier image is required")
         verifier_name = f"{record['handle'].instance_id}-verifier-{secrets.token_hex(6)}"
         record["containers"].append(verifier_name)
         result = await self._docker(
@@ -657,7 +559,7 @@ class GitLabRuntime:
             "none",
             "--label",
             "world-engine.gitlab-verifier=true",
-            self.verifier_image,
+            image,
             data=raw,
             timeout=30,
         )

@@ -7,16 +7,28 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 The [private-local SFT data adapter](../docs/local-sft.md) and
 [fixed data protocol](../docs/local-sft-protocol.md) prepare original refund/access
 reference decisions with current replay, train-only eligibility and exact
-assistant-token masks. Independent review and 89 focused tests passed. Dataset
-collection and an actual optimizer/checkpoint remain separate gates. Existing
+assistant-token masks. Source `a8b95a4df7a39d6e2884048fbf39c49095487bde`
+passed 2,185 tests with eight optional skips. Private-local collection retained
+128 reference episodes, 815 train decision masks and 26 held-out episodes;
+independent replay and token-mask verification passed. These are scripted
+reference data, not model success or a trained checkpoint. An actual
+optimizer/checkpoint remains a separate gate. Existing
 native, browser and recorded-HTTP evidence stays training-ineligible; no normal
 runtime training dependency was added.
 
+The [GitLab triage pack](../docs/gitlab-triage.md) adds original assignment and
+severity work, an already-correct case and nonempty unrelated assignment state.
+Its frozen source passed independent review and 350 focused mock tests, Ruff and
+Ruby syntax checks. The [fixed qualification protocol](../docs/gitlab-triage-protocol.md)
+requires real controls before the candidate verifier is qualified or the optional
+local model runs. The prior close receipts retain their original source;
+registered close release 1.0.3 changes recipe ownership, not prior grades.
+
 Root owns Git, publication, fixed-source collection and this board. Engine owns
-the separately reviewed local trainer increment. Console owns a typed two-pack
-GitLab registration and a new issue-assignment/severity workflow. Research reviews
-the new evidence boundaries. Worker code is not a measured real-application or
-learning result. Only committed, reviewed protocols may produce fresh evidence;
+the separately reviewed local trainer increment. Console's task-pack source is
+frozen for qualification. Research reviews the new evidence boundaries. Worker
+code is not a measured real-application or learning result. Only committed,
+reviewed protocols may produce fresh evidence;
 separate pinned checkouts prevent concurrent source edits during collection.
 
 ## Current checkpoint

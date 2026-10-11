@@ -15,6 +15,7 @@ from world_engine.browser_policy import create_browser_policy
 from world_engine.browser_runs import BrowserRunManager
 from world_engine.browser_store import BrowserStore
 from world_engine.gitlab_runtime import GitLabRuntime, gitlab_task
+from world_engine.gitlab_taskpacks import make_browser_task
 
 
 def source_receipt() -> dict:
@@ -44,7 +45,7 @@ async def collect(args: argparse.Namespace) -> dict:
         return protocol
     source = source_receipt()
     manager = BrowserRunManager(BrowserStore(output), {task.id: task}, GitLabRuntime(),
-                                BrowserGymDriver, create_browser_policy, gitlab_task)
+                                BrowserGymDriver, create_browser_policy, make_browser_task)
     try:
         with (output / "protocol.json").open("x") as stream:
             json.dump({**protocol, "source": source}, stream, indent=2, sort_keys=True)

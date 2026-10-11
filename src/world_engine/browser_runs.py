@@ -30,6 +30,7 @@ from world_engine.browser_contracts import (
     TaskPack,
 )
 from world_engine.browser_store import BrowserStore
+from world_engine.gitlab_taskpacks import make_browser_task, resolve_gitlab_pack
 
 STARTUP_SECONDS = 600
 SEAL_SECONDS = 120
@@ -64,7 +65,7 @@ class BrowserRunManager:
     def __init__(self, store: BrowserStore, tasks: dict[str, TaskPack], runtime: BrowserRuntime | None = None,
                  driver_factory: Callable[[RuntimeHandle, Path], BrowserDriver] | None = None,
                  policy_factory: Callable[[BrowserAttemptConfig, TaskPack], BrowserPolicy] | None = None,
-                 task_factory: Callable[[int], TaskPack] | None = None):
+                 task_factory: Callable[[str, int], TaskPack] | None = None):
         self.store, self.tasks = store, tasks
         self.runtime, self.driver_factory, self.policy_factory = runtime, driver_factory, policy_factory
         self.task_factory = task_factory
@@ -97,20 +98,22 @@ class BrowserRunManager:
             raise BrowserError("browser admission limit reached (1); wait for the active attempt")
         if config.task_id not in self.tasks:
             raise BrowserError("unknown browser task")
-        task = self.task_factory(config.seed) if self.task_factory else self.tasks[config.task_id].model_copy(update={"seed": config.seed})
+        task = self.task_factory(config.task_id, config.seed) if self.task_factory else self.tasks[config.task_id].model_copy(update={"seed": config.seed})
         if task.id != config.task_id or task.seed != config.seed:
             raise BrowserError("browser task generator returned an inconsistent task")
         key = str(uuid4())
         provenance = {**source_receipt(), "controller_modules": {
             name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
             for name in ("browser_contracts.py", "browser_runs.py", "browser_store.py", "browser_api.py",
-                         "browser_driver.py", "browser_policy.py", "gitlab_runtime.py")},
+                         "browser_driver.py", "browser_policy.py", "gitlab_runtime.py", "gitlab_taskpacks.py")},
                       "evaluation_only": True, "training_eligible": False, "agent_interface": "browser-only",
                       "source_rights": {"task_origin": "original local fixture", "benchmark_imported": False,
                                         "application_source_url": "https://gitlab.com/gitlab-org/gitlab-foss",
                                         "application_license": "GitLab CE MIT; dependency/image licenses separate",
                                         "permitted_use": "evaluation-only", "training_eligible": False},
                       "isolation": "local Docker trusted operator pilot; not multi-tenant security"}
+        if self.task_factory is make_browser_task:
+            provenance.update(resolve_gitlab_pack(task.id).provenance(config.seed))
         result = self.store.create(key, config, task, provenance)
         job = BrowserJob()
         self.jobs[key] = job
@@ -327,14 +330,14 @@ class BrowserRunManager:
 
 def default_browser_manager(directory: Path) -> BrowserRunManager:
     """Disabled by default; constructing the local pilot never starts an application."""
-    from world_engine.gitlab_runtime import GitLabRuntime, gitlab_task
+    from world_engine.gitlab_runtime import GitLabRuntime
+    from world_engine.gitlab_taskpacks import gitlab_catalog, make_browser_task
 
-    task = gitlab_task(42)
-    tasks = {task.id: task}
+    tasks = gitlab_catalog()
     store = BrowserStore(directory)
     if os.environ.get("WORLD_ENGINE_BROWSER_ENABLED") != "1":
-        return BrowserRunManager(store, tasks, task_factory=gitlab_task)
+        return BrowserRunManager(store, tasks, task_factory=make_browser_task)
     from world_engine.browser_driver import BrowserGymDriver
     from world_engine.browser_policy import create_browser_policy
 
-    return BrowserRunManager(store, tasks, GitLabRuntime(), BrowserGymDriver, create_browser_policy, gitlab_task)
+    return BrowserRunManager(store, tasks, GitLabRuntime(), BrowserGymDriver, create_browser_policy, make_browser_task)
