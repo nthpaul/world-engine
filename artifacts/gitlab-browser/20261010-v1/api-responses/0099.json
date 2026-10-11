@@ -1,0 +1,7 @@
+{
+  "bytes": 2499,
+  "method": "POST",
+  "path": "/api/browser/attempts",
+  "sha256": "dd39699f685675cc23ae34aacea39598524301b5abb4dfe767e007155cfc35ec",
+  "status": 202
+}
