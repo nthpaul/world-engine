@@ -1,4 +1,4 @@
-"""Pure candidate context protocol. No provider, transport, or replay integration."""
+"""Pure normalized native request builder and public-context reconstruction."""
 
 from __future__ import annotations
 

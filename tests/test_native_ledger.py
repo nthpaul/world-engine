@@ -17,7 +17,7 @@ from world_engine.native_ledger import (
     request_body,
     request_from_context,
 )
-from world_engine.ollama_tools import OPTIONS, SYSTEM_PROMPT
+from world_engine.ollama_tools import LEDGER_PROTOCOL, OPTIONS, SYSTEM_PROMPT
 from world_engine.ollama_tools import contract as native_v1_contract
 from world_engine.providers import ScriptedProvider, policy_messages
 
@@ -312,7 +312,7 @@ def test_history_bound_and_contract_preserve_native_transport_limits():
         request_body(MODEL, initial, current, history + [history[-1]])
     v1 = native_v1_contract()
     v2 = contract()
-    assert v2["protocol"] == PROTOCOL != v1["protocol"]
+    assert v2["protocol"] == PROTOCOL == LEDGER_PROTOCOL != v1["protocol"]
     for key in ("system_prompt", "options", "stream", "think", "request_limit", "response_limit",
                 "one_call_per_decision", "episode_record_limit", "response_encoding"):
         assert v1[key] == v2[key]

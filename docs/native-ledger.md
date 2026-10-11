@@ -1,10 +1,10 @@
 # Native event ledger candidate
 
 `world_engine.native_ledger` implements a pure candidate request builder named
-`ollama-tools-ledger-v2`. It is not wired into the provider, rollout, CLI, API,
-or replay dispatcher. The existing `ollama-tools-v1` protocol and its recorded
-requests remain unchanged. This document does not authorize inference or a
-comparison collection.
+`ollama-tools-ledger-v2`. The SDK native provider and trusted replay dispatcher
+support explicit opt-in; the CLI, API, and collectors do not select it.
+The existing `ollama-tools-v1` default protocol and its request rules remain
+unchanged. This document does not authorize inference or a comparison collection.
 
 ## Public interfaces
 
@@ -104,35 +104,45 @@ use more bytes than v1 when public state is large or changes often. It also
 fails once the complete request crosses the unchanged cap; it does not truncate
 history or silently remove public state.
 
-## Possible integration, not implemented
+## Shared native integration
 
-The smallest later integration would reuse `OllamaToolsProvider`'s existing
-preflight, one-call parser, recorder, limits, cancellation, and cleanup. It would
-add an explicitly selected request-context protocol, not a copied provider or
-a second transport implementation. `decide` could call `request_from_context`
-for v2, leaving v1's request builder intact. No conversation cache or mutable
-initial-state field is needed.
+`OllamaToolsProvider(config, protocol="ollama-tools-ledger-v2")` reuses the
+existing preflight, one-call parser, recorder, limits, cancellation, and cleanup.
+The default constructor selects v1. The protocol property is read-only;
+unknown protocols reject before endpoint setup. `decide` calls
+`request_from_context` for v2, leaving v1's request representation intact.
+There is no conversation cache, mutable initial-state field, copied provider,
+or second transport implementation.
 
-Replay would dispatch on the explicit provenance protocol. For v2 it would
-first reconstruct the stored request, then independently reset the pinned world
-and compare the initial observation, every executed action/result/post-action
-observation, and the current observation. Replay must regenerate the same v2
-request and require exact canonical wire bytes and the existing request/response
-event linkage. A protocol mismatch must reject, never fall back to v1.
+Replay dispatches on the explicit provenance protocol, requiring the known
+native provider class/source, selected contract, and matching event-pair protocol.
+It independently resets the pinned world, checks the initial observation, and
+verifies every executed action/result/post-action observation. For each request
+it regenerates v2 from that trusted initial observation and the already verified
+history, requiring exact canonical wire bytes and existing request/response
+event linkage. It does not derive authority from recorded `policy_input` or
+from `reconstruct`. Missing, unknown, and downgraded contracts reject, without
+fallback to v1.
 
-Before integration, provenance must record the v2 contract and the ledger module
-fingerprint alongside the existing provider and recorder fingerprints. Editing
-the shared provider or replay source changes source-pinned replay requirements
-even if v1 semantics stay unchanged. Existing receipts require their recoverable
-collection revision; none should be rewritten to look like v2. Raw native
-records remain operator interchange with `training_eligible=false` unless a
-separate training contract is established.
+V2 provenance records the selected contract and ledger module fingerprint
+alongside existing provider and recorder fingerprints. Its policy configuration
+hash additionally includes the protocol and evidence digest. V1's configuration
+hash rules and contract digest remain unchanged. Shared provider/replay source
+changes still change source-pinned replay requirements. Existing receipts require
+their recoverable collection revision; none should be rewritten to look like v2.
+Raw native records remain operator interchange with `training_eligible=false`
+unless a separate training contract is established.
 
 A later locked comparison should use declared source revisions, identical
 scenario budgets and model identity, and fresh immutable output. It should
 retain failures and cancelled attempts, not compare successful calls alone.
 Wire-byte counts are not tokenizer counts. Append-stable content does not prove
 Ollama prefix-cache reuse, cache hits, latency reduction, or higher throughput.
+The request cap bounds UTF-8 bytes, not context tokens. Retaining the full public
+ledger does not prove that the daemon/template/tokenizer consumed every frame
+untruncated at `num_ctx=8192`. This SDK has no independent tokenizer or template
+executor; reported `input_tokens` are daemon metadata, not an independently
+measured encoding of the request.
 
 ## Why this candidate
 
