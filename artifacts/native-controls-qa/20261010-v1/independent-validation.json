@@ -1,0 +1,351 @@
+{
+  "schema": "world-engine.native-controls-independent-validation.v1",
+  "generated_at_utc": "2026-10-10 11:43:00 UTC",
+  "scope": "Additional publication only. Original controls reports, screenshots and videos are unchanged; this sidecar is excluded from original artifact counts and quotas.",
+  "auditors": [
+    "root: independent source/blob, manifest, full visual and video proof",
+    "console: collector execution, independent source/blob and manifest proof, video decode and visual spot checks"
+  ],
+  "protocol": {
+    "id": "native-controls-read-only-v1",
+    "sha256": "d05f475561417eafb642317e84a1297e001c70eddbf4da6e62bfa1f46753ec77"
+  },
+  "originals_total": {
+    "files": 28,
+    "bytes": 3567137
+  },
+  "phases": {
+    "20261010-v1": {
+      "original_file_count": 14,
+      "original_bytes": 1782398,
+      "original_files": {
+        "1440-legacy-editable.png": {
+          "bytes": 200882,
+          "sha256": "e1f2277a88da4a900218dd533349a2edf2502f4cffe2b7f96a4314e77ec95e92"
+        },
+        "1440-local-tools-defaults.png": {
+          "bytes": 200655,
+          "sha256": "9713b8168c31d5f5cb87352487e36dd11021c696cd832ca3173a8f3eb99e15ae"
+        },
+        "1440-local-tools-ledger-defaults.png": {
+          "bytes": 200677,
+          "sha256": "3a144649786f898e79cbf8c6fbb68a65d8e739ad53b75a6fe65f1c38281d0691"
+        },
+        "1440-native-explicit-two.png": {
+          "bytes": 200734,
+          "sha256": "edf506f405ab403f9d4269be9d52978b961c33a640801b3c9fbd76a96a569321"
+        },
+        "360-legacy-editable.png": {
+          "bytes": 45967,
+          "sha256": "32056baa4ba8fa3955c84e15d74e5e29fa8d269f269d424dd2961619c99e9d60"
+        },
+        "360-local-tools-defaults.png": {
+          "bytes": 45841,
+          "sha256": "c7c3b783a66eb405349230895a23b823e0ca2d3636cd6f8922663550fb7b4f60"
+        },
+        "360-local-tools-ledger-defaults.png": {
+          "bytes": 45904,
+          "sha256": "eb409167da4f3d3fc266a47a6da71d3fb355deb399b468a9b39adf82a09b2d7d"
+        },
+        "360-native-explicit-two.png": {
+          "bytes": 45941,
+          "sha256": "c88ec3632bc978a3d5875442322c21a5003a37b0198770e37b556396853bcee8"
+        },
+        "390-legacy-editable.png": {
+          "bytes": 46171,
+          "sha256": "ee75a02a8558ce51b01cff4fd584c88b1c20e33fc244ee6159a02c7d8ae4ac08"
+        },
+        "390-local-tools-defaults.png": {
+          "bytes": 45973,
+          "sha256": "1653329cecf0aad8022c31d9eebb02490ac682a87c90ef5c59783ad2acdd25b5"
+        },
+        "390-local-tools-ledger-defaults.png": {
+          "bytes": 46036,
+          "sha256": "80c0e3bfc3715129bbe44ef1b32004cb2798d4ef412c6a661448db2ebd555ce2"
+        },
+        "390-native-explicit-two.png": {
+          "bytes": 46244,
+          "sha256": "8c2da5c1d140fef143247cbf7f6b67f607df53b82989b45b444dd0605f3c2f5c"
+        },
+        "controls.webm": {
+          "bytes": 597762,
+          "sha256": "4122079e9b0546bc3afb1b0f1bacf099226dbbb2b66059be0fd02730d33f0359"
+        },
+        "report.json": {
+          "bytes": 13611,
+          "sha256": "19dd49a6e11e6bd801b727074b7daf9d0c3d6827dee7f29e05cec34277cc4c79"
+        }
+      },
+      "source_blob_count": 31,
+      "source_revision": "8b82c7aa5ac944ec35b62ef2d12f28f4b8d254cb",
+      "source_files": {
+        "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+        "src/world_engine/__main__.py": "6443b178672d8f66981168d66a4cc41a86b118c871fdbdff8d99df4be1b3951b",
+        "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+        "src/world_engine/api.py": "12d7d71ffda3df3705a100303f1310413c5ed11b4543ea6d4baf25c9fd83c587",
+        "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+        "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+        "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+        "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+        "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+        "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+        "src/world_engine/native_config.py": "77aa30a43bc1b90c1bbfa5d4c84d0836294c0b697e5aa4ef2eb16f794779f51c",
+        "src/world_engine/native_ledger.py": "986b65d8de1916455471cf4f5c3a528c5c653be1d56fb1bcaee073b68b2dfd5e",
+        "src/world_engine/ollama_tools.py": "3936518027cb9f6e4562ce1e1627353dbde41c11d1646757171bce5bdd3af435",
+        "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+        "src/world_engine/providers.py": "e68a7b6093ef45c7b19c69d7f2dff789112445d5c9e91b4c338957420798c26f",
+        "src/world_engine/rollout.py": "e51c3f8168b127574d02871e4a622e15051a3bc152473f678711432350f20f3d",
+        "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+        "web/src/App.tsx": "31dfca64336a86f884be04d61885466b4eac0a8463f9ef7b8457562b44fd61e9",
+        "web/src/api.ts": "d2c0062a9d0f6c05b24016e641213b123c45658af617d7988a6428650e23ce05",
+        "web/src/main.tsx": "bf82136bef7bae65abd3f19b1e348b4d163b24b42610f556be1f708524add794",
+        "web/src/styles.css": "4da3cb9f81d8870548ecf76056376e9e75ee5e02827aeb28c68dd5f02c81742d",
+        "web/package.json": "cdd731e574c39e77a570b98968a2e36a479d6c26ed8131917fdca16bf0191006",
+        "web/package-lock.json": "61cf0d6fe5aea4c445bf6e744dabed4a089dae3ba057485b5740dfa7d8816f94",
+        "web/vite.config.ts": "e33334557d4981f6be7fc699a5f1b9818afdc0c9059ef2884a04ed1a34b9e648",
+        "web/index.html": "c3d0cbe811be1a5fd93e6d323dbec39e5b7fd14dd7c59f1bc3db9a51897ef175",
+        "pyproject.toml": "6c352c613b9a0d428c6b1bf0979c27595b119c22b50b4a26a92210a2e461412e",
+        "uv.lock": "a65eda4a34998fe5978fde9ef84ef99e94ada85d2a8e574e4e6c3e9d70c20034",
+        "scripts/ui-qa.mjs": "0335fd062d3a489f9d90a3d095c39fba5f0eeb137cc96bde7adeee51dc858fc6",
+        "scripts/qa-native-controls.mjs": "d07594911423c60cf670a9e8e7dfa6e0b655a7e9298d742aafddc862ae184dd5",
+        "tests/test_native_controls_qa.py": "2de02f6aa275ef393edcfd04e3f94fbb2d7dfb154fec7b236799f4325ce9c3c7",
+        "docs/native-controls-qa-protocol.md": "39e9eb117ab742ff120932bc0cb87da6eb818604d90218a54e41bcd51f397c2c"
+      },
+      "checks": 15,
+      "elapsed_seconds": 2.254,
+      "collection_generated_at": "2026-10-10T11:25:22.578Z",
+      "automated_checks_passed": 15,
+      "visual_accepted": false,
+      "overall_accepted": false,
+      "finding": "At width 360, the Start rollout button lower edge was clipped at the modal bottom. All 15 automated checks passed because the old capture checked dialog containment, not child button containment.",
+      "originals_preserved": true,
+      "source_proof": "Both captured source manifests matched 31 source50 committed blobs and current file bytes before the source51 correction; later source changes do not relabel this evidence.",
+      "api_runtime_operator_attestation": {
+        "revision": "8b82c7aa5ac944ec35b62ef2d12f28f4b8d254cb",
+        "startup_utc": "2026-10-10 11:24:58 UTC",
+        "pid": 33196,
+        "same_operator_database": true,
+        "pre_collection_runs": 11,
+        "pre_collection_episodes": 68,
+        "active_runs": 0,
+        "paid_calls_enabled": false
+      },
+      "network": {
+        "GET": 24,
+        "ui_asset_GET": 16,
+        "health_GET": 2,
+        "providers_GET": 2,
+        "environments_GET": 2,
+        "runs_GET": 2,
+        "blocked_requests": 0,
+        "browser_errors": 0,
+        "suppressed_websockets": 2,
+        "api_mutations": 0,
+        "new_rollouts": 0,
+        "inference_requests": 0,
+        "downloads": 0,
+        "imports": 0
+      },
+      "source_scope_dirty": false,
+      "full_checkout_dirty": true,
+      "video": {
+        "full_ffmpeg_decode_exit_code": 0,
+        "codec": "vp9",
+        "width": 1440,
+        "height": 960,
+        "duration_seconds": 2.8,
+        "root_reviewed_frames": 3,
+        "mobile_letterboxing": "intentional"
+      },
+      "visual_review": "Root inspected all 12 screenshots, full 360 native view and full 390 explicit-concurrency view; console independently spotted the clipped footer."
+    },
+    "20261010-v2": {
+      "original_file_count": 14,
+      "original_bytes": 1784739,
+      "original_files": {
+        "1440-legacy-editable.png": {
+          "bytes": 198924,
+          "sha256": "dd73a96db2a5631475fc124033efeab08caf82ba098dfd477c156a60404010a1"
+        },
+        "1440-local-tools-defaults.png": {
+          "bytes": 198700,
+          "sha256": "c842d751da900be80aad46b43d9528ba0361eadc75bd6046263a7c336d4d5eb8"
+        },
+        "1440-local-tools-ledger-defaults.png": {
+          "bytes": 198725,
+          "sha256": "693d055ff11bab96b92b0d9b1a0181682d59d30f0dc6d5e88224f3d2200222e3"
+        },
+        "1440-native-explicit-two.png": {
+          "bytes": 198774,
+          "sha256": "ff5328951761f70f19403c9b1e57d20d6b693543677f8699611a6c3f09254df4"
+        },
+        "360-legacy-editable.png": {
+          "bytes": 46168,
+          "sha256": "fb6667a41093c7fd6ba7292d485cf6ee5215dc3346c27a467323f464ea87b80f"
+        },
+        "360-local-tools-defaults.png": {
+          "bytes": 46023,
+          "sha256": "9d2a6be49400d31123a371a2d9fd5353f57b2807e468e3d7f07679380a773ed3"
+        },
+        "360-local-tools-ledger-defaults.png": {
+          "bytes": 46087,
+          "sha256": "5ad29e15f33cda3f0da422b74f6282968786d095b4cff80a6ffb7672068d9264"
+        },
+        "360-native-explicit-two.png": {
+          "bytes": 46124,
+          "sha256": "a922a1692ba352ba25cfb476494ed112a7147ba3c5f9010354c787a6114ec62f"
+        },
+        "390-legacy-editable.png": {
+          "bytes": 46181,
+          "sha256": "81eb0dfb880e5e3997bfaa10ccc8fa5071a16267381b819730e55bb509fcbb20"
+        },
+        "390-local-tools-defaults.png": {
+          "bytes": 46072,
+          "sha256": "16d7728ce67b90a62ec17559a755461c36378666e821eb8c1bd0db11347c92d5"
+        },
+        "390-local-tools-ledger-defaults.png": {
+          "bytes": 46136,
+          "sha256": "ad62c90527918541449f957e85907f517fef9c9bbaf60fada704abe0163ca507"
+        },
+        "390-native-explicit-two.png": {
+          "bytes": 46245,
+          "sha256": "28856699a15d982057d212ef2899cc8337826d83a44113add28c50f32f4b9a6b"
+        },
+        "controls.webm": {
+          "bytes": 606969,
+          "sha256": "37632c423173d0ecf9b865bbc4e0f2960d4ccd4a7e76190c6b7e27d7397d8024"
+        },
+        "report.json": {
+          "bytes": 13611,
+          "sha256": "ab14fe91922f685666d421bcb9bbf304cd7a124bd349ab06e78cc67cb1c2d133"
+        }
+      },
+      "source_blob_count": 31,
+      "source_revision": "6bdec4f0281e51d502c505bda502ae5fe0c3dd2a",
+      "source_files": {
+        "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+        "src/world_engine/__main__.py": "6443b178672d8f66981168d66a4cc41a86b118c871fdbdff8d99df4be1b3951b",
+        "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+        "src/world_engine/api.py": "12d7d71ffda3df3705a100303f1310413c5ed11b4543ea6d4baf25c9fd83c587",
+        "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+        "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+        "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+        "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+        "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+        "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+        "src/world_engine/native_config.py": "77aa30a43bc1b90c1bbfa5d4c84d0836294c0b697e5aa4ef2eb16f794779f51c",
+        "src/world_engine/native_ledger.py": "986b65d8de1916455471cf4f5c3a528c5c653be1d56fb1bcaee073b68b2dfd5e",
+        "src/world_engine/ollama_tools.py": "3936518027cb9f6e4562ce1e1627353dbde41c11d1646757171bce5bdd3af435",
+        "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+        "src/world_engine/providers.py": "e68a7b6093ef45c7b19c69d7f2dff789112445d5c9e91b4c338957420798c26f",
+        "src/world_engine/rollout.py": "e51c3f8168b127574d02871e4a622e15051a3bc152473f678711432350f20f3d",
+        "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+        "web/src/App.tsx": "31dfca64336a86f884be04d61885466b4eac0a8463f9ef7b8457562b44fd61e9",
+        "web/src/api.ts": "d2c0062a9d0f6c05b24016e641213b123c45658af617d7988a6428650e23ce05",
+        "web/src/main.tsx": "bf82136bef7bae65abd3f19b1e348b4d163b24b42610f556be1f708524add794",
+        "web/src/styles.css": "04ff5cfa4f1cb5ad095c22b5a87771693db0416ebff1a210f9144e437c8a3859",
+        "web/package.json": "cdd731e574c39e77a570b98968a2e36a479d6c26ed8131917fdca16bf0191006",
+        "web/package-lock.json": "61cf0d6fe5aea4c445bf6e744dabed4a089dae3ba057485b5740dfa7d8816f94",
+        "web/vite.config.ts": "e33334557d4981f6be7fc699a5f1b9818afdc0c9059ef2884a04ed1a34b9e648",
+        "web/index.html": "c3d0cbe811be1a5fd93e6d323dbec39e5b7fd14dd7c59f1bc3db9a51897ef175",
+        "pyproject.toml": "6c352c613b9a0d428c6b1bf0979c27595b119c22b50b4a26a92210a2e461412e",
+        "uv.lock": "a65eda4a34998fe5978fde9ef84ef99e94ada85d2a8e574e4e6c3e9d70c20034",
+        "scripts/ui-qa.mjs": "0335fd062d3a489f9d90a3d095c39fba5f0eeb137cc96bde7adeee51dc858fc6",
+        "scripts/qa-native-controls.mjs": "1e63bb225c635ab1f000905c9398369f6ed936559dbc618cc49b524d461a50c0",
+        "tests/test_native_controls_qa.py": "6e7e774be0cb7116816425b1fc1ce7112ca9cd56a4b81a15630718d418b930d3",
+        "docs/native-controls-qa-protocol.md": "cc33dda7cc6864a360f89265fbfe1f62bf7e0c5f6a80f756db4ebe15a3f3a59c"
+      },
+      "checks": 15,
+      "automated_checks_passed": 15,
+      "visual_accepted": true,
+      "overall_accepted": true,
+      "correction": "Source51 makes the dialog/form flex columns with bounded scrolling body and nonshrinking header/footer. Capture now verifies Start and Cancel button bounds as well as dialog bounds.",
+      "originals_preserved": true,
+      "source_proof": "Captured pre/post manifests are equal; all31 source51 committed blob hashes and current file hashes matched independently.",
+      "api_runtime_operator_attestation": {
+        "revision": "6bdec4f0281e51d502c505bda502ae5fe0c3dd2a",
+        "startup_utc": "2026-10-10 11:37:44 UTC",
+        "pid": 74741,
+        "same_operator_database": true,
+        "pre_collection_runs": 13,
+        "pre_collection_episodes": 70,
+        "post_collection_runs": 13,
+        "post_collection_episodes": 70,
+        "active_runs": 0,
+        "paid_calls_enabled": false,
+        "root_read_only_sql_integrity": "ok"
+      },
+      "network": {
+        "GET": 24,
+        "ui_asset_GET": 16,
+        "health_GET": 2,
+        "providers_GET": 2,
+        "environments_GET": 2,
+        "runs_GET": 2,
+        "blocked_requests": 0,
+        "browser_errors": 0,
+        "suppressed_websockets": 2,
+        "api_mutations": 0,
+        "new_rollouts": 0,
+        "inference_requests": 0,
+        "downloads": 0,
+        "imports": 0
+      },
+      "source_scope_dirty": false,
+      "full_checkout_dirty": true,
+      "video": {
+        "full_ffmpeg_decode_exit_code": 0,
+        "codec": "vp9",
+        "width": 1440,
+        "height": 960,
+        "duration_seconds": 2.68,
+        "root_reviewed_frames": 3,
+        "mobile_letterboxing": "intentional"
+      },
+      "visual_review": "Root inspected all12 controls screenshots and the corrected full360 ledger modal; console independently viewed the same corrected narrow modal. Buttons are complete, with no incoherent overlap or body-scroll issue.",
+      "elapsed_seconds": 2.135
+    }
+  },
+  "readiness_projection": {
+    "providers": [
+      {
+        "id": "local-tools",
+        "kind": "local",
+        "configured": true,
+        "requires_opt_in": false,
+        "has_exact_public_qwen3_8b": true
+      },
+      {
+        "id": "local-tools-ledger",
+        "kind": "local",
+        "configured": true,
+        "requires_opt_in": false,
+        "has_exact_public_qwen3_8b": true
+      }
+    ],
+    "health": {
+      "status": "ok",
+      "version": "0.1.0",
+      "active_runs": 0,
+      "paid_calls_enabled": false
+    },
+    "model_digest_verified_by_this_controls_qa": false
+  },
+  "checks_verified": [
+    "All28 original file hashes and byte lengths match the phase manifests.",
+    "Original report totals exclude this sidecar and results guide.",
+    "Native entry defaults1, evaluation-only checked and disabled, public qwen3:8b selected and no paid consent.",
+    "Explicit2 persists across native alias switch; legacy local evaluation/concurrency remain editable.",
+    "1440x960,390x844,360x844;12 screenshots per phase; all dialogs closed with Cancel.",
+    "Read-only same-origin GET gate and redirect-disabled fetch; no forwarded mutations or inference paths.",
+    "Only approved native readiness projections saved, not full catalog or other model names."
+  ],
+  "limitations": [
+    "Configuration inspection is not a native rollout, performance result or model-digest/weights attestation.",
+    "Package version0.1.0 is not a runtime commit proof; API source revisions/PIDs are operator startup attestations.",
+    "Source-scope cleanliness and full-checkout dirtiness are separately represented.",
+    "Video is bounded before publication after close, not by a hard transient recording quota; deadlines and cleanup are cooperative.",
+    "No old report was rewritten. V1 automated success did not establish visual acceptance.",
+    "The separate native API smoke produced two source50 episodes. Later source51 UI inspection is separate zero-inference evidence owned by its publication."
+  ]
+}

@@ -17,6 +17,8 @@ from world_engine.models import Action, JsonObject, RunConfig, canonical_json, d
 from world_engine.providers import Decision, ProviderError, local_endpoint
 
 PROTOCOL = "ollama-tools-v1"
+LEDGER_PROTOCOL = "ollama-tools-ledger-v2"
+NATIVE_PROTOCOLS = (PROTOCOL, LEDGER_PROTOCOL)
 OLLAMA_SOURCE_REVISION = "eab97e9f92b9a25c2d52d2cc6c1b1c99bd9fae21"
 SYSTEM_PROMPT = (
     "You are operating a stateful business workflow. Follow the task and tool permissions. "
@@ -28,12 +30,23 @@ OUTCOMES = {"accepted", "cancelled", "timeout", "connection_error", "http_error"
             "invalid_response", "no_tool_call", "multiple_tool_calls", "truncated_response", "unsupported_encoding"}
 
 
-def module_hashes() -> JsonObject:
-    return {"provider_module_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-            "recorder_module_sha256": hashlib.sha256(Path(provider_records.__file__).read_bytes()).hexdigest()}
+def module_hashes(protocol: str = PROTOCOL) -> JsonObject:
+    if protocol not in NATIVE_PROTOCOLS:
+        raise ValueError("unknown native context protocol")
+    hashes = {"provider_module_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+              "recorder_module_sha256": hashlib.sha256(Path(provider_records.__file__).read_bytes()).hexdigest()}
+    if protocol == LEDGER_PROTOCOL:
+        from world_engine import native_ledger
+        hashes["ledger_module_sha256"] = hashlib.sha256(Path(native_ledger.__file__).read_bytes()).hexdigest()
+    return hashes
 
 
-def contract() -> JsonObject:
+def contract(protocol: str = PROTOCOL) -> JsonObject:
+    if protocol == LEDGER_PROTOCOL:
+        from world_engine.native_ledger import contract as ledger_contract
+        return ledger_contract()
+    if protocol != PROTOCOL:
+        raise ValueError("unknown native context protocol")
     return {"protocol": PROTOCOL, "system_prompt": SYSTEM_PROMPT, "options": dict(OPTIONS),
             "stream": False, "think": False, "request_limit": provider_records.MAX_REQUEST_BYTES,
             "response_limit": provider_records.MAX_RESPONSE_BYTES, "one_call_per_decision": True,
@@ -41,7 +54,16 @@ def contract() -> JsonObject:
             "history_mode": "stateless-current-observation-and-normalized-action-results"}
 
 
-def request_body(model: str, observation: JsonObject, history: list[JsonObject]) -> JsonObject:
+def request_body(model: str, observation: JsonObject, history: list[JsonObject], *,
+                 protocol: str = PROTOCOL, initial_observation: JsonObject | None = None) -> JsonObject:
+    if protocol == LEDGER_PROTOCOL:
+        from world_engine.native_ledger import request_body as ledger_body
+        from world_engine.native_ledger import request_from_context
+        if initial_observation is None:
+            return request_from_context(model, observation, history)
+        return ledger_body(model, initial_observation, observation, history)
+    if protocol != PROTOCOL:
+        raise ValueError("unknown native context protocol")
     return {"model": model, "messages": [{"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": canonical_json({"observation": observation,
                 "history": [{"action": step["action"], "result": step["result"]} for step in history]})}],
@@ -91,10 +113,12 @@ def parse_action(data: JsonObject) -> Action:
 
 
 class OllamaToolsProvider:
-    provider_protocol = PROTOCOL
     training_eligible = False
 
-    def __init__(self, config: RunConfig):
+    def __init__(self, config: RunConfig, *, protocol: str = PROTOCOL):
+        if type(protocol) is not str or protocol not in NATIVE_PROTOCOLS:
+            raise ProviderError("unknown native context protocol") from None
+        self._protocol = protocol
         self.model = config.model or "qwen3:8b"
         self.endpoint = local_endpoint()
         self.timeout = min(config.timeout_seconds, 120)
@@ -104,8 +128,13 @@ class OllamaToolsProvider:
         self.prepared = False
         self.prepared_model: str | None = None
 
+    @property
+    def provider_protocol(self) -> str:
+        return self._protocol
+
     def evidence_metadata(self) -> JsonObject:
-        return {**module_hashes(), "native_contract_hash": digest(contract()), "native_contract": contract(),
+        selected_contract = contract(self.provider_protocol)
+        return {**module_hashes(self.provider_protocol), "native_contract_hash": digest(selected_contract), "native_contract": selected_contract,
                 "ollama_source_revision": OLLAMA_SOURCE_REVISION, "ollama_version": self.daemon_version}
 
     def _client(self) -> httpx.AsyncClient:
@@ -169,10 +198,13 @@ class OllamaToolsProvider:
     async def decide(self, observation: JsonObject, history: list[JsonObject]) -> Decision:
         if not self.prepared or self.prepared_model != self.model or not provider_records.recording():
             raise ProviderError("prepare the native provider and use it through rollout or RunManager")
-        body = canonical_json(request_body(self.model, observation, history)).encode("utf-8")
+        try:
+            body = canonical_json(request_body(self.model, observation, history, protocol=self.provider_protocol)).encode("utf-8")
+        except (ValueError, TypeError, RecursionError):
+            raise ProviderError("native request context is invalid; no request sent") from None
         if len(body) > provider_records.MAX_REQUEST_BYTES:
             raise ProviderError("native request exceeded 128 KiB; no request sent")
-        identity = {"schema": provider_records.RECORD_SCHEMA, "protocol": PROTOCOL,
+        identity = {"schema": provider_records.RECORD_SCHEMA, "protocol": self.provider_protocol,
                     "call_id": str(uuid.uuid4()), "decision_index": len(history)}
         start_event = {**identity, "event": "request_started", "observed_at": utc_now(),
                        "request_body": body.decode("utf-8"), "request_bytes": len(body),
@@ -249,8 +281,12 @@ class OllamaToolsProvider:
 
 
 def verify_exchange(start: JsonObject, end: JsonObject, model: str, observation: JsonObject,
-                    history: list[JsonObject], action: JsonObject | None) -> None:
-    if start["request_body"] != canonical_json(request_body(model, observation, history)):
+                    history: list[JsonObject], action: JsonObject | None, *,
+                    protocol: str = PROTOCOL, initial_observation: JsonObject | None = None) -> None:
+    if protocol == LEDGER_PROTOCOL and initial_observation is None:
+        raise ValueError("native ledger replay requires the trusted initial observation")
+    if start["request_body"] != canonical_json(request_body(model, observation, history, protocol=protocol,
+                                                             initial_observation=initial_observation)):
         raise ValueError("native request differs from recorded observation/history/tools")
     if end["outcome"] not in OUTCOMES or end["complete"] != (end["outcome"] == "accepted"):
         raise ValueError("native provider outcome is inconsistent")
