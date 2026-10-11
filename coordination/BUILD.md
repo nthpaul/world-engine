@@ -1,6 +1,23 @@
 # World Engine build board
 
-Owner: root for this delivery checkpoint. Updated 2026-10-10. Current delivery is a bounded local platform, not a trainer, production-app replica, cloud execution service or multi-tenant deployment. Dated foundation/history below retains its original counts and failures.
+Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery is a bounded local platform, not a production-app replica, cloud execution service or multi-tenant deployment. No trained checkpoint is established yet. Dated foundation/history below retains its original counts and failures.
+
+## Active increments
+
+The [private-local SFT data adapter](../docs/local-sft.md) and
+[fixed data protocol](../docs/local-sft-protocol.md) prepare original refund/access
+reference decisions with current replay, train-only eligibility and exact
+assistant-token masks. Independent review and 89 focused tests passed. Dataset
+collection and an actual optimizer/checkpoint remain separate gates. Existing
+native, browser and recorded-HTTP evidence stays training-ineligible; no normal
+runtime training dependency was added.
+
+Root owns Git, publication, fixed-source collection and this board. Engine owns
+the separately reviewed local trainer increment. Console owns a typed two-pack
+GitLab registration and a new issue-assignment/severity workflow. Research reviews
+the new evidence boundaries. Worker code is not a measured real-application or
+learning result. Only committed, reviewed protocols may produce fresh evidence;
+separate pinned checkouts prevent concurrent source edits during collection.
 
 ## Current checkpoint
 
