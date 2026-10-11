@@ -24,6 +24,7 @@ class Store:
                     created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
                     elapsed_seconds REAL NOT NULL DEFAULT 0, started_at REAL, error TEXT
                 );
+                CREATE INDEX IF NOT EXISTS runs_created_at ON runs(created_at DESC,id DESC);
                 CREATE TABLE IF NOT EXISTS episodes (
                     id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES runs(id),
                     episode_index INTEGER NOT NULL, scenario_id TEXT NOT NULL,
@@ -149,5 +150,10 @@ class Store:
 
     def list_runs(self, limit: int = 50, offset: int = 0) -> list[JsonObject]:
         with self.connect() as connection:
-            rows = connection.execute(self.summary_query + " GROUP BY runs.id ORDER BY runs.created_at DESC,runs.id DESC LIMIT ? OFFSET ?", (limit, offset)).fetchall()
+            rows = connection.execute("""SELECT runs.*, COUNT(episodes.id) AS episode_count,
+                COALESCE(SUM(episodes.passed),0) AS pass_count, COALESCE(SUM(episodes.steps),0) AS step_count,
+                COALESCE(AVG(episodes.reward),0) AS average_reward
+                FROM (SELECT * FROM runs ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?) AS runs
+                LEFT JOIN episodes ON episodes.run_id=runs.id
+                GROUP BY runs.id ORDER BY runs.created_at DESC,runs.id DESC""", (limit, offset)).fetchall()
         return [self.summary(row) for row in rows]

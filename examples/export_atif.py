@@ -36,6 +36,7 @@ def exporter_source() -> dict:
 
 
 def main(source: Path, output: Path, validate_upstream: bool) -> None:
+    output.mkdir(parents=True, exist_ok=False, mode=0o700)
     validator = None
     if validate_upstream:
         from harbor.models.trajectories.trajectory import Trajectory
@@ -60,12 +61,12 @@ def main(source: Path, output: Path, validate_upstream: bool) -> None:
         if validator:
             validator.model_validate(trajectory)
         trajectories.append(trajectory)
-    output.mkdir(parents=True, exist_ok=True)
     files = []
     for index, trajectory in enumerate(trajectories):
         target = output / f"episode-{index:03d}.json"
         content = json.dumps(trajectory, indent=2) + "\n"
-        target.write_text(content)
+        with target.open("x") as handle:
+            handle.write(content)
         files.append({"file": target.name, "sha256": hashlib.sha256(content.encode()).hexdigest(),
                       "episode_id": trajectory["trajectory_id"], "steps": len(trajectory["steps"]),
                       "evaluation_only": trajectory["extra"]["evaluation_only"], "training_eligible": False})
@@ -81,14 +82,15 @@ def main(source: Path, output: Path, validate_upstream: bool) -> None:
         receipt["upstream_model"] = f"{validator.__module__}.{validator.__name__}"
         receipt["pydantic_version"] = pydantic.__version__
         receipt["schema_sha256"] = hashlib.sha256(canonical_json(validator.model_json_schema()).encode()).hexdigest()
-    (output / "validation-receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    with (output / "validation-receipt.json").open("x") as handle:
+        handle.write(json.dumps(receipt, indent=2) + "\n")
     print(json.dumps(receipt))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=Path("examples/benchmark-results/local-model-traces.jsonl"))
-    parser.add_argument("--output", type=Path, default=Path("artifacts/atif"))
+    parser.add_argument("--output", type=Path, required=True, help="Fresh export directory; existing paths are rejected")
     parser.add_argument("--validate-upstream", action="store_true", help="Require separately installed pinned Harbor model")
     args = parser.parse_args()
     main(args.source, args.output, args.validate_upstream)
