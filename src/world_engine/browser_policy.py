@@ -219,13 +219,16 @@ def ax_nodes(text: str) -> list[dict]:
 class BrowserReferencePolicy:
     """A task-specific feasibility control using only ordinary browser observations."""
 
-    def __init__(self, instruction: str, *, baseline: bool = False):
-        marker = re.search(r"Deployment reference: (REL-[0-9-]+)", instruction)
+    def __init__(self, instruction: str, *, baseline: bool = False, triage: bool = False):
+        self.triage = triage
+        marker = re.search(r"Incident reference: (INC-[0-9-]+)" if triage else r"Deployment reference: (REL-[0-9-]+)", instruction)
         comment = re.search(r"Add exactly(?: this comment)?: (.+?) Then close", instruction)
-        if not marker or not comment:
+        if not marker or (not triage and not comment):
             raise BrowserError("reference browser control supports the declared GitLab task only")
         self.marker = marker[0]
-        self.comment = comment[1].strip()
+        self.comment = comment[1].strip() if comment else None
+        self.project_name = "Incident Operations" if triage else "Release Operations"
+        self.selection_pending: str | None = None
         self.baseline = baseline
         self.issue_list_url: str | None = None
         self.issue_cursor = 0
@@ -234,7 +237,7 @@ class BrowserReferencePolicy:
         self.confirmed_comment = False
         self.comment_requested = False
         self.recorder: RECORDER = lambda kind, payload: None
-        self.evidence_metadata = {"protocol": "public-ax-browser-control-v1", "scripted_control": True,
+        self.evidence_metadata = {"protocol": "public-ax-triage-control-v1" if triage else "public-ax-browser-control-v1", "scripted_control": True,
                                   "capability_measurement": False, "baseline": baseline, "training_eligible": False}
 
     def set_recorder(self, recorder: RECORDER) -> None:
@@ -262,7 +265,7 @@ class BrowserReferencePolicy:
             query = urlencode([(key, value) for key, value in parse_qsl(parsed.query) if key != "show"])
             self.issue_list_url = urlunsplit(parsed._replace(query=query))
         if path == "/dashboard/projects" or path.startswith("/dashboard/projects/"):
-            node = choose("link", "Release Operations")
+            node = choose("link", self.project_name)
             if node:
                 action = Click(bid=node["bid"])
             else:
@@ -274,7 +277,7 @@ class BrowserReferencePolicy:
             if self.marker in observation.accessibility_text:
                 self.confirmed_target_path = detail_key
             is_target = self.confirmed_target_path == detail_key
-            if not is_target and "Deployment reference:" in observation.accessibility_text:
+            if not is_target and ("Incident reference:" if self.triage else "Deployment reference:") in observation.accessibility_text:
                 if observation.url not in self.visited:
                     self.visited.add(observation.url)
                     self.issue_cursor += 1
@@ -282,6 +285,8 @@ class BrowserReferencePolicy:
                     action = Navigate(url=self.issue_list_url)
             elif not is_target:
                 action = Wait(seconds=1.0)
+            elif self.triage:
+                action = self._triage_action(nodes, choose)
             elif self.comment_requested and not persisted_comment and not self.confirmed_comment:
                 action = Wait(seconds=1.0)
             elif persisted_comment and not choose("button", "Comment", exact=True):
@@ -315,7 +320,7 @@ class BrowserReferencePolicy:
         elif re.search(r"/-/(?:issues|work_items)/?$", path):
             candidates = [node for node in nodes if node["role"] == "link"
                           and node["bid"]
-                          and "release checklist" in node["name"].lower()]
+                          and ("checkout incident" if self.triage else "release checklist") in node["name"].lower()]
             if self.issue_cursor < len(candidates):
                 action = Click(bid=candidates[self.issue_cursor]["bid"])
         else:
@@ -326,6 +331,50 @@ class BrowserReferencePolicy:
             action = Wait(seconds=1.0)
         return BrowserDecision(action=action, evidence=self.evidence_metadata)
 
+    def _triage_action(self, nodes, choose):
+        """Candidate feasibility control. Every target is from the current AX tree."""
+        textbox = choose("textbox", "Search users") or choose("textbox", "Search labels")
+        if self.selection_pending:
+            button = choose("button", "Apply", exact=True) or choose("button", "Update", exact=True)
+            if button:
+                self.selection_pending = None
+                return Click(bid=button["bid"])
+            if textbox:
+                self.selection_pending = None
+                return Press(bid=textbox["bid"], key="Escape")
+            self.selection_pending = None
+            return Wait(seconds=1)
+        if textbox:
+            wanted = "casey-oncall" if "users" in textbox["name"].lower() else "severity::2"
+            if textbox.get("value") != wanted:
+                return Fill(bid=textbox["bid"], text=wanted)
+            candidates = [node for node in nodes if node["bid"] and node["role"] in ("checkbox", "option", "button")
+                          and (node["name"] == wanted if wanted == "severity::2" else
+                               re.search(r"(?:^|\s)@?casey-oncall(?:\s|$)", node["name"]) and "backup" not in node["name"].lower())]
+            if candidates:
+                self.selection_pending = wanted
+                return Click(bid=candidates[0]["bid"])
+            return Wait(seconds=1)
+
+        def field_nodes(name):
+            start = next((index for index, node in enumerate(nodes) if node["name"] == name), None)
+            if start is None:
+                return []
+            end = next((index for index in range(start + 1, len(nodes)) if nodes[index]["name"] in
+                        ("Assignees", "Labels", "Milestone", "Due date", "Weight", "Health status")), len(nodes))
+            return nodes[start + 1:end]
+
+        assignees, labels = field_nodes("Assignees"), field_nodes("Labels")
+        assigned = any("casey-oncall" in node["name"] and "backup" not in node["name"].lower() for node in assignees)
+        classified = any(node["name"] == "severity::2" for node in labels)
+        if assigned and classified:
+            return Finish()
+        field = labels if assigned else assignees
+        button = next((node for node in field if node["bid"] and node["role"] == "button"
+                       and "edit" in node["name"].lower()), None)
+        button = button or choose("button", "Edit labels" if assigned else "Edit assignees")
+        return Click(bid=button["bid"]) if button else Scroll(direction="up")
+
     async def close(self) -> None:
         return None
 
@@ -333,4 +382,5 @@ class BrowserReferencePolicy:
 def create_browser_policy(config: BrowserAttemptConfig, task: TaskPack):
     if config.provider_id == "local-browser":
         return OllamaBrowserPolicy(config.model, task.instruction)
-    return BrowserReferencePolicy(task.instruction, baseline=config.provider_id == "browser-baseline")
+    return BrowserReferencePolicy(task.instruction, baseline=config.provider_id == "browser-baseline",
+                                  triage=task.id == "gitlab-incident-triage")
