@@ -34,6 +34,15 @@ exact effects and preserves all prior rows in that projection. It does not call
 the application, apply agent actions or trust a final answer. Assignment joins
 have a composite user/issue identity, not an invented row ID.
 
+Release `1.0.1` uses verifier `gitlab-triage-state-v2`. V1's reference failed at
+30 actions and its later controls and model were unattempted. The new reference
+recognizes actual singular/plural sidebar headings and ignores duplicate inline
+heading text. The verifier permits a prior label event's null display reference
+to populate with exactly `~` followed by that same immutable label ID, while
+preserving every other attribute and row order. V1's original grades remain
+unchanged. Both fixes require the separately committed V2 qualification;
+they are not evidence that the task or candidate verifier now succeeds.
+
 The new verifier is **not yet qualified against a real reference execution**.
 Its candidate exact note/metadata defaults fail closed. A legitimate GitLab
 rendering/default mismatch stops qualification and preserves the rejected result;

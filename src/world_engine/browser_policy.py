@@ -237,7 +237,7 @@ class BrowserReferencePolicy:
         self.confirmed_comment = False
         self.comment_requested = False
         self.recorder: RECORDER = lambda kind, payload: None
-        self.evidence_metadata = {"protocol": "public-ax-triage-control-v1" if triage else "public-ax-browser-control-v1", "scripted_control": True,
+        self.evidence_metadata = {"protocol": "public-ax-triage-control-v2" if triage else "public-ax-browser-control-v1", "scripted_control": True,
                                   "capability_measurement": False, "baseline": baseline, "training_eligible": False}
 
     def set_recorder(self, recorder: RECORDER) -> None:
@@ -286,7 +286,7 @@ class BrowserReferencePolicy:
             elif not is_target:
                 action = Wait(seconds=1.0)
             elif self.triage:
-                action = self._triage_action(nodes, choose)
+                action = self._triage_action(nodes, choose, observation.accessibility_text)
             elif self.comment_requested and not persisted_comment and not self.confirmed_comment:
                 action = Wait(seconds=1.0)
             elif persisted_comment and not choose("button", "Comment", exact=True):
@@ -331,7 +331,7 @@ class BrowserReferencePolicy:
             action = Wait(seconds=1.0)
         return BrowserDecision(action=action, evidence=self.evidence_metadata)
 
-    def _triage_action(self, nodes, choose):
+    def _triage_action(self, nodes, choose, accessibility_text):
         """Candidate feasibility control. Every target is from the current AX tree."""
         textbox = choose("textbox", "Search users") or choose("textbox", "Search labels")
         if self.selection_pending:
@@ -356,24 +356,43 @@ class BrowserReferencePolicy:
                 return Click(bid=candidates[0]["bid"])
             return Wait(seconds=1)
 
-        def field_nodes(name):
-            start = next((index for index, node in enumerate(nodes) if node["name"] == name), None)
-            if start is None:
-                return []
-            end = next((index for index in range(start + 1, len(nodes)) if nodes[index]["name"] in
-                        ("Assignees", "Labels", "Milestone", "Due date", "Weight", "Health status")), len(nodes))
+        # Background work items remain in AX while the target detail is open.
+        lines = accessibility_text.splitlines()
+        regions = []
+        for index, line in enumerate(lines):
+            parsed = ax_nodes(line)
+            if parsed and parsed[0]["role"] == "region" and parsed[0]["name"] == "Sidebar":
+                regions.append(index)
+        if len(regions) != 1:
+            raise BrowserError("reference control requires one observed Sidebar region")
+        start = regions[0]
+        indent = len(lines[start]) - len(lines[start].lstrip())
+        end = next((index for index in range(start + 1, len(lines))
+                    if lines[index].strip() and len(lines[index]) - len(lines[index].lstrip()) <= indent), len(lines))
+        nodes = ax_nodes("\n".join(lines[start + 1:end]))
+
+        def field_nodes(names):
+            starts = [index for index, node in enumerate(nodes)
+                      if node["role"] == "heading" and node["name"] in names]
+            if len(starts) != 1:
+                raise BrowserError("reference control requires unambiguous observed sidebar fields")
+            start = starts[0]
+            end = next((index for index in range(start + 1, len(nodes))
+                        if nodes[index]["role"] == "heading"), len(nodes))
             return nodes[start + 1:end]
 
-        assignees, labels = field_nodes("Assignees"), field_nodes("Labels")
-        assigned = any("casey-oncall" in node["name"] and "backup" not in node["name"].lower() for node in assignees)
+        assignees, labels = field_nodes(("Assignee", "Assignees")), field_nodes(("Labels",))
+        assigned = any(re.search(r"(?:^|\s)@?casey-oncall(?:\s|$)", node["name"])
+                       and "backup" not in node["name"].lower() for node in assignees)
         classified = any(node["name"] == "severity::2" for node in labels)
         if assigned and classified:
             return Finish()
         field = labels if assigned else assignees
-        button = next((node for node in field if node["bid"] and node["role"] == "button"
-                       and "edit" in node["name"].lower()), None)
-        button = button or choose("button", "Edit labels" if assigned else "Edit assignees")
-        return Click(bid=button["bid"]) if button else Scroll(direction="up")
+        buttons = [node for node in field if node["bid"] and node["role"] == "button"
+                   and node["name"] == "Edit"]
+        if len(buttons) != 1:
+            raise BrowserError("reference control requires one observed sidebar edit button")
+        return Click(bid=buttons[0]["bid"])
 
     async def close(self) -> None:
         return None

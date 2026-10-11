@@ -46,7 +46,7 @@ _PACKS = (
     GitLabPackDefinition("gitlab-issue-close", "1.0.3", "release-closure", gitlab_task, close_fixture,
                          Path(__file__).with_name("gitlab_close.py"), CLOSE_ROOT / "export.rb", CLOSE_ROOT / "verify.py",
                          CLOSE_ROOT / "verifier.Dockerfile", "world-engine-gitlab-sealed-v1"),
-    GitLabPackDefinition("gitlab-incident-triage", "1.0.0", "incident-triage", triage_task, triage_fixture,
+    GitLabPackDefinition("gitlab-incident-triage", "1.0.1", "incident-triage", triage_task, triage_fixture,
                          TRIAGE_ROOT / "fixture.py", TRIAGE_ROOT / "export.rb", TRIAGE_ROOT / "verify.py",
                          TRIAGE_ROOT / "verifier.Dockerfile", "world-engine-gitlab-triage-sealed-v1"),
 )

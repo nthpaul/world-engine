@@ -111,9 +111,11 @@ async def test_public_reference_discovers_project_and_target_before_edit():
     assert decision.action.bid == "3"
     decision = await control.decide(observation("[7] button 'Edit assignees'"), [])
     assert decision.action.kind == "wait"
-    decision = await control.decide(observation("StaticText 'Incident reference: INC-2026-0217'\n[7] button 'Edit assignees'"), [])
+    decision = await control.decide(observation(
+        "StaticText 'Incident reference: INC-2026-0217'\n[5] region 'Sidebar'\n\t[6] heading 'Assignee'\n"
+        "\t[7] button 'Edit'\n\t[8] heading 'Labels'\n\t[9] button 'Edit'"), [])
     assert decision.action.bid == "7"
-    assert decision.evidence["protocol"] == "public-ax-triage-control-v1"
+    assert decision.evidence["protocol"] == "public-ax-triage-control-v2"
 
 
 async def test_reference_corroborates_username_and_current_bid_then_closes_picker():
@@ -131,9 +133,9 @@ async def test_reference_corroborates_username_and_current_bid_then_closes_picke
 
 async def test_reference_noop_and_only_missing_label():
     control = policy()
-    text = ("StaticText 'Incident reference: INC-2026-0217'\nStaticText 'Assignees'\n"
-            "StaticText 'Casey On-call @casey-oncall'\n[10] button 'Edit'\nStaticText 'Labels'\n"
-            "StaticText 'incident'\n[11] button 'Edit'\nStaticText 'Due date'")
+    text = ("StaticText 'Incident reference: INC-2026-0217'\n[7] region 'Sidebar'\n\t[8] heading 'Assignees'\n"
+            "\tStaticText 'Casey On-call @casey-oncall'\n\t[10] button 'Edit'\n\t[9] heading 'Labels'\n"
+            "\tStaticText 'incident'\n\t[11] button 'Edit'\n\t[12] heading 'Due date'")
     decision = await control.decide(observation(text), [])
     assert decision.action.bid == "11"
     decision = await control.decide(observation(text.replace("StaticText 'incident'", "StaticText 'severity::2'")), [])

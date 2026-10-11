@@ -25,7 +25,7 @@ def task(seed: int = 42) -> TaskPack:
               "already_correct": seed % 2 == 1, "ordering": "seed-modulo-three",
               "fixture_source_sha256": sha256(Path(__file__)),
               "config_sha256": sha256(CLOSE_ROOT / "config.rb"), "export_sha256": sha256(ROOT / "export.rb")}
-    return TaskPack(id="gitlab-incident-triage", version="1.0.0", name="GitLab incident assignment and classification",
+    return TaskPack(id="gitlab-incident-triage", version="1.0.1", name="GitLab incident assignment and classification",
                     instruction=(f"In {PROJECT}, find the open issue whose description says {MARKER}. "
                                  f"Assign it to Casey On-call, username @{ONCALL}, and add the {SEVERITY} label. "
                                  "Corroborate the username before choosing the similarly named account. "
@@ -34,7 +34,7 @@ def task(seed: int = 42) -> TaskPack:
                                  "unrelated issues and project access. Do not post an ordinary comment."),
                     application="GitLab CE", application_version=GITLAB_VERSION, image_digest=APP_DIGEST,
                     fixture_hash=hashlib.sha256(json.dumps(recipe, sort_keys=True).encode()).hexdigest(),
-                    grader_version="gitlab-triage-state-v1", seed=seed)
+                    grader_version="gitlab-triage-state-v2", seed=seed)
 
 
 async def fixture(post: FixturePost, seed: int, password: str) -> dict:
