@@ -20,9 +20,10 @@ def node_module(code):
 
 def test_inspector_throughput_explicitly_labels_steps_per_second():
     source = (ROOT / "web/src/App.tsx").read_text()
-    metric = re.search(r'<Metric\s+label="Step throughput"\s+value=\{`([^`]+)`\}', source)
+    metric = re.search(r'<Metric\s+label="Step throughput"\s+value=\{([^}]+)\}\s+note=\{`([^`]+)`\}', source)
     assert metric is not None
-    assert metric.group(1) == "${number(run.steps_per_second)} steps/s"
+    assert metric.group(1) == "number(run.steps_per_second)"
+    assert metric.group(2) == "steps/s / ${duration(run.elapsed_seconds)} elapsed"
 
 
 @pytest.mark.parametrize("args", [[], ["--access"], ["--output", ""], ["--unknown"],
