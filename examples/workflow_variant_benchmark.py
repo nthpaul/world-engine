@@ -22,8 +22,8 @@ CASES = {
     ),
 }
 PROTOCOL = {
-    "name": "workflow-variants-scripted-v2",
-    "world_versions": {"crm-merge": "1.1.0", "refund-ops": "1.1.1"},
+    "name": "workflow-variants-scripted-v3",
+    "world_versions": {"crm-merge": "1.1.1", "refund-ops": "1.1.2"},
     "seeds": list(range(32)),
     "policies": ["scripted-oracle", "scripted-baseline"],
     "max_steps": 20,

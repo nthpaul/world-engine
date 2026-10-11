@@ -12,8 +12,14 @@ from world_engine.rollout import RunManager, replay
 from world_engine.store import Store
 
 
+def token_total(episodes: list[dict], key: str) -> int | None:
+    values = [episode["usage"].get(key) for episode in episodes]
+    complete = all(episode["usage"].get(f"{key}_complete", True) is True for episode in episodes)
+    return sum(values) if values and complete and all(type(value) is int and value >= 0 for value in values) else None
+
+
 async def main(output: Path, episodes: int, seed: int):
-    output.mkdir(parents=True, exist_ok=True)
+    output.mkdir(parents=True, exist_ok=False, mode=0o700)
     manager = RunManager(Store(output / "local-model.sqlite3"))
     rows = []
     evaluation_traces = []
@@ -49,24 +55,29 @@ async def main(output: Path, episodes: int, seed: int):
               "limitations": "Tiny paired local evaluation, not a population estimate or comparison with hosted systems. Tool replay is deterministic; model inference may not be bitwise deterministic.", "rows": rows}
     result["collection_revision"] = rows[0]["episodes"][0]["provenance"]["git_revision"]
     result["collection_dirty"] = rows[0]["episodes"][0]["provenance"]["git_dirty"]
-    (output / "local-model.json").write_text(json.dumps(result, indent=2) + "\n")
-    (output / "local-model-traces.jsonl").write_text("".join(json.dumps(record, separators=(",", ":")) + "\n" for record in evaluation_traces))
+    with (output / "local-model.json").open("x") as target:
+        target.write(json.dumps(result, indent=2) + "\n")
+    with (output / "local-model-traces.jsonl").open("x") as target:
+        target.write("".join(json.dumps(record, separators=(",", ":")) + "\n" for record in evaluation_traces))
     lines = ["# Paired Local Model Evaluation", "", f"Measured {result['created_at']} on {result['platform']}, Python {result['python']}.", "",
              "Already-installed Ollama qwen3:8b; no downloads or paid calls. Temperature 0, thinking disabled, 512 output-token bound per decision, 20 decisions and 120 seconds per episode.", "", result["limitations"], "",
              "| World | Provider | Passes | Wall seconds | Invalid actions | Input tokens | Output tokens |",
              "|---|---|---:|---:|---:|---:|---:|"]
     for row in rows:
-        lines.append(f"| {row['environment_id']} | {row['provider_id']} | {row['passed']}/{row['count']} | {row['elapsed_seconds']:.2f} | {sum(e['invalid_actions'] for e in row['episodes'])} | {sum(e['usage']['input_tokens'] for e in row['episodes'])} | {sum(e['usage']['output_tokens'] for e in row['episodes'])} |")
+        input_tokens = token_total(row["episodes"], "input_tokens")
+        output_tokens = token_total(row["episodes"], "output_tokens")
+        lines.append(f"| {row['environment_id']} | {row['provider_id']} | {row['passed']}/{row['count']} | {row['elapsed_seconds']:.2f} | {sum(e['invalid_actions'] for e in row['episodes'])} | {input_tokens if input_tokens is not None else 'unknown'} | {output_tokens if output_tokens is not None else 'unknown'} |")
     lines.extend(["", "Full model digest, actions, safe errors, matched scenario IDs, observed token counts and replay evidence are in local-model.json. Full synthetic operator episodes are in local-model-traces.jsonl, explicitly evaluation_only=true and training_eligible=false; these are not training exports.", "",
                   f"Collection Git revision: `{result['collection_revision']}`. Overall checkout dirty: `{result['collection_dirty']}`; implementation status and scope are recorded in each episode's provenance.", "",
-                  "Replay delivered traces: `uv run python -m world_engine replay --file examples/benchmark-results/local-model-traces.jsonl`.", "",
-                  f"Reproduce: `uv run python examples/local_model_benchmark.py --episodes {episodes} --seed {seed}`.", ""])
-    (output / "local-model.md").write_text("\n".join(lines))
+                  "Replay delivered traces: `uv run python -m world_engine replay --file <output-directory>/local-model-traces.jsonl`.", "",
+                  f"Reproduce: `uv run python examples/local_model_benchmark.py --output <fresh-directory> --episodes {episodes} --seed {seed}`.", ""])
+    with (output / "local-model.md").open("x") as target:
+        target.write("\n".join(lines))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=Path, default=Path("examples/benchmark-results"))
+    parser.add_argument("--output", type=Path, required=True, help="Fresh evidence directory; existing paths are refused")
     parser.add_argument("--episodes", type=int, choices=[1, 2, 3], default=1)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()

@@ -1,0 +1,51 @@
+         26561 function calls in 0.520 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       40    0.000    0.000    0.520    0.013 <stdin>:98(<lambda>)
+       40    0.001    0.000    0.520    0.013 store.py:119(get_run)
+       40    0.001    0.000    0.438    0.011 store.py:97(episodes)
+     1000    0.000    0.000    0.204    0.000 __init__.py:299(loads)
+     1000    0.001    0.000    0.204    0.000 decoder.py:340(decode)
+     1000    0.203    0.000    0.203    0.000 decoder.py:351(raw_decode)
+      960    0.001    0.000    0.189    0.000 models.py:20(digest)
+      960    0.000    0.000    0.165    0.000 models.py:16(canonical_json)
+      960    0.001    0.000    0.165    0.000 __init__.py:183(dumps)
+      960    0.001    0.000    0.164    0.000 encoder.py:183(encode)
+      960    0.163    0.000    0.163    0.000 encoder.py:205(iterencode)
+      240    0.000    0.000    0.059    0.000 {built-in method builtins.next}
+      240    0.000    0.000    0.059    0.000 store.py:52(connect)
+      360    0.055    0.000    0.055    0.000 {method 'execute' of 'sqlite3.Connection' objects}
+      120    0.000    0.000    0.037    0.000 contextlib.py:145(__exit__)
+      120    0.037    0.000    0.037    0.000 {method 'close' of 'sqlite3.Connection' objects}
+      960    0.022    0.000    0.022    0.000 {built-in method _hashlib.openssl_sha256}
+      120    0.000    0.000    0.021    0.000 contextlib.py:136(__enter__)
+      120    0.020    0.000    0.021    0.000 {built-in method _sqlite3.connect}
+       40    0.011    0.000    0.011    0.000 {method 'fetchall' of 'sqlite3.Cursor' objects}
+      960    0.002    0.000    0.002    0.000 {method 'encode' of 'str' objects}
+      120    0.000    0.000    0.001    0.000 functools.py:544(decorating_function)
+      120    0.000    0.000    0.000    0.000 functools.py:36(update_wrapper)
+     2000    0.000    0.000    0.000    0.000 {method 'match' of 're.Pattern' objects}
+       40    0.000    0.000    0.000    0.000 store.py:136(summary)
+      960    0.000    0.000    0.000    0.000 {method 'hexdigest' of '_hashlib.HASH' objects}
+     1080    0.000    0.000    0.000    0.000 {built-in method builtins.getattr}
+     3040    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+      120    0.000    0.000    0.000    0.000 contextlib.py:303(helper)
+     2000    0.000    0.000    0.000    0.000 {method 'end' of 're.Match' objects}
+       40    0.000    0.000    0.000    0.000 {method 'fetchone' of 'sqlite3.Cursor' objects}
+      960    0.000    0.000    0.000    0.000 encoder.py:105(__init__)
+      120    0.000    0.000    0.000    0.000 contextlib.py:108(__init__)
+     1000    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
+      960    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+      120    0.000    0.000    0.000    0.000 functools.py:504(lru_cache)
+      960    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+     1000    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+      120    0.000    0.000    0.000    0.000 _local.py:166(__fspath__)
+      240    0.000    0.000    0.000    0.000 {built-in method builtins.setattr}
+      120    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+      120    0.000    0.000    0.000    0.000 {method '__exit__' of 'sqlite3.Connection' objects}
+      120    0.000    0.000    0.000    0.000 _local.py:227(__str__)
+
+
