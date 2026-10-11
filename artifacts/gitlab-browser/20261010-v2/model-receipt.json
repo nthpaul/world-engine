@@ -1,0 +1,66 @@
+{
+  "cleanup": {
+    "error_code": null,
+    "status": "completed"
+  },
+  "elapsed_seconds": 202.43571512494236,
+  "id": "1b5d2dbd-cd1a-4645-8c81-f63f636bb786",
+  "invalid_actions": 0,
+  "outcome": {
+    "checks": [
+      {
+        "detail": "Project access, accounts, labels and namespaces remain unchanged.",
+        "name": "fixed_records",
+        "passed": true
+      },
+      {
+        "detail": "No project creation/deletion or settings changes; activity timestamps may advance.",
+        "name": "project_preservation",
+        "passed": true
+      },
+      {
+        "detail": "All unrelated issues remain byte-equivalent in the exported projection.",
+        "name": "issue_preservation",
+        "passed": true
+      },
+      {
+        "detail": "Exactly the assigned issue is closed by the ordinary browser actor, with immutable fields intact.",
+        "name": "authorized_closure",
+        "passed": false
+      },
+      {
+        "detail": "One exact ordinary, non-internal comment and no other new notes; existing notes are preserved.",
+        "name": "exact_comment_and_history",
+        "passed": false
+      },
+      {
+        "detail": "One target closure state event, attributed to the ordinary actor.",
+        "name": "closure_certificate",
+        "passed": false
+      },
+      {
+        "detail": "The exact comment precedes authorized closure.",
+        "name": "requested_order",
+        "passed": false
+      }
+    ],
+    "grader_version": "gitlab-state-v3",
+    "passed": false,
+    "reward": 0.0,
+    "sealed_state_sha256": "a061c7473a40e36e8861f78db8948c2316f6498fde6b519a5f0517d806acff6c"
+  },
+  "passed": false,
+  "phase_seconds": {
+    "browser_close": 4.247169999987818,
+    "cleanup": 0.9582805830286816,
+    "grade": 0.2237730419728905,
+    "provider_prepare": 0.1829853329109028,
+    "rollout": 8.781877417000942,
+    "seal": 28.17726162506733,
+    "startup": 159.85305062495172
+  },
+  "reward": 0.0,
+  "status": "failed",
+  "steps": 0,
+  "termination": "provider_error"
+}
