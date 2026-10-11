@@ -1,6 +1,10 @@
+import asyncio
+import json
 import time
 
 import pytest
+from fastapi import Request
+from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 
 from world_engine.api import create_app
@@ -11,7 +15,7 @@ from world_engine.providers import ProviderError, local_endpoint, make_provider
 def test_api_lifecycle_downloads_and_browser_boundaries(tmp_path):
     with TestClient(create_app(tmp_path / "engine.sqlite3")) as client:
         assert client.get("/api/health").json()["execution"] == "in-process"
-        assert len(client.get("/api/environments").json()["environments"]) == 3
+        assert len(client.get("/api/environments").json()["environments"]) == 4
         assert client.get("/api/runs").json() == {"runs": []}
         assert client.post("/api/runs", json={"environment_id": "crm-merge"}, headers={"Origin": "https://evil.example"}).status_code == 403
         assert client.get("/api/health", headers={"Host": "evil.example"}).status_code == 403
@@ -60,3 +64,54 @@ def test_local_endpoint_cannot_redirect_to_paid_or_credential_urls(monkeypatch, 
     monkeypatch.setenv("WORLD_ENGINE_LOCAL_URL", endpoint)
     with pytest.raises(ProviderError):
         local_endpoint()
+
+
+def boundary_request(host):
+    app = create_app()
+    dispatch = app.user_middleware[0].kwargs["dispatch"]
+    request = Request({"type": "http", "method": "GET", "path": "/probe", "scheme": "http",
+                       "headers": [(b"host", host.encode("latin-1"))]})
+    reached = []
+
+    async def downstream(request):
+        reached.append(True)
+        return JSONResponse({"downstream": True})
+
+    return asyncio.run(dispatch(request, downstream)), reached
+
+
+@pytest.mark.parametrize("host", [
+    "[", "[::1", "[not-an-ip]", "::1", "[::1]junk", "[::1]evil.example:8000",
+    "[::1]:", "[::1]:bad", "[::1]:0", "[::1]:65536", "localhost:", "localhost:bad",
+    "localhost:-1", "localhost:0", "localhost:65536", "localhost:80:90",
+    "127.0.0.1:bad", "127.0.0.1:0", "testserver:65536",
+    "user:API_HOST_SECRET_SENTINEL@localhost", "@localhost", "localhost@evil.example",
+    "localhost/path", "localhost/", "localhost?query", "localhost?", "localhost#fragment", "localhost#",
+    " localhost", "localhost ", "local\thost", "local\rhost", "local\nhost", "localhost\x00", "localhost\x7f",
+    "localhost\x85", "localhost\xa0", "", "http://localhost",
+])
+def test_malformed_host_authority_is_generic400_before_downstream(host):
+    response, reached = boundary_request(host)
+    assert response.status_code == 400
+    assert reached == []
+    assert json.loads(response.body) == {"detail": "invalid host authority"}
+    assert "API_HOST_SECRET_SENTINEL" not in response.body.decode()
+
+
+@pytest.mark.parametrize("host", [
+    "127.0.0.1", "127.0.0.1:8000", "127.0.0.1:1", "127.0.0.1:65535", "127.0.0.1:08000",
+    "localhost", "LOCALHOST:8000", "localhost:443", "[::1]", "[::1]:8000", "[::1]:65535",
+    "testserver", "TESTSERVER:80",
+])
+def test_valid_loopback_host_authorities_preserve_behavior(host):
+    response, reached = boundary_request(host)
+    assert response.status_code == 200 and reached == [True]
+    assert response.headers["X-Content-Type-Options"] == "nosniff"
+    assert response.headers["Cache-Control"] == "no-store"
+
+
+@pytest.mark.parametrize("host", ["evil.example", "evil.example:8000", "127.0.0.2:80", "[::2]:8000", "localhost.:8000", "localhost;parameter"])
+def test_well_formed_wrong_host_still403_before_downstream(host):
+    response, reached = boundary_request(host)
+    assert response.status_code == 403 and reached == []
+    assert json.loads(response.body) == {"detail": "host is not allowed"}
