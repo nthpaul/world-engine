@@ -449,8 +449,8 @@ def triage_picker(*, field="assignee", bid="2049", selected=False, apply_bid="14
 
 
 def triage_labels_picker(*, bid="2049", selected=False, apply_bid="1446", search_bid="1462",
-                         option_role="option", prior=("incident",), search_value=None):
-    selected_names = prior + (("severity::2",) if selected is True else ())
+                         option_role="option", prior=("incident",), search_value=None, refreshed=True):
+    selected_names = prior + (("severity::2",) if selected is True and refreshed else ())
     prefix = f"[{bid}] " if bid is not None else ""
     flag = "" if selected is None else f", selected={selected}"
     value = "" if search_value is None else f" value={search_value!r}"
@@ -486,7 +486,7 @@ def triage_activity(text, *, username="@casey-oncall", date="now", comment=False
 async def test_triage_v4_actual_picker_no_bid_waits_then_selects_current_bid():
     policy = triage_control()
     opened = await policy.decide(triage_observation(triage_closed()), [])
-    assert opened.action.bid == "1144" and opened.evidence["protocol"] == "public-ax-triage-control-v5"
+    assert opened.action.bid == "1144" and opened.evidence["protocol"] == "public-ax-triage-control-v6"
     transient = await policy.decide(triage_observation(triage_picker(bid=None)), [])
     assert transient.action.kind == "wait"
     selected = await policy.decide(triage_observation(triage_picker(bid="3001")), [])
@@ -619,8 +619,7 @@ async def test_triage_field_switch_while_editor_active_is_rejected():
 
 
 async def test_triage_grouped_label_picker_exactness_and_apply():
-    policy = triage_control()
-    assert (await policy.decide(triage_observation(triage_closed(assigned=True)), [])).action.bid == "1151"
+    policy = await opened_label_control()
     text = triage_labels_picker(selected=None).replace(
         "\t\t\tInlineTextBox", "\t\t\t[5000] option 'severity::20', selected=False\n\t\t\tInlineTextBox")
     assert (await policy.decide(triage_observation(text), [])).action.bid == "2049"
@@ -747,10 +746,25 @@ async def test_close_reference_uncertainty_handling_and_identity_unchanged():
     assert decision.action.bid == "3" and decision.evidence["protocol"] == "public-ax-browser-control-v1"
 
 
+class LabelControlHarness:
+    """Mock driver completes each emitted action and appends its ordered receipt."""
+
+    def __init__(self):
+        self.policy = triage_control()
+        self.history = []
+
+    async def decide(self, observation, unused_history):
+        assert unused_history == []
+        decision = await self.policy.decide(observation, self.history)
+        self.history.append({"step": len(self.history), "action": decision.action.model_dump(),
+                             "result": {"ok": True}})
+        return decision
+
+
 async def opened_label_control():
-    policy = triage_control()
-    await policy.decide(triage_observation(triage_closed(assigned=True)), [])
-    return policy
+    harness = LabelControlHarness()
+    assert (await harness.decide(triage_observation(triage_closed(assigned=True)), [])).action.bid == "1151"
+    return harness
 
 
 @pytest.mark.parametrize("flag", ["", ", selected=False", ", selected=False, visible", ", visible, selected=False"])
@@ -951,3 +965,157 @@ async def test_labels_explicit_empty_selected_group_is_not_a_missing_group():
     closed = triage_closed(assigned=True).replace("\t[1155] link 'incident'\n", "")
     await policy.decide(triage_observation(closed), [])
     assert (await policy.decide(triage_observation(triage_labels_picker(selected=None, prior=())), [])).action.bid == "2049"
+
+
+@pytest.mark.parametrize("refreshed", [False, True])
+async def test_labels_exact_accepted_click_all_draft_permits_one_apply_then_wait_or_closed(refreshed):
+    harness = await opened_label_control()
+    selected = await harness.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    assert selected.action.bid == "2049"
+    draft = triage_labels_picker(selected=True, refreshed=refreshed, bid="5000", apply_bid="6000")
+    applied = await harness.decide(triage_observation(draft), [])
+    assert applied.action.bid == "6000"
+    for _ in range(5):
+        assert (await harness.decide(triage_observation(draft), [])).action.kind == "wait"
+    assert [row["action"]["bid"] for row in harness.history if row["action"]["kind"] == "click"] == [
+        "1151", "2049", "6000"]
+    assert (await harness.decide(triage_observation(triage_closed(assigned=True, classified=True)), [])).action.kind == "finish"
+
+
+async def test_labels_opening_rejects_the_observed_draft_exception_before_own_click():
+    harness = await opened_label_control()
+    with pytest.raises(BrowserError, match="initial label membership"):
+        await harness.decide(triage_observation(triage_labels_picker(selected=True, refreshed=False)), [])
+
+
+@pytest.mark.parametrize("phase", ["selecting", "applying"])
+@pytest.mark.parametrize("observation_kind", ["draft", "closed", "missing_picker"])
+@pytest.mark.parametrize("mutation", ["absent", "none_row", "list_row", "missing_step", "bool_step", "wrong_step",
+                                     "missing_action", "none_action", "wrong_bid", "extra_action_key",
+                                     "wrong_kind", "missing_result", "none_result", "list_result", "missing_ok",
+                                     "false_ok", "numeric_ok", "string_ok", "uncertain", "string_uncertain",
+                                     "numeric_uncertain", "null_uncertain", "shifted_slot"])
+async def test_labels_exact_action_receipt_is_required_before_any_transition(phase, observation_kind, mutation):
+    harness = await opened_label_control()
+    await harness.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    if phase == "applying":
+        await harness.decide(triage_observation(triage_labels_picker(selected=True, refreshed=False)), [])
+    index = 1 if phase == "selecting" else 2
+    row = harness.history[index]
+    if mutation == "absent":
+        harness.history.pop()
+    elif mutation in ("none_row", "list_row"):
+        harness.history[index] = None if mutation == "none_row" else []
+    elif mutation == "missing_step":
+        del row["step"]
+    elif mutation in ("bool_step", "wrong_step"):
+        row["step"] = True if mutation == "bool_step" else index - 1
+    elif mutation == "missing_action":
+        del row["action"]
+    elif mutation == "none_action":
+        row["action"] = None
+    elif mutation == "wrong_bid":
+        row["action"]["bid"] = "other-current-node"
+    elif mutation == "extra_action_key":
+        row["action"]["ignored"] = True
+    elif mutation == "wrong_kind":
+        row["action"] = {"kind": "wait", "seconds": 1}
+    elif mutation == "missing_result":
+        del row["result"]
+    elif mutation in ("none_result", "list_result"):
+        row["result"] = None if mutation == "none_result" else []
+    elif mutation == "missing_ok":
+        row["result"] = {}
+    elif mutation in ("false_ok", "numeric_ok", "string_ok"):
+        row["result"]["ok"] = {"false_ok": False, "numeric_ok": 1, "string_ok": "True"}[mutation]
+    elif mutation in ("uncertain", "string_uncertain", "numeric_uncertain", "null_uncertain"):
+        row["result"]["uncertain_effect"] = {
+            "uncertain": True, "string_uncertain": "False", "numeric_uncertain": 0, "null_uncertain": None}[mutation]
+    elif mutation == "shifted_slot":
+        harness.history.insert(index, {"step": index, "action": {"kind": "wait", "seconds": 1}, "result": {"ok": True}})
+        harness.history[index + 1]["step"] = index + 1
+    if observation_kind == "draft":
+        text = triage_labels_picker(selected=True, refreshed=False)
+    elif observation_kind == "closed":
+        text = triage_closed(assigned=True, classified=True)
+    else:
+        text = triage_labels_picker(selected=True).replace("listbox 'Select labels'", "StaticText 'Select labels'")
+    with pytest.raises(BrowserError):
+        await harness.decide(triage_observation(text), [])
+
+
+async def test_labels_unrelated_or_later_success_cannot_replace_failed_target_receipt():
+    harness = await opened_label_control()
+    await harness.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    harness.history[1]["result"] = {"ok": False}
+    harness.history.append({"step": 2, "action": {"kind": "click", "bid": "2049"}, "result": {"ok": True}})
+    with pytest.raises(BrowserError, match="successful certain label action receipt"):
+        await harness.decide(triage_observation(triage_labels_picker(selected=True, refreshed=False)), [])
+
+
+async def test_labels_known_false_uncertainty_and_extra_driver_message_are_valid_receipt_metadata():
+    harness = await opened_label_control()
+    await harness.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    harness.history[1]["result"] = {"ok": True, "uncertain_effect": False, "message": "accepted"}
+    assert (await harness.decide(triage_observation(triage_labels_picker(selected=True, refreshed=False)), [])).action.bid == "1446"
+
+
+@pytest.mark.parametrize("phase", ["selecting", "applying"])
+async def test_labels_receipts_remain_at_their_emitted_slots_during_finite_waits(phase):
+    harness = await opened_label_control()
+    await harness.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    if phase == "applying":
+        await harness.decide(triage_observation(triage_labels_picker(selected=True, refreshed=False)), [])
+    draft = triage_labels_picker(selected=phase == "applying", refreshed=False)
+    for _ in range(5):
+        assert (await harness.decide(triage_observation(draft), [])).action.kind == "wait"
+    with pytest.raises(BrowserError, match="exhausted pending"):
+        await harness.decide(triage_observation(draft), [])
+    assert sum(row["action"]["kind"] == "click" for row in harness.history) == (3 if phase == "applying" else 2)
+
+
+async def test_labels_refreshed_selected_requires_positive_all_counterpart_after_click():
+    harness = await opened_label_control()
+    await harness.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    text = triage_labels_picker(selected=True).replace("[2049] option 'severity::2', selected=True",
+                                                    "[2049] option 'severity::2', selected=False")
+    with pytest.raises(BrowserError, match="inconsistent label membership"):
+        await harness.decide(triage_observation(text), [])
+
+
+async def test_labels_partial_selected_set_is_not_a_valid_prior_or_expected_draft():
+    harness = LabelControlHarness()
+    closed = triage_closed(assigned=True).replace("[1155] link 'incident'", "[1155] link 'incident'\n\t[999] link 'keep'")
+    await harness.decide(triage_observation(closed), [])
+    await harness.decide(triage_observation(triage_labels_picker(prior=("incident", "keep"), selected=None)), [])
+    text = triage_labels_picker(prior=("incident", "keep"), selected=True)
+    text = text.replace("\t\t\t[71] option 'keep', selected=True\n", "")
+    with pytest.raises(BrowserError, match="changed pending label membership"):
+        await harness.decide(triage_observation(text), [])
+
+
+async def test_labels_already_correct_prior_cannot_be_toggled_even_with_corrupted_opening_state():
+    from dataclasses import replace
+
+    harness = await opened_label_control()
+    harness.policy.triage_edit = replace(harness.policy.triage_edit, prior_labels=frozenset({"incident", "severity::2"}))
+    with pytest.raises(BrowserError, match="will not toggle a prior label"):
+        await harness.decide(triage_observation(triage_labels_picker(selected=True)), [])
+
+
+async def test_labels_missing_apply_receipt_blocks_generic_navigation_or_wait_too():
+    harness = await opened_label_control()
+    await harness.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    await harness.decide(triage_observation(triage_labels_picker(selected=True, refreshed=False)), [])
+    harness.history.pop()
+    with pytest.raises(BrowserError, match="emitted label action receipt"):
+        await harness.policy.decide(observation("[3] link 'Incident Operations'"), harness.history)
+
+
+async def test_labels_valid_apply_does_not_replace_the_required_target_receipt():
+    harness = await opened_label_control()
+    await harness.decide(triage_observation(triage_labels_picker(selected=None)), [])
+    await harness.decide(triage_observation(triage_labels_picker(selected=True, refreshed=False)), [])
+    harness.history[1]["result"]["ok"] = False
+    with pytest.raises(BrowserError, match="successful certain label action receipt"):
+        await harness.decide(triage_observation(triage_closed(assigned=True, classified=True)), [])

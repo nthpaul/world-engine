@@ -56,7 +56,7 @@ def assignee_picker(*, option_bid="12", selected=False, apply_bid="15"):
 async def test_actual_heading_and_generic_edit_are_scoped(heading):
     decision = await control().decide(observation(sidebar(heading=heading)), [])
     assert decision.action.kind == "click" and decision.action.bid == "1144"
-    assert decision.evidence["protocol"] == "public-ax-triage-control-v5"
+    assert decision.evidence["protocol"] == "public-ax-triage-control-v6"
 
 
 async def test_uses_current_observed_bid_not_previous_observation():
@@ -162,9 +162,10 @@ async def test_conservative_scoped_label_picker_requires_exact_option():
               "\t\t\t[13] option 'severity::20', selected=False\n"
               "\t\t\t[14] option 'severity::2'\n")
     policy = control()
-    await policy.decide(observation(sidebar(assigned=True)), [])
+    opened = await policy.decide(observation(sidebar(assigned=True)), [])
+    history = [{"step": 0, "action": opened.action.model_dump(), "result": {"ok": True}}]
     text = sidebar(assigned=True).replace("\t[1151] button 'Edit'\n\t[1149] link 'incident'\n", picker)
-    assert (await policy.decide(observation(text), [])).action.bid == "14"
+    assert (await policy.decide(observation(text), history)).action.bid == "14"
 
 
 async def test_close_control_identity_unchanged():
@@ -204,14 +205,17 @@ async def test_current_picker_bid_can_select_but_cannot_certify_closed_commit():
 
 async def test_v4_public_closed_labels_then_actual_grouped_picker_selects_only_current_all_bid():
     policy = control()
-    await policy.decide(observation(assignee_picker(option_bid="2058")), [])
+    first = await policy.decide(observation(assignee_picker(option_bid="2058")), [])
+    history = [{"step": 0, "action": first.action.model_dump(), "result": {"ok": True}}]
     # Minimal public observation 11: committed display name plus ordinary target Activity.
     closed = sidebar(assigned=True, label_bid="1145").replace(
         "link 'Casey On-call @casey-oncall'", "link 'Casey On-call'")
     activity = ("[1500] heading 'Activity'\n\t[1557] list ''\n\t\t[2114] listitem ''\n"
                 "\t\t\t[2120] link 'Workflow Agent'\n\t\t\tStaticText 'assigned to'\n"
                 "\t\t\t[2125] link '@casey-oncall'\n\t\t\t[2127] link 'Sunday, October 11, 2026 at 2:55:01 PM EDT'\n")
-    assert (await policy.decide(observation(closed + activity), [])).action.bid == "1145"
+    opened = await policy.decide(observation(closed + activity), history)
+    assert opened.action.bid == "1145"
+    history.append({"step": 1, "action": opened.action.model_dump(), "result": {"ok": True}})
     # Observation 12 has no selected flag on severity::2, while incident appears in both groups.
     picker = ("\t[2132] button 'Apply', visible\n"
               "\t[2135] button 'incident', visible, hasPopup='listbox', expanded=True\n"
@@ -229,5 +233,39 @@ async def test_v4_public_closed_labels_then_actual_grouped_picker_selects_only_c
               "\t\t\tInlineTextBox 'severity::3'\n\tInlineTextBox '4 results'\n"
               "\t[2188] button 'Create project label'\n\t[2190] link 'Manage project labels'\n")
     opened = closed.replace("\t[1145] button 'Edit'\n\t[1149] link 'incident'\n", picker)
-    action = (await policy.decide(observation(opened + activity), [])).action
+    action = (await policy.decide(observation(opened + activity), history)).action
     assert action.kind == "click" and action.bid == "2171"
+
+
+async def test_v5_public_prior_selected_new_all_requires_exact_receipt_before_current_apply():
+    policy = control()
+    history = []
+
+    async def completed(text):
+        decision = await policy.decide(observation(text), history)
+        history.append({"step": len(history), "action": decision.action.model_dump(), "result": {"ok": True}})
+        return decision.action
+
+    assert (await completed(sidebar(assigned=True))).bid == "1151"
+    # Public V5 labels field, with Selected still incident after the All target click.
+    picker = ("\t[2130] button 'Apply', visible\n"
+              "\t[2133] button 'incident', visible, expanded=True\n"
+              "\t[2148] combobox 'Search', visible, focused, expanded=True\n"
+              "\t[2149] listbox 'Select labels', visible, multiselectable=True, orientation='vertical'\n"
+              "\t\t[2153] group 'Selected', visible\n"
+              "\t\t\t[2155] option 'incident', visible, selected=True\n"
+              "\t\t[2161] group 'All', visible\n"
+              "\t\t\t[2163] option 'incident', visible, selected=True\n"
+              "\t\t\t[2169] option 'severity::2', visible\n"
+              "\t\t\tInlineTextBox 'severity::3'\n")
+    opened = sidebar(assigned=True).replace("\t[1151] button 'Edit'\n\t[1149] link 'incident'\n", picker)
+    assert (await completed(opened)).bid == "2169"
+    draft = opened.replace("button 'incident'", "button 'incident and severity::2'").replace(
+        "option 'severity::2', visible", "option 'severity::2', visible, selected=True")
+    action = (await policy.decide(observation(draft), history)).action
+    assert action.kind == "click" and action.bid == "2130"
+    # Phase is pre-result state; no accepted Apply receipt exists yet.
+    with pytest.raises(BrowserError, match="emitted label action receipt"):
+        await policy.decide(observation(sidebar(assigned=True, classified=True)), history)
+    history.append({"step": 2, "action": action.model_dump(), "result": {"ok": True}})
+    assert (await policy.decide(observation(sidebar(assigned=True, classified=True)), history)).action.kind == "finish"

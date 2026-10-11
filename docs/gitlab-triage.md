@@ -183,6 +183,34 @@ admission, empty owned Docker inventories and all seventeen prior browser rows
 and 279 evidence files unchanged. Any correction requires a separately reviewed
 source, protocol and fresh cohort; no original evidence or grade is replaced.
 
+## Draft-Membership Controller
+
+The V6 reference separates initial closed labels, staged All selection and
+confirmed closed membership. Opening requires strict Selected/All agreement
+with the prior closed labels. Only after the exact emitted target click has a
+matching successful completed-history receipt may Selected remain at that prior
+set while All explicitly marks exactly prior plus target. An exactly refreshed
+Selected set is also valid. All other contradictions, extras, removed labels,
+malformed properties and filtered observations still fail closed.
+
+The controller emits one current scoped Apply after that expected draft. Its
+own exact successful action receipt is required before pending waits or closed
+confirmation. It cannot repeat selection or Apply to recover an unknown effect.
+Pending phases retain at most five one-second waits; phase state and titles
+cannot substitute for action results. Exact closed links must confirm both the
+new label and preservation of all prior labels. An already-correct target is
+not toggled. The detached verifier, not public draft state, awards the outcome.
+
+This changes reference/collector identities to
+`public-ax-triage-control-v6` and `world-engine.triage-qualification.v6`.
+Task1.0.2, grader v3, fixtures, permissions, close semantics and local-model
+protocol/options remain unchanged. Recorded-observation regressions can propose
+the next Apply after V5's thirteen actions, but they do not execute it or prove
+application persistence. V6 requires a new reviewed committed protocol, green CI,
+exact API startup pin and separately authorized fresh fixed controls. All earlier
+grades and failure evidence remain unchanged; no new real outcome is claimed
+by this source contract alone.
+
 ## Close-Task Compatibility
 
 The close task is now release `1.0.3`: its fixture recipe moved into

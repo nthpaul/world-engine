@@ -4,6 +4,20 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 
 ## Active increments
 
+V6 draft-membership controller source is ready for GitHub delivery under a
+separate reviewed contract. It requires exact successful target-click and Apply receipts,
+allow only the observed prior or exactly refreshed Selected inventory against
+the exact expected All set, preserve prior labels and confirm exact closed
+membership. Reference/collector identities change to v6; task/grader/fixtures,
+close and model behavior remain unchanged. Root owns collector/protocol/board
+and GitHub, console owns controller/tests, engine and research independently
+review source/fingerprints. Root passed 2,837 local tests with six optional skips,
+Ruff and diff whitespace checks. Cross-family review passed 774 focused tests;
+the model/close AST and task/grader/fixture fingerprints remain unchanged.
+No V6 physical collection is authorized yet; completed source review and green
+committed CI must precede a separate fixed execution decision.
+V1--V5 evidence stays closed and unchanged. No third training or spend is active.
+
 V5 labels-group source is committed at `7033af7`, PR71, after independent
 whole-diff and task/grader fingerprint reviews. Root passed 2,683 local tests
 with six optional skips, Ruff and tracked publication checks; independent
@@ -119,8 +133,8 @@ any repair needs a separately committed source and fixed fresh protocol.
 Original grades are not replaced. The prior close receipts retain their original source;
 registered close release 1.0.3 changes recipe ownership, not prior grades.
 
-PR62 through PR71 are merged with existing history retained. Merged master
-`c60a15c` passed backend and console CI38171587747. Root owns Git,
+PR62 through PR72 are merged with existing history retained. Merged master
+`6fcc350` passed backend and console CI38172950340. Root owns Git,
 publication, fixed-source collection and this board. Engine's private V2
 trainer artifact audit is complete. Console's V3 reference repair and terminal
 QA and research's independent source/evidence review are complete. Root owns collector
