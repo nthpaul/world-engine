@@ -4,7 +4,9 @@ import argparse
 import asyncio
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
 import uvicorn
 
@@ -13,17 +15,20 @@ from world_engine.benchmark import benchmark
 from world_engine.environments import ENVIRONMENTS
 from world_engine.exports import export_records, jsonl
 from world_engine.models import RunConfig, canonical_json
+from world_engine.native_config import NativeRunConfig
 from world_engine.rollout import RunManager, replay
 from world_engine.store import Store
 
 
 async def execute_run(args: argparse.Namespace) -> None:
+    native = args.provider in ("local-tools", "local-tools-ledger")
+    config_type = NativeRunConfig if native else RunConfig
+    config = config_type(environment_id=args.environment, provider_id=args.provider, episodes=args.episodes,
+                         seed=args.seed, max_steps=args.max_steps, model=args.model,
+                         timeout_seconds=args.timeout, allow_paid=False if native else args.allow_paid,
+                         label=args.label, evaluation_only=native or args.evaluation_only,
+                         **({"concurrency": args.concurrency} if args.concurrency is not None else {}))
     manager = RunManager(Store(args.db))
-    config = RunConfig(environment_id=args.environment, provider_id=args.provider, episodes=args.episodes,
-                       seed=args.seed, concurrency=args.concurrency, max_steps=args.max_steps,
-                       model=args.model, timeout_seconds=args.timeout, allow_paid=args.allow_paid, label=args.label)
-    if args.evaluation_only:
-        config = config.model_copy(update={"evaluation_only": True})
     try:
         run = manager.submit(config)
         completed = await manager.wait(run["id"])
@@ -41,10 +46,11 @@ def main() -> None:
     serve.add_argument("--port", type=int, default=8000)
     run = commands.add_parser("rollout", help="Execute and persist a bounded batch")
     run.add_argument("--environment", choices=tuple(ENVIRONMENTS), required=True)
-    run.add_argument("--provider", choices=["scripted-oracle", "scripted-baseline", "local", "openai", "anthropic"], default="scripted-oracle")
+    run.add_argument("--provider", choices=["scripted-oracle", "scripted-baseline", "local", "local-tools", "local-tools-ledger", "openai", "anthropic"], default="scripted-oracle")
     run.add_argument("--episodes", type=int, default=10)
     run.add_argument("--seed", type=int, default=42)
-    run.add_argument("--concurrency", type=int, default=4)
+    run.add_argument("--concurrency", type=int, default=None,
+                     help="Concurrent episodes (default: 1 for native providers, 4 otherwise)")
     run.add_argument("--max-steps", type=int, default=20)
     run.add_argument("--timeout", type=int, default=60)
     run.add_argument("--model")
@@ -52,7 +58,9 @@ def main() -> None:
     run.add_argument("--label", default="")
     run.add_argument("--evaluation-only", action="store_true", help="Exclude these evaluation episodes from training exports")
     bench = commands.add_parser("benchmark", help="Measure local scripted workflows; no external model calls")
-    bench.add_argument("--output", type=Path, default=Path("examples/benchmark-results"))
+    bench.add_argument("--output", type=Path,
+                       default=Path(".world-engine/benchmarks") / f"{datetime.now(timezone.utc):%Y%m%dT%H%M%S.%fZ}-{uuid4().hex}",
+                       help="Fresh output directory; existing paths are never reused")
     bench.add_argument("--episodes", type=int, default=30)
     bench.add_argument("--trials", type=int, default=3)
     export = commands.add_parser("export", help="Write dataset/operator-interchange JSONL to stdout")

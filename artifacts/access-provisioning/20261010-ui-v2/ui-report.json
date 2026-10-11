@@ -1,0 +1,301 @@
+{
+  "generated_at": "2026-10-10T08:11:48.351Z",
+  "phase": "access",
+  "base_url": "http://127.0.0.1:5173",
+  "controller_source": {
+    "revision": "e1550290b6bb954df86d2d8dd0e52dd7d6428967",
+    "files": {
+      "pyproject.toml": "6c352c613b9a0d428c6b1bf0979c27595b119c22b50b4a26a92210a2e461412e",
+      "scripts/ui-qa.mjs": "0335fd062d3a489f9d90a3d095c39fba5f0eeb137cc96bde7adeee51dc858fc6",
+      "src/world_engine/__init__.py": "aec16d30b3fe09daed51f08d662b98693348b66a20b9a5bc2fc97dbe535f73d1",
+      "src/world_engine/__main__.py": "46f6078d57f6800b8c86f43edf2697e6939112883bad36e4d7964bef20e0b80a",
+      "src/world_engine/access_provisioning.py": "b51adf0b981dd44a12d0e2fc71e735176e10874fb4b692a2716a4841d5a735f6",
+      "src/world_engine/api.py": "179ec4a0e95639cfc7c63d519c68bc0a23a0024bf8efd34a7fd671b8248b7e65",
+      "src/world_engine/atif.py": "255c746bfa3c38705dc340afd619f1c92bfcd7d55c5fe9950575c72b260d82ee",
+      "src/world_engine/benchmark.py": "27c1a692edf44d14bf04b45cc6a2fab7bdb0c32ba9c79ca155cd895446b733cd",
+      "src/world_engine/docker_executor.py": "77e27c071dfba58b7a2700cc4349339f8f8044981506383c3de321b804e360e8",
+      "src/world_engine/environments.py": "a5b04f2701c953f7b3a81384539cf0966465131dddad4d6d327f8f06ceaf19d7",
+      "src/world_engine/exports.py": "c1ec4b8a62e5497d76bfc40b400a82b0aabd4507716ff07fafe2d0b93938b839",
+      "src/world_engine/models.py": "0d5b4c0497dfce7fca316459aad7943a8d55f5a5e9b40a904d118edccfa34f45",
+      "src/world_engine/ollama_tools.py": "88c85134c250489e0c867f2f07353c85dd5a4c3b0acc8949958ae20f90bcf841",
+      "src/world_engine/provider_records.py": "7644f297f7cfb7eb6bd1dea8a387f4f1e89dda0734cb4833331ede4f7278159a",
+      "src/world_engine/providers.py": "ff635c6fb2a47f4634796af3a42e83c6a9624f3b56be1bf6655ccb5eb60eda7f",
+      "src/world_engine/rollout.py": "db10d555a531d4a67796568e047f46362104abfa55ae62d357d3786653843088",
+      "src/world_engine/store.py": "fa3a162e292eb71caa8661b8c5947afd356f8369f7c03d55a772d0942596c1bf",
+      "tests/test_ui_qa.py": "0aa5f1ef5a3b13db43553b5c44e088934c475db6631c00dc80807fbe226f2f41",
+      "uv.lock": "a65eda4a34998fe5978fde9ef84ef99e94ada85d2a8e574e4e6c3e9d70c20034",
+      "web/package-lock.json": "61cf0d6fe5aea4c445bf6e744dabed4a089dae3ba057485b5740dfa7d8816f94",
+      "web/package.json": "cdd731e574c39e77a570b98968a2e36a479d6c26ed8131917fdca16bf0191006",
+      "web/src/App.tsx": "960c1eb6d18f3682cbc48d4c5dd3cb356e5b8e22f0d8b03542479f2d8a948d46",
+      "web/src/api.ts": "d2c0062a9d0f6c05b24016e641213b123c45658af617d7988a6428650e23ce05",
+      "web/src/main.tsx": "bf82136bef7bae65abd3f19b1e348b4d163b24b42610f556be1f708524add794",
+      "web/src/styles.css": "4da3cb9f81d8870548ecf76056376e9e75ee5e02827aeb28c68dd5f02c81742d"
+    },
+    "source_dirty": false,
+    "source_dirty_scope": [
+      "src/world_engine",
+      "web/src",
+      "web/package.json",
+      "web/package-lock.json",
+      "scripts/ui-qa.mjs",
+      "tests/test_ui_qa.py",
+      "pyproject.toml",
+      "uv.lock"
+    ]
+  },
+  "api_health": {
+    "status": "ok",
+    "version": "0.1.0",
+    "execution": "in-process",
+    "active_runs": 0,
+    "paid_calls_enabled": false,
+    "max_global_concurrency": 8
+  },
+  "api_episode_provenance": [
+    {
+      "environment_code_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+      "environment_id": "access-provisioning",
+      "environment_version": "1.0.0",
+      "evaluation_only": true,
+      "git_dirty": true,
+      "git_dirty_scope": "entire checkout including docs and generated artifacts",
+      "git_revision": "e1550290b6bb954df86d2d8dd0e52dd7d6428967",
+      "grader_code_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+      "grader_version": "1.0.0",
+      "implementation_dirty": false,
+      "implementation_dirty_scope": [
+        "src/world_engine",
+        "pyproject.toml",
+        "uv.lock"
+      ],
+      "initial_state_hash": "ceec376206e9067ff551e1b8897c2db35f016e53e2c7f010b7adf3adb36ec71f",
+      "lineage_id": "543ac96730032d199caea330f3f8a6364412615b456ded456d3562eea3e5f3ca",
+      "model": "scripted-oracle",
+      "model_digest": null,
+      "policy_code_hash": "ff635c6fb2a47f4634796af3a42e83c6a9624f3b56be1bf6655ccb5eb60eda7f",
+      "policy_hash": "9ed16e8c4674f831d0982c0b0ff6ef65dce2e4519197d56ef6074784b975ee28",
+      "policy_identity": "configuration-only; weights unverified",
+      "policy_version": "workflow-json-v1",
+      "prompt_hash": "d62cea87a6eec1dd06e3d6fdf59a7dcccb8b07df98d7dcacb7781d268cc1b19c",
+      "provider_class": "world_engine.providers.ScriptedProvider",
+      "provider_id": "scripted-oracle",
+      "provider_source_hash": "3a459c9582d0a43fa6bbaebc1e7ce79d48470485e4d366c7b28431571817603b",
+      "runtime": "3.13.5",
+      "scenario_id": "525e0c6c726a537e6c306b253ddec866aa7e21c4475a0ec373dd789908ecd0be",
+      "schema_version": "1.0.0",
+      "seed": 0,
+      "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+      "task_hash": "df80a39a979d5e4157ea8c01a58e6e306e1cbc778f6f115d57a36423eef0cf69"
+    },
+    {
+      "environment_code_hash": "6554a45b3c38fbc6718735890fb3d9c5734ff11e20f65a7ba9195c4e52ab1ed8",
+      "environment_id": "access-provisioning",
+      "environment_version": "1.0.0",
+      "evaluation_only": true,
+      "git_dirty": true,
+      "git_dirty_scope": "entire checkout including docs and generated artifacts",
+      "git_revision": "e1550290b6bb954df86d2d8dd0e52dd7d6428967",
+      "grader_code_hash": "6f6e7dfa28e087a141b78d1d0835106f99283ccf11ec4709144a2bc1f4e1dd78",
+      "grader_version": "1.0.0",
+      "implementation_dirty": false,
+      "implementation_dirty_scope": [
+        "src/world_engine",
+        "pyproject.toml",
+        "uv.lock"
+      ],
+      "initial_state_hash": "ceec376206e9067ff551e1b8897c2db35f016e53e2c7f010b7adf3adb36ec71f",
+      "lineage_id": "543ac96730032d199caea330f3f8a6364412615b456ded456d3562eea3e5f3ca",
+      "model": "scripted-baseline",
+      "model_digest": null,
+      "policy_code_hash": "ff635c6fb2a47f4634796af3a42e83c6a9624f3b56be1bf6655ccb5eb60eda7f",
+      "policy_hash": "3cc9d4c3a11029fe268196364960394d54f21f535489653a668c70c7d6c218cc",
+      "policy_identity": "configuration-only; weights unverified",
+      "policy_version": "workflow-json-v1",
+      "prompt_hash": "d62cea87a6eec1dd06e3d6fdf59a7dcccb8b07df98d7dcacb7781d268cc1b19c",
+      "provider_class": "world_engine.providers.ScriptedProvider",
+      "provider_id": "scripted-baseline",
+      "provider_source_hash": "3a459c9582d0a43fa6bbaebc1e7ce79d48470485e4d366c7b28431571817603b",
+      "runtime": "3.13.5",
+      "scenario_id": "525e0c6c726a537e6c306b253ddec866aa7e21c4475a0ec373dd789908ecd0be",
+      "schema_version": "1.0.0",
+      "seed": 0,
+      "system_prompt_hash": "25acd056aca2ee3e5fcd389c75a501943da49141c1c5c6b8e378b9e4dc2408ac",
+      "task_hash": "df80a39a979d5e4157ea8c01a58e6e306e1cbc778f6f115d57a36423eef0cf69"
+    }
+  ],
+  "run_ids": [
+    "336ee099-e1e3-4ec4-80f5-b7e9490120ea",
+    "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef"
+  ],
+  "protocol": {
+    "environment_id": "access-provisioning",
+    "providers": [
+      "scripted-oracle",
+      "scripted-baseline"
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "episodes": 16,
+    "max_steps": 20,
+    "timeout_seconds": 30,
+    "concurrency": 1,
+    "evaluation_only": true
+  },
+  "model_calls": 0,
+  "paid_calls": 0,
+  "local_cancellation_requested": false,
+  "outcome_control_only": true,
+  "training_eligible": false,
+  "checks": [
+    "Access API responds through the local Vite proxy",
+    "Actual catalog contains the synthetic partial-observation access world",
+    "Access QA uses a committed controller and runtime source scope",
+    "scripted-oracle: actual API accepts the UI configuration",
+    "scripted-oracle: eight recorded episodes preserve committed provenance and bounded partial contexts",
+    "Desktop access scripted-oracle: document has no horizontal overflow",
+    "Access scripted-oracle inspector: sampled small labels meet 4.5:1 text contrast",
+    "scripted-oracle: traces preserves evaluation-only export boundary",
+    "scripted-oracle: atif preserves evaluation-only export boundary",
+    "scripted-oracle: sft preserves evaluation-only export boundary",
+    "scripted-oracle: dpo preserves evaluation-only export boundary",
+    "scripted-oracle: grpo preserves evaluation-only export boundary",
+    "Mobile 390 access scripted-oracle provenance: document has no horizontal overflow",
+    "Mobile 390 access scripted-oracle timeline: document has no horizontal overflow",
+    "Mobile 360 access scripted-oracle provenance: document has no horizontal overflow",
+    "Mobile 360 access scripted-oracle timeline: document has no horizontal overflow",
+    "scripted-baseline: actual API accepts the UI configuration",
+    "scripted-baseline: eight recorded episodes preserve committed provenance and bounded partial contexts",
+    "Desktop access scripted-baseline: document has no horizontal overflow",
+    "Access scripted-baseline inspector: sampled small labels meet 4.5:1 text contrast",
+    "scripted-baseline: traces preserves evaluation-only export boundary",
+    "scripted-baseline: atif preserves evaluation-only export boundary",
+    "scripted-baseline: sft preserves evaluation-only export boundary",
+    "scripted-baseline: dpo preserves evaluation-only export boundary",
+    "scripted-baseline: grpo preserves evaluation-only export boundary",
+    "Mobile 390 access scripted-baseline provenance: document has no horizontal overflow",
+    "Mobile 390 access scripted-baseline timeline: document has no horizontal overflow",
+    "Mobile 360 access scripted-baseline provenance: document has no horizontal overflow",
+    "Mobile 360 access scripted-baseline timeline: document has no horizontal overflow",
+    "All sixteen full operator episodes pass current-source CLI replay",
+    "Access phase has no browser runtime errors"
+  ],
+  "downloads": [
+    {
+      "format": "traces",
+      "quality": "all",
+      "run_id": "336ee099-e1e3-4ec4-80f5-b7e9490120ea",
+      "rows": 8,
+      "filename": "336ee099-e1e3-4ec4-80f5-b7e9490120ea-traces-all.jsonl",
+      "suggested_filename": "336ee099-e1e3-4ec4-80f5-b7e9490120ea-traces-all.jsonl",
+      "sha256": "f427f6cf9714fff7c85fcc90985f4181af270e0ea67b784470649685e72627ad"
+    },
+    {
+      "format": "atif",
+      "quality": "all",
+      "run_id": "336ee099-e1e3-4ec4-80f5-b7e9490120ea",
+      "rows": 8,
+      "filename": "336ee099-e1e3-4ec4-80f5-b7e9490120ea-atif-all.jsonl",
+      "suggested_filename": "336ee099-e1e3-4ec4-80f5-b7e9490120ea-atif-all.jsonl",
+      "sha256": "a6b54e2f6ff366344ca4eedfd66b0e8f26a5f994ecf9aea251669e8ba045a1d3"
+    },
+    {
+      "format": "sft",
+      "quality": "all",
+      "run_id": "336ee099-e1e3-4ec4-80f5-b7e9490120ea",
+      "rows": 0,
+      "filename": "336ee099-e1e3-4ec4-80f5-b7e9490120ea-sft-all.jsonl",
+      "suggested_filename": "336ee099-e1e3-4ec4-80f5-b7e9490120ea-sft-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "format": "dpo",
+      "quality": "all",
+      "run_id": "336ee099-e1e3-4ec4-80f5-b7e9490120ea",
+      "rows": 0,
+      "filename": "336ee099-e1e3-4ec4-80f5-b7e9490120ea-dpo-all.jsonl",
+      "suggested_filename": "336ee099-e1e3-4ec4-80f5-b7e9490120ea-dpo-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "format": "grpo",
+      "quality": "all",
+      "run_id": "336ee099-e1e3-4ec4-80f5-b7e9490120ea",
+      "rows": 0,
+      "filename": "336ee099-e1e3-4ec4-80f5-b7e9490120ea-grpo-all.jsonl",
+      "suggested_filename": "336ee099-e1e3-4ec4-80f5-b7e9490120ea-grpo-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "format": "traces",
+      "quality": "all",
+      "run_id": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef",
+      "rows": 8,
+      "filename": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef-traces-all.jsonl",
+      "suggested_filename": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef-traces-all.jsonl",
+      "sha256": "016baf41308f4a0935a7e1ea99b095837615066b5198937471d7b3eb9cc6b666"
+    },
+    {
+      "format": "atif",
+      "quality": "all",
+      "run_id": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef",
+      "rows": 8,
+      "filename": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef-atif-all.jsonl",
+      "suggested_filename": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef-atif-all.jsonl",
+      "sha256": "b4ac8c1db63d164568ed9fbc37ec7562303031739eeab0b8e58e400946eb718c"
+    },
+    {
+      "format": "sft",
+      "quality": "all",
+      "run_id": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef",
+      "rows": 0,
+      "filename": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef-sft-all.jsonl",
+      "suggested_filename": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef-sft-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "format": "dpo",
+      "quality": "all",
+      "run_id": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef",
+      "rows": 0,
+      "filename": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef-dpo-all.jsonl",
+      "suggested_filename": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef-dpo-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "format": "grpo",
+      "quality": "all",
+      "run_id": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef",
+      "rows": 0,
+      "filename": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef-grpo-all.jsonl",
+      "suggested_filename": "4be0bd76-0fcf-4d5c-b1a6-8572ee60bdef-grpo-all.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "real_episode_count": 16,
+  "real_trace_steps": 121,
+  "operator_episode_file": "access-evaluation-episodes.jsonl",
+  "operator_episode_sha256": "6b76095500d1002351e6a930e2ed74639c6441720858379cf1b4aa1974430d52",
+  "replay_file": "access-replay.json",
+  "text_contrast": [
+    {
+      "view": "Access scripted-oracle inspector",
+      "samples": 38,
+      "minimum_ratio": 4.756291932193622
+    },
+    {
+      "view": "Access scripted-baseline inspector",
+      "samples": 24,
+      "minimum_ratio": 4.756291932193622
+    }
+  ],
+  "browser_errors": [],
+  "video": "/Users/ple/projects/world-engine/artifacts/access-provisioning/20261010-ui-v2/video/page@e370438cf9bd9eb6599daad7af33f726.webm"
+}

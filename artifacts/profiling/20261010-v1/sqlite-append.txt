@@ -1,0 +1,42 @@
+         5474 function calls in 0.188 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       96    0.000    0.000    0.188    0.002 store.py:91(append_episode)
+      192    0.000    0.000    0.105    0.001 {built-in method builtins.next}
+      192    0.000    0.000    0.105    0.001 store.py:52(connect)
+       96    0.000    0.000    0.094    0.001 contextlib.py:145(__exit__)
+       96    0.053    0.001    0.053    0.001 {method 'close' of 'sqlite3.Connection' objects}
+      192    0.000    0.000    0.048    0.000 models.py:16(canonical_json)
+      192    0.000    0.000    0.048    0.000 __init__.py:183(dumps)
+      192    0.000    0.000    0.047    0.000 encoder.py:183(encode)
+      192    0.047    0.000    0.047    0.000 encoder.py:205(iterencode)
+       96    0.041    0.000    0.041    0.000 {method '__exit__' of 'sqlite3.Connection' objects}
+      384    0.031    0.000    0.031    0.000 {method 'execute' of 'sqlite3.Connection' objects}
+       96    0.000    0.000    0.026    0.000 models.py:20(digest)
+       96    0.000    0.000    0.012    0.000 contextlib.py:136(__enter__)
+       96    0.011    0.000    0.011    0.000 {built-in method _sqlite3.connect}
+       96    0.003    0.000    0.003    0.000 {built-in method _hashlib.openssl_sha256}
+       96    0.000    0.000    0.000    0.000 functools.py:544(decorating_function)
+       96    0.000    0.000    0.000    0.000 functools.py:36(update_wrapper)
+       96    0.000    0.000    0.000    0.000 {method 'encode' of 'str' objects}
+       96    0.000    0.000    0.000    0.000 models.py:24(utc_now)
+      864    0.000    0.000    0.000    0.000 {built-in method builtins.getattr}
+       96    0.000    0.000    0.000    0.000 {method 'isoformat' of 'datetime.datetime' objects}
+       96    0.000    0.000    0.000    0.000 contextlib.py:303(helper)
+       96    0.000    0.000    0.000    0.000 contextlib.py:108(__init__)
+      480    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+       96    0.000    0.000    0.000    0.000 functools.py:504(lru_cache)
+       96    0.000    0.000    0.000    0.000 {built-in method now}
+       96    0.000    0.000    0.000    0.000 {method 'hexdigest' of '_hashlib.HASH' objects}
+       96    0.000    0.000    0.000    0.000 _local.py:166(__fspath__)
+      192    0.000    0.000    0.000    0.000 encoder.py:105(__init__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+      192    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+      192    0.000    0.000    0.000    0.000 {built-in method builtins.setattr}
+       96    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
+       96    0.000    0.000    0.000    0.000 _local.py:227(__str__)
+        1    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+
+
