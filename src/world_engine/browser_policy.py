@@ -8,7 +8,7 @@ import hashlib
 import json
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Literal
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
@@ -224,7 +224,10 @@ def ax_nodes(text: str) -> list[dict]:
 @dataclass(frozen=True)
 class _TriageEdit:
     field: Literal["assignee", "labels"]
-    phase: Literal["opening", "searching", "selecting", "applying"]
+    phase: Literal["opening", "searching", "selecting", "applying", "dismissing"]
+    identity: str | None = None
+    prior_activity: frozenset[tuple] = frozenset()
+    waits: int = 0
 
 
 class BrowserReferencePolicy:
@@ -240,6 +243,7 @@ class BrowserReferencePolicy:
         self.comment = comment[1].strip() if comment else None
         self.project_name = "Incident Operations" if triage else "Release Operations"
         self.triage_edit: _TriageEdit | None = None
+        self.triage_confirmed_assignee = False
         self.baseline = baseline
         self.issue_list_url: str | None = None
         self.issue_cursor = 0
@@ -248,7 +252,7 @@ class BrowserReferencePolicy:
         self.confirmed_comment = False
         self.comment_requested = False
         self.recorder: RECORDER = lambda kind, payload: None
-        self.evidence_metadata = {"protocol": "public-ax-triage-control-v3" if triage else "public-ax-browser-control-v1", "scripted_control": True,
+        self.evidence_metadata = {"protocol": "public-ax-triage-control-v4" if triage else "public-ax-browser-control-v1", "scripted_control": True,
                                   "capability_measurement": False, "baseline": baseline, "training_eligible": False}
 
     def set_recorder(self, recorder: RECORDER) -> None:
@@ -370,7 +374,37 @@ class BrowserReferencePolicy:
                    if node["role"] == "region" and node["name"] == "Sidebar"]
         if len(regions) != 1:
             raise BrowserError("reference control requires one observed Sidebar region")
+        sidebar_indent = nodes[regions[0]]["indent"]
+        # Only structured assignment rows in the target's Activity section corroborate a write.
+        activity = set()
+        headings = [index for index, node in enumerate(nodes) if index > regions[0]
+                    and node["role"] == "heading" and node["name"] == "Activity"
+                    and node["indent"] == sidebar_indent]
+        if len(headings) > 1:
+            raise BrowserError("reference control requires one target Activity section")
+        if headings:
+            start = headings[0]
+            end = next((index for index in range(start + 1, len(nodes))
+                        if nodes[index]["indent"] < sidebar_indent or
+                        (nodes[index]["indent"] == sidebar_indent and nodes[index]["role"] in ("heading", "region"))), len(nodes))
+            items = nodes[start + 1:end]
+            for index, node in enumerate(items):
+                if node["role"] != "listitem":
+                    continue
+                row = subtree(items, index)
+                direct = [child for child in row if child["indent"] == node["indent"] + 1]
+                if (len(direct) == 4 and [child["role"] for child in direct] ==
+                        ["link", "StaticText", "link", "link"] and
+                        direct[1]["name"] == "assigned to" and direct[2]["name"] == "@casey-oncall"):
+                    activity.add(tuple((child["role"], child["name"]) for child in direct))
         nodes = subtree(nodes, regions[0])
+
+        def waiting(field):
+            edit = self.triage_edit or _TriageEdit(field, "searching")
+            if edit.waits >= 5:
+                raise BrowserError("reference control exhausted pending field confirmation")
+            self.triage_edit = replace(edit, waits=edit.waits + 1)
+            return Wait(seconds=1)
 
         def field_nodes(names):
             starts = [index for index, node in enumerate(nodes)
@@ -396,11 +430,11 @@ class BrowserReferencePolicy:
         if opened:
             field = opened[0]
             items = fields[field]
-            if self.triage_edit and self.triage_edit.phase == "applying":
-                return Wait(seconds=1)
+            if self.triage_edit and self.triage_edit.phase in ("applying", "dismissing"):
+                return waiting(field)
             pickers = [index for index, node in enumerate(items) if node["role"] == "listbox"]
             if not pickers:
-                return Wait(seconds=1)
+                return waiting(field)
             expected = "Select assignee" if field == "assignee" else "Select labels"
             if len(pickers) != 1 or items[pickers[0]]["name"] != expected:
                 raise BrowserError("reference control requires one named field picker")
@@ -414,7 +448,7 @@ class BrowserReferencePolicy:
                 raise BrowserError("reference control requires one exact picker option")
             if not candidates:
                 if not searches[0]["bid"] or (self.triage_edit and self.triage_edit.phase in ("searching", "selecting")):
-                    return Wait(seconds=1)
+                    return waiting(field)
                 self.triage_edit = _TriageEdit(field, "searching")
                 return Fill(bid=searches[0]["bid"], text="casey-oncall" if field == "assignee" else "severity::2")
             candidate = candidates[0]
@@ -422,46 +456,71 @@ class BrowserReferencePolicy:
             if type(selected) is not bool:
                 raise BrowserError("reference control requires observed picker selection state")
             if not candidate["bid"]:
-                return Wait(seconds=1)
+                return waiting(field)
+            if field == "assignee" and candidate["name"] != "Casey On-call @casey-oncall":
+                raise BrowserError("reference control requires exact observed account identity")
+            if field == "assignee":
+                if any(type(node.get("selected" if node["role"] == "option" else "checked")) is not bool
+                       for node in options):
+                    raise BrowserError("reference control requires observed picker selection state")
+                if any(node.get("selected" if node["role"] == "option" else "checked") is True
+                       and not wanted(node, field) for node in options):
+                    raise BrowserError("reference control found another selected assignee")
             if not selected:
                 if self.triage_edit and self.triage_edit.phase == "selecting":
-                    return Wait(seconds=1)
-                self.triage_edit = _TriageEdit(field, "selecting")
+                    return waiting(field)
+                self.triage_edit = _TriageEdit(field, "selecting", candidate["name"], frozenset(activity))
                 return Click(bid=candidate["bid"])
-            if field == "assignee" and any(
-                    node.get("selected" if node["role"] == "option" else "checked") is True and not wanted(node, field)
-                    for node in options):
-                raise BrowserError("reference control found another selected assignee")
+            if not self.triage_edit or self.triage_edit.phase in ("opening", "searching"):
+                if not searches[0]["bid"]:
+                    return waiting(field)
+                self.triage_edit = _TriageEdit(field, "dismissing", candidate["name"])
+                return Press(bid=searches[0]["bid"], key="Escape")
             buttons = [node for node in items if node["role"] == "button" and node["name"] == "Apply"]
             if len(buttons) != 1:
                 raise BrowserError("reference control requires one scoped Apply button")
             if not buttons[0]["bid"]:
-                return Wait(seconds=1)
-            self.triage_edit = _TriageEdit(field, "applying")
+                return waiting(field)
+            self.triage_edit = replace(self.triage_edit, phase="applying", waits=0)
             return Click(bid=buttons[0]["bid"])
 
         def committed(field):
             items = fields[field]
             # Exclude every descendant of transient picker/editor nodes.
             blocked_indent = None
+            matches = []
             for node in items:
                 if blocked_indent is not None and node["indent"] > blocked_indent:
                     continue
                 blocked_indent = None
                 if node["role"] in ("option", "checkbox", "combobox", "textbox", "listbox"):
                     blocked_indent = node["indent"]
-                elif wanted(node, field):
-                    return True
-            return False
+                elif node["role"] == "link" and (node["name"] == "severity::2" if field == "labels" else
+                        node["name"] in ("@casey-oncall", "Casey On-call @casey-oncall", "Casey On-call")):
+                    matches.append(node)
+                elif field == "assignee" and node["role"] == "link":
+                    raise BrowserError("reference control found ambiguous closed assignee")
+            if len(matches) > 1:
+                raise BrowserError("reference control found ambiguous closed membership")
+            return matches[0] if matches else None
 
         if self.triage_edit:
             edit = self.triage_edit
             if edit.phase == "opening":
-                return Wait(seconds=1)
-            if edit.phase != "applying" or not committed(edit.field):
-                raise BrowserError("reference control could not confirm the applied field")
+                return waiting(edit.field)
+            member = committed(edit.field)
+            if edit.phase not in ("selecting", "applying", "dismissing") or not member:
+                return waiting(edit.field)
+            if edit.field == "assignee":
+                if edit.identity != "Casey On-call @casey-oncall":
+                    raise BrowserError("reference control lacks corroborated account identity")
+                if edit.phase != "dismissing" and not (activity - edit.prior_activity):
+                    return waiting(edit.field)
+                self.triage_confirmed_assignee = True
             self.triage_edit = None
         assigned, classified = committed("assignee"), committed("labels")
+        if assigned and assigned["name"] == "Casey On-call" and not self.triage_confirmed_assignee:
+            assigned = None
         if assigned and classified:
             return Finish()
         field = "labels" if assigned else "assignee"

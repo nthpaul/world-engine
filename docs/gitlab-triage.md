@@ -34,7 +34,7 @@ exact effects and preserves all prior rows in that projection. It does not call
 the application, apply agent actions or trust a final answer. Assignment joins
 have a composite user/issue identity, not an invented row ID.
 
-Release `1.0.1` uses verifier `gitlab-triage-state-v2`. V1's reference failed at
+Historical release `1.0.1` uses verifier `gitlab-triage-state-v2`. V1's reference failed at
 30 actions and its later controls and model were unattempted. The new reference
 recognizes actual singular/plural sidebar headings and ignores duplicate inline
 heading text. The verifier permits a prior label event's null display reference
@@ -47,13 +47,11 @@ grades remained zero, cleanup completed and the model slot was unattempted.
 Independent sealed-state review reproduced those original grades without
 replacement. Neither stopped cohort is a model capability result.
 
-The separately declared V3 reference protocol distinguishes an open picker,
+The separately declared V3 reference protocol distinguished an open picker,
 observed selection and closed-field committed membership. It accepts only
 current observed node IDs and stops after an uncertain-effect action instead of
-repeating it. Labels-picker behavior is still unqualified. Task release,
-fixture and grader are unchanged; a new committed protocol and fresh real
-controls are required before model admission. No positive qualification follows
-from these source repairs or mock tests.
+repeating it. Its task release, fixture and grader were unchanged. No positive
+qualification followed from those source repairs or mock tests.
 
 Actual V3 at `62df4a994b1d5a3ded207ce957e594b927e05b94` also stopped after
 two controls. The incomplete control completed with reward zero. The reference
@@ -66,7 +64,8 @@ zero remains correct. Already-correct, close-compatibility and model slots were
 unattempted; there were no inference events. Both cleanups completed.
 
 The generated assignment note also contradicts candidate certificate defaults:
-its namespace is null, and its note/metadata timestamps follow the issue update.
+its namespace is null, its projection has 28 fields rather than the candidate's
+30, and its note/metadata timestamps follow the issue update.
 Those are findings for a separately reviewed temporal and identity contract,
 not permission to relax checks, add a tolerance or replace an original grade.
 Independent read-only review reproduced both original grades and verified all
@@ -76,7 +75,39 @@ screenshots and desktop playback; both videos decoded fully. Mobile playback
 remains unqualified. Root separately confirmed idle admission, empty owned Docker
 inventories and preservation of all prior operator rows and browser evidence.
 
-The new verifier is **not yet qualified against a real reference execution**.
+## Versioned Commit Contract
+
+Release `1.0.2` uses verifier `gitlab-triage-state-v3`, state schema
+`world-engine-gitlab-triage-state-v2` and sealed schema
+`world-engine-gitlab-triage-sealed-v2`. The V4 reference accepts immediate picker
+closure only when closed-field membership and a new, structured public Activity
+assignment row corroborate the selected username. A picker that stays open
+requires observed selection and a scoped Apply action. Display-name-only
+already-correct membership requires exact selected-username inspection and
+nonmutating Escape dismissal. These observations guide navigation; they do not
+replace isolated grading. Pending transitions permit at most five one-second
+Wait decisions; that is not a wall-clock guarantee.
+
+Each triage export records a six-digit UTC PostgreSQL `CURRENT_TIMESTAMP` in
+the same read-only repeatable-read transaction as its selected rows. This is
+the transaction-start time, not a maximum derived from mutation timestamps.
+New certificates and changed target/project timestamps must fall between the
+trusted baseline and final captures. Unchanged old project timestamps are not
+forced into that interval. Note creation precedes its update and metadata
+creation; assignment and labeling remain legal in either order. This avoids
+treating the issue update as an upper bound for later certificate writes.
+It assumes comparable local database clocks, not distributed-clock attestation.
+[PostgreSQL date/time functions](https://www.postgresql.org/docs/current/functions-datetime.html).
+
+New project-backed assignment notes require exactly the observed 28 fields,
+with null `namespace_id`; `note_html` and `cached_markdown_version` are absent,
+not optional null defaults. Actor, project and Issue identities remain exact,
+and related joins and metadata retain their trusted namespace identities.
+Prior records, permissions, defaults, counts and immutable fields still require
+preservation. Historical schemas remain interpreted at their pinned source,
+not silently accepted as the new contract.
+
+This verifier is **not yet qualified against a real reference execution**.
 Its candidate exact note/metadata defaults fail closed. A legitimate GitLab
 rendering/default mismatch stops qualification and preserves the rejected result;
 any repair requires a new committed source/protocol and fresh collection. Mock
@@ -103,6 +134,7 @@ data. The schema checks are based on pinned primary source:
 - [Issue assignment model](https://gitlab.com/gitlab-org/gitlab-foss/-/blob/v19.4.1/app/models/issue_assignee.rb)
 - [Label event model](https://gitlab.com/gitlab-org/gitlab-foss/-/blob/v19.4.1/app/models/resource_label_event.rb)
 - [System assignment notes](https://gitlab.com/gitlab-org/gitlab-foss/-/blob/v19.4.1/app/services/system_notes/issuables_service.rb)
+- [Project-backed Note model](https://gitlab.com/gitlab-org/gitlab-foss/-/blob/v19.4.1/app/models/note.rb)
 - [Database structure](https://gitlab.com/gitlab-org/gitlab-foss/-/blob/v19.4.1/db/structure.sql)
 
 See [qualification protocol](gitlab-triage-protocol.md). No control or model

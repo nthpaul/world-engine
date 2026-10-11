@@ -22,8 +22,8 @@ def test_default_plan_no_contacts(monkeypatch, capsys):
     monkeypatch.setattr(COLLECTOR, "collect", lambda *args: pytest.fail("default plan collected"))
     COLLECTOR.main()
     plan = json.loads(capsys.readouterr().out)
-    assert plan["schema"] == "world-engine.triage-qualification.v3"
-    assert plan["reference_protocol"] == "public-ax-triage-control-v3"
+    assert plan["schema"] == "world-engine.triage-qualification.v4"
+    assert plan["reference_protocol"] == "public-ax-triage-control-v4"
     assert [slot["seed"] for slot in plan["slots"]] == [42, 42, 43, 42, 42]
     assert plan["training_eligible"] is False and plan["automatic_retries"] == 0
 
@@ -161,7 +161,7 @@ def test_fixed_fake_cohort_and_failure_stop(tmp_path, monkeypatch, include_model
                     "journal": [{"event": "policy_prepared", "data":
                         {"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.PROTOCOL,
                          "options": COLLECTOR.OPTIONS} if index == 4 else
-                        {"protocol": "public-ax-triage-control-v3" if index < 3 else "public-ax-browser-control-v1",
+                        {"protocol": "public-ax-triage-control-v4" if index < 3 else "public-ax-browser-control-v1",
                          "scripted_control": True, "capability_measurement": False,
                          "baseline": index == 0, "training_eligible": False}}]}
 
@@ -186,7 +186,7 @@ def test_prepared_policy_identity_rejects_drift(index, corruption):
     spec = COLLECTOR.SLOTS[index]
     metadata = ({"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.PROTOCOL,
                  "options": COLLECTOR.OPTIONS} if index == 4 else
-                {"protocol": "public-ax-triage-control-v3" if index < 3 else "public-ax-browser-control-v1",
+                {"protocol": "public-ax-triage-control-v4" if index < 3 else "public-ax-browser-control-v1",
                  "scripted_control": True, "capability_measurement": False,
                  "baseline": index == 0, "training_eligible": False})
     attempt = {"journal": [{"event": "policy_prepared", "data": metadata}]}
@@ -201,5 +201,17 @@ def test_prepared_policy_identity_rejects_drift(index, corruption):
         metadata["model_digest"] = "forged"
     else:
         metadata["training_eligible"] = True
+    with pytest.raises(RuntimeError, match="identity"):
+        COLLECTOR.validate_policy_identity(attempt, spec)
+
+
+@pytest.mark.parametrize("index", range(3))
+@pytest.mark.parametrize("protocol", ["public-ax-triage-control-v2", "public-ax-triage-control-v3"])
+def test_historical_control_identity_cannot_qualify_v4(index, protocol):
+    spec = COLLECTOR.SLOTS[index]
+    metadata = {"protocol": protocol, "scripted_control": True,
+                "capability_measurement": False, "baseline": index == 0,
+                "training_eligible": False}
+    attempt = {"journal": [{"event": "policy_prepared", "data": metadata}]}
     with pytest.raises(RuntimeError, match="identity"):
         COLLECTOR.validate_policy_identity(attempt, spec)

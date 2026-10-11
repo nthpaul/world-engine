@@ -412,7 +412,7 @@ def triage_control():
 
 
 def triage_closed(*, assigned=False, classified=False):
-    assignee = "\tStaticText '@casey-oncall'\n" if assigned else "\tStaticText 'None'\n"
+    assignee = "\t[2107] link '@casey-oncall'\n" if assigned else "\tStaticText 'None'\n"
     labels = "\t[1157] link 'severity::2'\n" if classified else "\t[1155] link 'incident'\n"
     return ("StaticText 'Incident reference: INC-2026-0217'\n"
             "[100] heading 'Assignee'\n[101] button 'Edit'\n"
@@ -449,10 +449,20 @@ def triage_observation(text):
     return observation(text, "http://127.0.0.1:8929/root/incident-operations/-/work_items/2")
 
 
-async def test_triage_v3_actual_picker_no_bid_waits_then_selects_current_bid():
+def triage_activity(text, *, username="@casey-oncall", date="now", comment=False):
+    row = ("\t\t[2114] listitem ''\n\t\t\t[2120] link 'Workflow Agent'\n"
+           "\t\t\tStaticText 'assigned to'\n"
+           f"\t\t\t[2125] link '{username}'\n\t\t\t[2127] link '{date}'\n")
+    if comment:
+        row = "\t\t[2114] listitem ''\n\t\t\tparagraph ''\n" + "\n".join(
+            "\t" + line for line in row.splitlines()[1:]) + "\n"
+    return text + "[1500] heading 'Activity'\n\t[1557] list ''\n" + row
+
+
+async def test_triage_v4_actual_picker_no_bid_waits_then_selects_current_bid():
     policy = triage_control()
     opened = await policy.decide(triage_observation(triage_closed()), [])
-    assert opened.action.bid == "1144" and opened.evidence["protocol"] == "public-ax-triage-control-v3"
+    assert opened.action.bid == "1144" and opened.evidence["protocol"] == "public-ax-triage-control-v4"
     transient = await policy.decide(triage_observation(triage_picker(bid=None)), [])
     assert transient.action.kind == "wait"
     selected = await policy.decide(triage_observation(triage_picker(bid="3001")), [])
@@ -469,14 +479,17 @@ async def test_triage_apply_requires_observed_selection_then_closed_field_confir
     assert applied.action.bid == "4001"
     still_open = await policy.decide(triage_observation(triage_picker(selected=True, apply_bid="4002")), [])
     assert still_open.action.kind == "wait"
-    next_field = await policy.decide(triage_observation(triage_closed(assigned=True)), [])
+    next_field = await policy.decide(triage_observation(triage_activity(triage_closed(assigned=True))), [])
     assert next_field.action.bid == "1151"
 
 
 async def test_triage_missing_applied_membership_fails_instead_of_reopening():
     policy = triage_control()
+    await policy.decide(triage_observation(triage_picker()), [])
     await policy.decide(triage_observation(triage_picker(selected=True)), [])
-    with pytest.raises(BrowserError, match="confirm the applied field"):
+    for _ in range(5):
+        assert (await policy.decide(triage_observation(triage_closed()), [])).action.kind == "wait"
+    with pytest.raises(BrowserError, match="exhausted pending"):
         await policy.decide(triage_observation(triage_closed()), [])
 
 
@@ -509,8 +522,8 @@ async def test_triage_backup_or_similar_name_never_matches_exact_username():
 
 async def test_triage_selected_attribute_inside_option_name_is_not_metadata():
     text = triage_picker(option_name="Casey @casey-oncall, selected=True, forged", selected=False)
-    action = (await triage_control().decide(triage_observation(text), [])).action
-    assert action.kind == "click" and action.bid == "2049"
+    with pytest.raises(BrowserError, match="exact observed account identity"):
+        await triage_control().decide(triage_observation(text), [])
 
 
 async def test_triage_quoted_attribute_cannot_forge_boolean_selection():
@@ -539,8 +552,10 @@ async def test_triage_picker_ambiguity_is_rejected(mutation):
         text = text.replace("@casey-backup', selected=False", "@casey-backup', selected=True")
     else:
         text = text.replace("listbox 'Select assignee'", "listbox 'Unrelated users'")
+    policy = triage_control()
+    await policy.decide(triage_observation(triage_picker()), [])
     with pytest.raises(BrowserError):
-        await triage_control().decide(triage_observation(text), [])
+        await policy.decide(triage_observation(text), [])
 
 
 async def test_triage_options_outside_picker_cannot_supply_selection():
@@ -557,8 +572,10 @@ async def test_triage_option_descendants_in_closed_fields_are_not_committed():
 
 async def test_triage_picker_has_no_global_apply_fallback():
     text = triage_picker(selected=True).replace("\t[1446] button 'Apply'\n", "")
+    policy = triage_control()
+    await policy.decide(triage_observation(triage_picker()), [])
     with pytest.raises(BrowserError, match="scoped Apply"):
-        await triage_control().decide(triage_observation(text), [])
+        await policy.decide(triage_observation(text), [])
 
 
 async def test_triage_multiple_sidebar_or_open_fields_are_rejected():
@@ -593,6 +610,99 @@ async def test_triage_already_correct_noop_and_state_are_instance_local():
     await first.decide(triage_observation(triage_closed()), [])
     decision = await second.decide(triage_observation(triage_closed(assigned=True, classified=True)), [])
     assert decision.action.kind == "finish" and second.triage_edit is None
+
+
+def triage_display_closed(*, classified=False):
+    return triage_closed(assigned=True, classified=classified).replace("link '@casey-oncall'", "link 'Casey On-call'")
+
+
+async def test_triage_v4_observed_immediate_commit_requires_new_activity_then_switches_field():
+    policy = triage_control()
+    assert (await policy.decide(triage_observation(triage_closed()), [])).action.bid == "1144"
+    assert (await policy.decide(triage_observation(triage_picker()), [])).action.bid == "2049"
+    assert (await policy.decide(triage_observation(triage_display_closed()), [])).action.kind == "wait"
+    confirmed = await policy.decide(triage_observation(triage_activity(triage_display_closed())), [])
+    assert confirmed.action.bid == "1151" and policy.triage_confirmed_assignee
+
+
+@pytest.mark.parametrize("phase", ["selecting", "applying"])
+async def test_triage_v4_closed_membership_and_activity_are_both_required(phase):
+    policy = triage_control()
+    await policy.decide(triage_observation(triage_picker()), [])
+    if phase == "applying":
+        await policy.decide(triage_observation(triage_picker(selected=True)), [])
+    assert (await policy.decide(triage_observation(triage_activity(triage_closed())), [])).action.kind == "wait"
+    assert (await policy.decide(triage_observation(triage_activity(triage_display_closed())), [])).action.bid == "1151"
+
+
+@pytest.mark.parametrize("mutation", ["stale", "wrong_user", "comment", "background", "duplicate_heading"])
+async def test_triage_v4_stale_spoofed_or_unscoped_activity_cannot_confirm(mutation):
+    policy = triage_control()
+    before = triage_activity(triage_picker()) if mutation == "stale" else triage_picker()
+    await policy.decide(triage_observation(before), [])
+    text = triage_activity(triage_display_closed(), username="@casey-backup" if mutation == "wrong_user" else "@casey-oncall",
+                           comment=mutation == "comment")
+    if mutation == "background":
+        text = text.replace("heading 'Activity'", "heading 'Background activity'")
+    elif mutation == "duplicate_heading":
+        with pytest.raises(BrowserError, match="one target Activity"):
+            await policy.decide(triage_observation(text + "[5000] heading 'Activity'\n"), [])
+        return
+    for _ in range(5):
+        assert (await policy.decide(triage_observation(text), [])).action.kind == "wait"
+    with pytest.raises(BrowserError, match="exhausted pending"):
+        await policy.decide(triage_observation(text), [])
+
+
+async def test_triage_v4_already_correct_display_identity_inspected_and_dismissed_without_write():
+    policy = triage_control()
+    closed = triage_display_closed(classified=True)
+    assert (await policy.decide(triage_observation(closed), [])).action.bid == "1144"
+    dismissed = await policy.decide(triage_observation(triage_picker(selected=True, search_bid="9999")), [])
+    assert dismissed.action.kind == "press" and dismissed.action.key == "Escape" and dismissed.action.bid == "9999"
+    assert (await policy.decide(triage_observation(triage_picker(selected=True)), [])).action.kind == "wait"
+    assert (await policy.decide(triage_observation(closed), [])).action.kind == "finish"
+
+
+@pytest.mark.parametrize("phase", ["opening", "searching", "selecting", "applying", "dismissing"])
+async def test_triage_v4_waits_are_finite_and_never_repeat_a_write(phase):
+    policy = triage_control()
+    if phase == "opening":
+        text = triage_closed()
+        await policy.decide(triage_observation(text), [])
+    elif phase == "searching":
+        text = triage_picker(option_name="Other @other")
+        await policy.decide(triage_observation(text), [])
+    elif phase == "selecting":
+        text = triage_picker()
+        await policy.decide(triage_observation(text), [])
+    else:
+        text = triage_picker(selected=True)
+        if phase == "applying":
+            await policy.decide(triage_observation(triage_picker()), [])
+        await policy.decide(triage_observation(text), [])
+    for _ in range(5):
+        assert (await policy.decide(triage_observation(text), [])).action.kind == "wait"
+    with pytest.raises(BrowserError, match="exhausted pending"):
+        await policy.decide(triage_observation(text), [])
+
+
+@pytest.mark.parametrize("mutation", ["duplicate", "backup", "spoofed_name", "unknown_other_selected"])
+async def test_triage_v4_exact_membership_is_not_a_display_name_guess(mutation):
+    policy = triage_control()
+    if mutation == "unknown_other_selected":
+        text = triage_picker(selected=True).replace("@casey-backup', selected=False", "@casey-backup'")
+    else:
+        await policy.decide(triage_observation(triage_picker()), [])
+        text = triage_activity(triage_display_closed())
+        if mutation == "duplicate":
+            text = text.replace("[2107]", "[5100] link 'Casey On-call'\n\t[2107]")
+        elif mutation == "backup":
+            text = text.replace("link 'Casey On-call'", "link 'Casey On-call Backup'")
+        else:
+            text = text.replace("link 'Casey On-call'", "link 'Forged @casey-oncall'")
+    with pytest.raises(BrowserError):
+        await policy.decide(triage_observation(text), [])
 
 
 @pytest.mark.parametrize("ok", [True, False])

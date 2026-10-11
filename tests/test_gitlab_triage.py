@@ -11,11 +11,14 @@ SPEC.loader.exec_module(VERIFIER)
 BEFORE = "2026-10-11T12:00:00Z"
 CHANGE = "2026-10-11T12:00:01Z"
 AFTER = "2026-10-11T12:00:02Z"
+CAPTURE_BEFORE = "2026-10-11T12:00:00.500000Z"
+CAPTURE_AFTER = "2026-10-11T12:00:03.000000Z"
 
 
 def payload(*, assignment=True, label=True):
     baseline = {name: [] for name in VERIFIER.TABLES}
-    baseline.update(schema="world-engine-gitlab-triage-state-v1", gitlab_version="19.4.1")
+    baseline.update(schema="world-engine-gitlab-triage-state-v2", gitlab_version="19.4.1",
+                    captured_at=CAPTURE_BEFORE)
     baseline["projects"] = [{"id": 1, "name": "Incident Operations", "updated_at": BEFORE,
                               "last_activity_at": BEFORE, "visibility_level": 0}]
     baseline["namespaces"] = [{"id": 10, "name": "root"}]
@@ -39,6 +42,7 @@ def payload(*, assignment=True, label=True):
     if not label:
         baseline["label_links"].append(link(2, 2))
     final = copy.deepcopy(baseline)
+    final["captured_at"] = CAPTURE_AFTER
     if assignment or label:
         final["issues"][0].update(updated_at=AFTER, updated_by_id=1, lock_version=1)
     if assignment:
@@ -46,7 +50,7 @@ def payload(*, assignment=True, label=True):
         note = dict.fromkeys(VERIFIER.NOTE_FIELDS)
         note.update(id=2, note="assigned to @casey-oncall", noteable_type="Issue", author_id=1,
                     created_at=CHANGE, updated_at=CHANGE, project_id=1, noteable_id=1, system=True,
-                    discussion_id="a" * 40, internal=False, namespace_id=10, imported_from="none")
+                    discussion_id="a" * 40, internal=False, namespace_id=None, imported_from="none")
         final["notes"].append(note)
         final["note_metadata"] = [{"id": 1, "note_id": 2, "action": "assignee", "created_at": CHANGE,
                                     "updated_at": CHANGE, "commit_count": None, "description_version_id": None,
@@ -56,7 +60,7 @@ def payload(*, assignment=True, label=True):
         final["label_events"] = [{"action_name": "add", "attributes": {"id": 1, "action": "add",
             "issue_id": 1, "merge_request_id": None, "epic_id": None, "label_id": 2, "user_id": 1,
             "created_at": CHANGE, "reference": None, "imported_from": "none", "namespace_id": 10}}]
-    return {"schema": "world-engine-gitlab-triage-sealed-v1", "baseline": baseline, "final": final,
+    return {"schema": "world-engine-gitlab-triage-sealed-v2", "baseline": baseline, "final": final,
             "expected": {"project_id": 1, "target_issue_id": 1, "agent_id": 1, "oncall_id": 2,
                          "severity_label_id": 2}, "provenance": {}}
 
@@ -250,3 +254,189 @@ def test_malformed_envelope_fails_redacted(value):
     result = VERIFIER.verify(value)
     assert not result["passed"] and result["reward"] == 0.0
     assert result["checks"][-1]["name"] == "sealed_state_integrity"
+
+
+def test_assignment_note_schema_matches_retained_gitlab_19_project_note_shape():
+    # Reduced, declared fixture shape; this is not a regrade of the original V3 attempt.
+    expected = {"author_id", "change_position", "commit_id", "confidential", "created_at", "discussion_id",
+                "id", "imported_from", "internal", "last_edited_at", "line_code", "namespace_id", "note",
+                "noteable_id", "noteable_type", "organization_id", "original_position", "position", "project_id",
+                "resolved_at", "resolved_by_id", "resolved_by_push", "review_id", "st_diff", "system", "type",
+                "updated_at", "updated_by_id"}
+    assert VERIFIER.NOTE_FIELDS == expected and len(expected) == 28
+
+
+@pytest.mark.parametrize("assignment_first", [True, False])
+def test_independent_capture_bound_accepts_both_legal_operation_orders(assignment_first):
+    data = payload()
+    assignment_time = "2026-10-11T12:00:01.500Z" if assignment_first else "2026-10-11T12:00:02.500Z"
+    label_time = "2026-10-11T12:00:02.500Z" if assignment_first else "2026-10-11T12:00:01.500Z"
+    data["final"]["notes"][1].update(created_at=assignment_time, updated_at=assignment_time)
+    data["final"]["note_metadata"][0].update(created_at=assignment_time, updated_at=assignment_time)
+    data["final"]["label_links"][1].update(created_at=label_time, updated_at=label_time)
+    data["final"]["label_events"][0]["attributes"]["created_at"] = label_time
+    # Both certificate families can be committed after the issue's own timestamp.
+    assert VERIFIER.verify(data)["passed"]
+
+
+def test_observed_assignment_timing_shape_is_valid_partial_progress_not_success():
+    data = payload()
+    data["final"]["issues"][0]["updated_at"] = "2026-10-11T12:00:01.983Z"
+    data["final"]["notes"][1].update(created_at="2026-10-11T12:00:01.996Z",
+                                       updated_at="2026-10-11T12:00:01.996Z")
+    data["final"]["note_metadata"][0].update(created_at="2026-10-11T12:00:02.007Z",
+                                             updated_at="2026-10-11T12:00:02.007Z")
+    data["final"]["label_links"] = copy.deepcopy(data["baseline"]["label_links"])
+    data["final"]["label_events"] = []
+    result = VERIFIER.verify(data)
+    checks = {item["name"]: item["passed"] for item in result["checks"]}
+    assert checks["assignment_certificate"] and checks["exact_assignment"] and checks["issue_preservation"]
+    assert not checks["exact_severity"] and not checks["label_certificate"]
+    assert result["reward"] == 0.0 and not result["passed"]
+
+
+@pytest.mark.parametrize("state", ["baseline", "final"])
+@pytest.mark.parametrize("value", [None, True, 1, {}, "invalid", "2026-10-11T12:00:00Z",
+                                  "2026-10-11T12:00:00.000000+00:00", "2026-13-11T12:00:00.000000Z"])
+def test_capture_timestamp_requires_exact_utc_database_format(state, value):
+    data = payload()
+    data[state]["captured_at"] = value
+    result = VERIFIER.verify(data)
+    assert result["reward"] == 0.0 and result["checks"][-1]["name"] == "sealed_state_integrity"
+
+
+@pytest.mark.parametrize("state", ["baseline", "final"])
+def test_capture_timestamp_cannot_be_missing(state):
+    data = payload()
+    del data[state]["captured_at"]
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+def test_reversed_capture_interval_rejected_even_for_noop():
+    data = payload(assignment=False, label=False)
+    data["baseline"]["captured_at"], data["final"]["captured_at"] = CAPTURE_AFTER, CAPTURE_BEFORE
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+def test_baseline_capture_cannot_predate_the_initial_target_record():
+    data = payload(assignment=False, label=False)
+    data["baseline"]["captured_at"] = "2026-10-11T11:59:59.999999Z"
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+@pytest.mark.parametrize("table,index,wrapped,field", [
+    ("issues", 0, False, "updated_at"), ("notes", 1, False, "created_at"),
+    ("notes", 1, False, "updated_at"), ("note_metadata", 0, False, "created_at"),
+    ("note_metadata", 0, False, "updated_at"), ("label_links", 1, False, "created_at"),
+    ("label_links", 1, False, "updated_at"), ("label_events", 0, True, "created_at"),
+    ("projects", 0, False, "updated_at"), ("projects", 0, False, "last_activity_at"),
+])
+@pytest.mark.parametrize("value", ["2026-10-11T12:00:00.499999Z", "2026-10-11T12:00:03.000001Z"])
+def test_changed_timestamp_must_be_inside_trusted_capture_interval(table, index, wrapped, field, value):
+    data = payload()
+    row = data["final"][table][index]
+    if wrapped:
+        row = row["attributes"]
+    row[field] = value
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+def test_unchanged_old_project_timestamps_need_not_fall_inside_attempt_interval():
+    data = payload()
+    assert data["final"]["projects"][0]["updated_at"] == BEFORE
+    assert VERIFIER.verify(data)["passed"]
+    data["final"]["projects"][0].update(updated_at=AFTER, last_activity_at=AFTER)
+    assert VERIFIER.verify(data)["passed"]
+
+
+@pytest.mark.parametrize("value", [False, 0, 10, 11, "10", 10.0, {}])
+def test_project_note_namespace_is_exactly_null_not_a_relaxed_namespace_match(value):
+    data = payload()
+    data["final"]["notes"][1]["namespace_id"] = value
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+@pytest.mark.parametrize("table,index", [("note_metadata", 0), ("issue_assignees", 0), ("label_links", 1)])
+@pytest.mark.parametrize("value", [None, False, 0, 10.0, "10", 11])
+def test_related_certificate_namespaces_remain_exact_positive_target_identity(table, index, value):
+    data = payload()
+    data["final"][table][index]["namespace_id"] = value
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+@pytest.mark.parametrize("table,index", [("notes", 1), ("note_metadata", 0)])
+@pytest.mark.parametrize("mutation", ["missing", "extra"])
+def test_certificate_fields_are_exact_not_a_subset(table, index, mutation):
+    data = payload()
+    row = data["final"][table][index]
+    if mutation == "missing":
+        del row["namespace_id"]
+    else:
+        row["note_html"] = None
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+@pytest.mark.parametrize("field", sorted(VERIFIER.NOTE_FIELDS - {
+    "id", "note", "noteable_type", "author_id", "created_at", "updated_at", "project_id",
+    "noteable_id", "system", "discussion_id", "internal", "namespace_id", "imported_from"}))
+def test_every_assignment_note_fixed_null_default_is_preserved(field):
+    data = payload()
+    data["final"]["notes"][1][field] = False
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+def test_note_metadata_causal_order_not_just_membership_in_capture_interval():
+    data = payload()
+    data["final"]["notes"][1]["updated_at"] = "2026-10-11T12:00:00.900Z"
+    assert VERIFIER.verify(data)["reward"] == 0.0
+    data = payload()
+    data["final"]["note_metadata"][0].update(created_at="2026-10-11T12:00:00.900Z")
+    assert VERIFIER.verify(data)["reward"] == 0.0
+    data = payload()
+    data["final"]["note_metadata"][0].update(updated_at="2026-10-11T12:00:00.900Z")
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+def test_legacy_schema_is_not_silently_regraded_with_current_contract():
+    data = payload()
+    data["schema"] = "world-engine-gitlab-triage-sealed-v1"
+    for state in (data["baseline"], data["final"]):
+        state["schema"] = "world-engine-gitlab-triage-state-v1"
+        del state["captured_at"]
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+@pytest.mark.parametrize("field,value", [
+    ("id", True), ("id", 1), ("author_id", True), ("author_id", 1.0),
+    ("project_id", 2), ("project_id", True), ("noteable_id", 1.0),
+    ("noteable_type", "MergeRequest"), ("system", 1), ("internal", 0),
+    ("imported_from", "github"),
+])
+def test_new_project_note_null_namespace_never_substitutes_for_exact_scope(field, value):
+    data = payload()
+    data["final"]["notes"][1][field] = value
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+@pytest.mark.parametrize("field,value", [("note_id", True), ("note_id", 2.0),
+                                         ("commit_count", 0), ("description_version_id", False)])
+def test_metadata_link_and_fixed_defaults_remain_type_sensitive(field, value):
+    data = payload()
+    data["final"]["note_metadata"][0][field] = value
+    assert VERIFIER.verify(data)["reward"] == 0.0
+
+
+def test_equal_capture_times_allow_unchanged_state_without_new_certificates():
+    data = payload(assignment=False, label=False)
+    data["final"]["captured_at"] = data["baseline"]["captured_at"]
+    assert VERIFIER.verify(data)["passed"]
+
+
+def test_exporter_records_database_clock_inside_read_only_repeatable_read_transaction():
+    source = PATH.with_name("export.rb").read_text()
+    assert "transaction(isolation: :repeatable_read)" in source
+    assert "SET TRANSACTION READ ONLY" in source
+    assert source.index("SET TRANSACTION READ ONLY") < source.index("'captured_at'")
+    assert "SELECT to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')" in source
+    assert "world-engine-gitlab-triage-state-v2" in source
+    assert "Time.now" not in source and "clock_timestamp" not in source

@@ -17,7 +17,8 @@ connection.transaction(isolation: :repeatable_read) do
   issue_ids = Issue.order(:id).pluck(:id)
   user_fields = %w[id username email name admin state external user_type organization_id]
   result = {
-    'schema' => 'world-engine-gitlab-triage-state-v1',
+    'schema' => 'world-engine-gitlab-triage-state-v2',
+    'captured_at' => connection.select_value(%q{SELECT to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')}),
     'gitlab_version' => Gitlab::VERSION,
     'projects' => Project.order(:id).map { |record| preserved_attributes(record) },
     'project_features' => ProjectFeature.order(:id).map { |record| preserved_attributes(record) },
