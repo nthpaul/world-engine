@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -15,6 +16,14 @@ pytestmark = pytest.mark.skipif(NODE is None, reason="Node.js is required for co
 def node_module(code):
     return subprocess.run([NODE, "--input-type=module", "-e", code], cwd=ROOT,
                           capture_output=True, text=True, timeout=10)
+
+
+def test_inspector_throughput_explicitly_labels_steps_per_second():
+    source = (ROOT / "web/src/App.tsx").read_text()
+    metric = re.search(r'<Metric\s+label="Step throughput"\s+value=\{([^}]+)\}\s+note=\{`([^`]+)`\}', source)
+    assert metric is not None
+    assert metric.group(1) == "number(run.steps_per_second)"
+    assert metric.group(2) == "steps/s / ${duration(run.elapsed_seconds)} elapsed"
 
 
 @pytest.mark.parametrize("args", [[], ["--access"], ["--output", ""], ["--unknown"],
@@ -102,3 +111,38 @@ def test_fresh_directory_reserved_once_without_pruning(tmp_path):
     assert result.returncode == 0, result.stderr
     assert (unrelated / "earlier.jsonl").read_text() == "prior download"
     assert (unrelated / "earlier.webm").read_bytes() == b"prior video"
+
+
+def test_operator_episode_serialization_preserves_wire_numeric_types():
+    raw = '{"episodes":[{"id":9007199254740993,"reward":1.0,"zero":0.0,"nested":{"flag":true,"id":1}}]}'
+    result = node_module(f"""
+      import {{operatorEpisodeJsonl}} from {json.dumps(SCRIPT.as_uri())};
+      process.stdout.write(operatorEpisodeJsonl([{json.dumps(raw)}]));
+    """)
+    assert result.returncode == 0, result.stderr
+    episode = json.loads(result.stdout)
+    assert episode["id"] == 9007199254740993
+    assert type(episode["reward"]) is float and episode["reward"] == 1.0
+    assert type(episode["zero"]) is float and episode["zero"] == 0.0
+    assert episode["nested"] == {"flag": True, "id": 1}
+    assert type(episode["nested"]["id"]) is int
+
+
+@pytest.mark.parametrize("raw", ["{not-json}", '{"episodes":[{"reward":NaN}]}', '{}'])
+def test_operator_episode_serialization_refuses_invalid_wire_records(raw):
+    result = node_module(f"""
+      import assert from 'node:assert/strict';
+      import {{operatorEpisodeJsonl}} from {json.dumps(SCRIPT.as_uri())};
+      assert.throws(()=>operatorEpisodeJsonl([{json.dumps(raw)}]));
+    """)
+    assert result.returncode == 0, result.stderr
+
+
+def test_operator_episode_serialization_requires_bounded_raw_response_strings():
+    result = node_module(f"""
+      import assert from 'node:assert/strict';
+      import {{operatorEpisodeJsonl}} from {json.dumps(SCRIPT.as_uri())};
+      for (const value of [null, [], [{{episodes:[]}}], ['x'.repeat(16*1024*1024+1)]])
+        assert.throws(()=>operatorEpisodeJsonl(value));
+    """)
+    assert result.returncode == 0, result.stderr
