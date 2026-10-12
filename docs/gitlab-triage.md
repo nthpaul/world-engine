@@ -290,6 +290,76 @@ authorized fresh controls before physical or model qualification. Proposed
 actions over V6 observations are unexecuted; V6's original failed no-op and all
 earlier evidence remain unchanged. This is not a new successful model result.
 
+## Actual V7 Qualification
+
+The fixed fresh cohort at
+`9901b26b488173ca3dfd4269e5c10b71475b7840` completed all five slots in
+1024.3935157500673 seconds. Source review and green CI preceded collection;
+the owned API restarted at that exact revision and source remained frozen.
+All four application controls qualified before the cached local model was
+admitted. No retry, tuning or historical-grade replacement occurred.
+
+| Slot | Attempt | Termination | Valid/invalid actions | Attempt reward |
+| --- | --- | --- | --- | --- |
+| Incomplete | `86c4ee5d-f74f-4ecd-a4c6-a102616a404f` | finished | 1/0 | 0 |
+| Changes required | `b16376b4-ad24-4c83-8b54-2af311e84809` | finished | 15/0 | 1 |
+| Already correct | `2e3afd89-6f2e-4ca8-8cda-c7710a382217` | finished | 15/0 | 1 |
+| Close compatibility | `ad8ec185-b779-4490-80fa-8cbdd3fa9856` | finished | 14/0 | 1 |
+| Local model | `642ee1fd-0079-4b55-92d7-4978a8142a1a` | max_steps | 30/0 | 0 |
+
+Every positive control passes all seven isolated checks. Changes-required
+persisted one exact assignment join, system note and linked metadata, plus one
+severity link and actor-scoped label event. Their certificates fall within the
+trusted database capture interval. Already-correct made no new business effects:
+the inspected singleton assignee, labels, issues and prior history survive
+actual Edit/Escape dismissal. Existing label-event display references hydrate
+only under the previously declared exception; its entire projection is not
+byte-identical. Close compatibility persisted its exact comment and closure
+under the unchanged close verifier. Unrelated selected records remain intact.
+
+The cached `qwen3:8b` model, digest
+`500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41`,
+used `ollama-browser-tools-v2`, temperature0, thinkfalse, num_predict512 and
+num_ctx16384. It first clicked the observed New project link, then repeated
+the New project link another 29 times. All actions were valid, but it never
+reached the incident and produced no assignment or severity effect. All 13
+selected tables are unchanged for both incomplete and model. Their false
+`issue_preservation` diagnostic includes required target-final-state conditions;
+it does not demonstrate unrelated-record damage. Budget completion is not task
+success, and the original model reward remains zero.
+
+Independent read-only audits reproduced all five original grades, all 45 public
+reference decisions and all 30 exact public model requests/raw replies. They
+verified 1,299 original cohort files, 42 pinned source blobs, 601 raw API pairs,
+530 journal records and 85 registered media artifacts. Every inference reply
+precedes its corresponding accepted action intent. Daemon-reported usage totals
+79,531 input and 660 output tokens; this is not independent tokenization,
+consumed-context proof or sampled-probability evidence. All V1--V6 originals
+remain unchanged. No private fixture or grading input enters the reconstructed
+model requests.
+
+GET-only console QA passed 42/42/41/57 checks for change/no-op/close/model,
+with 44 desktop/mobile screenshots, advancing desktop playback and eight full
+video decodes. Reference footage remains distinct from failed model footage.
+Mobile playback is unqualified. Fixed mobile navigation overlays an intermediate
+row in full-page captures; those captures do not establish scrolling access to
+that row. Unresolved application avatars remain visible. The diagnostic text
+for `issue_preservation` does not explain its target-final-state condition.
+
+All five cleanups completed without reconciliation. Root confirmed idle
+admission, empty owned Docker container/volume/network inventories and unchanged
+22 prior browser rows, 347 evidence files and the legacy store. Recorded totals
+are 760.4881500418996 seconds startup, 136.4464667912107 seconds sealing and
+111.9262585840188 seconds rollout. This five-episode accounting identifies
+startup/sealing overhead; it is not an optimization or concurrency benchmark.
+
+This qualifies the fixed selected-state control gate, not full GitLab fidelity,
+multi-tenant security, customer-quality reasoning or useful learning. One literal
+local model failure is not a population capability estimate. These browser
+attempts remain evaluation-only and nontrainable; no SFT, DPO or GRPO improvement
+is claimed. New task cases or model changes require a separately reviewed,
+committed protocol and fresh evidence.
+
 ## Close-Task Compatibility
 
 The close task is now release `1.0.3`: its fixture recipe moved into
