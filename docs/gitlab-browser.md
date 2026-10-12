@@ -42,6 +42,12 @@ actions/results. It cannot call Rails, SQL, shell, arbitrary JavaScript, private
 state, or the verifier. Screenshots are operator evidence; this first text-model
 adapter does **not** send their pixels to the model.
 
+The [browser context diagnostic protocol](gitlab-model-loop-protocol.md) separates
+model strength from the action/result context repair. Historical collection
+protocols describe their pinned revisions. New experiments require their own
+committed source, exact model identity and fresh evidence; they do not replace
+prior failed attempts or establish training improvement.
+
 The application is real software, not a hand-written text state machine. Agent
 actions navigate real pages and commit changes through the ordinary GitLab UI.
 The task asks the agent to discover a project, distinguish identically titled

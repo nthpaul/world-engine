@@ -22,7 +22,8 @@ def test_default_plan_no_contacts(monkeypatch, capsys):
     monkeypatch.setattr(COLLECTOR, "collect", lambda *args: pytest.fail("default plan collected"))
     COLLECTOR.main()
     plan = json.loads(capsys.readouterr().out)
-    assert plan["schema"] == "world-engine.triage-qualification.v7"
+    assert plan["schema"] == "world-engine.triage-qualification.v8"
+    assert plan["policy_protocol"] == "ollama-browser-tools-v3"
     assert plan["reference_protocol"] == "public-ax-triage-control-v7"
     assert [slot["seed"] for slot in plan["slots"]] == [42, 42, 43, 42, 42]
     assert plan["training_eligible"] is False and plan["automatic_retries"] == 0
@@ -133,8 +134,9 @@ def test_pinned_api_manifest_and_source_identity():
 def test_fixed_fake_cohort_and_failure_stop(tmp_path, monkeypatch, include_model, failed_slot):
     source = {"git_revision": "a" * 40, "files": {}, "controller_modules": {}}
     monkeypatch.setattr(COLLECTOR, "source_identity", lambda revision: source)
+    monkeypatch.setattr(COLLECTOR, "PROTOCOL", COLLECTOR.POLICY_PROTOCOL)
     preflights = []
-    monkeypatch.setattr(COLLECTOR, "model_preflight", lambda: preflights.append(True))
+    monkeypatch.setattr(COLLECTOR, "model_preflight", lambda model: preflights.append(model))
     posts = []
 
     class FakeApi:
@@ -159,8 +161,8 @@ def test_fixed_fake_cohort_and_failure_stop(tmp_path, monkeypatch, include_model
                     "config": posts[index], "artifacts": [],
                     "provenance": {"source_git_revision": "a" * 40, "source_dirty": False, "controller_modules": {}},
                     "journal": [{"event": "policy_prepared", "data":
-                        {"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.PROTOCOL,
-                         "options": COLLECTOR.OPTIONS} if index == 4 else
+                        {"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.POLICY_PROTOCOL,
+                         "options": COLLECTOR.OPTIONS, "template_sha256": "c" * 64} if index == 4 else
                         {"protocol": "public-ax-triage-control-v7" if index < 3 else "public-ax-browser-control-v1",
                          "scripted_control": True, "capability_measurement": False,
                          "baseline": index == 0, "training_eligible": False}}]}
@@ -184,8 +186,8 @@ def test_fixed_fake_cohort_and_failure_stop(tmp_path, monkeypatch, include_model
 @pytest.mark.parametrize("corruption", ["missing", "duplicate", "protocol", "eligibility"])
 def test_prepared_policy_identity_rejects_drift(index, corruption):
     spec = COLLECTOR.SLOTS[index]
-    metadata = ({"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.PROTOCOL,
-                 "options": COLLECTOR.OPTIONS} if index == 4 else
+    metadata = ({"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.POLICY_PROTOCOL,
+                 "options": COLLECTOR.OPTIONS, "template_sha256": "c" * 64} if index == 4 else
                 {"protocol": "public-ax-triage-control-v7" if index < 3 else "public-ax-browser-control-v1",
                  "scripted_control": True, "capability_measurement": False,
                  "baseline": index == 0, "training_eligible": False})
@@ -217,3 +219,38 @@ def test_historical_control_identity_cannot_qualify_v7(index, protocol):
     attempt = {"journal": [{"event": "policy_prepared", "data": metadata}]}
     with pytest.raises(RuntimeError, match="identity"):
         COLLECTOR.validate_policy_identity(attempt, spec)
+
+
+def test_explicit_large_model_plan_and_fixed_limits():
+    protocol = COLLECTOR.plan("qwen3:32b")
+    assert protocol["model_digest"] == COLLECTOR.MODELS["qwen3:32b"]
+    assert protocol["slots"][-1]["max_steps"] == 30
+    assert protocol["slots"][-1]["timeout_seconds"] == 600
+    assert protocol["reference_protocol"] == "public-ax-triage-control-v7"
+    with pytest.raises(ValueError):
+        COLLECTOR.plan("private-model")
+
+
+def test_v8_rejects_archived_runtime_before_contact(tmp_path, monkeypatch):
+    monkeypatch.setattr(COLLECTOR, "source_identity", lambda revision: {})
+    monkeypatch.setattr(COLLECTOR, "PROTOCOL", "ollama-browser-tools-v2")
+    monkeypatch.setattr(COLLECTOR.httpx, "Client", lambda *args, **kwargs: pytest.fail("HTTP contact"))
+    result = COLLECTOR.collect(tmp_path / "new", "a" * 40, "a" * 40, True, "qwen3:32b")
+    assert result["status"] == "stopped"
+    assert not result["results"]
+
+
+def test_large_model_identity_does_not_accept_small_or_unhashed_template():
+    spec = COLLECTOR.SLOTS[-1]
+    metadata = {"model_digest": COLLECTOR.MODELS["qwen3:32b"],
+                "protocol": COLLECTOR.POLICY_PROTOCOL, "options": COLLECTOR.OPTIONS,
+                "template_sha256": "c" * 64}
+    attempt = {"journal": [{"event": "policy_prepared", "data": metadata}]}
+    COLLECTOR.validate_policy_identity(attempt, spec, "qwen3:32b")
+    metadata["model_digest"] = COLLECTOR.MODEL_DIGEST
+    with pytest.raises(RuntimeError):
+        COLLECTOR.validate_policy_identity(attempt, spec, "qwen3:32b")
+    metadata["model_digest"] = COLLECTOR.MODELS["qwen3:32b"]
+    del metadata["template_sha256"]
+    with pytest.raises(RuntimeError):
+        COLLECTOR.validate_policy_identity(attempt, spec, "qwen3:32b")

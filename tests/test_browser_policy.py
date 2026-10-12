@@ -5,14 +5,17 @@ import json
 import httpx
 import pytest
 
-from world_engine.browser_contracts import BrowserError, BrowserObservation
+from world_engine.browser_contracts import BrowserAttemptConfig, BrowserError, BrowserObservation
 from world_engine.browser_policy import (
+    ACCESSIBILITY_LIMIT,
+    FULL_HISTORY_OBSERVATIONS,
     OPTIONS,
     PROTOCOL,
     BrowserReferencePolicy,
     OllamaBrowserPolicy,
     ax_nodes,
     browser_tools,
+    create_browser_policy,
 )
 from world_engine.models import canonical_json
 
@@ -38,7 +41,7 @@ def response(value):
     return httpx.Response(200, stream=RawStream(value))
 
 
-async def policy_with_reply(reply, *, model_entry=None):
+async def policy_with_reply(reply, *, model_entry=None, show_data=None):
     policy = OllamaBrowserPolicy("qwen3:8b", PROMPT)
     await policy.client.aclose()
     events = []
@@ -49,7 +52,8 @@ async def policy_with_reply(reply, *, model_entry=None):
         if request.url.path == "/api/version":
             return response({"version": "test-local-daemon"})
         if request.url.path == "/api/show":
-            return response({"capabilities": ["completion", "tools"]})
+            return response(show_data if show_data is not None else {
+                "capabilities": ["completion", "tools"], "template": "test-native-template"})
         if request.url.path == "/api/chat":
             assert events[-1][0] == "inference_intent"
             assert json.loads(request.content) == events[-1][1]["request_body"]
@@ -67,6 +71,198 @@ def valid_reply(arguments=None, *, name="browser_finish"):
             "prompt_eval_count": 42, "eval_count": 8}
 
 
+def context_policy(*, max_steps=30):
+    policy = object.__new__(OllamaBrowserPolicy)
+    policy.prepared_model, policy.instruction, policy.max_steps = "qwen3:8b", PROMPT, max_steps
+    return policy
+
+
+def public_transition(index, *, action=None, following=None, result=None):
+    return {"step": index, "action": action or {"kind": "click", "bid": "385"},
+            "result": {"ok": True} if result is None else result,
+            "observation": (following or observation("[385] link 'New project'",
+                "http://127.0.0.1:8929/projects/new#")).model_dump()}
+
+
+def test_context_saturation_never_aliases_seventeen_late_decisions():
+    policy = context_policy()
+    current = observation("[385] link 'New project'", "http://127.0.0.1:8929/projects/new#")
+    history = [public_transition(index, following=current) for index in range(29)]
+    requests = [policy.request_body(current, history[:length]) for length in range(13, 30)]
+    assert len({canonical_json(request) for request in requests}) == 17
+    for length, request in zip(range(13, 30), requests, strict=True):
+        final = json.loads(request["messages"][-1]["content"])
+        assert final["next_step"] == length and final["remaining_actions"] == 30 - length
+        assert final["feedback"] == {"consecutive_same_action": length,
+            "consecutive_unchanged_observations": length - 1, "first_action_transition_known": False,
+            "ok_means": "execution_only_not_task_progress"}
+        assert sum(message["role"] == "tool" for message in request["messages"]) == length
+
+
+def test_context_retains_chronological_linked_public_transitions_only():
+    policy = context_policy()
+    before = observation("[389] link 'New project'")
+    after = observation("[385] link 'New project'", "http://127.0.0.1:8929/projects/new")
+    row = public_transition(0, action={"kind": "click", "bid": "389"}, following=after)
+    row.update(operator_snapshot={"sentinel": "protected"}, evidence={"sentinel": "protected"})
+    body = policy.request_body(after, [row])
+    assert [message["role"] for message in body["messages"]] == ["system", "user", "assistant", "tool", "user"]
+    assert json.loads(body["messages"][1]["content"]) == {"task": PROMPT}
+    assistant, tool = body["messages"][2:4]
+    assert assistant == {"role": "assistant", "content": "", "tool_calls": [
+        {"function": {"name": "browser_click", "arguments": {"bid": "389"}}}]}
+    assert tool["tool_name"] == "browser_click"
+    frame = json.loads(tool["content"])
+    assert frame["completed_step"] == 0 and frame["result"] == {"ok": True}
+    assert frame["observation"]["url"] == after.url
+    assert frame["observation"]["accessibility_text"] == after.accessibility_text
+    final = json.loads(body["messages"][-1]["content"])
+    assert final["observation"]["accessibility_text"] == after.accessibility_text != before.accessibility_text
+    assert final["feedback"]["consecutive_unchanged_observations"] == 0
+    assert not any(value in canonical_json(body) for value in ("protected", "operator_snapshot", "screenshot_artifact_id"))
+    assert "tool_call_id" not in tool  # Links are normalized adjacency+tool_name, not fabricated daemon IDs.
+
+
+@pytest.mark.parametrize("length", [0, 4660, 31999, 32000, 65536])
+def test_context_bounds_aggregate_ax_and_discloses_compaction(length):
+    policy = context_policy()
+    current = observation("x" * length)
+    history = [public_transition(index, following=current) for index in range(5)]
+    body = policy.request_body(current, history)
+    frames = [json.loads(message["content"])["observation"] for message in body["messages"]
+              if message["role"] == "tool"]
+    final = json.loads(body["messages"][-1]["content"])["observation"]
+    assert sum(len(frame.get("accessibility_text", "")) for frame in frames + [final]) <= ACCESSIBILITY_LIMIT
+    assert all(frame["accessibility_omitted"] is True for frame in frames[:-FULL_HISTORY_OBSERVATIONS])
+    assert all(frame["accessibility_sha256"] == hashlib.sha256(current.accessibility_text.encode()).hexdigest()
+               and frame["accessibility_chars"] == length for frame in frames + [final])
+    assert final["accessibility_truncated"] is (length > ACCESSIBILITY_LIMIT)
+    assert final["accessibility_text"] == current.accessibility_text[:ACCESSIBILITY_LIMIT]
+
+
+@pytest.mark.parametrize("mutation", ["missing_step", "bool_step", "wrong_step", "missing_action", "mixed_action",
+    "missing_result", "list_result", "numeric_ok", "private_result", "bad_uncertain", "bad_message", "large_message",
+    "missing_observation", "private_observation", "stale_url", "stale_ax", "stale_title", "list_row", "none_history"])
+def test_context_rejects_noncontiguous_malformed_or_stale_public_history(mutation):
+    current = observation()
+    history = [public_transition(0, following=current)]
+    row = history[0]
+    if mutation == "missing_step":
+        del row["step"]
+    elif mutation == "bool_step":
+        row["step"] = False
+    elif mutation == "wrong_step":
+        row["step"] = 1
+    elif mutation == "missing_action":
+        del row["action"]
+    elif mutation == "mixed_action":
+        row["action"]["shell"] = "not permitted"
+    elif mutation == "missing_result":
+        del row["result"]
+    elif mutation == "list_result":
+        row["result"] = []
+    elif mutation == "numeric_ok":
+        row["result"]["ok"] = 1
+    elif mutation == "private_result":
+        row["result"]["operator_snapshot"] = {"private": "not permitted"}
+    elif mutation == "bad_uncertain":
+        row["result"]["uncertain_effect"] = 0
+    elif mutation == "bad_message":
+        row["result"]["message"] = []
+    elif mutation == "large_message":
+        row["result"]["message"] = "x" * 4097
+    elif mutation == "missing_observation":
+        del row["observation"]
+    elif mutation == "private_observation":
+        row["observation"]["protected"] = "not permitted"
+    elif mutation == "stale_url":
+        row["observation"]["url"] += "/other"
+    elif mutation == "stale_ax":
+        row["observation"]["accessibility_text"] = "different current IDs"
+    elif mutation == "stale_title":
+        row["observation"]["title"] = "Different page"
+    elif mutation == "list_row":
+        history[0] = []
+    else:
+        history = None
+    with pytest.raises(BrowserError, match="contiguous public"):
+        context_policy().request_body(current, history)
+
+
+def test_context_budget_boundary_and_oversized_request_fail_closed():
+    current = observation()
+    with pytest.raises(BrowserError, match="contiguous public"):
+        context_policy(max_steps=1).request_body(current, [public_transition(0, following=current)])
+    history = [public_transition(index, following=current, result={"ok": True, "message": "x" * 4096})
+               for index in range(40)]
+    with pytest.raises(BrowserError, match="request exceeds"):
+        context_policy(max_steps=50).request_body(current, history)
+
+
+def test_context_feedback_resets_only_on_observed_change_not_execution_ok():
+    unchanged, changed = observation(), observation("[7] link 'Actual next page'")
+    history = [public_transition(0, following=unchanged), public_transition(1, following=unchanged)]
+    final = json.loads(context_policy().request_body(unchanged, history)["messages"][-1]["content"])
+    assert final["feedback"]["consecutive_unchanged_observations"] == 1
+    history.append(public_transition(2, following=changed))
+    final = json.loads(context_policy().request_body(changed, history)["messages"][-1]["content"])
+    assert final["feedback"]["consecutive_unchanged_observations"] == 0
+    assert final["feedback"]["consecutive_same_action"] == 3
+    assert final["observation"]["accessibility_text"] == changed.accessibility_text
+
+
+def test_context_body_is_detached_from_history_policy_and_tool_schema():
+    current = observation()
+    history = [public_transition(0, following=current, result={"ok": False, "error": "node_not_visible",
+                                                             "uncertain_effect": False})]
+    original = canonical_json(history)
+    policy = context_policy()
+    body = policy.request_body(current, history)
+    frame = json.loads(body["messages"][3]["content"])
+    assert frame["result"] == history[0]["result"]
+    body["messages"][2]["tool_calls"][0]["function"]["arguments"]["bid"] = "other"
+    body["options"]["temperature"] = 99
+    body["tools"][0]["function"]["name"] = "shell"
+    assert canonical_json(history) == original
+    fresh = policy.request_body(current, history)
+    assert fresh["messages"][2]["tool_calls"][0]["function"]["arguments"]["bid"] == "385"
+    assert fresh["options"]["temperature"] == 0 and fresh["tools"] == browser_tools()
+
+
+@pytest.mark.parametrize("case", ["malformed", "stale", "overflow"])
+async def test_invalid_context_cannot_emit_inference_intent_or_contact_chat(case):
+    policy, events = await policy_with_reply(valid_reply())
+    try:
+        await policy.prepare()
+        current = observation()
+        history = [public_transition(0, following=current)]
+        if case == "malformed":
+            history[0]["result"]["ok"] = 1
+        elif case == "stale":
+            history[0]["observation"]["accessibility_text"] = "stale"
+        else:
+            policy.max_steps = 50
+            history = [public_transition(index, following=current, result={"ok": True, "message": "x" * 4096})
+                       for index in range(40)]
+        with pytest.raises(BrowserError):
+            await policy.decide(current, history)
+        assert [kind for kind, _ in events] == ["policy_prepared"]
+    finally:
+        await policy.close()
+
+
+@pytest.mark.parametrize("template", [None, "", "  ", 1, [], {}])
+async def test_native_template_identity_required_before_prepared_or_chat(template):
+    policy, events = await policy_with_reply(valid_reply(), show_data={"capabilities": ["tools"], "template": template})
+    try:
+        with pytest.raises(BrowserError, match="support native tools"):
+            await policy.prepare()
+        assert policy.prepared_model is None and policy.digest is None and policy.evidence_metadata == {}
+        assert events == []
+    finally:
+        await policy.close()
+
+
 async def test_local_policy_persists_exact_request_and_raw_reply_before_action():
     reply = valid_reply({"bid": "3"}, name="browser_click")
     policy, events = await policy_with_reply(reply)
@@ -78,12 +274,14 @@ async def test_local_policy_persists_exact_request_and_raw_reply_before_action()
         assert [kind for kind, _ in events] == ["policy_prepared", "inference_intent", "inference_result"]
         assert json.loads(base64.b64decode(events[-1][1]["response_body_b64"])) == reply
         request = events[1][1]["request_body"]
-        public = json.loads(request["messages"][1]["content"])
+        public = json.loads(request["messages"][-1]["content"])
         assert "screenshot_artifact_id" not in public["observation"]
         assert public["observation"]["image_not_sent_to_model"] is True
         assert policy.evidence_metadata["model_digest"] == DIGEST
         assert policy.evidence_metadata["training_eligible"] is False
-        assert policy.evidence_metadata["protocol"] == PROTOCOL == "ollama-browser-tools-v2"
+        assert policy.evidence_metadata["protocol"] == PROTOCOL == "ollama-browser-tools-v3"
+        assert policy.evidence_metadata["template_sha256"] == hashlib.sha256(b"test-native-template").hexdigest()
+        assert "test-native-template" not in canonical_json(policy.evidence_metadata)
         assert request["options"] == OPTIONS
         assert request["think"] is False and request["stream"] is False
         assert hashlib.sha256(canonical_json(request).encode()).hexdigest() == events[1][1]["request_sha256"]
@@ -102,6 +300,37 @@ ACTION_CASES = [
     ("wait", {"seconds": 3.0}),
     ("finish", {}),
 ]
+
+
+@pytest.mark.parametrize("kind,arguments", ACTION_CASES)
+def test_normalized_history_maps_all_seven_actions_without_content_suppression(kind, arguments):
+    current = observation()
+    history = [public_transition(0, following=current, action={"kind": kind, **arguments})]
+    body = context_policy().request_body(current, history)
+    assistant, tool = body["messages"][2:4]
+    # Installed template's content OR calls branches require content to be empty.
+    rendered = assistant["content"] if assistant["content"] else assistant["tool_calls"]
+    assert rendered == [{"function": {"name": f"browser_{kind}", "arguments": arguments}}]
+    assert tool["tool_name"] == f"browser_{kind}"
+    assert "kind" not in canonical_json(rendered)
+
+
+@pytest.mark.parametrize("max_steps", [0, 51, True, 1.0, "30", None])
+def test_local_policy_rejects_invalid_budget_before_client_creation(max_steps, monkeypatch):
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: pytest.fail("must validate budget first"))
+    with pytest.raises(BrowserError, match="decision budget"):
+        OllamaBrowserPolicy("qwen3:8b", PROMPT, max_steps=max_steps)
+
+
+def test_factory_passes_exact_episode_budget_without_reference_changes(monkeypatch):
+    from types import SimpleNamespace
+
+    calls = []
+    monkeypatch.setattr("world_engine.browser_policy.OllamaBrowserPolicy",
+                        lambda model, instruction, **kwargs: calls.append((model, instruction, kwargs)))
+    config = BrowserAttemptConfig(task_id="gitlab-issue-close", max_steps=17)
+    create_browser_policy(config, SimpleNamespace(instruction=PROMPT))
+    assert calls == [("qwen3:8b", PROMPT, {"max_steps": 17})]
 
 
 def test_flat_tools_survive_object_properties_required_projection():

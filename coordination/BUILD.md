@@ -4,6 +4,18 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 
 ## Active increments
 
+Current user-requested browser repair is source/diagnostic preparation only.
+Independent read-only reviews reproduced V7's full current AX and valid action
+mapping, but decisions fourteen through thirty sent byte-identical requests
+after the twelve-action window saturated. The first unrelated navigation was a
+model choice; the lossy history omitted post-action observations, absolute steps
+and remaining budget. A versioned generic context correction and a fixed local
+context/model diagnostic are being implemented. Root owns publication and fresh
+physical authorization; engine owns policy/tests, console owns collectors/tests
+and protocol, research independently reviews the frozen diff. Task/grader,
+fixtures, permissions and reference semantics remain unchanged. No new inference
+or paid resource has run, and all prior evidence remains immutable.
+
 V7 source at `9901b26` passed independent whole-source/fingerprint review,
 2,899 root tests with six optional skips, Ruff and publication inspection.
 PR75 passed source CI38182904214 and merged; master `da125ee7` passed
