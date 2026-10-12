@@ -1,8 +1,16 @@
 # World Engine build board
 
-Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery is a bounded local platform, not a production-app replica, cloud execution service or multi-tenant deployment. A local one-update checkpoint is established, but no learning improvement is established. Dated foundation/history below retains its original counts and failures.
+Owner: root for this delivery checkpoint. Updated 2026-10-12. Current delivery is a bounded local platform, not a production-app replica, cloud execution service or multi-tenant deployment. A local one-update checkpoint is established, but no learning improvement is established. Dated foundation/history below retains its original counts and failures.
 
 ## Active increments
+
+User-requested [local learning page](../docs/learning.md): a separate loopback
+server displays operator-reviewed recorded evidence and persists lesson answers
+with revision history. Private lesson content, media and learner state remain
+outside Git. It has no rollout, model, regrading or code-execution integration.
+Lesson 1 covers task, state, observation, action and grading; written reasoning
+awaits conversation rather than an automatic mastery score. This increment
+does not alter the pinned browser runtime or historical attempts.
 
 Latest browser delivery: source PR77 merged as `be805e9` after green CI at
 `3d6c4860`. Its generic v3 context and bounded typed transport preserve exact
