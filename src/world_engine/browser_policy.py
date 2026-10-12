@@ -46,6 +46,7 @@ SYSTEM_PROMPT = (
 OPTIONS = {"temperature": 0, "num_predict": 512, "num_ctx": 16_384}
 REQUEST_LIMIT = 131_072
 RESPONSE_LIMIT = 65_536
+SHOW_RESPONSE_LIMIT = 262_144
 RECORDER = Callable[[str, dict], None]
 PROTOCOL = "ollama-browser-tools-v3"
 ACCESSIBILITY_LIMIT = 32_000
@@ -105,6 +106,7 @@ class OllamaBrowserPolicy:
         self.recorder = recorder
 
     async def _read(self, method: str, path: str, body: bytes | None = None) -> bytes:
+        response_limit = SHOW_RESPONSE_LIMIT if path == "/api/show" else RESPONSE_LIMIT
         headers = {"Accept-Encoding": "identity"}
         if body is not None:
             headers["Content-Type"] = "application/json"
@@ -114,7 +116,7 @@ class OllamaBrowserPolicy:
             async with self.client.stream(method, self.endpoint + path, content=body, headers=headers) as response:
                 status = response.status_code
                 async for chunk in response.aiter_raw():
-                    if len(data) + len(chunk) > RESPONSE_LIMIT:
+                    if len(data) + len(chunk) > response_limit:
                         raise BrowserError("local inference response exceeds its bound")
                     data.extend(chunk)
                 if response.status_code != 200 or response.headers.get("content-encoding", "identity") != "identity":

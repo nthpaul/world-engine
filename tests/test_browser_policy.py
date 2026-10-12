@@ -11,6 +11,8 @@ from world_engine.browser_policy import (
     FULL_HISTORY_OBSERVATIONS,
     OPTIONS,
     PROTOCOL,
+    RESPONSE_LIMIT,
+    SHOW_RESPONSE_LIMIT,
     BrowserReferencePolicy,
     OllamaBrowserPolicy,
     ax_nodes,
@@ -39,6 +41,110 @@ class RawStream(httpx.AsyncByteStream):
 
 def response(value):
     return httpx.Response(200, stream=RawStream(value))
+
+
+class ChunkedBytes(httpx.AsyncByteStream):
+    def __init__(self, raw):
+        self.raw = raw
+
+    async def __aiter__(self):
+        for offset in range(0, len(self.raw), 16_384):
+            yield self.raw[offset:offset + 16_384]
+
+
+def show_body(size):
+    value = {"capabilities": ["completion", "tools"], "template": "t" * 1723, "details": ""}
+    value["details"] = "x" * (size - len(json.dumps(value).encode()))
+    raw = json.dumps(value).encode()
+    assert len(raw) == size
+    return raw
+
+
+@pytest.mark.parametrize("size", [RESPONSE_LIMIT + 1, 75_727, SHOW_RESPONSE_LIMIT])
+async def test_large_show_metadata_prepares_without_chat(size):
+    policy = OllamaBrowserPolicy("qwen3:32b", PROMPT)
+    await policy.client.aclose()
+    paths, events = [], []
+    raw = show_body(size)
+
+    def handler(request):
+        paths.append(request.url.path)
+        assert request.headers["Accept-Encoding"] == "identity"
+        if request.url.path == "/api/tags":
+            return response({"models": [{"name": "qwen3:32b", "digest": DIGEST, "size": 100}]})
+        if request.url.path == "/api/version":
+            return response({"version": "mock-daemon"})
+        assert request.url.path == "/api/show" and request.method == "POST"
+        assert json.loads(request.content) == {"model": "qwen3:32b"}
+        return httpx.Response(200, stream=ChunkedBytes(raw))
+
+    policy.client = httpx.AsyncClient(transport=httpx.MockTransport(handler), trust_env=False)
+    policy.set_recorder(lambda kind, payload: events.append((kind, payload)))
+    try:
+        await policy.prepare()
+        assert paths == ["/api/tags", "/api/version", "/api/show"]
+        assert policy.prepared_model == "qwen3:32b" and policy.digest == DIGEST
+        assert [kind for kind, _ in events] == ["policy_prepared"]
+        assert policy.evidence_metadata["template_sha256"] == hashlib.sha256(("t" * 1723).encode()).hexdigest()
+        assert "details" not in policy.evidence_metadata
+    finally:
+        await policy.close()
+
+
+async def test_show_over_256kib_fails_before_prepared_or_chat():
+    policy = OllamaBrowserPolicy("qwen3:32b", PROMPT)
+    await policy.client.aclose()
+    paths, events = [], []
+
+    def handler(request):
+        paths.append(request.url.path)
+        if request.url.path == "/api/tags":
+            return response({"models": [{"name": "qwen3:32b", "digest": DIGEST, "size": 100}]})
+        if request.url.path == "/api/version":
+            return response({"version": "mock-daemon"})
+        assert request.url.path == "/api/show"
+        return httpx.Response(200, stream=ChunkedBytes(show_body(SHOW_RESPONSE_LIMIT + 1)))
+
+    policy.client = httpx.AsyncClient(transport=httpx.MockTransport(handler), trust_env=False)
+    policy.set_recorder(lambda kind, payload: events.append((kind, payload)))
+    try:
+        with pytest.raises(BrowserError, match="response exceeds its bound"):
+            await policy.prepare()
+        assert paths == ["/api/tags", "/api/version", "/api/show"]
+        assert policy.prepared_model is None and policy.digest is None and policy.evidence_metadata == {}
+        assert not events
+    finally:
+        await policy.close()
+
+
+@pytest.mark.parametrize("path", ["/api/chat", "/api/tags", "/api/version", "/api/show/"])
+@pytest.mark.parametrize("extra", [0, 1])
+async def test_only_exact_show_path_gets_wider_response_allowance(path, extra):
+    assert RESPONSE_LIMIT == 65_536 and SHOW_RESPONSE_LIMIT == 262_144
+    policy = OllamaBrowserPolicy("qwen3:8b", PROMPT)
+    await policy.client.aclose()
+    raw, events = b"x" * (RESPONSE_LIMIT + extra), []
+    policy.client = httpx.AsyncClient(transport=httpx.MockTransport(
+        lambda request: httpx.Response(200, stream=ChunkedBytes(raw))), trust_env=False)
+    policy.set_recorder(lambda kind, payload: events.append((kind, payload)))
+    try:
+        if extra:
+            with pytest.raises(BrowserError, match="response exceeds its bound"):
+                await policy._read("POST" if path == "/api/chat" else "GET", path)
+            if path == "/api/chat":
+                assert events[0][0] == "inference_transport_failure"
+                payload = events[0][1]
+                assert payload["body_bytes"] == RESPONSE_LIMIT
+                assert base64.b64decode(payload["partial_body_b64"]) == raw[:RESPONSE_LIMIT]
+                assert payload["body_sha256"] == hashlib.sha256(raw[:RESPONSE_LIMIT]).hexdigest()
+                assert payload["complete_reply_certified"] is False
+            else:
+                assert not events
+        else:
+            assert await policy._read("POST" if path == "/api/chat" else "GET", path) == raw
+            assert not events
+    finally:
+        await policy.close()
 
 
 async def policy_with_reply(reply, *, model_entry=None, show_data=None):

@@ -125,3 +125,30 @@ truncation, invalid actions and cleanup. Reference footage must not be presented
 as model footage. Source manifests and API startup attestation are distinct.
 Retained private context comes from the project's synthetic GitLab fixture;
 this protocol grants no new rights to external datasets or protected benchmarks.
+
+## Metadata-bound repair and fresh diagnostic v2
+
+The first actual diagnostic collection is retained unchanged as diagnostic-v1.
+Both 8B cells returned the repeated current-node click 385. Preparation of the
+first 32B cell then stopped because its installed `/api/show` response was
+75,727 bytes, above the shared 64 KiB response bound. No 32B chat request was
+sent, and the corrected 32B cell remained unattempted. This is a metadata-bound
+failure, not evidence about the 32B model's browser decision or task ability.
+
+The reviewed repair permits at most 256 KiB only for `/api/show` metadata.
+The 64 KiB response bound above still applies to chat, `/api/tags` and
+`/api/version`; the 128 KiB request bound is unchanged. Metadata is read as
+bounded raw identity-encoded bytes before JSON parsing. Only the selected public
+template hash is retained, not the full template or other installed models.
+The real collector's separate 64 KiB preflight reads `/api/tags`, not `/api/show`;
+its subsequent browser-policy preparation uses the repaired show-only bound.
+
+A separately reviewed source pin owns a fresh diagnostic-v2 directory and the
+future schema-v8 real cohort. Diagnostic-v2 runs the same four-cell matrix from
+the beginning; it does not resume or overwrite diagnostic-v1. Repeated 8B cells
+are declared new samples in a separate collection, not hidden retries or an
+independent population. Options, order, archived context, deadlines, model
+digests, tasks, reference controller, fixtures and grader are unchanged.
+The real cohort has not started at this repair checkpoint. Root must review
+and commit the repair before any new inference, then separately authorize
+collection and restart the API at the same reviewed pin before the real cohort.
