@@ -4,26 +4,53 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 
 ## Active increments
 
-The V7 source-only increment separates owned read-only assignee inspection
-from assignment mutation. Exact accepted Edit and Escape receipts bind their
-original history slots. Only unique direct Selected/All users groups with one
-exact selected account may accommodate omitted offered-account flags, which
-remain unknown. Closure must preserve the prior singleton assignee and exact
-labels; pending waits cannot repeat Escape. Assignment mutation and label
-draft guards, task/grader/fixtures, close/model contracts and fixed budgets
-remain unchanged. Reference and collector identities advance to v7.
+V7 source at `9901b26` passed independent whole-source/fingerprint review,
+2,899 root tests with six optional skips, Ruff and publication inspection.
+PR75 passed source CI38182904214 and merged; master `da125ee7` passed
+CI38183089097. Exact accepted Edit/Escape receipts bind owned read-only
+assignee inspection while preserving singleton assignment and labels. Mutation
+guards, all nine protected pack fingerprints, task/grader/fixtures, close/model
+contracts and fixed budgets remain unchanged. Reference/collector identities
+are v7. Root then separately authorized one fresh fixed physical cohort and
+restarted the API from the immutable reviewed source.
 
-Root passed 2,899 offline tests with six optional skips, Ruff and the default
-no-contact collector plan. Both independent whole-source and fingerprint
-reviews found no actionable issue, each passing an overlapping 923-test suite.
-All 15 changes-required and 13 already-correct original public actions reproduce;
-the next proposed Escape is unexecuted. Nine protected pack fingerprints remain
-unchanged. GitHub CI must pass at the exact committed head before merge.
-Root owns collector/protocol, this board, GitHub and future authorization;
-console owns controller/tests. No physical V7 cohort, inference or tensor work
-is authorized by this source increment. Hypothetical closure tests do not
-establish actual Escape closure or qualify the complete control gate. The
-running API remains at immutable V6 source `0990c549`.
+All five slots completed in 1024.393516 seconds, without retries or tuning.
+Incomplete finished one valid action with reward zero. Changes-required
+`b16376b4-ad24-4c83-8b54-2af311e84809` and already-correct
+`2e3afd89-6f2e-4ca8-8cda-c7710a382217` each finished 15 valid actions with
+reward one; close compatibility finished 14 with reward one. Every positive
+control passed all seven isolated checks. Exact assignment/severity certificates
+and unrelated-record preservation are established for changes-required; actual
+no-op Edit/Escape created no duplicate effects. Existing label-event display
+hydration remains the narrow declared exception, not byte-identical state.
+
+Only after all four controls qualified, cached qwen3:8b ran
+`642ee1fd-0079-4b55-92d7-4978a8142a1a`: 30 valid actions, zero invalid,
+max_steps and reward zero. It clicked New project then repeated that link
+29 times, never reaching the incident. All selected model/incomplete rows
+remain unchanged; their false issue_preservation check also requires the
+target-final-state change and does not imply unrelated damage. The model
+failed the business task; collection completion is not model success.
+
+Independent audits reproduced five original grades, 45 public reference
+decisions and 30 exact public model request/raw-reply pairs. They verified
+1,299 original files, 42 source blobs, 601 raw API pairs, 530 journal records
+and 85 registered media artifacts; all V1--V6 originals remain unchanged.
+GET-only console QA passed 42/42/41/57 checks, with 44 desktop/mobile
+screenshots, advancing desktop playback and eight full video decodes.
+Mobile playback remains unqualified; full-page navigation compositing and
+issue_preservation's ambiguous diagnostic text are retained limitations.
+Reference footage is not model footage. All five cleanups completed, with no
+reconciliation. Root confirmed idle admission, empty owned Docker inventories,
+and preservation of 22 prior browser rows/347 files plus the legacy store.
+
+The fixed selected-state gate is qualified, not full application fidelity,
+security certification, customer-quality reasoning or useful learning. Startup
+and sealing dominate recorded local phase totals; no optimization/concurrency
+claim is made. Browser evidence remains evaluation-only/nontrainable. Root owns
+this results-only publication and future authorization. No third training,
+model download, account, cloud resource or spending is active. All historical
+failures and source-only handoffs remain scoped to their dated revisions.
 
 V6 source at `0990c549` passed independent whole-source and fingerprint review,
 2,837 root local tests with six optional skips, Ruff and publication inspection.
