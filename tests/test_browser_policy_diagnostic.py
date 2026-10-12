@@ -339,3 +339,43 @@ def test_reply_identity_drift_retains_raw_and_stops(tmp_path, monkeypatch):
     assert (output / "archived-8b/response.bin").read_bytes() == reply()
     assert "classification" not in report["cells"][0]
     assert all(cell["status"] == "unattempted" for cell in report["cells"][1:])
+
+
+@pytest.mark.parametrize("mutation", [None, {"model": "other-model"}, {"model": None},
+                                      {"remote_host": "remote.invalid"}, {"remote_model": "cloud-model"}])
+def test_reply_identity_mismatch_preserves_raw_and_stops_later_cells(tmp_path, monkeypatch, mutation):
+    fake_collection(monkeypatch)
+    raw_data = json.loads(reply())
+    if mutation is None:
+        del raw_data["model"]
+    else:
+        raw_data.update(mutation)
+    raw = json.dumps(raw_data).encode()
+    calls = []
+
+    async def read(self, method, path, encoded):
+        calls.append(encoded)
+        return raw
+
+    monkeypatch.setattr(DIAG.OllamaBrowserPolicy, "_read", read)
+    output = tmp_path / "out"
+    report = asyncio.run(DIAG.collect(output, "a" * 40, "private-input"))
+    assert report["status"] == "stopped" and report["chat_attempts"] == len(calls) == 1
+    assert report["cells"][0]["status"] == "failed"
+    assert (output / "archived-8b/response.bin").read_bytes() == raw
+    assert report["cells"][0]["response_sha256"] == DIAG.sha(raw)
+    assert "classification" not in report["cells"][0]
+    assert all(cell["status"] == "unattempted" for cell in report["cells"][1:])
+
+
+def test_complete_invalid_action_keeps_fixed_cells_without_identity_bypass(tmp_path, monkeypatch):
+    fake_collection(monkeypatch)
+
+    async def read(self, method, path, encoded):
+        return json.dumps({"model": self.model, "done": True, "done_reason": "stop",
+                           "message": {"role": "assistant", "tool_calls": []}}).encode()
+
+    monkeypatch.setattr(DIAG.OllamaBrowserPolicy, "_read", read)
+    report = asyncio.run(DIAG.collect(tmp_path / "out", "a" * 40, "private-input"))
+    assert report["status"] == "completed" and report["chat_attempts"] == 4
+    assert all(cell["classification"] == "invalid_response" for cell in report["cells"])

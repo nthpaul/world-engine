@@ -193,6 +193,15 @@ def classify(raw, model, observation):
         return {"classification": "invalid_response", "token_usage_complete": False}
 
 
+def require_reply_identity(raw, model):
+    try:
+        data = strict_json(raw)
+    except (ValueError, TypeError, RecursionError):
+        return  # Malformed complete replies are recorded diagnostic outcomes.
+    if type(data) is dict and (data.get("model") != model or data.get("remote_host") or data.get("remote_model")):
+        raise ValueError("reply cannot certify the fixed local model identity")
+
+
 async def collect(output, revision, input_path):
     output = reserve_output(output)
     report = {**plan(), "status": "started", "chat_attempts": 0,
@@ -255,6 +264,7 @@ async def collect(output, revision, input_path):
                     raw = await policy._read("POST", "/api/chat", encoded)
                     write(output, directory / "response.bin", raw, limit=LIMIT)
                     cell.update(response_bytes=len(raw), response_sha256=sha(raw))
+                    require_reply_identity(raw, model)
                     if await policy._model_identity(model) != MODELS[model]:
                         raise ValueError("fixed local identity changed after chat")
                     cell.update(classify(raw, model, context["observation"]), status="completed")

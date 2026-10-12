@@ -744,14 +744,22 @@ function ObservationPane({
         <details className="browser-ax">
           <summary>
             <FileText size={15} />
-            Recorded model user context{" "}
+            {modelInput.kind === "v3"
+              ? "Recorded model request"
+              : "Recorded model user context"}{" "}
             <span>
               {modelInput.observation.accessibility_truncated
                 ? "AX truncated"
                 : "AX untruncated"}
             </span>
           </summary>
-          <Json value={modelInput} />
+          <Json
+            value={
+              modelInput.kind === "v3"
+                ? modelInput.requestBody
+                : modelInput.context
+            }
+          />
         </details>
       ) : (
         <p className="browser-no-model-input">

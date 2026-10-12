@@ -204,7 +204,45 @@ const recordedInputSchema = z
     history: z.array(z.record(z.unknown())),
   })
   .passthrough();
-export function recordedModelInput(detail: BrowserDetail, sequence: number) {
+const recordedRequestShape = z
+  .object({
+    messages: z.array(
+      z.object({ role: z.string(), content: z.string() }).passthrough(),
+    ),
+  })
+  .passthrough();
+// Validate without rebuilding the recorded request's message or property order.
+const recordedRequestSchema = z.custom<z.infer<typeof recordedRequestShape>>(
+  (value) => recordedRequestShape.safeParse(value).success,
+);
+const recordedV3ContextSchema = z
+  .object({
+    observation: recordedInputSchema.shape.observation.extend({
+      accessibility_sha256: digest,
+      accessibility_chars: z.number().int().nonnegative(),
+      accessibility_omitted: z.literal(false),
+    }),
+    next_step: z.number().int().nonnegative(),
+    remaining_actions: z.number().int().nonnegative(),
+    feedback: z.record(z.unknown()),
+  })
+  .passthrough();
+export type RecordedModelInput =
+  | {
+      kind: "v2";
+      context: z.infer<typeof recordedInputSchema>;
+      observation: z.infer<typeof recordedInputSchema>["observation"];
+    }
+  | {
+      kind: "v3";
+      requestBody: z.infer<typeof recordedRequestSchema>;
+      observation: z.infer<typeof recordedV3ContextSchema>["observation"];
+    };
+
+export function recordedModelInput(
+  detail: BrowserDetail,
+  sequence: number,
+): RecordedModelInput | null {
   const nextObservation = detail.journal.find(
     (entry) => entry.event === "observation" && entry.sequence > sequence,
   );
@@ -216,19 +254,30 @@ export function recordedModelInput(detail: BrowserDetail, sequence: number) {
   );
   const envelope = z
     .object({
-      request_body: z.object({
-        messages: z.array(z.object({ role: z.string(), content: z.string() })),
-      }),
+      request_body: recordedRequestSchema,
     })
     .safeParse(intent?.data);
-  const message = envelope.success
-    ? envelope.data.request_body.messages.find((entry) => entry.role === "user")
-    : undefined;
+  if (!envelope.success) return null;
+  const requestBody = envelope.data.request_body;
+  const message = requestBody.messages.find((entry) => entry.role === "user");
   if (!message) return null;
   try {
     const content: unknown = JSON.parse(message.content);
     const parsed = recordedInputSchema.safeParse(content);
-    return parsed.success ? parsed.data : null;
+    if (parsed.success)
+      return {
+        kind: "v2",
+        context: parsed.data,
+        observation: parsed.data.observation,
+      };
+    if (!z.object({ task: z.string() }).safeParse(content).success) return null;
+    const current = requestBody.messages.at(-1);
+    if (current?.role !== "user") return null;
+    const finalContent: unknown = JSON.parse(current.content);
+    const final = recordedV3ContextSchema.safeParse(finalContent);
+    return final.success
+      ? { kind: "v3", requestBody, observation: final.data.observation }
+      : null;
   } catch {
     return null;
   }
