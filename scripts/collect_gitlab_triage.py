@@ -20,6 +20,10 @@ from world_engine.gitlab_taskpacks import make_browser_task
 ROOT = Path(__file__).resolve().parents[1]
 API = "http://127.0.0.1:8000"
 MODEL_DIGEST = "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41"
+MODELS = {"qwen3:8b": MODEL_DIGEST,
+          "qwen3:32b": "030ee887880fc378860c2dd35101da424377520441ae4bfe7be6deff8ade7840",
+          "qwen3:30b-a3b": "0b28110b7a3364296d5cef609095537189fbb81547761de69fd22dd68d2166c2"}
+POLICY_PROTOCOL = "ollama-browser-tools-v3"
 LIMIT = 640 * 1024 * 1024
 TERMINAL = {"completed", "failed", "cancelled", "interrupted"}
 SLOTS = (
@@ -35,11 +39,14 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def plan():
-    return {"schema": "world-engine.triage-qualification.v7", "slots": SLOTS, "model": "qwen3:8b",
-            "model_digest": MODEL_DIGEST, "automatic_retries": 0, "paid_calls": False,
+def plan(model="qwen3:8b"):
+    if model not in MODELS:
+        raise ValueError("only the three fixed public local models are allowed")
+    return {"schema": "world-engine.triage-qualification.v9", "slots": SLOTS, "model": model,
+            "model_digest": MODELS[model], "automatic_retries": 0, "paid_calls": False,
             "reference_protocol": "public-ax-triage-control-v7",
-            "policy_protocol": PROTOCOL, "generation_options": dict(OPTIONS), "think": False,
+            "policy_protocol": POLICY_PROTOCOL, "generation_options": dict(OPTIONS), "think": False,
+            "model_transport_timeouts_seconds": {"connect": 10, "write": 10, "pool": 10, "read": 180},
             "max_total_seconds": 6000, "max_artifact_bytes": LIMIT, "evaluation_only": True,
             "training_eligible": False, "model_requires_explicit_flag_and_qualified_controls": True}
 
@@ -49,7 +56,9 @@ def source_identity(revision):
         raise ValueError("a reviewed full source revision is required")
     actual = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     scope = ["src/world_engine", "pyproject.toml", "uv.lock", "scripts/collect_gitlab_triage.py",
-             "tests/test_gitlab_triage_collector.py", "docs/gitlab-triage-protocol.md"]
+             "tests/test_gitlab_triage_collector.py", "docs/gitlab-triage-protocol.md",
+             "scripts/diagnose_browser_policy.py", "tests/test_browser_policy_diagnostic.py",
+             "docs/gitlab-model-loop-protocol.md"]
     changed = subprocess.check_output(["git", "status", "--porcelain", "--", *scope], cwd=ROOT, text=True)
     if actual != revision or changed:
         raise RuntimeError("qualification requires pinned clean implementation and protocol")
@@ -73,9 +82,10 @@ def reserve_output(output):
     return output
 
 
-def write(output, path, raw):
+def write(output, path, raw, *, limit=None):
+    limit = LIMIT if limit is None else limit
     used = sum(item.stat().st_size for item in output.rglob("*") if item.is_file())
-    allowed = LIMIT if path == output / "report.json" else LIMIT - 1024 * 1024
+    allowed = limit if path == output / "report.json" else limit - 1024 * 1024
     if used + len(raw) > allowed:
         raise RuntimeError("qualification artifact byte cap reached")
     path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -122,7 +132,7 @@ class Api:
         return json.loads(self.request(method, path, payload))
 
 
-def validate_attempt(attempt, spec, source):
+def validate_attempt(attempt, spec, source, model="qwen3:8b"):
     expected = make_browser_task(spec["task_id"], spec["seed"]).model_dump()
     if attempt["task"] != expected:
         raise RuntimeError("attempt manifest does not match the fixed task")
@@ -131,7 +141,7 @@ def validate_attempt(attempt, spec, source):
             or provenance["controller_modules"] != source["controller_modules"]):
         raise RuntimeError("API runtime source differs from reviewed collector pin")
     wanted = {key: value for key, value in spec.items() if key != "name"}
-    wanted["model"] = "qwen3:8b"
+    wanted["model"] = model
     if attempt["config"] != wanted:
         raise RuntimeError("attempt configuration differs from fixed slot")
 
@@ -152,13 +162,16 @@ def controls_qualified(results, *, complete=True):
     return True
 
 
-def validate_policy_identity(attempt, spec):
+def validate_policy_identity(attempt, spec, model="qwen3:8b"):
     prepared = [entry["data"] for entry in attempt["journal"] if entry["event"] == "policy_prepared"]
     if len(prepared) != 1:
         raise RuntimeError("one prepared policy identity is required; raw attempt retained")
     if spec["provider_id"] == "local-browser":
-        if (prepared[0].get("model_digest") != MODEL_DIGEST
-                or prepared[0].get("protocol") != PROTOCOL or prepared[0].get("options") != OPTIONS):
+        if (prepared[0].get("model_digest") != MODELS[model]
+                or prepared[0].get("protocol") != POLICY_PROTOCOL or prepared[0].get("options") != OPTIONS
+                or prepared[0].get("declared_episode_timeout_seconds") != spec["timeout_seconds"]
+                or prepared[0].get("transport_timeouts_seconds") != {"connect": 10, "write": 10, "pool": 10, "read": 180}
+                or not re.fullmatch(r"[0-9a-f]{64}", prepared[0].get("template_sha256", ""))):
             raise RuntimeError("observed model identity differs; raw attempt retained")
     else:
         expected = {"protocol": "public-ax-triage-control-v7" if spec["task_id"] == "gitlab-incident-triage"
@@ -169,7 +182,7 @@ def validate_policy_identity(attempt, spec):
             raise RuntimeError("observed control identity differs; raw attempt retained")
 
 
-def model_preflight():
+def model_preflight(model="qwen3:8b"):
     # Only selected public identity is used; no daemon catalogue or other model names are saved.
     with httpx.Client(timeout=10, trust_env=False, follow_redirects=False) as client:
         with client.stream("GET", "http://127.0.0.1:11434/api/tags", headers={"Accept-Encoding": "identity"}) as response:
@@ -181,23 +194,26 @@ def model_preflight():
             if response.status_code != 200 or response.headers.get("content-encoding", "identity") != "identity":
                 raise RuntimeError("local model identity preflight failed")
         entries = json.loads(raw)["models"]
-        matches = [item for item in entries if item.get("name") == "qwen3:8b"]
-        if (len(matches) != 1 or matches[0].get("digest") != MODEL_DIGEST
+        matches = [item for item in entries if item.get("name") == model]
+        if (len(matches) != 1 or matches[0].get("digest") != MODELS[model]
                 or matches[0].get("remote_host") or matches[0].get("remote_model")):
             raise RuntimeError("fixed public local model identity differs")
 
 
-def collect(output, revision, startup_revision, include_model=False):
+def collect(output, revision, startup_revision, include_model=False, model="qwen3:8b"):
+    protocol = plan(model)
     output = reserve_output(output)
-    report = {**plan(), "slots": [{"name": spec["name"], "status": "unattempted"} for spec in SLOTS],
+    report = {**protocol, "slots": [{"name": spec["name"], "status": "unattempted"} for spec in SLOTS],
               "results": [], "status": "started", "api_startup_revision_attestation": startup_revision}
     started = time.monotonic()
     try:
         source = source_identity(revision)
+        if PROTOCOL != POLICY_PROTOCOL:
+            raise RuntimeError("v9 collection requires the reviewed v3 browser policy")
         if startup_revision != revision:
             raise ValueError("operator API startup attestation must match source pin")
         report["source"] = source
-        save(output, output / "protocol.json", plan())
+        save(output, output / "protocol.json", protocol)
         with httpx.Client(timeout=30, trust_env=False, follow_redirects=False) as client:
             api = Api(client, output, started + 6000)
             health = api.json("GET", "/api/health")
@@ -211,20 +227,20 @@ def collect(output, revision, startup_revision, include_model=False):
                         break
                     if not controls_qualified(report["results"]):
                         raise RuntimeError("all controls must qualify before the optional model slot")
-                    model_preflight()
+                    model_preflight(model)
                 if source_identity(revision) != source:
                     raise RuntimeError("source drift; later slots remain unattempted")
                 if time.monotonic() - started > 4400:
                     raise RuntimeError("insufficient aggregate time for next attempt")
                 directory = output / spec["name"]
                 config = {key: value for key, value in spec.items() if key != "name"}
-                config["model"] = "qwen3:8b"
+                config["model"] = model
                 slot = report["slots"][index]
                 save(output, directory / "submission-intent.json", config)
                 slot["status"] = "submission_started"
                 attempt = api.json("POST", "/api/browser/attempts", config)
                 slot.update(status="submitted", id=attempt["id"])
-                validate_attempt(attempt, spec, source)
+                validate_attempt(attempt, spec, source, model)
                 deadline = min(started + 6000, time.monotonic() + 1600)
                 while attempt["status"] not in TERMINAL:
                     if time.monotonic() >= deadline:
@@ -236,7 +252,7 @@ def collect(output, revision, startup_revision, include_model=False):
                 raw = api.request("GET", f"/api/browser/attempts/{slot['id']}")
                 write(output, directory / "attempt.json", raw)
                 attempt = json.loads(raw)
-                validate_attempt(attempt, spec, source)
+                validate_attempt(attempt, spec, source, model)
                 slot["status"] = "terminal"
                 report["results"].append({key: attempt[key] for key in ("id", "status", "termination", "steps",
                     "invalid_actions", "passed", "reward", "outcome", "cleanup", "reconciliation_required", "phase_seconds", "elapsed_seconds")})
@@ -251,7 +267,7 @@ def collect(output, revision, startup_revision, include_model=False):
                     if len(body) != artifact["size_bytes"] or sha(body) != artifact["sha256"]:
                         raise RuntimeError("artifact integrity differs")
                     write(output, directory / relative, body)
-                validate_policy_identity(attempt, spec)
+                validate_policy_identity(attempt, spec, model)
                 if index < 4 and not controls_qualified(report["results"], complete=False):
                     raise RuntimeError("control qualification failed; no retry or later attempts")
         if source_identity(revision) != source:
@@ -272,13 +288,14 @@ def main():
     parser.add_argument("--source-revision")
     parser.add_argument("--api-startup-revision")
     parser.add_argument("--include-model", action="store_true")
+    parser.add_argument("--model", choices=tuple(MODELS), default="qwen3:8b")
     args = parser.parse_args()
     if not args.collect:
-        print(json.dumps(plan(), indent=2))
+        print(json.dumps(plan(args.model), indent=2))
         return
     if args.output is None or args.source_revision is None or args.api_startup_revision is None:
         parser.error("collection requires fresh --output and both reviewed revision pins")
-    report = collect(args.output, args.source_revision, args.api_startup_revision, args.include_model)
+    report = collect(args.output, args.source_revision, args.api_startup_revision, args.include_model, args.model)
     print(json.dumps({"status": report["status"], "attempted": len(report["results"])}))
     if report["status"] != "completed":
         raise SystemExit(1)

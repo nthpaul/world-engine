@@ -156,7 +156,97 @@ try {
   }));
   const detail = { ...summary, journal, artifacts };
   assert.equal(boundary.browserDetailSchema.safeParse(detail).success, true);
-  assert.deepEqual(boundary.recordedModelInput(detail, 1), modelInput);
+  assert.deepEqual(boundary.recordedModelInput(detail, 1), {
+    kind: "v2",
+    context: modelInput,
+    observation: modelInput.observation,
+  });
+  const v3Context = {
+    observation: {
+      ...modelInput.observation,
+      accessibility_sha256: hash,
+      accessibility_chars: initial.accessibility_text.length,
+      accessibility_omitted: false,
+    },
+    next_step: 1,
+    remaining_actions: 29,
+    feedback: {
+      consecutive_same_action: 1,
+      consecutive_unchanged_observations: 0,
+      first_action_transition_known: false,
+      ok_means: "execution_only_not_task_progress",
+    },
+  };
+  const v3RequestBody = {
+    model: "qwen3:32b",
+    messages: [
+      { role: "system", content: "Generic browser policy context" },
+      { role: "user", content: JSON.stringify({ task: task.instruction }) },
+      {
+        role: "assistant",
+        content: "",
+        tool_calls: [
+          { function: { name: "browser_click", arguments: { bid: "1" } } },
+        ],
+      },
+      {
+        role: "tool",
+        tool_name: "browser_click",
+        content: JSON.stringify({
+          completed_step: 0,
+          result: { ok: true },
+          observation: {
+            url: initial.url,
+            title: initial.title,
+            accessibility_sha256: hash,
+            accessibility_chars: initial.accessibility_text.length,
+            accessibility_omitted: true,
+            observation_mode: "AX",
+            image_not_sent_to_model: true,
+          },
+        }),
+      },
+      { role: "user", content: JSON.stringify(v3Context) },
+    ],
+    tools: [{ type: "function", function: { name: "browser_click" } }],
+    options: { temperature: 0, num_predict: 512, num_ctx: 16384 },
+    stream: false,
+    think: false,
+    keep_alive: "5m",
+  };
+  const withRequest = (requestBody) => ({
+    ...detail,
+    journal: journal.map((entry) =>
+      entry.event === "inference_intent"
+        ? { ...entry, data: { ...entry.data, request_body: requestBody } }
+        : entry,
+    ),
+  });
+  const v3Detail = {
+    ...withRequest(v3RequestBody),
+    config: { ...config, model: "qwen3:32b" },
+  };
+  const requestBefore = JSON.stringify(v3RequestBody);
+  const parsedV3 = boundary.recordedModelInput(v3Detail, 1);
+  assert.deepEqual(parsedV3, {
+    kind: "v3",
+    requestBody: v3RequestBody,
+    observation: v3Context.observation,
+  });
+  assert.equal(JSON.stringify(parsedV3.requestBody), requestBefore);
+  assert.equal(JSON.stringify(v3RequestBody), requestBefore, "no request rewriting");
+  assert.equal(boundary.recordedModelInput(v3Detail, 5), null);
+  for (const content of [
+    {},
+    { ...v3Context, observation: { ...v3Context.observation, image_not_sent_to_model: false } },
+    { ...v3Context, observation: { ...v3Context.observation, accessibility_text: undefined } },
+    { ...v3Context, next_step: "1" },
+    { ...v3Context, remaining_actions: -1 },
+  ]) {
+    const malformed = structuredClone(v3RequestBody);
+    malformed.messages[malformed.messages.length - 1].content = JSON.stringify(content);
+    assert.equal(boundary.recordedModelInput(withRequest(malformed), 1), null);
+  }
   assert.equal(
     boundary.recordedModelInput(detail, 5),
     null,
@@ -419,6 +509,20 @@ try {
       name: /Captured browser screen at event 1/,
     });
     assert.ok((await image.getAttribute("src")).endsWith("/frames/000.png"));
+    current = structuredClone(v3Detail);
+    await page.reload();
+    await page
+      .getByRole("button", { name: "Previous browser observation", exact: true })
+      .click();
+    const requestPanel = page.locator("details.browser-ax").filter({
+      has: page.getByText("Recorded model request", { exact: false }),
+    });
+    await requestPanel.locator("summary").click();
+    assert.deepEqual(
+      JSON.parse(await requestPanel.locator("pre").innerText()),
+      v3RequestBody,
+      "render all recorded messages, tool calls, results and current context",
+    );
     await page.getByRole("tab", { name: "Browser", exact: true }).focus();
     await page.keyboard.press("ArrowRight");
     assert.equal(

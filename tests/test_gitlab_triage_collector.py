@@ -22,10 +22,13 @@ def test_default_plan_no_contacts(monkeypatch, capsys):
     monkeypatch.setattr(COLLECTOR, "collect", lambda *args: pytest.fail("default plan collected"))
     COLLECTOR.main()
     plan = json.loads(capsys.readouterr().out)
-    assert plan["schema"] == "world-engine.triage-qualification.v7"
+    assert plan["schema"] == "world-engine.triage-qualification.v9"
+    assert plan["policy_protocol"] == "ollama-browser-tools-v3"
     assert plan["reference_protocol"] == "public-ax-triage-control-v7"
     assert [slot["seed"] for slot in plan["slots"]] == [42, 42, 43, 42, 42]
     assert plan["training_eligible"] is False and plan["automatic_retries"] == 0
+    assert plan["model"] == "qwen3:8b"
+    assert plan["model_transport_timeouts_seconds"] == {"connect": 10, "write": 10, "pool": 10, "read": 180}
 
 
 @pytest.mark.parametrize("kind", ["file", "directory", "live", "dangling"])
@@ -133,8 +136,9 @@ def test_pinned_api_manifest_and_source_identity():
 def test_fixed_fake_cohort_and_failure_stop(tmp_path, monkeypatch, include_model, failed_slot):
     source = {"git_revision": "a" * 40, "files": {}, "controller_modules": {}}
     monkeypatch.setattr(COLLECTOR, "source_identity", lambda revision: source)
+    monkeypatch.setattr(COLLECTOR, "PROTOCOL", COLLECTOR.POLICY_PROTOCOL)
     preflights = []
-    monkeypatch.setattr(COLLECTOR, "model_preflight", lambda: preflights.append(True))
+    monkeypatch.setattr(COLLECTOR, "model_preflight", lambda model: preflights.append(model))
     posts = []
 
     class FakeApi:
@@ -159,8 +163,10 @@ def test_fixed_fake_cohort_and_failure_stop(tmp_path, monkeypatch, include_model
                     "config": posts[index], "artifacts": [],
                     "provenance": {"source_git_revision": "a" * 40, "source_dirty": False, "controller_modules": {}},
                     "journal": [{"event": "policy_prepared", "data":
-                        {"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.PROTOCOL,
-                         "options": COLLECTOR.OPTIONS} if index == 4 else
+                        {"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.POLICY_PROTOCOL,
+                         "options": COLLECTOR.OPTIONS, "template_sha256": "c" * 64,
+                         "declared_episode_timeout_seconds": 600,
+                         "transport_timeouts_seconds": {"connect": 10, "write": 10, "pool": 10, "read": 180}} if index == 4 else
                         {"protocol": "public-ax-triage-control-v7" if index < 3 else "public-ax-browser-control-v1",
                          "scripted_control": True, "capability_measurement": False,
                          "baseline": index == 0, "training_eligible": False}}]}
@@ -184,8 +190,10 @@ def test_fixed_fake_cohort_and_failure_stop(tmp_path, monkeypatch, include_model
 @pytest.mark.parametrize("corruption", ["missing", "duplicate", "protocol", "eligibility"])
 def test_prepared_policy_identity_rejects_drift(index, corruption):
     spec = COLLECTOR.SLOTS[index]
-    metadata = ({"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.PROTOCOL,
-                 "options": COLLECTOR.OPTIONS} if index == 4 else
+    metadata = ({"model_digest": COLLECTOR.MODEL_DIGEST, "protocol": COLLECTOR.POLICY_PROTOCOL,
+                 "options": COLLECTOR.OPTIONS, "template_sha256": "c" * 64,
+                 "declared_episode_timeout_seconds": 600,
+                 "transport_timeouts_seconds": {"connect": 10, "write": 10, "pool": 10, "read": 180}} if index == 4 else
                 {"protocol": "public-ax-triage-control-v7" if index < 3 else "public-ax-browser-control-v1",
                  "scripted_control": True, "capability_measurement": False,
                  "baseline": index == 0, "training_eligible": False})
@@ -217,3 +225,87 @@ def test_historical_control_identity_cannot_qualify_v7(index, protocol):
     attempt = {"journal": [{"event": "policy_prepared", "data": metadata}]}
     with pytest.raises(RuntimeError, match="identity"):
         COLLECTOR.validate_policy_identity(attempt, spec)
+
+
+@pytest.mark.parametrize("model", ["qwen3:8b", "qwen3:32b", "qwen3:30b-a3b"])
+def test_explicit_public_model_plan_and_fixed_limits(model):
+    protocol = COLLECTOR.plan(model)
+    assert protocol["model_digest"] == COLLECTOR.MODELS[model]
+    assert protocol["schema"] == "world-engine.triage-qualification.v9"
+    assert protocol["slots"][-1]["max_steps"] == 30
+    assert protocol["slots"][-1]["timeout_seconds"] == 600
+    assert protocol["reference_protocol"] == "public-ax-triage-control-v7"
+    with pytest.raises(ValueError):
+        COLLECTOR.plan("private-model")
+
+
+def test_v9_rejects_archived_runtime_before_contact(tmp_path, monkeypatch):
+    monkeypatch.setattr(COLLECTOR, "source_identity", lambda revision: {})
+    monkeypatch.setattr(COLLECTOR, "PROTOCOL", "ollama-browser-tools-v2")
+    monkeypatch.setattr(COLLECTOR.httpx, "Client", lambda *args, **kwargs: pytest.fail("HTTP contact"))
+    result = COLLECTOR.collect(tmp_path / "new", "a" * 40, "a" * 40, True, "qwen3:32b")
+    assert result["status"] == "stopped"
+    assert not result["results"]
+
+
+@pytest.mark.parametrize("model", ["qwen3:32b", "qwen3:30b-a3b"])
+def test_large_model_identity_does_not_accept_small_or_unhashed_template(model):
+    spec = COLLECTOR.SLOTS[-1]
+    metadata = {"model_digest": COLLECTOR.MODELS[model],
+                "protocol": COLLECTOR.POLICY_PROTOCOL, "options": COLLECTOR.OPTIONS,
+                "template_sha256": "c" * 64, "declared_episode_timeout_seconds": 600,
+                "transport_timeouts_seconds": {"connect": 10, "write": 10, "pool": 10, "read": 180}}
+    attempt = {"journal": [{"event": "policy_prepared", "data": metadata}]}
+    COLLECTOR.validate_policy_identity(attempt, spec, model)
+    metadata["model_digest"] = COLLECTOR.MODEL_DIGEST
+    with pytest.raises(RuntimeError):
+        COLLECTOR.validate_policy_identity(attempt, spec, model)
+    metadata["model_digest"] = COLLECTOR.MODELS[model]
+    del metadata["template_sha256"]
+    with pytest.raises(RuntimeError):
+        COLLECTOR.validate_policy_identity(attempt, spec, model)
+
+
+@pytest.mark.parametrize("field,value", [
+    ("declared_episode_timeout_seconds", None), ("declared_episode_timeout_seconds", 180),
+    ("transport_timeouts_seconds", None),
+    ("transport_timeouts_seconds", {"connect": 90, "write": 90, "pool": 90, "read": 90}),
+    ("transport_timeouts_seconds", {"connect": 10, "write": 10, "pool": 10, "read": 600}),
+    ("transport_timeouts_seconds", {"connect": 10, "write": 10, "pool": 10, "read": 180, "total": 600}),
+])
+def test_v9_requires_explicit_reviewed_transport_identity(field, value):
+    metadata = {"model_digest": COLLECTOR.MODELS["qwen3:30b-a3b"],
+                "protocol": COLLECTOR.POLICY_PROTOCOL, "options": COLLECTOR.OPTIONS,
+                "template_sha256": "c" * 64, "declared_episode_timeout_seconds": 600,
+                "transport_timeouts_seconds": {"connect": 10, "write": 10, "pool": 10, "read": 180}}
+    metadata[field] = value
+    with pytest.raises(RuntimeError, match="identity"):
+        COLLECTOR.validate_policy_identity({"journal": [{"event": "policy_prepared", "data": metadata}]},
+                                          COLLECTOR.SLOTS[-1], "qwen3:30b-a3b")
+
+
+@pytest.mark.parametrize("corruption", [None, "digest", "remote", "duplicate", "missing"])
+def test_moe_preflight_uses_only_fixed_public_local_digest(corruption, monkeypatch):
+    model = "qwen3:30b-a3b"
+    entry = {"name": model, "digest": "0b28110b7a3364296d5cef609095537189fbb81547761de69fd22dd68d2166c2"}
+    if corruption == "digest":
+        entry["digest"] = "a" * 64
+    if corruption == "remote":
+        entry["remote_host"] = "https://example.invalid"
+    entries = [] if corruption == "missing" else [entry] * (2 if corruption == "duplicate" else 1)
+    calls = []
+
+    def handler(request):
+        calls.append(str(request.url))
+        assert request.method == "GET" and request.headers["Accept-Encoding"] == "identity"
+        return httpx.Response(200, stream=httpx.ByteStream(json.dumps({"models": entries}).encode()))
+
+    client_class = httpx.Client
+    monkeypatch.setattr(COLLECTOR.httpx, "Client", lambda **kwargs: client_class(
+        transport=httpx.MockTransport(handler), **kwargs))
+    if corruption:
+        with pytest.raises(RuntimeError, match="identity differs"):
+            COLLECTOR.model_preflight(model)
+    else:
+        COLLECTOR.model_preflight(model)
+    assert calls == ["http://127.0.0.1:11434/api/tags"]
