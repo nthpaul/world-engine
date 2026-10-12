@@ -1,6 +1,8 @@
+import asyncio
 import base64
 import hashlib
 import json
+from types import SimpleNamespace
 
 import httpx
 import pytest
@@ -428,15 +430,154 @@ def test_local_policy_rejects_invalid_budget_before_client_creation(max_steps, m
         OllamaBrowserPolicy("qwen3:8b", PROMPT, max_steps=max_steps)
 
 
-def test_factory_passes_exact_episode_budget_without_reference_changes(monkeypatch):
-    from types import SimpleNamespace
-
+@pytest.mark.parametrize("timeout_seconds", [30, 180, 600])
+def test_factory_passes_exact_episode_budget_without_reference_changes(monkeypatch, timeout_seconds):
     calls = []
     monkeypatch.setattr("world_engine.browser_policy.OllamaBrowserPolicy",
                         lambda model, instruction, **kwargs: calls.append((model, instruction, kwargs)))
-    config = BrowserAttemptConfig(task_id="gitlab-issue-close", max_steps=17)
+    config = BrowserAttemptConfig(task_id="gitlab-issue-close", max_steps=17, timeout_seconds=timeout_seconds)
     create_browser_policy(config, SimpleNamespace(instruction=PROMPT))
-    assert calls == [("qwen3:8b", PROMPT, {"max_steps": 17})]
+    assert calls == [("qwen3:8b", PROMPT, {"max_steps": 17, "timeout_seconds": timeout_seconds})]
+
+
+@pytest.mark.parametrize("timeout_seconds", [29, 601, True, 180.0, "180", None])
+def test_invalid_transport_budget_rejected_before_endpoint_or_client(timeout_seconds, monkeypatch):
+    monkeypatch.setattr("world_engine.browser_policy.local_endpoint", lambda: pytest.fail("endpoint inspected"))
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: pytest.fail("client created"))
+    with pytest.raises(BrowserError, match="episode timeout"):
+        OllamaBrowserPolicy("qwen3:8b", PROMPT, timeout_seconds=timeout_seconds)
+
+
+@pytest.mark.parametrize("timeout_seconds", [30, 179, 180, 181, 600])
+async def test_transport_limits_bound_phases_without_changing_v3_request(timeout_seconds):
+    policy = OllamaBrowserPolicy("qwen3:8b", PROMPT, timeout_seconds=timeout_seconds)
+    try:
+        assert policy.client.timeout.as_dict() == {
+            "connect": 10, "write": 10, "pool": 10, "read": min(timeout_seconds, 180)}
+        policy.prepared_model = "qwen3:8b"
+        current, history = observation(), [public_transition(0, following=observation())]
+        assert canonical_json(policy.request_body(current, history)) == canonical_json(
+            context_policy().request_body(current, history))
+    finally:
+        await policy.close()
+
+
+async def test_direct_constructor_default_and_prepared_metadata_report_actual_client_limits():
+    policy, events = await policy_with_reply(valid_reply())
+    try:
+        assert policy.timeout_seconds == 180
+        await policy.prepare()
+        metadata = events[-1][1]
+        assert metadata["declared_episode_timeout_seconds"] == 180
+        # The mock replaces the client; evidence must report its actual limits, not invent the defaults.
+        assert metadata["transport_timeouts_seconds"] == policy.client.timeout.as_dict() == {
+            "connect": 5, "write": 5, "pool": 5, "read": 5}
+    finally:
+        await policy.close()
+
+
+TRANSPORT_FAILURES = [
+    (httpx.ConnectTimeout, "connect_timeout"), (httpx.ReadTimeout, "read_timeout"),
+    (httpx.WriteTimeout, "write_timeout"), (httpx.PoolTimeout, "pool_timeout"),
+    (httpx.ConnectError, "connect_error"), (httpx.ReadError, "read_error"),
+    (httpx.WriteError, "write_error"), (httpx.RemoteProtocolError, "protocol_error"),
+    (httpx.LocalProtocolError, "protocol_error"), (httpx.HTTPError, "transport_error"),
+    (asyncio.CancelledError, "cancelled"), (RuntimeError, "unexpected_error"),
+]
+
+
+@pytest.mark.parametrize("error_type,category", TRANSPORT_FAILURES)
+@pytest.mark.parametrize("has_prefix", [False, True])
+async def test_transport_diagnostics_preserve_prefix_and_fixed_redacted_category(
+        error_type, category, has_prefix, monkeypatch):
+    policy = OllamaBrowserPolicy("qwen3:8b", PROMPT, timeout_seconds=600)
+    await policy.client.aclose()
+    prefix, events = b'{"message":', []
+
+    class FailingStream(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            yield prefix
+            raise error_type("PRIVATE_ERROR_SENTINEL")
+
+    def handler(request):
+        assert request.extensions["timeout"] == {"connect": 10, "write": 10, "pool": 10, "read": 180}
+        if has_prefix:
+            return httpx.Response(200, stream=FailingStream())
+        raise error_type("PRIVATE_ERROR_SENTINEL")
+
+    policy.client = httpx.AsyncClient(transport=httpx.MockTransport(handler), timeout=httpx.Timeout(
+        connect=10, write=10, pool=10, read=180), trust_env=False)
+    policy.set_recorder(lambda kind, payload: events.append((kind, payload)))
+    clock = iter([20.0, 20.25])
+    monkeypatch.setattr("world_engine.browser_policy.time", SimpleNamespace(monotonic=lambda: next(clock)))
+    try:
+        expected_error = BrowserError if issubclass(error_type, httpx.HTTPError) else error_type
+        with pytest.raises(expected_error) as caught:
+            await policy._read("POST", "/api/chat", b"{}")
+        if issubclass(error_type, httpx.HTTPError):
+            assert str(caught.value) == "local inference request failed"
+            assert caught.value.__cause__ is None and caught.value.__suppress_context__
+        assert [kind for kind, _ in events] == ["inference_transport_failure"]
+        retained = prefix if has_prefix else b""
+        assert events[0][1] == {
+            "status": 200 if has_prefix else None, "partial_body_b64": base64.b64encode(retained).decode(),
+            "body_bytes": len(retained), "body_sha256": hashlib.sha256(retained).hexdigest(),
+            "complete_reply_certified": False, "failure_category": category, "elapsed_seconds": 0.25,
+            "transport_timeouts_seconds": {"connect": 10, "write": 10, "pool": 10, "read": 180}}
+        assert "PRIVATE_ERROR_SENTINEL" not in canonical_json(events)
+    finally:
+        await policy.close()
+
+
+@pytest.mark.parametrize("status,encoding,raw,category", [
+    (500, "identity", b"bounded failure", "invalid_http_response"),
+    (200, "gzip", b"bounded compressed failure", "invalid_http_response"),
+    (200, "identity", b"x" * (RESPONSE_LIMIT + 1), "response_limit"),
+])
+async def test_transport_boundary_failures_have_fixed_categories(status, encoding, raw, category):
+    policy = OllamaBrowserPolicy("qwen3:8b", PROMPT)
+    await policy.client.aclose()
+    events = []
+    policy.client = httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(
+        status, headers={"content-encoding": encoding}, stream=ChunkedBytes(raw))), trust_env=False)
+    policy.set_recorder(lambda kind, payload: events.append((kind, payload)))
+    try:
+        with pytest.raises(BrowserError):
+            await policy._read("POST", "/api/chat", b"{}")
+        failure = events[0][1]
+        assert failure["failure_category"] == category
+        assert base64.b64decode(failure["partial_body_b64"]) == raw[:RESPONSE_LIMIT]
+        assert failure["elapsed_seconds"] >= 0 and failure["complete_reply_certified"] is False
+    finally:
+        await policy.close()
+
+
+async def test_transport_failure_durable_order_keeps_intent_prefix_then_failed_marker(monkeypatch):
+    policy = OllamaBrowserPolicy("qwen3:8b", PROMPT, timeout_seconds=600)
+    await policy.client.aclose()
+    events = []
+
+    def handler(request):
+        assert events[-1][0] == "inference_intent"
+        raise httpx.ReadTimeout("PRIVATE_ERROR_SENTINEL")
+
+    async def identity(model):
+        return DIGEST
+
+    monkeypatch.setattr(policy, "_model_identity", identity)
+    policy.digest, policy.prepared_model = DIGEST, "qwen3:8b"
+    policy.client = httpx.AsyncClient(transport=httpx.MockTransport(handler), trust_env=False)
+    policy.set_recorder(lambda kind, payload: events.append((kind, payload)))
+    try:
+        with pytest.raises(BrowserError, match="request failed"):
+            await policy.decide(observation(), [])
+        assert [kind for kind, _ in events] == [
+            "inference_intent", "inference_transport_failure", "inference_failed"]
+        assert events[1][1]["failure_category"] == "read_timeout"
+        assert not any(kind == "inference_result" for kind, _ in events)
+        assert "PRIVATE_ERROR_SENTINEL" not in canonical_json(events)
+    finally:
+        await policy.close()
 
 
 def test_flat_tools_survive_object_properties_required_projection():

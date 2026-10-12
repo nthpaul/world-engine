@@ -21,7 +21,8 @@ ROOT = Path(__file__).resolve().parents[1]
 API = "http://127.0.0.1:8000"
 MODEL_DIGEST = "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41"
 MODELS = {"qwen3:8b": MODEL_DIGEST,
-          "qwen3:32b": "030ee887880fc378860c2dd35101da424377520441ae4bfe7be6deff8ade7840"}
+          "qwen3:32b": "030ee887880fc378860c2dd35101da424377520441ae4bfe7be6deff8ade7840",
+          "qwen3:30b-a3b": "0b28110b7a3364296d5cef609095537189fbb81547761de69fd22dd68d2166c2"}
 POLICY_PROTOCOL = "ollama-browser-tools-v3"
 LIMIT = 640 * 1024 * 1024
 TERMINAL = {"completed", "failed", "cancelled", "interrupted"}
@@ -40,11 +41,12 @@ def sha(data):
 
 def plan(model="qwen3:8b"):
     if model not in MODELS:
-        raise ValueError("only the two fixed public local models are allowed")
-    return {"schema": "world-engine.triage-qualification.v8", "slots": SLOTS, "model": model,
+        raise ValueError("only the three fixed public local models are allowed")
+    return {"schema": "world-engine.triage-qualification.v9", "slots": SLOTS, "model": model,
             "model_digest": MODELS[model], "automatic_retries": 0, "paid_calls": False,
             "reference_protocol": "public-ax-triage-control-v7",
             "policy_protocol": POLICY_PROTOCOL, "generation_options": dict(OPTIONS), "think": False,
+            "model_transport_timeouts_seconds": {"connect": 10, "write": 10, "pool": 10, "read": 180},
             "max_total_seconds": 6000, "max_artifact_bytes": LIMIT, "evaluation_only": True,
             "training_eligible": False, "model_requires_explicit_flag_and_qualified_controls": True}
 
@@ -167,6 +169,8 @@ def validate_policy_identity(attempt, spec, model="qwen3:8b"):
     if spec["provider_id"] == "local-browser":
         if (prepared[0].get("model_digest") != MODELS[model]
                 or prepared[0].get("protocol") != POLICY_PROTOCOL or prepared[0].get("options") != OPTIONS
+                or prepared[0].get("declared_episode_timeout_seconds") != spec["timeout_seconds"]
+                or prepared[0].get("transport_timeouts_seconds") != {"connect": 10, "write": 10, "pool": 10, "read": 180}
                 or not re.fullmatch(r"[0-9a-f]{64}", prepared[0].get("template_sha256", ""))):
             raise RuntimeError("observed model identity differs; raw attempt retained")
     else:
@@ -205,7 +209,7 @@ def collect(output, revision, startup_revision, include_model=False, model="qwen
     try:
         source = source_identity(revision)
         if PROTOCOL != POLICY_PROTOCOL:
-            raise RuntimeError("v8 collection requires the reviewed v3 browser policy")
+            raise RuntimeError("v9 collection requires the reviewed v3 browser policy")
         if startup_revision != revision:
             raise ValueError("operator API startup attestation must match source pin")
         report["source"] = source

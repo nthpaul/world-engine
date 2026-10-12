@@ -4,16 +4,30 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 
 ## Active increments
 
-Current user-requested browser repair has delivered reviewed generic v3 context,
-a fixed diagnostic and full native request inspection in PR77. The first source
-pin passed 3,001 local tests with six optional skips and GitHub CI38190928958.
-Its first fixed diagnostic retained two completed 8B calls, both repeating the
-current New project link. The stronger-model preparation then stopped before
-inference: valid 75,727-byte metadata exceeded a shared 64 KiB response limit.
-That stopped collection is retained. A narrow, independently reviewed metadata
-boundary repair gives only model-show metadata a 256 KiB cap; generated replies,
-catalog and version retain 64 KiB. A fresh diagnostic requires a new committed
-pin before the still-unstarted real V8 cohort. No paid resource is needed.
+The current user-requested browser repair has delivered generic v3 context,
+a fixed diagnostic and full native request inspection in PR77. Final metadata
+source `241fd236` passed 3,013 root tests with six optional skips, independent
+515 focused cases and CI38191409120. The first diagnostic retains its metadata
+failure before 32B inference. Fresh diagnostic-v2 completed four samples:
+corrected 32B chose Create blank project instead of the repeated breadcrumb,
+still off-task; other cells repeated it. No action was executed or rescue proved.
+
+Real V8 completed all five slots at that exact pin. Four controls qualified.
+The actual dense 32B model `4c8ce22b-eafc-4e13-8628-4edbf5e26b88` made three
+valid clicks, then failed with provider_error and isolated reward zero. The
+fourth request retained an empty prefix and no status; the recorder did not
+retain its precise transport exception type. All cleanup completed without
+reconciliation, and prior state/media remained intact. Independent evidence
+and seal audits reproduced all five grades; reference success is not model
+success. No paid resource was activated.
+
+A separately declared V9 source-only follow-up makes bounded HTTP transport
+settings and redacted failure categories explicit and selects the already
+cached qwen3:30b-a3b candidate. Root owns protocol, commit, startup and physical
+authorization; engine owns policy/collector/tests; research independently
+reviews; console owns read-only terminal screenshots and video QA. New
+inference requires reviewed committed source, green CI and fresh output. V8
+and every earlier failure remain immutable; no in-place retry or fallback.
 
 Independent read-only reviews reproduced V7's full current AX and valid action
 mapping, but decisions fourteen through thirty sent byte-identical requests
@@ -21,12 +35,9 @@ after the twelve-action window saturated. The first unrelated navigation was a
 model choice; the lossy history omitted post-action observations, absolute steps
 and remaining budget. The versioned correction preserves linked native public
 action/result turns and truthful budget/stagnation feedback. It is not a
-demonstrated rescue of the 8B sample. Root owns publication and fresh
-physical authorization; engine owns policy/tests, console owns collectors/tests
-and protocol, research independently reviews the frozen diff. Task/grader,
-fixtures, permissions and reference semantics remain unchanged. Only the two
-local diagnostic generation calls have run; no paid resource or new real browser
-attempt has run. All prior evidence remains immutable.
+demonstrated rescue of the 8B sample. Task/grader, fixtures, permissions and
+reference semantics remain unchanged. Browser evidence is evaluation-only;
+no training gain, general capability or full-fidelity claim follows.
 
 V7 source at `9901b26` passed independent whole-source/fingerprint review,
 2,899 root tests with six optional skips, Ruff and publication inspection.

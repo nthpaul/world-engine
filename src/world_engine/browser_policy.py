@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import ast
+import asyncio
 import base64
 import hashlib
 import json
 import re
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from typing import Literal
@@ -48,6 +50,11 @@ REQUEST_LIMIT = 131_072
 RESPONSE_LIMIT = 65_536
 SHOW_RESPONSE_LIMIT = 262_144
 RECORDER = Callable[[str, dict], None]
+TransportFailureCategory = Literal[
+    "connect_timeout", "read_timeout", "write_timeout", "pool_timeout", "cancelled",
+    "connect_error", "read_error", "write_error", "protocol_error", "transport_error",
+    "response_limit", "invalid_http_response", "unexpected_error",
+]
 PROTOCOL = "ollama-browser-tools-v3"
 ACCESSIBILITY_LIMIT = 32_000
 FULL_HISTORY_OBSERVATIONS = 2
@@ -89,14 +96,19 @@ def _public_observation(observation: BrowserObservation, *, char_limit: int) -> 
 
 
 class OllamaBrowserPolicy:
-    def __init__(self, model: str, instruction: str, *, max_steps: int = 30):
+    def __init__(self, model: str, instruction: str, *, max_steps: int = 30, timeout_seconds: int = 180):
         if type(max_steps) is not int or not 1 <= max_steps <= 50:
             raise BrowserError("browser inference requires a valid decision budget")
+        if type(timeout_seconds) is not int or not 30 <= timeout_seconds <= 600:
+            raise BrowserError("browser inference requires a valid episode timeout")
         self.model = model
         self.instruction = instruction
         self.max_steps = max_steps
+        self.timeout_seconds = timeout_seconds
         self.endpoint = local_endpoint()
-        self.client = httpx.AsyncClient(timeout=90, trust_env=False, follow_redirects=False)
+        self.client = httpx.AsyncClient(timeout=httpx.Timeout(
+            connect=10, write=10, pool=10, read=min(timeout_seconds, 180)),
+            trust_env=False, follow_redirects=False)
         self.recorder: RECORDER = lambda kind, payload: None
         self.evidence_metadata: dict = {}
         self.digest: str | None = None
@@ -112,19 +124,46 @@ class OllamaBrowserPolicy:
             headers["Content-Type"] = "application/json"
         data = bytearray()
         status = None
+        started = time.monotonic()
+        effective_limits = self.client.timeout.as_dict()
+        category: TransportFailureCategory = "unexpected_error"
         try:
             async with self.client.stream(method, self.endpoint + path, content=body, headers=headers) as response:
                 status = response.status_code
                 async for chunk in response.aiter_raw():
                     if len(data) + len(chunk) > response_limit:
+                        category = "response_limit"
                         raise BrowserError("local inference response exceeds its bound")
                     data.extend(chunk)
                 if response.status_code != 200 or response.headers.get("content-encoding", "identity") != "identity":
+                    category = "invalid_http_response"
                     raise BrowserError("local inference returned an invalid HTTP response")
         except BaseException as error:
+            if isinstance(error, httpx.ConnectTimeout):
+                category = "connect_timeout"
+            elif isinstance(error, httpx.ReadTimeout):
+                category = "read_timeout"
+            elif isinstance(error, httpx.WriteTimeout):
+                category = "write_timeout"
+            elif isinstance(error, httpx.PoolTimeout):
+                category = "pool_timeout"
+            elif isinstance(error, asyncio.CancelledError):
+                category = "cancelled"
+            elif isinstance(error, httpx.ConnectError):
+                category = "connect_error"
+            elif isinstance(error, httpx.ReadError):
+                category = "read_error"
+            elif isinstance(error, httpx.WriteError):
+                category = "write_error"
+            elif isinstance(error, httpx.ProtocolError):
+                category = "protocol_error"
+            elif isinstance(error, httpx.HTTPError):
+                category = "transport_error"
             if path == "/api/chat":
                 self.recorder("inference_transport_failure", {"status": status, "partial_body_b64": base64.b64encode(data).decode(),
-                    "body_bytes": len(data), "body_sha256": hashlib.sha256(data).hexdigest(), "complete_reply_certified": False})
+                    "body_bytes": len(data), "body_sha256": hashlib.sha256(data).hexdigest(), "complete_reply_certified": False,
+                    "failure_category": category, "elapsed_seconds": max(0.0, time.monotonic() - started),
+                    "transport_timeouts_seconds": effective_limits})
             if isinstance(error, httpx.HTTPError):
                 raise BrowserError("local inference request failed") from None
             raise
@@ -163,6 +202,8 @@ class OllamaBrowserPolicy:
                                   "options": dict(OPTIONS), "paid_calls_enabled": False,
                                   "training_eligible": False, "policy_version_check": "before and after every reply",
                                   "max_steps": self.max_steps, "history_limit": self.max_steps,
+                                  "declared_episode_timeout_seconds": self.timeout_seconds,
+                                  "transport_timeouts_seconds": self.client.timeout.as_dict(),
                                   "full_history_observations": FULL_HISTORY_OBSERVATIONS,
                                   "accessibility_char_limit": ACCESSIBILITY_LIMIT,
                                   "accessibility_budget_scope": "aggregate_current_and_history_excerpts",
@@ -898,6 +939,7 @@ class BrowserReferencePolicy:
 
 def create_browser_policy(config: BrowserAttemptConfig, task: TaskPack):
     if config.provider_id == "local-browser":
-        return OllamaBrowserPolicy(config.model, task.instruction, max_steps=config.max_steps)
+        return OllamaBrowserPolicy(config.model, task.instruction, max_steps=config.max_steps,
+                                   timeout_seconds=config.timeout_seconds)
     return BrowserReferencePolicy(task.instruction, baseline=config.provider_id == "browser-baseline",
                                   triage=task.id == "gitlab-incident-triage")

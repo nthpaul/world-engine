@@ -152,3 +152,52 @@ digests, tasks, reference controller, fixtures and grader are unchanged.
 The real cohort has not started at this repair checkpoint. Root must review
 and commit the repair before any new inference, then separately authorize
 collection and restart the API at the same reviewed pin before the real cohort.
+
+## Transport follow-up and fresh real cohort v9
+
+The schema-v8 cohort at `241fd2362341387b307a7cd7ef2e8504ba94767c`
+completed all five slots. The four controls qualified. The actual dense
+`qwen3:32b` attempt `4c8ce22b-eafc-4e13-8628-4edbf5e26b88` accepted three
+clicks, then failed with `provider_error` on its fourth inference request.
+The recorded failure has no response status or body bytes. Its isolated grade
+is zero; cleanup completed without reconciliation. The old recorder did not
+retain the transport exception category, so that prefix alone cannot establish
+the precise timeout type or prove that daemon computation stopped.
+
+The follow-up makes transport settings explicit. The browser policy receives
+the declared episode timeout, validates the existing 30--600-second range and
+uses HTTPX connect/write/pool limits of ten seconds and a read limit of
+`min(episode_timeout, 180)` seconds. These are phase inactivity limits, not an
+end-to-end request deadline. The runner's existing outer episode timeout is
+still authoritative and can cancel a request sooner. The recorded preparation
+and transport-failure evidence include effective limits; failures retain a
+fixed redacted category and elapsed time alongside their original raw prefix.
+Client closure still does not certify daemon closure.
+
+The v3 request body, native tools, generation options, task, fixtures, grader,
+reference controller and permissions remain unchanged. This transport change
+does not turn the failed v8 attempt into a successful or resumed attempt.
+
+The separately reviewed schema-v9 collector adds one already cached local
+candidate, `qwen3:30b-a3b`, with exact required digest
+`0b28110b7a3364296d5cef609095537189fbb81547761de69fd22dd68d2166c2`.
+Its mixture-of-experts architecture motivates a lower-latency candidate; no
+browser-success or throughput advantage is assumed. Local identity and native
+tools/template checks remain mandatory. There are no new downloads or paid
+resources.
+
+After source review, commit, green CI and a fresh API startup at that pin, the
+operator may authorize exactly one fresh full cohort: the same four controls,
+then one `qwen3:30b-a3b` triage attempt with seed 42, 30 steps and 600 seconds.
+The effective read limit for that model slot is 180 seconds. All control gates,
+aggregate 6,000-second/640-MiB limits, raw-evidence requirements and cleanup
+conditions remain unchanged. No new diagnostic matrix, automatic retry,
+fallback, task hints or in-place tuning is included. Preserve v8 and all prior
+failures. Report the follow-up as a new declared sample with changed transport
+and model factors, not an isolated causal comparison or a success-rate estimate.
+
+```sh
+uv run python scripts/collect_gitlab_triage.py --collect --include-model \
+  --model qwen3:30b-a3b --source-revision REVIEWED_FULL_SHA \
+  --api-startup-revision REVIEWED_FULL_SHA --output /private/fresh/triage-v9
+```
