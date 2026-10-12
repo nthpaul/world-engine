@@ -10,6 +10,9 @@ simulation diagnostics; their historical results are unchanged.
 The [GitLab results and media guide](docs/gitlab-browser-results.md) records the
 successful browser reference, the failed local-model rollout, isolated grading,
 screenshots, videos, timings and preserved qualification failures.
+The later [browser loop investigation](docs/gitlab-model-loop-results.md)
+separates a confirmed context-loss defect from model navigation failures and
+records the actual larger-model reruns, including their failures.
 
 ## Run locally
 

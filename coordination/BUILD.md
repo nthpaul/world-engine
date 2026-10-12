@@ -4,6 +4,16 @@ Owner: root for this delivery checkpoint. Updated 2026-10-11. Current delivery i
 
 ## Active increments
 
+Latest browser delivery: source PR77 merged as `be805e9` after green CI at
+`3d6c4860`. Its generic v3 context and bounded typed transport preserve exact
+public evidence. Fresh V9 completed all five slots at the immutable source pin.
+Four controls qualified; actual cached 30B model `4e28b496` created the wrong
+project, made nineteen actions with ten invalid executions and hit the outer
+600-second deadline. Isolated reward remains zero; all cleanup completed and
+prior32 browser rows/520 files plus legacy state remain unchanged. Read the
+[current browser loop results](../docs/gitlab-model-loop-results.md).
+No model success, training gain, paid resource or hidden retry is claimed.
+
 The current user-requested browser repair has delivered generic v3 context,
 a fixed diagnostic and full native request inspection in PR77. Final metadata
 source `241fd236` passed 3,013 root tests with six optional skips, independent
