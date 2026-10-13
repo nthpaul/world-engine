@@ -2,6 +2,7 @@ import asyncio
 import hashlib
 import json
 from dataclasses import FrozenInstanceError
+from pathlib import Path
 
 import pytest
 from pydantic import SecretStr
@@ -14,20 +15,32 @@ from world_engine.browser_contracts import (
     RuntimeHandle,
 )
 from world_engine.browser_policy import BrowserReferencePolicy, create_browser_policy
-from world_engine.browser_runs import default_browser_manager
+from world_engine.browser_runs import BrowserRunManager, default_browser_manager
+from world_engine.browser_store import BrowserStore
 from world_engine.gitlab_runtime import GitLabRuntime
 from world_engine.gitlab_taskpacks import gitlab_catalog, make_browser_task, resolve_gitlab_pack
 
 
 def test_catalog_versions_and_stable_case_lineage():
     catalog = gitlab_catalog()
-    assert set(catalog) == {"gitlab-issue-close", "gitlab-incident-triage"}
+    assert set(catalog) == {"gitlab-issue-close", "gitlab-incident-triage", "gitlab-release-readiness"}
     assert catalog["gitlab-issue-close"].version == "1.0.3"
     assert catalog["gitlab-issue-close"].grader_version == "gitlab-state-v3"
     triage = resolve_gitlab_pack("gitlab-incident-triage")
     assert triage.version == catalog["gitlab-incident-triage"].version == "1.0.2"
     assert catalog["gitlab-incident-triage"].grader_version == "gitlab-triage-state-v3"
     assert triage.sealed_schema == "world-engine-gitlab-triage-sealed-v2"
+    readiness = resolve_gitlab_pack("gitlab-release-readiness")
+    assert readiness.version == catalog["gitlab-release-readiness"].version == "1.0.0"
+    assert catalog["gitlab-release-readiness"].grader_version == "gitlab-readiness-state-v1"
+    assert readiness.sealed_schema == "world-engine-gitlab-readiness-sealed-v1"
+    for seed, case in ((42, "ready"), (43, "blocked")):
+        provenance = readiness.provenance(seed)
+        assert provenance["lineage_id"] == hashlib.sha256(f"release-readiness:{case}:{seed}".encode()).hexdigest()
+        assert provenance["task_case"] == case
+        assert provenance["source_rights"]["permitted_use"] == "evaluation-only"
+        assert provenance["source_rights"]["training_eligible"] is False
+        assert all(len(value) == 64 for value in provenance["pack_sources"].values())
     for seed, case in ((42, "changes-required"), (43, "already-correct")):
         provenance = triage.provenance(seed)
         assert provenance["lineage_id"] == hashlib.sha256(f"incident-triage:{case}:{seed}".encode()).hexdigest()
@@ -40,15 +53,59 @@ def test_catalog_versions_and_stable_case_lineage():
         resolve_gitlab_pack("unregistered-agent-pack")
 
 
-async def test_default_manager_catalog_is_two_packs_but_no_runtime_start(tmp_path, monkeypatch):
+@pytest.mark.parametrize("task_id,fixture_hash,sources", [
+    ("gitlab-incident-triage", "a3881e7713e269309d6466fe6677b79db36832ff089971f13b3b9320d449afb0", {
+        "export_sha256": "be40209102d3674b219b96542e06042d689437aea33bcc5bf2ab6ec874d5a431",
+        "recipe_sha256": "c5603a68bdfd8cb76bfe79a8bf2c43865fbf8d7ee822969bb5907a7046cdf968",
+        "verifier_build_sha256": "46963a441a805c198a8c877d471d85ce18ad5eb76c121642293cf82d52424860",
+        "verifier_sha256": "860d05031162d9cd6eb858aeda16d622fd3ed7f7d7a3b06adf5dc93b303f5f48",
+    }),
+    ("gitlab-issue-close", "aef3e65bca1c36e93221557f41a51cbb76931e5cb7c0472a0ca04acd1954dca4", {
+        "export_sha256": "2bd681f605fe01e8c761556de2fa9881ffd54e42396ad3bef063ade97571521c",
+        "recipe_sha256": "0d2974f9c7892809abb268b2a26fef630915f9bd90e008efa8fcdeafdd1678d7",
+        "verifier_build_sha256": "46963a441a805c198a8c877d471d85ce18ad5eb76c121642293cf82d52424860",
+        "verifier_sha256": "0e59171fb5b18a7d521767497bed5d86e66552311fd266a8ea1052bfdac5f96a",
+    }),
+])
+def test_legacy_pack_manifests_and_assets_retain_pinned_identity(task_id, fixture_hash, sources):
+    assert make_browser_task(task_id, 42).fixture_hash == fixture_hash
+    assert resolve_gitlab_pack(task_id).provenance(42)["pack_sources"] == sources
+
+
+async def test_default_manager_catalog_is_three_packs_but_no_runtime_start(tmp_path, monkeypatch):
     monkeypatch.delenv("WORLD_ENGINE_BROWSER_ENABLED", raising=False)
     manager = default_browser_manager(tmp_path)
     try:
-        assert set(manager.tasks) == {"gitlab-issue-close", "gitlab-incident-triage"}
+        assert set(manager.tasks) == {"gitlab-issue-close", "gitlab-incident-triage", "gitlab-release-readiness"}
         assert manager.task_factory is make_browser_task
         assert manager.status()["available"] is False and not manager.jobs
         with pytest.raises(BrowserError, match="unavailable"):
             manager.submit(BrowserAttemptConfig(task_id="gitlab-incident-triage"))
+    finally:
+        await manager.close()
+
+
+@pytest.mark.parametrize("task_id", ["gitlab-issue-close", "gitlab-release-readiness"])
+async def test_submission_fingerprints_readiness_helper_only_for_its_pack(tmp_path, monkeypatch, task_id):
+    manager = BrowserRunManager(BrowserStore(tmp_path), gitlab_catalog(), object(), object(), object(),
+                                make_browser_task)
+
+    async def no_execution(key, config, task, job):
+        job.started.set()
+        manager.jobs.pop(key)
+
+    monkeypatch.setattr(manager, "_execute", no_execution)
+    try:
+        attempt = manager.submit(BrowserAttemptConfig(task_id=task_id, provider_id="browser-baseline"))
+        modules = attempt["provenance"]["controller_modules"]
+        if task_id == "gitlab-release-readiness":
+            source = Path(__file__).resolve().parents[1] / "src/world_engine/browser_readiness.py"
+            assert modules["browser_readiness.py"] == hashlib.sha256(source.read_bytes()).hexdigest()
+            assert attempt["provenance"]["task_case"] == "ready"
+        else:
+            assert "browser_readiness.py" not in modules
+        assert attempt["provenance"]["training_eligible"] is False
+        await asyncio.sleep(0)
     finally:
         await manager.close()
 
@@ -179,7 +236,7 @@ async def test_baseline_finishes_without_read_or_mutation():
     await asyncio.wait_for(control.close(), 1)
 
 
-@pytest.mark.parametrize("task_id", ["gitlab-issue-close", "gitlab-incident-triage"])
+@pytest.mark.parametrize("task_id", ["gitlab-issue-close", "gitlab-incident-triage", "gitlab-release-readiness"])
 async def test_owned_pack_selects_export_seal_and_verifier(tmp_path, monkeypatch, task_id):
     pack = resolve_gitlab_pack(task_id)
     task = pack.public_task(42)

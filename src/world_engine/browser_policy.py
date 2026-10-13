@@ -941,5 +941,9 @@ def create_browser_policy(config: BrowserAttemptConfig, task: TaskPack):
     if config.provider_id == "local-browser":
         return OllamaBrowserPolicy(config.model, task.instruction, max_steps=config.max_steps,
                                    timeout_seconds=config.timeout_seconds)
+    if task.id == "gitlab-release-readiness":
+        from world_engine.browser_readiness import BrowserReadinessPolicy
+
+        return BrowserReadinessPolicy(task.instruction, ax_nodes, baseline=config.provider_id == "browser-baseline")
     return BrowserReferencePolicy(task.instruction, baseline=config.provider_id == "browser-baseline",
                                   triage=task.id == "gitlab-incident-triage")

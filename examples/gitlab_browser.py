@@ -14,8 +14,8 @@ from world_engine.browser_driver import BrowserGymDriver
 from world_engine.browser_policy import create_browser_policy
 from world_engine.browser_runs import BrowserRunManager
 from world_engine.browser_store import BrowserStore
-from world_engine.gitlab_runtime import GitLabRuntime, gitlab_task
-from world_engine.gitlab_taskpacks import make_browser_task
+from world_engine.gitlab_runtime import GitLabRuntime
+from world_engine.gitlab_taskpacks import gitlab_catalog, make_browser_task
 
 
 def source_receipt() -> dict:
@@ -34,10 +34,10 @@ async def collect(args: argparse.Namespace) -> dict:
     output = args.output.absolute()
     if output.exists() or output.is_symlink():
         raise FileExistsError("refusing to replace existing attempt evidence")
-    config = BrowserAttemptConfig(task_id="gitlab-issue-close", provider_id=args.provider,
+    config = BrowserAttemptConfig(task_id=args.task_id, provider_id=args.provider,
                                   model=args.model, seed=args.seed, max_steps=args.max_steps,
                                   timeout_seconds=args.timeout)
-    task = gitlab_task(config.seed)
+    task = make_browser_task(config.task_id, config.seed)
     protocol = {"schema": "world-engine.gitlab-sdk-protocol.v1", "config": config.model_dump(),
                 "task": task.model_dump(), "paid_resources": False, "automatic_retries": 0,
                 "interaction_timeout_excludes_startup_and_finalization": True}
@@ -66,6 +66,7 @@ async def collect(args: argparse.Namespace) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--task-id", choices=tuple(gitlab_catalog()), default="gitlab-issue-close")
     parser.add_argument("--provider", choices=["local-browser", "browser-reference", "browser-baseline"],
                         default="local-browser")
     parser.add_argument("--model", default="qwen3:8b")

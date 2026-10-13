@@ -1,4 +1,4 @@
-"""Trusted, immutable registration for the two built-in GitLab task recipes."""
+"""Trusted, immutable registration for the built-in GitLab task recipes."""
 
 from __future__ import annotations
 
@@ -11,6 +11,9 @@ from .browser_contracts import BrowserError, TaskPack
 from .gitlab_close import ROOT as CLOSE_ROOT
 from .gitlab_close import FixturePost, gitlab_task, sha256
 from .gitlab_close import fixture as close_fixture
+from .taskpacks.gitlab_readiness.fixture import ROOT as READINESS_ROOT
+from .taskpacks.gitlab_readiness.fixture import fixture as readiness_fixture
+from .taskpacks.gitlab_readiness.fixture import task as readiness_task
 from .taskpacks.gitlab_triage.fixture import ROOT as TRIAGE_ROOT
 from .taskpacks.gitlab_triage.fixture import fixture as triage_fixture
 from .taskpacks.gitlab_triage.fixture import task as triage_task
@@ -30,7 +33,10 @@ class GitLabPackDefinition:
     sealed_schema: str
 
     def provenance(self, seed: int) -> dict:
-        case = "already-correct" if self.task_id == "gitlab-incident-triage" and seed % 2 else "changes-required"
+        if self.task_id == "gitlab-release-readiness":
+            case = "blocked" if seed % 2 else "ready"
+        else:
+            case = "already-correct" if self.task_id == "gitlab-incident-triage" and seed % 2 else "changes-required"
         return {"task_family": self.family, "task_case": case,
                 "lineage_id": hashlib.sha256(f"{self.family}:{case}:{seed}".encode()).hexdigest(),
                 "pack_version": self.version, "pack_sources": {
@@ -49,6 +55,10 @@ _PACKS = (
     GitLabPackDefinition("gitlab-incident-triage", "1.0.2", "incident-triage", triage_task, triage_fixture,
                          TRIAGE_ROOT / "fixture.py", TRIAGE_ROOT / "export.rb", TRIAGE_ROOT / "verify.py",
                          TRIAGE_ROOT / "verifier.Dockerfile", "world-engine-gitlab-triage-sealed-v2"),
+    GitLabPackDefinition("gitlab-release-readiness", "1.0.0", "release-readiness", readiness_task,
+                         readiness_fixture, READINESS_ROOT / "fixture.py", READINESS_ROOT / "export.rb",
+                         READINESS_ROOT / "verify.py", READINESS_ROOT / "verifier.Dockerfile",
+                         "world-engine-gitlab-readiness-sealed-v1"),
 )
 
 
