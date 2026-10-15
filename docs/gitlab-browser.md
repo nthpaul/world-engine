@@ -101,6 +101,10 @@ and grader, not learned-model ability.
 The SDK example constructs `BrowserStore`, `GitLabRuntime`, `BrowserGymDriver`,
 `create_browser_policy` and `BrowserRunManager`. Custom adapters implement the
 explicit protocols in `browser_contracts.py`, not the old synthetic-world API.
+Its `--task-id` selects a registered pack; omitted means `gitlab-issue-close`.
+The separate [release-readiness contract](gitlab-readiness.md) adds ready and
+blocked development cases. Its source tests do not establish physical
+qualification, and the existing fixed collectors do not collect this new pack.
 Runtime owns application allocation/sealing/grading/cleanup; driver owns browser
 observations/actions/media; policy owns inference. A policy must install the
 manager's recorder before inference so request intent is durable before calls.

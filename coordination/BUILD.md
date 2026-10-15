@@ -1,8 +1,21 @@
 # World Engine build board
 
-Owner: root for this delivery checkpoint. Updated 2026-10-12. Current delivery is a bounded local platform, not a production-app replica, cloud execution service or multi-tenant deployment. A local one-update checkpoint is established, but no learning improvement is established. Dated foundation/history below retains its original counts and failures.
+Owner: root for this delivery checkpoint. Updated 2026-10-13. Current delivery is a bounded local platform, not a production-app replica, cloud execution service or multi-tenant deployment. A local one-update checkpoint is established, but no learning improvement is established. Dated foundation/history below retains its original counts and failures.
 
 ## Active increments
+
+The separate [release-readiness pack](../docs/gitlab-readiness.md) adds an
+evidence-dependent development workflow: an ordinary actor records ready and
+closes only when both required gates pass, or records blocked and leaves the
+issue open when validation is pending. Its self-contained verifier derives the
+decision from trusted initial policy/evidence, requires an exact committed note
+and preserves the ten-table projection. Public-AX controls have no access to
+fixture identities or sealed state. The SDK example selects this pack through
+`--task-id`; historical closure/triage assets and fingerprints remain unchanged.
+This is a source increment with physical qualification pending. No new browser
+attempt, model call, training, screenshot, video or learning gain is claimed.
+Existing pinned services and prior failures remain untouched. Root owns future
+fixed-protocol qualification and admission; old collectors do not cover this pack.
 
 User-requested [local learning page](../docs/learning.md): a separate loopback
 server displays operator-reviewed recorded evidence and persists lesson answers

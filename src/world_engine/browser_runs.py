@@ -112,6 +112,9 @@ class BrowserRunManager:
                                         "application_license": "GitLab CE MIT; dependency/image licenses separate",
                                         "permitted_use": "evaluation-only", "training_eligible": False},
                       "isolation": "local Docker trusted operator pilot; not multi-tenant security"}
+        if task.id == "gitlab-release-readiness":
+            provenance["controller_modules"]["browser_readiness.py"] = hashlib.sha256(
+                Path(__file__).with_name("browser_readiness.py").read_bytes()).hexdigest()
         if self.task_factory is make_browser_task:
             provenance.update(resolve_gitlab_pack(task.id).provenance(config.seed))
         result = self.store.create(key, config, task, provenance)
