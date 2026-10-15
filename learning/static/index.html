@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Learning Lab | World Engine</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#lesson">Skip to lesson</a>
+    <header class="app-header">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">W</span><span>World Engine <span class="brand-divider">/</span> <strong>Learning Lab</strong></span></div>
+      <div class="save-tools"><span id="save-status" role="status" aria-live="polite">Loading lesson</span><button id="retry-save" class="subtle-button" hidden>Retry save</button><a id="export" href="/api/export" class="subtle-button" hidden>Export answers</a></div>
+    </header>
+    <main id="lesson" class="workspace" tabindex="-1">
+      <div id="boot-state" class="boot-state" role="status">Opening Lesson 1...</div>
+      <div id="lesson-shell" hidden>
+        <div class="lesson-heading"><div><p class="eyebrow" id="lesson-label">Lesson 1</p><h1 id="lesson-title"></h1></div><span class="lesson-position" id="position"></span></div>
+        <nav id="steps" class="steps" aria-label="Lesson steps"></nav>
+        <div id="draft-notice" class="notice" role="status" hidden></div>
+        <div class="workflow">
+          <ol class="loop" aria-label="One observe-and-act transition">
+            <li data-part="task">Task</li><li data-part="state">State</li><li data-part="observation">Observation <small>partial view</small></li><li data-part="action">Action</li><li data-part="state">Next state</li>
+          </ol>
+          <div class="loop-caption"><span>Observe and act again until the attempt ends.</span><span class="grade-stage" data-part="grade">After the attempt ends → Grade</span></div>
+        </div>
+        <div id="section-content"></div>
+        <footer class="lesson-footer"><button id="previous" class="subtle-button">Previous</button><span id="footer-note">Your answers stay with this lesson.</span><button id="next" class="primary-button">Continue</button></footer>
+      </div>
+    </main>
+    <footer class="app-footer">Local lesson <span aria-hidden="true">·</span> Actual recorded evidence <span aria-hidden="true">·</span> Review together in chat</footer>
+  </body>
+</html>
