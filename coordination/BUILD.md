@@ -17,6 +17,14 @@ attempt, model call, training, screenshot, video or learning gain is claimed.
 Existing pinned services and prior failures remain untouched. Root owns future
 fixed-protocol qualification and admission; old collectors do not cover this pack.
 
+User-requested [local learning page](../docs/learning.md): a separate loopback
+server displays operator-reviewed recorded evidence and persists lesson answers
+with revision history. Private lesson content, media and learner state remain
+outside Git. It has no rollout, model, regrading or code-execution integration.
+Lesson 1 covers task, state, observation, action and grading; written reasoning
+awaits conversation rather than an automatic mastery score. This increment
+does not alter the pinned browser runtime or historical attempts.
+
 Latest browser delivery: source PR77 merged as `be805e9` after green CI at
 `3d6c4860`. Its generic v3 context and bounded typed transport preserve exact
 public evidence. Fresh V9 completed all five slots at the immutable source pin.
